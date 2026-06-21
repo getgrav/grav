@@ -79,3 +79,12 @@ GRAV:
     EVERY: 毎
     EVERY_MONTH: 毎月
     ERROR1: 共有タイプ %s はサポートされていません
+
+PLUGIN_ADMIN:
+    MEDIA: "メディア"
+    MEDIA_TYPES: "メディアタイプ"
+    IMAGE_OPTIONS: "画像オプション"
+    MIME_TYPE: "MIMEタイプ"
+    THUMB: "サムネイル"
+    TYPE: "種別"
+    FILE_EXTENSION: "ファイルの拡張子"

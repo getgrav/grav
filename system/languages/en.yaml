@@ -119,3 +119,12 @@ GRAV:
         ERROR2: Bad number of elements
         ERROR3: The jquery_element should be set into jqCron settings
         ERROR4: Unrecognized expression
+
+PLUGIN_ADMIN:
+    MEDIA: Media
+    MEDIA_TYPES: Media Types
+    FILE_EXTENSION: File Extension
+    TYPE: Type
+    THUMB: Thumb
+    MIME_TYPE: Mime Type
+    IMAGE_OPTIONS: Image options

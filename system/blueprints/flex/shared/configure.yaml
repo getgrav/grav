@@ -7,7 +7,7 @@ form:
       fields:
         cache:
           type: tab
-          title: Caching
+          title: PLUGIN_ADMIN.CACHING
           fields:
             object.cache.index.enabled:
               type: toggle

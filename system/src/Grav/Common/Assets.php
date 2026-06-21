@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -194,12 +194,12 @@ class Assets extends PropertyObject
                 }
 
                 $params = array_merge([$location], $params);
-                call_user_func_array([$this, 'add'], $params);
+                call_user_func_array($this->add(...), $params);
             }
         } elseif (isset($this->collections[$asset])) {
             array_shift($args);
             $args = array_merge([$this->collections[$asset]], $args);
-            call_user_func_array([$this, 'add'], $args);
+            call_user_func_array($this->add(...), $args);
         } else {
             // Get extension
             $path = parse_url($asset, PHP_URL_PATH);
@@ -209,11 +209,11 @@ class Assets extends PropertyObject
             if ($extension !== '') {
                 $extension = strtolower($extension);
                 if ($extension === 'css') {
-                    call_user_func_array([$this, 'addCss'], $args);
+                    call_user_func_array($this->addCss(...), $args);
                 } elseif ($extension === 'js') {
-                    call_user_func_array([$this, 'addJs'], $args);
+                    call_user_func_array($this->addJs(...), $args);
                 } elseif ($extension === 'mjs') {
-                    call_user_func_array([$this, 'addJsModule'], $args);
+                    call_user_func_array($this->addJsModule(...), $args);
                 }
             }
         }
@@ -261,7 +261,7 @@ class Assets extends PropertyObject
                     $default = 'before';
                 }
 
-                $options['position'] = $options['position'] ?? $default;
+                $options['position'] ??= $default;
             }
 
             unset($options['pipeline']);
@@ -432,9 +432,7 @@ class Assets extends PropertyObject
      */
     protected function sortAssets($assets)
     {
-        uasort($assets, static function ($a, $b) {
-            return $b['priority'] <=> $a['priority'] ?: $a['order'] <=> $b['order'];
-        });
+        uasort($assets, static fn($a, $b) => $b['priority'] <=> $a['priority'] ?: $a['order'] <=> $b['order']);
 
         return $assets;
     }
@@ -464,8 +462,34 @@ class Assets extends PropertyObject
         if ($this->{$pipeline_enabled} ?? false) {
             $options = array_merge($this->pipeline_options, ['timestamp' => $this->timestamp]);
 
-            $pipeline = new Pipeline($options);
-            $pipeline_output = $pipeline->$render_pipeline($pipeline_assets, $group, $attributes);
+            $grouped_pipeline_assets = $this->splitPipelineAssetsByAttribute($pipeline_assets, 'loading');
+
+            foreach ($grouped_pipeline_assets as $pipeline_group) {
+                if (empty($pipeline_group['assets'])) {
+                    continue;
+                }
+
+                $group_attributes = array_merge($attributes, $pipeline_group['attributes']);
+
+                $pipeline = new Pipeline($options);
+                $result = $pipeline->$render_pipeline($pipeline_group['assets'], $group, $group_attributes);
+
+                // Handle different return types from pipeline
+                if ($result === false) {
+                    // No assets to render
+                    continue;
+                } elseif (is_array($result)) {
+                    // Array result contains pipelined output and any failed assets
+                    $pipeline_output .= $result['output'];
+                    // Render failed assets individually (they couldn't be minified)
+                    foreach ($result['failed'] as $asset) {
+                        $pipeline_output .= $asset->render();
+                    }
+                } else {
+                    // String result (no minification or CSS)
+                    $pipeline_output .= $result;
+                }
+            }
         } else {
             foreach ($pipeline_assets as $asset) {
                 $pipeline_output .= $asset->render();
@@ -577,19 +601,79 @@ class Assets extends PropertyObject
      */
     protected function getBaseType($type)
     {
-        switch ($type) {
-            case $this::JS_TYPE:
-            case $this::INLINE_JS_TYPE:
-                $base_type = $this::JS;
-                break;
-            case $this::JS_MODULE_TYPE:
-            case $this::INLINE_JS_MODULE_TYPE:
-                $base_type = $this::JS_MODULE;
-                break;
-            default:
-                $base_type = $this::CSS;
-        }
+        $base_type = match ($type) {
+            $this::JS_TYPE, $this::INLINE_JS_TYPE => $this::JS,
+            $this::JS_MODULE_TYPE, $this::INLINE_JS_MODULE_TYPE => $this::JS_MODULE,
+            default => $this::CSS,
+        };
 
         return $base_type;
+    }
+
+    /**
+     * Split pipeline assets into ordered groups based on the value of a given attribute.
+     *
+     * This preserves the original order of the assets while ensuring assets that require
+     * special handling (such as different loading strategies) are rendered separately.
+     *
+     * @param array $assets
+     * @param string $attribute
+     * @return array<int, array{assets: array, attributes: array}>
+     */
+    protected function splitPipelineAssetsByAttribute(array $assets, string $attribute): array
+    {
+        $groups = [];
+        $currentAssets = [];
+        $currentValue = null;
+        $hasCurrentGroup = false;
+
+        foreach ($assets as $key => $asset) {
+            $value = null;
+
+            if (method_exists($asset, 'hasNestedProperty')) {
+                if ($asset->hasNestedProperty($attribute)) {
+                    $value = $asset->getNestedProperty($attribute);
+                } elseif ($asset->hasNestedProperty('attributes.' . $attribute)) {
+                    $value = $asset->getNestedProperty('attributes.' . $attribute);
+                }
+            }
+
+            if ($value === null && isset($asset[$attribute])) {
+                $value = $asset[$attribute];
+            }
+
+            if ($value === '' || $value === false) {
+                $value = null;
+            }
+
+            if (!$hasCurrentGroup) {
+                $currentAssets = [$key => $asset];
+                $currentValue = $value;
+                $hasCurrentGroup = true;
+                continue;
+            }
+
+            if ($value === $currentValue) {
+                $currentAssets[$key] = $asset;
+                continue;
+            }
+
+            $groups[] = [
+                'assets' => $currentAssets,
+                'attributes' => $currentValue !== null ? [$attribute => $currentValue] : []
+            ];
+
+            $currentAssets = [$key => $asset];
+            $currentValue = $value;
+        }
+
+        if ($hasCurrentGroup) {
+            $groups[] = [
+                'assets' => $currentAssets,
+                'attributes' => $currentValue !== null ? [$attribute => $currentValue] : []
+            ];
+        }
+
+        return $groups;
     }
 }

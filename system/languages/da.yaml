@@ -1,21 +1,6 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\nTitel: %1$s\n---\n\n# Fejl: Ugyldigt frontmatter\n\nSti: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
-  INFLECTOR_UNCOUNTABLE:
-    - 'udstyr'
-    - 'information'
-    - 'ris'
-    - 'penge'
-    - 'arter'
-    - 'Serier'
-    - 'fisk'
-    - 'får'
-  INFLECTOR_IRREGULAR:
-    'person': 'personer'
-    'man': 'mænd'
-    'child': 'børn'
-    'sex': 'køn'
-    'move': 'flyt'
   NICETIME:
     NO_DATE_PROVIDED: Ingen dato angivet
     BAD_DATE: Ugyldig dato
@@ -59,16 +44,16 @@ GRAV:
   MONTHS_OF_THE_YEAR:
     - 'januar'
     - 'februar'
-    - 'mars'
+    - 'marts'
     - 'april'
-    - 'mai'
+    - 'maj'
     - 'juni'
     - 'juli'
     - 'august'
     - 'september'
     - 'oktober'
     - 'november'
-    - 'desember'
+    - 'december'
   DAYS_OF_THE_WEEK:
     - 'mandag'
     - 'tirsdag'
@@ -88,3 +73,12 @@ GRAV:
     TEXT_MINS: ' ved <b /> minut(ter) over timen'
     ERROR1: Tagget %s understøttes ikke!
     ERROR2: Ugyldigt antal elementer
+
+PLUGIN_ADMIN:
+    MEDIA: "Medier"
+    MEDIA_TYPES: "Medietyper"
+    IMAGE_OPTIONS: "Billedmuligheder"
+    MIME_TYPE: "MIME-type"
+    THUMB: "Miniature"
+    TYPE: "Type"
+    FILE_EXTENSION: "Filendelse"

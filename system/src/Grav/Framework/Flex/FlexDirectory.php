@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -35,6 +35,7 @@ use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use Symfony\Component\Cache\Psr16Cache;
 use function call_user_func_array;
 use function count;
 use function is_array;
@@ -156,7 +157,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param mixed $default
      * @return mixed
      */
-    public function getConfig(string $name = null, $default = null)
+    public function getConfig(?string $name = null, $default = null)
     {
         if (null === $this->config) {
             $config = $this->getBlueprintInternal()->get('config', []);
@@ -198,7 +199,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param array|null $options
      * @return array
      */
-    public function getSearchOptions(array $options = null): array
+    public function getSearchOptions(?array $options = null): array
     {
         if (empty($options['merge'])) {
             return $options ?? (array)$this->getConfig('data.search.options');
@@ -215,7 +216,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexFormInterface
      * @internal
      */
-    public function getDirectoryForm(string $name = null, array $options = [])
+    public function getDirectoryForm(?string $name = null, array $options = [])
     {
         $name = $name ?: $this->getConfig('admin.views.configure.form', '') ?: $this->getConfig('admin.configure.form', '');
 
@@ -318,7 +319,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $name
      * @return string
      */
-    public function getDirectoryConfigUri(string $name = null): string
+    public function getDirectoryConfigUri(?string $name = null): string
     {
         $name = $name ?: $this->getFlexType();
         $blueprint = $this->getBlueprint();
@@ -330,7 +331,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $name
      * @return array
      */
-    protected function getDirectoryConfig(string $name = null): array
+    protected function getDirectoryConfig(?string $name = null): array
     {
         $grav = Grav::instance();
 
@@ -379,7 +380,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexCollectionInterface
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
-    public function getCollection(array $keys = null, string $keyField = null): FlexCollectionInterface
+    public function getCollection(?array $keys = null, ?string $keyField = null): FlexCollectionInterface
     {
         // Get all selected entries.
         $index = $this->getIndex($keys, $keyField);
@@ -406,9 +407,9 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexIndexInterface
      * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
-    public function getIndex(array $keys = null, string $keyField = null): FlexIndexInterface
+    public function getIndex(?array $keys = null, ?string $keyField = null): FlexIndexInterface
     {
-        $keyField = $keyField ?? '';
+        $keyField ??= '';
         $index = $this->indexes[$keyField] ?? $this->loadIndex($keyField);
         $index = clone $index;
 
@@ -429,13 +430,13 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexObjectInterface|null
      */
-    public function getObject($key = null, string $keyField = null): ?FlexObjectInterface
+    public function getObject($key = null, ?string $keyField = null): ?FlexObjectInterface
     {
         if (null === $key) {
             return $this->createObject([], '');
         }
 
-        $keyField = $keyField ?? '';
+        $keyField ??= '';
         $index = $this->indexes[$keyField] ?? $this->loadIndex($keyField);
 
         return $index->get($key);
@@ -445,7 +446,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null)
+    public function getCache(?string $namespace = null)
     {
         $namespace = $namespace ?: 'index';
         $cache = $this->cache[$namespace] ?? null;
@@ -459,6 +460,7 @@ class FlexDirectory implements FlexDirectoryInterface
                 $config = $this->getConfig('object.cache.' . $namespace);
                 if (empty($config['enabled'])) {
                     $cache = new MemoryCache('flex-objects-' . $this->getFlexType());
+                    $cache->setValidation(false);
                 } else {
                     $lifetime = $config['lifetime'] ?? 60;
 
@@ -466,7 +468,8 @@ class FlexDirectory implements FlexDirectoryInterface
                     if (Utils::isAdminPlugin()) {
                         $key = substr($key, 0, -1);
                     }
-                    $cache = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getFlexType() . $key, $lifetime);
+
+                    $cache = new Psr16Cache($gravCache->getCacheAdapter('flex-objects-' . $this->getFlexType() . $key, $lifetime));
                 }
             } catch (Exception $e) {
                 /** @var Debugger $debugger */
@@ -474,14 +477,36 @@ class FlexDirectory implements FlexDirectoryInterface
                 $debugger->addException($e);
 
                 $cache = new MemoryCache('flex-objects-' . $this->getFlexType());
+                $cache->setValidation(false);
             }
 
-            // Disable cache key validation.
-            $cache->setValidation(false);
             $this->cache[$namespace] = $cache;
         }
 
         return $cache;
+    }
+
+    /**
+     * Encode a storage key for use as a cache key.
+     * Symfony cache reserves characters: {}()/\@:
+     *
+     * @param string $key
+     * @return string
+     */
+    protected function encodeCacheKey(string $key): string
+    {
+        return str_replace(['/', '\\', '@', ':'], ['__SLASH__', '__BSLASH__', '__AT__', '__COLON__'], $key);
+    }
+
+    /**
+     * Decode a cache key back to the original storage key.
+     *
+     * @param string $key
+     * @return string
+     */
+    protected function decodeCacheKey(string $key): string
+    {
+        return str_replace(['__SLASH__', '__BSLASH__', '__AT__', '__COLON__'], ['/', '\\', '@', ':'], $key);
     }
 
     /**
@@ -513,7 +538,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $key
      * @return string|null
      */
-    public function getStorageFolder(string $key = null): ?string
+    public function getStorageFolder(?string $key = null): ?string
     {
         return $this->getStorage()->getStoragePath($key);
     }
@@ -522,7 +547,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $key
      * @return string|null
      */
-    public function getMediaFolder(string $key = null): ?string
+    public function getMediaFolder(?string $key = null): ?string
     {
         return $this->getStorage()->getMediaPath($key);
     }
@@ -562,7 +587,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexCollectionInterface
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
-    public function createCollection(array $entries, string $keyField = null): FlexCollectionInterface
+    public function createCollection(array $entries, ?string $keyField = null): FlexCollectionInterface
     {
         /** phpstan-var class-string $className */
         $className = $this->collectionClassName ?: $this->getCollectionClass();
@@ -579,7 +604,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexIndexInterface
      * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
-    public function createIndex(array $entries, string $keyField = null): FlexIndexInterface
+    public function createIndex(array $entries, ?string $keyField = null): FlexIndexInterface
     {
         /** @phpstan-var class-string $className */
         $className = $this->indexClassName ?: $this->getIndexClass();
@@ -633,7 +658,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexCollectionInterface
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
-    public function loadCollection(array $entries, string $keyField = null): FlexCollectionInterface
+    public function loadCollection(array $entries, ?string $keyField = null): FlexCollectionInterface
     {
         return $this->createCollection($this->loadObjects($entries), $keyField);
     }
@@ -725,7 +750,12 @@ class FlexDirectory implements FlexDirectoryInterface
                 //$debugger->addMessage(sprintf('Flex: Caching %d %s', \count($entries), $this->type), 'debug');
             }
             try {
-                $cache->setMultiple($updated);
+                // Encode storage keys for cache compatibility (Symfony cache reserves certain characters)
+                $encodedUpdated = [];
+                foreach ($updated as $key => $value) {
+                    $encodedUpdated[$this->encodeCacheKey($key)] = $value;
+                }
+                $cache->setMultiple($encodedUpdated);
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
                 // TODO: log about the issue.
@@ -757,7 +787,15 @@ class FlexDirectory implements FlexDirectoryInterface
 
             $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
 
-            $fetched = (array)$cache->getMultiple($fetch);
+            // Encode storage keys for cache compatibility (Symfony cache reserves certain characters)
+            $encodedFetch = array_map([$this, 'encodeCacheKey'], $fetch);
+            $encodedFetched = (array)$cache->getMultiple($encodedFetch);
+
+            // Decode the keys back to original storage keys
+            foreach ($encodedFetched as $encodedKey => $value) {
+                $fetched[$this->decodeCacheKey($encodedKey)] = $value;
+            }
+
             if ($fetched) {
                 $index = $this->loadIndex('storage_key');
 
@@ -913,14 +951,14 @@ class FlexDirectory implements FlexDirectoryInterface
         $object = $call['object'] ?? null;
         $method = array_shift($params);
         $not = false;
-        if (str_starts_with($method, '!')) {
-            $method = substr($method, 1);
+        if (str_starts_with((string) $method, '!')) {
+            $method = substr((string) $method, 1);
             $not = true;
-        } elseif (str_starts_with($method, 'not ')) {
-            $method = substr($method, 4);
+        } elseif (str_starts_with((string) $method, 'not ')) {
+            $method = substr((string) $method, 4);
             $not = true;
         }
-        $method = trim($method);
+        $method = trim((string) $method);
 
         if ($object && method_exists($object, $method)) {
             $value = $object->{$method}(...$params);
@@ -949,14 +987,14 @@ class FlexDirectory implements FlexDirectoryInterface
         $object = $call['object'] ?? null;
         $permission = array_shift($params);
         $not = false;
-        if (str_starts_with($permission, '!')) {
-            $permission = substr($permission, 1);
+        if (str_starts_with((string) $permission, '!')) {
+            $permission = substr((string) $permission, 1);
             $not = true;
-        } elseif (str_starts_with($permission, 'not ')) {
-            $permission = substr($permission, 4);
+        } elseif (str_starts_with((string) $permission, 'not ')) {
+            $permission = substr((string) $permission, 4);
             $not = true;
         }
-        $permission = trim($permission);
+        $permission = trim((string) $permission);
 
         if ($object) {
             $value = $object->isAuthorized($permission) ?? false;
@@ -1116,7 +1154,7 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     public function getType(): string
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
 
         return $this->type;
     }
@@ -1127,9 +1165,9 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexObjectInterface
      * @deprecated 1.7 Use $object->update()->save() instead.
      */
-    public function update(array $data, string $key = null): FlexObjectInterface
+    public function update(array $data, ?string $key = null): FlexObjectInterface
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->update()->save() instead.', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() should not be used anymore: use $object->update()->save() instead.', E_USER_DEPRECATED);
 
         $object = null !== $key ? $this->getIndex()->get($key): null;
 
@@ -1180,7 +1218,7 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     public function remove(string $key): ?FlexObjectInterface
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->delete() instead.', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() should not be used anymore: use $object->delete() instead.', E_USER_DEPRECATED);
 
         $object = $this->getIndex()->get($key);
         if (!$object) {

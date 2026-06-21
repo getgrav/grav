@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -43,7 +43,7 @@ class Collection extends Iterator implements PageCollectionInterface
      * @param array      $params
      * @param Pages|null $pages
      */
-    public function __construct($items = [], array $params = [], Pages $pages = null)
+    public function __construct($items = [], array $params = [], ?Pages $pages = null)
     {
         parent::__construct($items);
 
@@ -139,9 +139,7 @@ class Collection extends Iterator implements PageCollectionInterface
         $array1 = $this->items;
         $array2 = $collection->toArray();
 
-        $this->items = array_uintersect($array1, $array2, function ($val1, $val2) {
-            return strcmp($val1['slug'], $val2['slug']);
-        });
+        $this->items = array_uintersect($array1, $array2, fn($val1, $val2) => strcmp((string) $val1['slug'], (string) $val2['slug']));
 
         return $this;
     }
@@ -357,7 +355,7 @@ class Collection extends Iterator implements PageCollectionInterface
                 continue;
             }
 
-            $date = $field ? strtotime($page->value($field)) : $page->date();
+            $date = $field ? strtotime((string) $page->value($field)) : $page->date();
 
             if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
                 $date_range[$path] = $slug;

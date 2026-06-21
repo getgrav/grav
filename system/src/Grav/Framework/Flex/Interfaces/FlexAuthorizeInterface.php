@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -29,5 +29,5 @@ interface FlexAuthorizeInterface
      * @param UserInterface|null $user
      * @return bool|null
      */
-    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null): ?bool;
+    public function isAuthorized(string $action, ?string $scope = null, ?UserInterface $user = null): ?bool;
 }

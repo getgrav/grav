@@ -94,3 +94,12 @@ GRAV:
     ERROR2: Număr nevalid de elemente
     ERROR3: jquery_element ar trebui setat în opțiunile jqCron
     ERROR4: Expresie necunoscută
+
+PLUGIN_ADMIN:
+    MEDIA: "Media"
+    MEDIA_TYPES: "Tipuri de media"
+    IMAGE_OPTIONS: "Opţiuni Imagine"
+    MIME_TYPE: "Tipuri Mime"
+    THUMB: "Icoană"
+    TYPE: "Tip"
+    FILE_EXTENSION: "Extensie de fișier"

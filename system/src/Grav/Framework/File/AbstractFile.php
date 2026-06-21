@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -46,7 +46,7 @@ class AbstractFile implements FileInterface
      * @param string $filepath
      * @param Filesystem|null $filesystem
      */
-    public function __construct(string $filepath, Filesystem $filesystem = null)
+    public function __construct(string $filepath, ?Filesystem $filesystem = null)
     {
         $this->filesystem = $filesystem ?? Filesystem::getInstance();
         $this->setFilepath($filepath);
@@ -285,7 +285,7 @@ class AbstractFile implements FileInterface
             if ($this->handle) {
                 $tmp = true;
                 // As we are using non-truncating locking, make sure that the file is empty before writing.
-                if (@ftruncate($this->handle, 0) === false || @fwrite($this->handle, $data) === false) {
+                if (@ftruncate($this->handle, 0) === false || @fwrite($this->handle, (string) $data) === false) {
                     // Writing file failed, throw an error.
                     $tmp = false;
                 }
@@ -305,7 +305,7 @@ class AbstractFile implements FileInterface
                     $tmp = false;
                 }
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $tmp = false;
         }
 

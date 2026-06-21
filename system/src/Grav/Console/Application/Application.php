@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -43,7 +43,7 @@ class Application extends \Symfony\Component\Console\Application
 
         // Add listener to prepare environment.
         $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(ConsoleEvents::COMMAND, [$this, 'prepareEnvironment']);
+        $dispatcher->addListener(ConsoleEvents::COMMAND, $this->prepareEnvironment(...));
 
         $this->setDispatcher($dispatcher);
     }
@@ -122,7 +122,7 @@ class Application extends \Symfony\Component\Console\Application
      * @param OutputInterface $output
      * @return void
      */
-    protected function configureIO(InputInterface $input, OutputInterface $output)
+    protected function configureIO(InputInterface $input, OutputInterface $output): void
     {
         $formatter = $output->getFormatter();
         $formatter->setStyle('normal', new OutputFormatterStyle('white'));

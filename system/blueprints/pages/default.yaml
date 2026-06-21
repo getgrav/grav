@@ -210,17 +210,24 @@ form:
                   toggleable: true
                   help: PLUGIN_ADMIN.REDIRECT_HELP
 
+                header.external_url:
+                  type: text
+                  label: PLUGIN_ADMIN.EXTERNAL_URL
+                  toggleable: true
+                  help: PLUGIN_ADMIN.EXTERNAL_URL_HELP
+                  placeholder: https://getgrav.org
+
                 header.process:
                   type: checkboxes
                   label: PLUGIN_ADMIN.PROCESS
                   toggleable: true
-                  config-default@: system.pages.process
-                  default:
-                    markdown: true
-                    twig: false
-                  options:
-                    markdown: Markdown
-                    twig: Twig
+                  # Do NOT add an inline `default:` block here. Blueprint::dynamicData
+                  # merges the callback result via PHP `+=` (left wins), so a static
+                  # `default: { twig: false }` would silently override the gate-derived
+                  # twig default from pageProcessDefaults() and re-introduce the
+                  # admin-UI / runtime mismatch this helper exists to prevent.
+                  data-default@: '\Grav\Common\Security::pageProcessDefaults'
+                  data-options@: '\Grav\Common\Security::pageProcessOptions'
                   use: keys
 
                 header.twig_first:
@@ -365,9 +372,8 @@ form:
                   classes: fancy
                   default: 'collection'
                   options:
-                    'default': 'Ordered by Folder name (default)'
                     'collection': 'Ordered by Collection definition'
-
+                    'default': 'Ordered by Folder name'
 
                 header.order_by:
                   type: hidden

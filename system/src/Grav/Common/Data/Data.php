@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -103,7 +103,7 @@ class Data implements DataInterface, ArrayAccess, \Countable, JsonSerializable, 
      * @return $this
      * @throws RuntimeException
      */
-    public function join($name, $value, $separator = '.')
+    public function join($name, mixed $value, $separator = '.')
     {
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
@@ -145,7 +145,7 @@ class Data implements DataInterface, ArrayAccess, \Countable, JsonSerializable, 
      * @param string  $separator  Separator, defaults to '.'
      * @return $this
      */
-    public function joinDefaults($name, $value, $separator = '.')
+    public function joinDefaults($name, mixed $value, $separator = '.')
     {
         if (is_object($value)) {
             $value = (array) $value;
@@ -323,7 +323,7 @@ class Data implements DataInterface, ArrayAccess, \Countable, JsonSerializable, 
      * @param FileInterface|null $storage Optionally enter a new storage.
      * @return FileInterface|null
      */
-    public function file(FileInterface $storage = null)
+    public function file(?FileInterface $storage = null)
     {
         if ($storage) {
             $this->storage = $storage;

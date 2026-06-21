@@ -53,7 +53,7 @@ interface RelationshipInterface extends Countable, IteratorAggregate, JsonSerial
      * @return bool
      * @phpstan-pure
      */
-    public function has(string $id, string $type = null): bool;
+    public function has(string $id, ?string $type = null): bool;
 
     /**
      * @param T $identifier
@@ -72,7 +72,7 @@ interface RelationshipInterface extends Countable, IteratorAggregate, JsonSerial
      * @param T|null $identifier
      * @return bool
      */
-    public function removeIdentifier(IdentifierInterface $identifier = null): bool;
+    public function removeIdentifier(?IdentifierInterface $identifier = null): bool;
 
     /**
      * @return iterable<T>

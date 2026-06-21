@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -31,7 +31,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public static function instance()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getInstance() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getInstance() method instead', E_USER_DEPRECATED);
 
         return static::getInstance();
     }
@@ -71,7 +71,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function all()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getAll() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getAll() method instead', E_USER_DEPRECATED);
 
         return $this->getAll();
     }
@@ -84,7 +84,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function started()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->isStarted() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->isStarted() method instead', E_USER_DEPRECATED);
 
         return $this->isStarted();
     }
@@ -93,12 +93,15 @@ class Session extends \Grav\Framework\Session\Session
      * Store something in session temporarily.
      *
      * @param string $name
-     * @param mixed $object
      * @return $this
      */
-    public function setFlashObject($name, $object)
+    public function setFlashObject($name, mixed $object)
     {
-        $this->__set($name, serialize($object));
+        // GHSA-vj3m-2g9h-vm4p (#3): wrap the serialized payload with an HMAC so a
+        // tampered session file can't smuggle in arbitrary class instantiation.
+        $serialized = serialize($object);
+        $hmac = hash_hmac('sha256', $serialized, Security::getNonceKey());
+        $this->__set($name, "v2|{$hmac}|" . $serialized);
 
         return $this;
     }
@@ -111,9 +114,28 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function getFlashObject($name)
     {
-        $serialized = $this->__get($name);
+        $stored = $this->__get($name);
 
-        $object = is_string($serialized) ? unserialize($serialized, ['allowed_classes' => true]) : $serialized;
+        $object = null;
+        if (is_string($stored) && str_starts_with($stored, 'v2|')) {
+            // 3-field format: v2|<hmac>|<serialized>. The serialized payload may
+            // itself contain `|`, so split with limit=3.
+            $parts = explode('|', $stored, 3);
+            if (count($parts) === 3) {
+                [, $expectedHmac, $serialized] = $parts;
+                $actualHmac = hash_hmac('sha256', $serialized, Security::getNonceKey());
+                if (hash_equals($expectedHmac, $actualHmac)) {
+                    try {
+                        $object = unserialize($serialized, ['allowed_classes' => true]);
+                    } catch (\Throwable) {
+                        $object = null;
+                    }
+                }
+            }
+        } elseif (!is_string($stored)) {
+            $object = $stored;
+        }
+        // Legacy unsigned strings or HMAC mismatches fall through with $object = null.
 
         $this->__unset($name);
 
@@ -147,12 +169,11 @@ class Session extends \Grav\Framework\Session\Session
      * Store something in cookie temporarily.
      *
      * @param string $name
-     * @param mixed $object
      * @param int $time
      * @return $this
      * @throws JsonException
      */
-    public function setFlashCookieObject($name, $object, $time = 60)
+    public function setFlashCookieObject($name, mixed $object, $time = 60)
     {
         setcookie($name, json_encode($object, JSON_THROW_ON_ERROR), $this->getCookieOptions($time));
 
@@ -172,7 +193,7 @@ class Session extends \Grav\Framework\Session\Session
             $cookie = $_COOKIE[$name];
             setcookie($name, '', $this->getCookieOptions(-42000));
 
-            return json_decode($cookie, false, 512, JSON_THROW_ON_ERROR);
+            return json_decode((string) $cookie, false, 512, JSON_THROW_ON_ERROR);
         }
 
         return null;

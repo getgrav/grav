@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -69,9 +69,7 @@ trait PageRoutableTrait
         $value = $this->loadHeaderProperty(
             'routable',
             $var,
-            static function ($value) {
-                return $value ?? true;
-            }
+            static fn($value) => $value ?? true
         );
 
         return $value && $this->published() && !$this->isModule() && !$this->root() && $this->getLanguages(true);
@@ -300,9 +298,7 @@ trait PageRoutableTrait
         return $this->loadHeaderProperty(
             'redirect',
             $var,
-            static function ($value) {
-                return trim($value) ?: null;
-            }
+            static fn($value) => trim((string) $value) ?: null
         );
     }
 
@@ -409,7 +405,7 @@ trait PageRoutableTrait
      * @param  PageInterface|null $var the parent page object
      * @return PageInterface|null the parent page object if it exists.
      */
-    public function parent(PageInterface $var = null)
+    public function parent(?PageInterface $var = null)
     {
         if (null !== $var) {
             // TODO:

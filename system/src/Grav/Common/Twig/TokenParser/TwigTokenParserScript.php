@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -48,7 +48,7 @@ class TwigTokenParserScript extends AbstractTokenParser
 
         $content = null;
         if ($file === null) {
-            $content = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+            $content = $this->parser->subparse($this->decideBlockEnd(...), true);
             $stream->expect(Token::BLOCK_END_TYPE);
         }
 
@@ -87,23 +87,23 @@ class TwigTokenParserScript extends AbstractTokenParser
 
         $file = null;
         if (!$stream->test(Token::NAME_TYPE) && !$stream->test(Token::OPERATOR_TYPE, 'in') && !$stream->test(Token::BLOCK_END_TYPE)) {
-            $file = $this->parser->getExpressionParser()->parseExpression();
+            $file = $this->parser->parseExpression();
         }
 
         $group = null;
         if ($stream->nextIf(Token::NAME_TYPE, 'at') || $stream->nextIf(Token::OPERATOR_TYPE, 'in')) {
-            $group = $this->parser->getExpressionParser()->parseExpression();
+            $group = $this->parser->parseExpression();
         }
 
         $priority = null;
         if ($stream->nextIf(Token::NAME_TYPE, 'priority')) {
             $stream->expect(Token::PUNCTUATION_TYPE, ':');
-            $priority = $this->parser->getExpressionParser()->parseExpression();
+            $priority = $this->parser->parseExpression();
         }
 
         $attributes = null;
         if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
-            $attributes = $this->parser->getExpressionParser()->parseExpression();
+            $attributes = $this->parser->parseExpression();
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);

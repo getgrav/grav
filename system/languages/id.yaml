@@ -145,3 +145,12 @@ GRAV:
     ERROR2: Jumlah elemen yang buruk
     ERROR3: jquery_element harus diatur ke dalam pengaturan jqCron
     ERROR4: Ekspresi tidak dikenal
+
+PLUGIN_ADMIN:
+    MEDIA: "Media"
+    MEDIA_TYPES: "Jenis Media"
+    IMAGE_OPTIONS: "Pilihan gambar"
+    MIME_TYPE: "Jenis Mime"
+    THUMB: "Gambar kecil"
+    TYPE: "Jenis"
+    FILE_EXTENSION: "Berkas Tambahan"

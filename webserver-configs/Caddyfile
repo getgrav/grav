@@ -16,7 +16,16 @@ php_fastcgi 127.0.0.1:9000
 rewrite /(\.git|cache|bin|logs|backups|tests)/.* /403
 
 # deny all direct access to these sensitive user folders, whatever the file type
-rewrite /user/(accounts|config|data|env)/.* /403
+rewrite /user/(accounts|config|env)/.* /403
+
+# block user/data too, but allow public media uploads (e.g. Flex Object images)
+# to be served directly. SVG is intentionally excluded as a stored-XSS vector.
+# (Go's RE2 has no lookbehind, so this uses a negated matcher.)
+@user_data_nonmedia {
+	path_regexp /user/data/.*
+	not path_regexp (?i)\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf)$
+}
+rewrite @user_data_nonmedia /403
 
 # deny running scripts inside core system folders
 rewrite /(system|vendor)/.*\.(txt|xml|md|html|htm|shtml|shtm|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ /403
@@ -26,6 +35,10 @@ rewrite /user/.*\.(txt|md|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|
 
 # deny access to specific files in the root folder
 rewrite /(LICENSE\.txt|composer\.lock|composer\.json|nginx\.conf|web\.config|htaccess\.txt|\.htaccess) /403
+
+# deny access to .env environment files
+@dotenv path_regexp \.env(\..+)?$
+respond @dotenv 403
 
 respond /403 403
 ## End - Security

@@ -61,3 +61,7 @@ GRAV:
     - 'Thứ 6'
     - 'Thứ 7'
     - 'Chủ Nhật'
+
+PLUGIN_ADMIN:
+    MEDIA: "Đa phương tiện"
+    TYPE: "Loại"

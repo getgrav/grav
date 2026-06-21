@@ -90,6 +90,189 @@ form:
             validate:
                 type: commalist
 
+        twig_content_section:
+            type: section
+            title: PLUGIN_ADMIN.TWIG_CONTENT
+            text: PLUGIN_ADMIN.TWIG_CONTENT_HELP
+            underline: true
+
+        twig_content.process_enabled:
+            type: toggle
+            label: PLUGIN_ADMIN.TWIG_CONTENT_PROCESS_ENABLED
+            help: PLUGIN_ADMIN.TWIG_CONTENT_PROCESS_ENABLED_HELP
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: false
+            validate:
+                type: bool
+
+        twig_content.editor_enabled:
+            type: toggle
+            label: PLUGIN_ADMIN.TWIG_CONTENT_EDITOR_ENABLED
+            help: PLUGIN_ADMIN.TWIG_CONTENT_EDITOR_ENABLED_HELP
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: false
+            validate:
+                type: bool
+
+        twig_content.config_access:
+            type: toggle
+            label: PLUGIN_ADMIN.TWIG_CONTENT_CONFIG_ACCESS
+            help: PLUGIN_ADMIN.TWIG_CONTENT_CONFIG_ACCESS_HELP
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: false
+            validate:
+                type: bool
+
+        twig_sandbox_section:
+            type: section
+            title: PLUGIN_ADMIN.TWIG_SANDBOX
+            text: PLUGIN_ADMIN.TWIG_SANDBOX_HELP
+            underline: true
+
+        twig_sandbox.enabled:
+            type: toggle
+            label: PLUGIN_ADMIN.TWIG_SANDBOX_ENABLED
+            help: PLUGIN_ADMIN.TWIG_SANDBOX_ENABLED_HELP
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: true
+            validate:
+                type: bool
+
+        twig_sandbox.logging:
+            type: toggle
+            label: PLUGIN_ADMIN.TWIG_SANDBOX_LOGGING
+            help: PLUGIN_ADMIN.TWIG_SANDBOX_LOGGING_HELP
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: true
+            validate:
+                type: bool
+
+        twig_sandbox.admin_hint:
+            type: toggle
+            label: PLUGIN_ADMIN.TWIG_SANDBOX_ADMIN_HINT
+            help: PLUGIN_ADMIN.TWIG_SANDBOX_ADMIN_HINT_HELP
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: true
+            validate:
+                type: bool
+
+        twig_sandbox.allowed_tags:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN.TWIG_SANDBOX_ALLOWED_TAGS
+            help: PLUGIN_ADMIN.TWIG_SANDBOX_ALLOWED_TAGS_HELP
+            classes: fancy
+            validate:
+                type: commalist
+
+        twig_sandbox.allowed_filters:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN.TWIG_SANDBOX_ALLOWED_FILTERS
+            help: PLUGIN_ADMIN.TWIG_SANDBOX_ALLOWED_FILTERS_HELP
+            classes: fancy
+            validate:
+                type: commalist
+
+        twig_sandbox.allowed_functions:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN.TWIG_SANDBOX_ALLOWED_FUNCTIONS
+            help: PLUGIN_ADMIN.TWIG_SANDBOX_ALLOWED_FUNCTIONS_HELP
+            classes: fancy
+            validate:
+                type: commalist
+
+        twig_sandbox.allowed_methods:
+            type: list
+            label: PLUGIN_ADMIN.TWIG_SANDBOX_ALLOWED_METHODS
+            help: PLUGIN_ADMIN.TWIG_SANDBOX_ALLOWED_METHODS_HELP
+            style: vertical
+            collapsed: true
+            fields:
+                .class:
+                    type: text
+                    label: PLUGIN_ADMIN.TWIG_SANDBOX_CLASS
+                    size: large
+                    validate:
+                        required: true
+                .methods:
+                    type: text
+                    label: PLUGIN_ADMIN.TWIG_SANDBOX_METHODS
+                    size: large
+                    placeholder: 'get, toarray, value'
+
+        twig_sandbox.allowed_properties:
+            type: list
+            label: PLUGIN_ADMIN.TWIG_SANDBOX_ALLOWED_PROPERTIES
+            help: PLUGIN_ADMIN.TWIG_SANDBOX_ALLOWED_PROPERTIES_HELP
+            style: vertical
+            collapsed: true
+            fields:
+                .class:
+                    type: text
+                    label: PLUGIN_ADMIN.TWIG_SANDBOX_CLASS
+                    size: large
+                    validate:
+                        required: true
+                .methods:
+                    type: text
+                    label: PLUGIN_ADMIN.TWIG_SANDBOX_PROPERTIES
+                    size: large
+                    placeholder: 'header, media'
+
+        read_file_section:
+            type: section
+            title: PLUGIN_ADMIN.READ_FILE_SECTION_TITLE
+            text: PLUGIN_ADMIN.READ_FILE_SECTION_HELP
+            underline: true
+
+        read_file.allowed_streams:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN.READ_FILE_ALLOWED_STREAMS
+            help: PLUGIN_ADMIN.READ_FILE_ALLOWED_STREAMS_HELP
+            classes: fancy
+            validate:
+                type: commalist
+
+        read_file.allowed_extensions:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN.READ_FILE_ALLOWED_EXTENSIONS
+            help: PLUGIN_ADMIN.READ_FILE_ALLOWED_EXTENSIONS_HELP
+            classes: fancy
+            validate:
+                type: commalist
+
+        read_file.max_size:
+            type: text
+            size: small
+            label: PLUGIN_ADMIN.READ_FILE_MAX_SIZE
+            help: PLUGIN_ADMIN.READ_FILE_MAX_SIZE_HELP
+            default: 1048576
+            validate:
+                type: int
+                min: 0
+
         uploads_section:
             type: section
             title: PLUGIN_ADMIN.UPLOADS_SECURITY

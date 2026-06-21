@@ -10,14 +10,6 @@ use DirectoryIterator;
  */
 final class VersionUpdater
 {
-    /** @var string */
-    private $name;
-    /** @var string */
-    private $path;
-    /** @var string */
-    private $version;
-    /** @var Versions */
-    private $versions;
     /** @var VersionUpdate[] */
     private $updates;
 
@@ -28,13 +20,8 @@ final class VersionUpdater
      * @param string $version
      * @param Versions $versions
      */
-    public function __construct(string $name, string $path, string $version, Versions $versions)
+    public function __construct(private readonly string $name, private readonly string $path, private readonly string $version, private readonly Versions $versions)
     {
-        $this->name = $name;
-        $this->path = $path;
-        $this->version = $version;
-        $this->versions = $versions;
-
         $this->loadUpdates();
     }
 
@@ -85,7 +72,7 @@ final class VersionUpdater
      * @param string|null $name
      * @return string|null
      */
-    public function getExtensionVersion(string $name = null): ?string
+    public function getExtensionVersion(?string $name = null): ?string
     {
         return $this->versions->getVersion($name ?? $this->name);
     }
@@ -94,7 +81,7 @@ final class VersionUpdater
      * @param string|null $name
      * @return string|null
      */
-    public function getExtensionSchema(string $name = null): ?string
+    public function getExtensionSchema(?string $name = null): ?string
     {
         return $this->versions->getSchema($name ?? $this->name);
     }
@@ -103,7 +90,7 @@ final class VersionUpdater
      * @param string|null $name
      * @return array
      */
-    public function getExtensionHistory(string $name = null): array
+    public function getExtensionHistory(?string $name = null): array
     {
         return $this->versions->getHistory($name ?? $this->name);
     }

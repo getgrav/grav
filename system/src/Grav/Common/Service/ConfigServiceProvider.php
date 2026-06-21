@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,6 +20,7 @@ use Grav\Common\Language\Language;
 use Grav\Framework\Mime\MimeTypes;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use RocketTheme\Toolbox\File\PhpFile;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -42,9 +43,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
             return $setup;
         };
 
-        $container['blueprints'] = function ($c) {
-            return static::blueprints($c);
-        };
+        $container['blueprints'] = fn($c) => static::blueprints($c);
 
         $container['config'] = function ($c) {
             $config = static::load($c);
@@ -70,13 +69,9 @@ class ConfigServiceProvider implements ServiceProviderInterface
             return MimeTypes::createFromMimes($mimes);
         };
 
-        $container['languages'] = function ($c) {
-            return static::languages($c);
-        };
+        $container['languages'] = fn($c) => static::languages($c);
 
-        $container['language'] = function ($c) {
-            return new Language($c);
-        };
+        $container['language'] = fn($c) => new Language($c);
     }
 
     /**
@@ -91,15 +86,30 @@ class ConfigServiceProvider implements ServiceProviderInterface
         /** @var UniformResourceLocator $locator */
         $locator = $container['locator'];
 
-        $cache =  $locator->findResource('cache://compiled/blueprints', true, true);
+        $cache = $locator->findResource('cache://compiled/blueprints', true, true);
 
-        $files = [];
-        $paths = $locator->findResources('blueprints://config');
-        $files += (new ConfigFileFinder)->locateFiles($paths);
-        $paths = $locator->findResources('plugins://');
-        $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths, 'blueprints');
-        $paths = $locator->findResources('themes://');
-        $files += (new ConfigFileFinder)->setBase('themes')->locateInFolders($paths, 'blueprints');
+        // Try to load cached file list to avoid filesystem scanning on every request
+        $files = static::loadCachedFileList($locator, $cache, 'blueprints', $setup->environment);
+
+        if ($files === null) {
+            // Cache miss - scan filesystem for blueprint files
+            $files = [];
+            $paths = $locator->findResources('blueprints://config');
+            $files += (new ConfigFileFinder)->locateFiles($paths);
+            $paths = $locator->findResources('plugins://');
+            $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths, 'blueprints');
+            $paths = $locator->findResources('themes://');
+            $files += (new ConfigFileFinder)->setBase('themes')->locateInFolders($paths, 'blueprints');
+
+            // Save file list cache for next request
+            static::saveCachedFileList($locator, $cache, 'blueprints', $setup->environment, $files);
+
+            // Also invalidate the compiled blueprints cache to force rebuild
+            $masterBlueprints = "{$cache}/master-{$setup->environment}.php";
+            if (file_exists($masterBlueprints)) {
+                @unlink($masterBlueprints);
+            }
+        }
 
         $blueprints = new CompiledBlueprints($cache, $files, GRAV_ROOT);
 
@@ -118,20 +128,33 @@ class ConfigServiceProvider implements ServiceProviderInterface
         /** @var UniformResourceLocator $locator */
         $locator = $container['locator'];
 
-        $cache =  $locator->findResource('cache://compiled/config', true, true);
+        $cache = $locator->findResource('cache://compiled/config', true, true);
 
-        $files = [];
-        $paths = $locator->findResources('config://');
-        $files += (new ConfigFileFinder)->locateFiles($paths);
-        $paths = $locator->findResources('plugins://');
-        $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths);
-        $paths = $locator->findResources('themes://');
-        $files += (new ConfigFileFinder)->setBase('themes')->locateInFolders($paths);
+        // Try to load cached file list to avoid filesystem scanning on every request
+        $files = static::loadCachedFileList($locator, $cache, 'config', $setup->environment);
+
+        if ($files === null) {
+            // Cache miss - scan filesystem for config files
+            $files = [];
+            $paths = $locator->findResources('config://');
+            $files += (new ConfigFileFinder)->locateFiles($paths);
+            $paths = $locator->findResources('plugins://');
+            $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths);
+            $paths = $locator->findResources('themes://');
+            $files += (new ConfigFileFinder)->setBase('themes')->locateInFolders($paths);
+
+            // Save file list cache for next request
+            static::saveCachedFileList($locator, $cache, 'config', $setup->environment, $files);
+
+            // Also invalidate the compiled config cache to force rebuild
+            $masterConfig = "{$cache}/master-{$setup->environment}.php";
+            if (file_exists($masterConfig)) {
+                @unlink($masterConfig);
+            }
+        }
 
         $compiled = new CompiledConfig($cache, $files, GRAV_ROOT);
-        $compiled->setBlueprints(function () use ($container) {
-            return $container['blueprints'];
-        });
+        $compiled->setBlueprints(fn() => $container['blueprints']);
 
         $config = $compiled->name("master-{$setup->environment}")->load();
         $config->environment = $setup->environment;
@@ -159,12 +182,28 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
         // Process languages only if enabled in configuration.
         if ($config->get('system.languages.translations', true)) {
-            $paths = $locator->findResources('languages://');
-            $files += (new ConfigFileFinder)->locateFiles($paths);
-            $paths = $locator->findResources('plugins://');
-            $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths, 'languages');
-            $paths = static::pluginFolderPaths($paths, 'languages');
-            $files += (new ConfigFileFinder)->locateFiles($paths);
+            // Try to load cached file list to avoid filesystem scanning on every request
+            $files = static::loadCachedFileList($locator, $cache, 'languages', $setup->environment);
+
+            if ($files === null) {
+                // Cache miss - scan filesystem for language files
+                $files = [];
+                $paths = $locator->findResources('languages://');
+                $files += (new ConfigFileFinder)->locateFiles($paths);
+                $paths = $locator->findResources('plugins://');
+                $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths, 'languages');
+                $paths = static::pluginFolderPaths($paths, 'languages');
+                $files += (new ConfigFileFinder)->locateFiles($paths);
+
+                // Save file list cache for next request
+                static::saveCachedFileList($locator, $cache, 'languages', $setup->environment, $files);
+
+                // Also invalidate the compiled languages cache to force rebuild
+                $masterLanguages = "{$cache}/master-{$setup->environment}.php";
+                if (file_exists($masterLanguages)) {
+                    @unlink($masterLanguages);
+                }
+            }
         }
 
         $languages = new CompiledLanguages($cache, $files, GRAV_ROOT);
@@ -202,5 +241,162 @@ class ConfigServiceProvider implements ServiceProviderInterface
             }
         }
         return $paths;
+    }
+
+    /**
+     * Load cached file list if still valid (based on directory and file mtimes).
+     *
+     * @param UniformResourceLocator $locator
+     * @param string $cacheDir
+     * @param string $type
+     * @param string $environment
+     * @return array|null Returns cached files array or null if cache is invalid
+     */
+    protected static function loadCachedFileList(UniformResourceLocator $locator, string $cacheDir, string $type, string $environment): ?array
+    {
+        $cacheFile = "{$cacheDir}/filelist-{$type}-{$environment}.php";
+
+        if (!file_exists($cacheFile)) {
+            return null;
+        }
+
+        $cache = include $cacheFile;
+
+        if (!is_array($cache) || !isset($cache['directories'], $cache['files'])) {
+            return null;
+        }
+
+        // Validate cache by checking directory mtimes
+        foreach ($cache['directories'] as $dir => $mtime) {
+            // Check if directory still exists and mtime hasn't changed
+            $currentMtime = @filemtime($dir);
+            if ($currentMtime === false || $currentMtime !== $mtime) {
+                return null;
+            }
+        }
+
+        // Validate cache by checking individual file mtimes
+        if (isset($cache['file_mtimes'])) {
+            foreach ($cache['file_mtimes'] as $file => $mtime) {
+                $currentMtime = @filemtime($file);
+                if ($currentMtime === false || $currentMtime !== $mtime) {
+                    return null;
+                }
+            }
+        }
+
+        return $cache['files'];
+    }
+
+    /**
+     * Save file list to cache with directory and file mtimes for validation.
+     *
+     * @param UniformResourceLocator $locator
+     * @param string $cacheDir
+     * @param string $type
+     * @param string $environment
+     * @param array $files
+     * @return void
+     */
+    protected static function saveCachedFileList(UniformResourceLocator $locator, string $cacheDir, string $type, string $environment, array $files): void
+    {
+        // Collect all directories that were scanned based on type
+        $directories = [];
+
+        // Collect mtimes for all individual config files
+        $fileMtimes = [];
+        foreach ($files as $group) {
+            foreach ($group as $item) {
+                if (isset($item['file'])) {
+                    $filePath = GRAV_ROOT . '/' . $item['file'];
+                    if (file_exists($filePath)) {
+                        $fileMtimes[$filePath] = filemtime($filePath);
+                    }
+                }
+            }
+        }
+
+        // Type-specific base directories
+        if ($type === 'config') {
+            $basePaths = $locator->findResources('config://');
+            foreach ($basePaths as $path) {
+                if (is_dir($path)) {
+                    $directories[$path] = filemtime($path);
+                    // Also track config subdirectories for granular invalidation (e.g., plugins/, themes/)
+                    $iterator = new DirectoryIterator($path);
+                    foreach ($iterator as $dir) {
+                        if ($dir->isDir() && !$dir->isDot()) {
+                            $directories[$dir->getPathname()] = $dir->getMTime();
+                        }
+                    }
+                }
+            }
+        } elseif ($type === 'blueprints') {
+            $basePaths = $locator->findResources('blueprints://config');
+            foreach ($basePaths as $path) {
+                if (is_dir($path)) {
+                    $directories[$path] = filemtime($path);
+                }
+            }
+        } elseif ($type === 'languages') {
+            $basePaths = $locator->findResources('languages://');
+            foreach ($basePaths as $path) {
+                if (is_dir($path)) {
+                    $directories[$path] = filemtime($path);
+                }
+            }
+        }
+
+        // Get plugin directories (used by all types)
+        $pluginPaths = $locator->findResources('plugins://');
+        foreach ($pluginPaths as $path) {
+            if (is_dir($path)) {
+                $directories[$path] = filemtime($path);
+                // Also track individual plugin directories for granular invalidation
+                $iterator = new DirectoryIterator($path);
+                foreach ($iterator as $dir) {
+                    if ($dir->isDir() && !$dir->isDot()) {
+                        $directories[$dir->getPathname()] = $dir->getMTime();
+                    }
+                }
+            }
+        }
+
+        // Get theme directories (used by config and blueprints)
+        if ($type !== 'languages') {
+            $themePaths = $locator->findResources('themes://');
+            foreach ($themePaths as $path) {
+                if (is_dir($path)) {
+                    $directories[$path] = filemtime($path);
+                    // Also track individual theme directories
+                    $iterator = new DirectoryIterator($path);
+                    foreach ($iterator as $dir) {
+                        if ($dir->isDir() && !$dir->isDot()) {
+                            $directories[$dir->getPathname()] = $dir->getMTime();
+                        }
+                    }
+                }
+            }
+        }
+
+        $cache = [
+            '@class' => static::class,
+            'type' => $type,
+            'environment' => $environment,
+            'timestamp' => time(),
+            'directories' => $directories,
+            'file_mtimes' => $fileMtimes,
+            'files' => $files,
+        ];
+
+        // Ensure cache directory exists
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0775, true);
+        }
+
+        $cacheFile = "{$cacheDir}/filelist-{$type}-{$environment}.php";
+        $file = PhpFile::instance($cacheFile);
+        $file->save($cache);
+        $file->free();
     }
 }

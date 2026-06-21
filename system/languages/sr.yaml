@@ -145,3 +145,12 @@ GRAV:
     ERROR2: Погрешан број елемената
     ERROR3: јquery_element би требао да буде постављен у jqCron подешавању
     ERROR4: Непрепознат израз
+
+PLUGIN_ADMIN:
+    MEDIA: "Медији"
+    MEDIA_TYPES: "Типови медија"
+    IMAGE_OPTIONS: "Подешавање слика"
+    MIME_TYPE: "Mime типови"
+    THUMB: "Сличице"
+    TYPE: "Тип"
+    FILE_EXTENSION: "Екстензије фајлова"

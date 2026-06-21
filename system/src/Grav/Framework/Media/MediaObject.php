@@ -3,6 +3,7 @@
 namespace Grav\Framework\Media;
 
 use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Framework\Contracts\Media\MediaObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Media\Interfaces\MediaObjectInterface as GravMediaObjectInterface;
@@ -23,11 +24,6 @@ class MediaObject implements MediaObjectInterface
     /** @var GravMediaObjectInterface|null */
     public $media;
 
-    /** @var string|null */
-    private $field;
-    /** @var string */
-    private $filename;
-
     /**
      * MediaObject constructor.
      * @param string|null $field
@@ -35,10 +31,8 @@ class MediaObject implements MediaObjectInterface
      * @param GravMediaObjectInterface|null $media
      * @param FlexObjectInterface $object
      */
-    public function __construct(?string $field, string $filename, ?GravMediaObjectInterface $media, FlexObjectInterface $object)
+    public function __construct(private readonly ?string $field, private readonly string $filename, ?GravMediaObjectInterface $media, FlexObjectInterface $object)
     {
-        $this->field = $field;
-        $this->filename = $filename;
         $this->media = $media;
         $this->object = $object;
     }
@@ -155,17 +149,25 @@ class MediaObject implements MediaObjectInterface
     {
         // loop through actions for the image and call them
         foreach ($actions as $method => $params) {
+            // Block real, undocumented medium methods from being invoked by a
+            // request URL; only documented actions may be called. Names that
+            // aren't real methods fall through to the medium's __call() URL
+            // passthrough, which runs no code. GHSA-ffmg-hfvg-jhg9.
+            if (method_exists($medium, (string) $method) && !Medium::isAllowedAction((string) $method)) {
+                continue;
+            }
+
             $matches = [];
 
-            if (preg_match('/\[(.*)]/', $params, $matches)) {
+            if (preg_match('/\[(.*)]/', (string) $params, $matches)) {
                 $args = [explode(',', $matches[1])];
             } else {
-                $args = explode(',', $params);
+                $args = explode(',', (string) $params);
             }
 
             try {
                 $medium->{$method}(...$args);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 // Ignore all errors for now and just skip the action.
             }
         }

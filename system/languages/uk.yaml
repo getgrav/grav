@@ -61,3 +61,8 @@ GRAV:
     - 'П''ятниця'
     - 'Субота'
     - 'Неділя'
+
+PLUGIN_ADMIN:
+    MEDIA: "Медіа"
+    IMAGE_OPTIONS: "Параметри зображення"
+    FILE_EXTENSION: "Розширення файлу"

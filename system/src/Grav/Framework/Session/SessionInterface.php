@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Session
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -142,11 +142,10 @@ interface SessionInterface extends IteratorAggregate
      * Sets session variable.
      *
      * @param string $name
-     * @param mixed  $value
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function __set($name, $value);
+    public function __set($name, mixed $value);
 
     /**
      * Removes session variable.

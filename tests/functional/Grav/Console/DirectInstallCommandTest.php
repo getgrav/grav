@@ -7,7 +7,7 @@ use Grav\Console\Gpm\DirectInstallCommand;
 /**
  * Class DirectInstallCommandTest
  */
-class DirectInstallCommandTest extends \Codeception\TestCase\Test
+class DirectInstallCommandTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -16,9 +16,10 @@ class DirectInstallCommandTest extends \Codeception\TestCase\Test
     protected $directInstall;
 
 
-    protected function _before(): void
+    protected function setUp(): void
     {
-        $this->grav = Fixtures::get('grav');
+        parent::setUp();
+$this->grav = Fixtures::get('grav');
         $this->directInstallCommand = new DirectInstallCommand();
     }
 }

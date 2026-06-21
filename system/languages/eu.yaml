@@ -60,3 +60,6 @@ GRAV:
     - 'Ostirala'
     - 'Larunbata'
     - 'Igandea'
+
+PLUGIN_ADMIN:
+    MEDIA: "Media"

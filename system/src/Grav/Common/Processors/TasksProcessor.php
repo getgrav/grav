@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Processors
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -53,7 +53,7 @@ class TasksProcessor extends ProcessorBase
                     $this->stopTimer();
 
                     return $response;
-                } catch (NotFoundException $e) {
+                } catch (NotFoundException) {
                     // Task not found: Let it pass through.
                 }
             }

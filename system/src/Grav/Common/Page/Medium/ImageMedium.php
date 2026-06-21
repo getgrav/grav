@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -46,7 +46,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param array $items
      * @param Blueprint|null $blueprint
      */
-    public function __construct($items = [], Blueprint $blueprint = null)
+    public function __construct($items = [], ?Blueprint $blueprint = null)
     {
         parent::__construct($items, $blueprint);
 
@@ -194,6 +194,22 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         if ($locator->isStream($output)) {
             $output = (string)($locator->findResource($output, false) ?: $locator->findResource($output, false, true));
+        }
+
+        // Serving the unmodified original (no image operations queued — the same
+        // condition under which saveImage() returns the source file). Honor a
+        // `url` override here, and only here, so the original can be routed
+        // through a proxy while resized / cropped derivatives keep serving
+        // straight from `images/`. Mirrors MediaFileTrait::url().
+        if (empty($this->image)) {
+            $url = $this->get('url');
+            if ($url) {
+                if ($reset) {
+                    $this->reset();
+                }
+
+                return $url;
+            }
         }
 
         if (Utils::startsWith($output, $image_path)) {
@@ -370,7 +386,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $watermark->resize($wwidth, $wheight);
 
         // Position operations
-        $position = !empty($args[1]) ? explode('-',  $args[1]) : ['center', 'center']; // todo change to config
+        $position = !empty($args[1]) ? explode('-',  (string) $args[1]) : ['center', 'center']; // todo change to config
         $positionY = $position[0] ?? $config->get('system.images.watermark.position_y', 'center');
         $positionX = $position[1] ?? $config->get('system.images.watermark.position_x', 'center');
 
@@ -491,7 +507,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 // Do the same call for alternative media.
                 $medium->__call($method, $args_copy);
             }
-        } catch (BadFunctionCallException $e) {
+        } catch (BadFunctionCallException) {
         }
 
         return $this;

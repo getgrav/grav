@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -35,7 +35,7 @@ class TwigTokenParserMarkdown extends AbstractTokenParser
     {
         $lineno = $token->getLine();
         $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse([$this, 'decideMarkdownEnd'], true);
+        $body = $this->parser->subparse($this->decideMarkdownEnd(...), true);
         $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
         return new TwigNodeMarkdown($body, $lineno, $this->getTag());
     }

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -182,7 +182,7 @@ trait MediaObjectTrait
         // join the strings
         $querystring = implode('&', $this->medium_querystring);
         // explode all strings
-        $query_parts = explode('&', $querystring);
+        $query_parts = explode('&', (string) $querystring);
         // Join them again now ensure the elements are unique
         $querystring = implode('&', array_unique($query_parts));
 
@@ -243,7 +243,14 @@ trait MediaObjectTrait
             if (is_numeric($key)) { // Special case for inline style attributes, refer to style() method
                 $style .= $value;
             } else {
-                $style .= $key . ': ' . $value . ';';
+                // Keyed declarations come from media actions such as resize().
+                // Validate the serialized declaration so a value can't carry
+                // extra CSS past the intended property, the same fail-closed
+                // check style() applies. GHSA-ffmg-hfvg-jhg9.
+                $declaration = $key . ': ' . $value;
+                if (self::isSafeStyleValue($declaration)) {
+                    $style .= $declaration . ';';
+                }
             }
         }
         if ($style) {
@@ -325,16 +332,49 @@ trait MediaObjectTrait
     /**
      * Add custom attribute to medium.
      *
+     * Reachable from Markdown via `?attribute=name,value` on image excerpts, so
+     * the attribute NAME is editor-controlled. We restrict it to plain HTML
+     * attribute identifiers (alphanumerics + `-`/`:`/`_`) and reject any name
+     * that would inject script when rendered onto an `<img>` tag — event
+     * handlers (`on*`), inline style, the XML namespace, srcdoc, and the
+     * various `form*` attributes whose URL targets are themselves trusted as
+     * actions. GHSA-r7fx-8g49-7hhr.
+     *
      * @param string $attribute
      * @param string $value
      * @return $this
      */
     public function attribute($attribute = null, $value = '')
     {
-        if (!empty($attribute)) {
-            $this->attributes[$attribute] = $value;
+        if (empty($attribute) || !is_string($attribute)) {
+            return $this;
         }
+        if (!self::isSafeAttributeName($attribute)) {
+            return $this;
+        }
+        $this->attributes[$attribute] = $value;
         return $this;
+    }
+
+    /** @internal */
+    private static function isSafeAttributeName(string $name): bool
+    {
+        // Strict shape: HTML attribute names are letter-led, then alnum/-/_/:/./$
+        // Anything else (whitespace, quotes, `<>`, etc.) is rejected outright.
+        if (!preg_match('/^[A-Za-z][A-Za-z0-9_:.\-]*$/', $name)) {
+            return false;
+        }
+        $lower = strtolower($name);
+        // Event handlers — primary GHSA-r7fx-8g49-7hhr vector.
+        if (str_starts_with($lower, 'on')) {
+            return false;
+        }
+        // Attribute names that open a scripting context regardless of value.
+        // We deliberately do NOT deny `src` / `href` here — themes legitimately
+        // call `$image->attribute('src', $signed_url)` from PHP, and the
+        // primary script-injection surface is the event-handler family above.
+        $denylist = ['style', 'xmlns', 'srcdoc', 'formaction'];
+        return !in_array($lower, $denylist, true);
     }
 
     /**
@@ -480,14 +520,82 @@ trait MediaObjectTrait
      * Allows to add an inline style attribute from Markdown or Twig
      * Example: ![Example](myimg.png?style=float:left)
      *
+     * Reachable from Markdown via `?style=…` on image excerpts, so the CSS is
+     * editor-controlled and is written verbatim into the rendered
+     * `<img style="…">`. We validate each declaration and silently drop the
+     * whole value if any of it would open a phishing-overlay, clickjacking, or
+     * CSS-exfiltration primitive. This is the sibling sink to the `attribute()`
+     * `style` denylist entry. GHSA-pmf8-g7c8-7v54 (follow-up to
+     * GHSA-r7fx-8g49-7hhr).
+     *
      * @param string $style
      * @return $this
      */
     public function style($style)
     {
+        if (!is_string($style) || !self::isSafeStyleValue($style)) {
+            return $this;
+        }
         $this->styleAttributes[] = rtrim($style, ';') . ';';
 
         return $this;
+    }
+
+    /**
+     * Validate an editor-supplied inline-style value.
+     *
+     * Inline `<img style="…">` CSS can't break out into a new HTML attribute
+     * (Parsedown runs the value through htmlspecialchars), but unconstrained
+     * CSS is still a stored-content weapon against a higher-privilege viewer:
+     * a full-viewport `position:fixed` overlay (phishing / clickjacking / UI
+     * DoS), or `background:url(…)`-style data exfiltration. We parse the value
+     * into `property: value` declarations and require each one to be benign:
+     *
+     *  - the property is a plain CSS identifier and not a positioning/stacking
+     *    primitive (`position`, `z-index`, `behavior`, `-moz-binding`), and
+     *  - the value contains no `(` (kills `url(…)` / `expression(…)`), no at-rule
+     *    (`@import`), and no markup or quoting characters.
+     *
+     * Anything outside that shape causes the entire value to be rejected, the
+     * same fail-closed behavior as {@see isSafeAttributeName()}.
+     *
+     * @internal
+     */
+    private static function isSafeStyleValue(string $style): bool
+    {
+        foreach (explode(';', $style) as $declaration) {
+            $declaration = trim($declaration);
+            if ($declaration === '') {
+                continue;
+            }
+
+            $parts = explode(':', $declaration, 2);
+            if (count($parts) !== 2) {
+                return false;
+            }
+
+            $property = strtolower(trim($parts[0]));
+            $value = trim($parts[1]);
+
+            // Property must be a plain (optionally vendor-prefixed) CSS
+            // identifier — rejects whitespace, quotes, `<>`, etc.
+            if (!preg_match('/^-?[a-z][a-z-]*$/', $property)) {
+                return false;
+            }
+
+            // Positioning / stacking primitives are the phishing-overlay vector.
+            if (in_array($property, ['position', 'z-index', 'behavior', '-moz-binding'], true)) {
+                return false;
+            }
+
+            // Values may not call functions (`url(…)`, `expression(…)`), open an
+            // at-rule, or carry markup / quoting characters.
+            if (preg_match('/[()<>@{}"\'\\\\]/', $value)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -598,7 +706,7 @@ trait MediaObjectTrait
      * @param string|null $separator Separator, defaults to '.'
      * @return mixed Value.
      */
-    abstract public function get($name, $default = null, $separator = null);
+    abstract public function get($name, mixed $default = null, $separator = null);
 
         /**
      * Set value by using dot notation for nested arrays/objects.
@@ -610,7 +718,7 @@ trait MediaObjectTrait
      * @param string|null $separator Separator, defaults to '.'
      * @return $this
      */
-    abstract public function set($name, $value, $separator = null);
+    abstract public function set($name, mixed $value, $separator = null);
 
     /**
      * @param string $thumb

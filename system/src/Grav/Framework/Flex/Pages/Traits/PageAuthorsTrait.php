@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -116,9 +116,9 @@ trait PageAuthorsTrait
      * @param bool $isAuthor
      * @return bool|null
      */
-    public function isParentAuthorized(string $action, string $scope = null, UserInterface $user = null, bool $isAuthor = false): ?bool
+    public function isParentAuthorized(string $action, ?string $scope = null, ?UserInterface $user = null, bool $isAuthor = false): ?bool
     {
-        $scope = $scope ?? $this->getAuthorizeScope();
+        $scope ??= $this->getAuthorizeScope();
 
         $isMe = null === $user;
         if ($isMe) {

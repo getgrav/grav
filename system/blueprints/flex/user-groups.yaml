@@ -26,10 +26,10 @@ config:
       # Primary permissions
       admin.users:
         type: crudl
-        label: User Accounts
+        label: PLUGIN_ADMIN.USER_ACCOUNTS
       admin.configuration.users:
         type: default
-        label: Accounts Configuration
+        label: PLUGIN_ADMIN.ACCOUNTS_CONFIGURATION
 
     # Admin menu
     menu:

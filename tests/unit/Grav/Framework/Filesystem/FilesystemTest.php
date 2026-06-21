@@ -5,7 +5,7 @@ use Grav\Framework\Filesystem\Filesystem;
 /**
  * Class FilesystemTest
  */
-class FilesystemTest extends \Codeception\TestCase\Test
+class FilesystemTest extends \PHPUnit\Framework\TestCase
 {
     protected $class;
 
@@ -280,12 +280,14 @@ class FilesystemTest extends \Codeception\TestCase\Test
         ],
     ];
 
-    protected function _before(): void
+    protected function setUp(): void
     {
-        $this->class = Filesystem::getInstance();
+        parent::setUp();
+
+$this->class = Filesystem::getInstance();
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
         unset($this->class);
     }

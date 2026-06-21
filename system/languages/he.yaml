@@ -97,3 +97,10 @@ GRAV:
     ERROR2: מספר לא חוקי של משתנים.
     ERROR3: יש להגדיר את ה-jquery_element להגדרות jqCron
     ERROR4: ביטוי לא מזוהה
+
+PLUGIN_ADMIN:
+    MEDIA: "מדיה"
+    MEDIA_TYPES: "סוגי מדיה"
+    IMAGE_OPTIONS: "אפשרויות תמונה"
+    TYPE: "סוג"
+    FILE_EXTENSION: "סוג הקובץ"

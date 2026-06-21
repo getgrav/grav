@@ -132,3 +132,6 @@ GRAV:
     EVERY_DAY_OF_MONTH: kuukauden jokaisena päivänä
     EVERY_MONTH: joka kuukausi
     TEXT_PERIOD: Joka <b />
+
+PLUGIN_ADMIN:
+    MEDIA: "Media"

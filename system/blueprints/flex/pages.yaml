@@ -24,10 +24,10 @@ config:
       # Primary permissions
       admin.pages:
         type: crudl
-        label: Pages
+        label: PLUGIN_ADMIN.PAGES
       admin.configuration.pages:
         type: default
-        label: Pages Configuration
+        label: PLUGIN_ADMIN.PAGES_CONFIGURATION
 
     # Admin menu
     menu:
@@ -59,14 +59,14 @@ config:
         visible:
           width: 8
           field:
-            label: Visible
+            label: PLUGIN_ADMIN.VISIBLE
             type: toggle
         menu:
           link: edit
           alias: header.menu
         full_route:
           field:
-            label: Route
+            label: PLUGIN_ADMIN.ROUTE
             type: text
           link: edit
           sort:
@@ -74,12 +74,12 @@ config:
         name:
           width: 8
           field:
-            label: Type
+            label: PLUGIN_ADMIN.TYPE
             type: text
         translations:
           width: 8
           field:
-            label: Translations
+            label: PLUGIN_ADMIN.TRANSLATIONS
             type: text
 #        updated_date:
 #          alias: header.update_date

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Assets
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -192,15 +192,15 @@ class BlockAssets
     {
         $grav = Grav::instance();
 
-        $base = rtrim($grav['base_url'], '/') ?: '/';
+        $base = rtrim((string) $grav['base_url'], '/') ?: '/';
 
-        if (strpos($url, $base) === 0) {
+        if (str_starts_with($url, $base)) {
             if ($pipeline) {
                 // Remove file timestamp if CSS pipeline has been enabled.
                 $url = preg_replace('|[?#].*|', '', $url);
             }
 
-            return substr($url, strlen($base) - 1);
+            return substr((string) $url, strlen($base) - 1);
         }
         return $url;
     }

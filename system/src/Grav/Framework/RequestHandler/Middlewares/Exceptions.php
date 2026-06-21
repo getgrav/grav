@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\RequestHandler
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -62,7 +62,7 @@ class Exceptions implements MiddlewareInterface
             $debugger = Grav::instance()['debugger'];
             if ($debugger->enabled()) {
                 $response['error'] += [
-                    'type' => get_class($exception),
+                    'type' => $exception::class,
                     'file' => $exception->getFile(),
                     'line' => $exception->getLine(),
                     'trace' => explode("\n", $exception->getTraceAsString()),

@@ -1,5 +1,9 @@
 services:
     -
+        class: PHPStan\Grav\UtilsPathinfoExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+    -
         class: PHPStan\Toolbox\UniformResourceLocatorExtension
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,6 +11,7 @@ namespace Grav\Framework\Cache\Adapter;
 
 use ErrorException;
 use FilesystemIterator;
+use Grav\Common\Security;
 use Grav\Framework\Cache\AbstractCache;
 use Grav\Framework\Cache\Exception\CacheException;
 use Grav\Framework\Cache\Exception\InvalidArgumentException;
@@ -24,10 +25,20 @@ use function strlen;
  *
  * Defaults to 1 year TTL. Does not support unlimited TTL.
  *
+ * Cache files are HMAC-signed (sha256, key from Security::getNonceKey()) so that a
+ * tampered or attacker-planted file is rejected as a cache miss instead of
+ * being unserialized — closes GHSA-gwfr-jfjf-92vv. The on-disk format is:
+ *
+ *     v2\n<expires>\n<key>\n<hmac-hex>\n<serialized>
+ *
+ * Pre-v2 files (no version line) are treated as cache misses and rebuilt.
+ *
  * @package Grav\Framework\Cache
  */
 class FileCache extends AbstractCache
 {
+    private const FORMAT_VERSION = 'v2';
+
     /** @var string */
     private $directory;
     /** @var string|null */
@@ -63,20 +74,38 @@ class FileCache extends AbstractCache
             return $miss;
         }
 
+        $version = rtrim((string)fgets($h));
+        if ($version !== self::FORMAT_VERSION) {
+            // Pre-v2 file (or junk). Drop it; the caller will repopulate.
+            fclose($h);
+            @unlink($file);
+            return $miss;
+        }
+
         if ($now >= (int) $expiresAt = fgets($h)) {
             fclose($h);
             @unlink($file);
-        } else {
-            $i = rawurldecode(rtrim((string)fgets($h)));
-            $value = stream_get_contents($h) ?: '';
-            fclose($h);
-
-            if ($i === $key) {
-                return unserialize($value, ['allowed_classes' => true]);
-            }
+            return $miss;
         }
 
-        return $miss;
+        $i = rawurldecode(rtrim((string)fgets($h)));
+        $expectedHmac = rtrim((string)fgets($h));
+        $value = stream_get_contents($h) ?: '';
+        fclose($h);
+
+        if ($i !== $key) {
+            return $miss;
+        }
+
+        $actualHmac = hash_hmac('sha256', $value, Security::getNonceKey());
+        if (!hash_equals($expectedHmac, $actualHmac)) {
+            // Tampered or stale-secret payload — refuse to unserialize and
+            // delete the file so it gets rebuilt cleanly next time.
+            @unlink($file);
+            return $miss;
+        }
+
+        return unserialize($value, ['allowed_classes' => true]);
     }
 
     /**
@@ -86,12 +115,16 @@ class FileCache extends AbstractCache
     public function doSet($key, $value, $ttl)
     {
         $expiresAt = time() + (int)$ttl;
+        $serialized = serialize($value);
+        $hmac = hash_hmac('sha256', $serialized, Security::getNonceKey());
 
-        $result = $this->write(
-            $this->getFile($key, true),
-            $expiresAt . "\n" . rawurlencode($key) . "\n" . serialize($value),
-            $expiresAt
-        );
+        $payload = self::FORMAT_VERSION . "\n"
+            . $expiresAt . "\n"
+            . rawurlencode($key) . "\n"
+            . $hmac . "\n"
+            . $serialized;
+
+        $result = $this->write($this->getFile($key, true), $payload, $expiresAt);
 
         if (!$result && !is_writable($this->directory)) {
             throw new CacheException(sprintf('Cache directory is not writable (%s)', $this->directory));
@@ -197,7 +230,7 @@ class FileCache extends AbstractCache
      */
     private function write($file, $data, $expiresAt = null)
     {
-        set_error_handler(__CLASS__.'::throwError');
+        set_error_handler(self::class.'::throwError');
 
         try {
             if ($this->tmp === null) {
@@ -248,7 +281,7 @@ class FileCache extends AbstractCache
      * @internal
      * @throws ErrorException
      */
-    public static function throwError($type, $message, $file, $line)
+    public static function throwError($type, $message, $file, $line): never
     {
         throw new ErrorException($message, 0, $type, $file, $line);
     }

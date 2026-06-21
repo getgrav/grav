@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -39,7 +39,7 @@ trait PageTranslateTrait
      * @param bool|null $fallback
      * @return bool
      */
-    public function hasTranslation(string $languageCode = null, bool $fallback = null): bool
+    public function hasTranslation(?string $languageCode = null, ?bool $fallback = null): bool
     {
         $code = $this->findTranslation($languageCode, $fallback);
 
@@ -51,7 +51,7 @@ trait PageTranslateTrait
      * @param bool|null $fallback
      * @return FlexObjectInterface|PageInterface|null
      */
-    public function getTranslation(string $languageCode = null, bool $fallback = null)
+    public function getTranslation(?string $languageCode = null, ?bool $fallback = null)
     {
         if ($this->root()) {
             return $this;
@@ -147,7 +147,7 @@ trait PageTranslateTrait
      * @param bool|null $fallback
      * @return string|null
      */
-    public function findTranslation(string $languageCode = null, bool $fallback = null): ?string
+    public function findTranslation(?string $languageCode = null, ?bool $fallback = null): ?string
     {
         $translated = $this->getLanguageTemplates();
 
@@ -232,7 +232,7 @@ trait PageTranslateTrait
             'lang',
             $var,
             function ($value) {
-                $value = $value ?? $this->getMetaData()['lang'] ?? '';
+                $value ??= $this->getMetaData()['lang'] ?? '';
 
                 return trim($value) ?: null;
             }
@@ -270,9 +270,9 @@ trait PageTranslateTrait
      * @param bool|null $fallback
      * @return array
      */
-    protected function getFallbackLanguages(string $languageCode = null, bool $fallback = null): array
+    protected function getFallbackLanguages(?string $languageCode = null, ?bool $fallback = null): array
     {
-        $fallback = $fallback ?? true;
+        $fallback ??= true;
         if (!$fallback && null !== $languageCode) {
             return [$languageCode];
         }
@@ -281,7 +281,7 @@ trait PageTranslateTrait
 
         /** @var Language $language */
         $language = $grav['language'];
-        $languageCode = $languageCode ?? ($language->getLanguage() ?: '');
+        $languageCode ??= $language->getLanguage() ?: '';
         if ($languageCode === '' && $fallback) {
             return $language->getFallbackLanguages(null, true);
         }

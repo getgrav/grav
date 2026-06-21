@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\User
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -122,14 +122,26 @@ class User extends Data implements UserInterface
         /** @var CompiledYamlFile|null $file */
         $file = $this->file();
         if (!$file || !$file->filename()) {
-            user_error(__CLASS__ . ': calling \$user = new ' . __CLASS__ . "() is deprecated since Grav 1.6, use \$grav['accounts']->load(\$username) or \$grav['accounts']->load('') instead", E_USER_DEPRECATED);
+            user_error(self::class . ': calling \$user = new ' . self::class . "() is deprecated since Grav 1.6, use \$grav['accounts']->load(\$username) or \$grav['accounts']->load('') instead", E_USER_DEPRECATED);
         }
 
         if ($file) {
             $username = $this->filterUsername((string)$this->get('username'));
 
+            // Validate username to prevent path traversal attacks
+            if (!self::isValidUsername($username)) {
+                throw new \RuntimeException('Invalid username: contains invalid characters or sequences');
+            }
+
             if (!$file->filename()) {
                 $locator = Grav::instance()['locator'];
+
+                // Check if a user with this username already exists (prevent overwriting)
+                $existingFile = $locator->findResource('account://' . $username . YAML_EXT);
+                if ($existingFile) {
+                    throw new \RuntimeException('User account with this username already exists');
+                }
+
                 $file->filename($locator->findResource('account://' . $username . YAML_EXT, true, true));
             }
 
@@ -244,7 +256,7 @@ class User extends Data implements UserInterface
      */
     public function merge(array $data)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->update($data) method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->update($data) method instead', E_USER_DEPRECATED);
 
         return $this->update($data);
     }
@@ -257,7 +269,7 @@ class User extends Data implements UserInterface
      */
     public function getAvatarMedia()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use getAvatarImage() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use getAvatarImage() method instead', E_USER_DEPRECATED);
 
         return $this->getAvatarImage();
     }
@@ -270,7 +282,7 @@ class User extends Data implements UserInterface
      */
     public function avatarUrl()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use getAvatarUrl() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use getAvatarUrl() method instead', E_USER_DEPRECATED);
 
         return $this->getAvatarUrl();
     }
@@ -285,7 +297,7 @@ class User extends Data implements UserInterface
      */
     public function authorise($action)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use authorize() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use authorize() method instead', E_USER_DEPRECATED);
 
         return $this->authorize($action) ?? false;
     }
@@ -299,9 +311,25 @@ class User extends Data implements UserInterface
     #[\ReturnTypeWillChange]
     public function count()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
 
         return parent::count();
+    }
+
+    /**
+     * {@inheritdoc}
+     * Override to filter out sensitive fields like password hashes
+     */
+    public function jsonSerialize(): array
+    {
+        $items = parent::jsonSerialize();
+
+        // Security: Remove sensitive fields that should never be exposed to frontend
+        unset($items['hashed_password']);
+        unset($items['secret']);  // 2FA secret
+        unset($items['twofa_secret']);  // Alternative 2FA field name
+
+        return $items;
     }
 
     /**
@@ -311,6 +339,37 @@ class User extends Data implements UserInterface
     protected function filterUsername(string $username): string
     {
         return mb_strtolower($username);
+    }
+
+    /**
+     * Validates a username to prevent path traversal and other attacks.
+     *
+     * @param string $username
+     * @return bool
+     */
+    public static function isValidUsername(string $username): bool
+    {
+        // Username must not be empty
+        if (!$username) {
+            return false;
+        }
+
+        // Username must not contain filesystem-dangerous characters: \ / ? * : ; { } or newlines
+        if (!preg_match('/^[^\\/?*:;{}\\\\\\n]+$/u', $username)) {
+            return false;
+        }
+
+        // Username must not contain path traversal sequences (..)
+        if (str_contains($username, '..')) {
+            return false;
+        }
+
+        // Username must not start with a dot (hidden files)
+        if (str_starts_with($username, '.')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

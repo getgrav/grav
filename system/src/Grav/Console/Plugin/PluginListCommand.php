@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Plugin
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,6 +20,11 @@ use Grav\Console\ConsoleCommand;
 class PluginListCommand extends ConsoleCommand
 {
     protected static $defaultName = 'plugins:list';
+
+    public function __construct()
+    {
+        parent::__construct(self::$defaultName);
+    }
 
     /**
      * @return void
@@ -61,7 +66,7 @@ class PluginListCommand extends ConsoleCommand
 
             $index++;
             $num = str_pad((string)$index, 2, '0', STR_PAD_LEFT);
-            $io->writeln('  ' . $num . '. <red>' . str_pad($name, 15) . "</red> <white>{$bin} {$name} list</white>");
+            $io->writeln('  ' . $num . '. <red>' . str_pad((string) $name, 15) . "</red> <white>{$bin} {$name} list</white>");
         }
 
         return 0;

@@ -60,31 +60,4 @@ class Unit extends Codeception\Module
     {
     }
 
-    /**
-     * HOOK: before each suite
-     *
-     * @param Codeception\TestCase $test
-     */
-    public function _before(Codeception\TestCase $test)
-    {
-    }
-
-    /**
-     * HOOK: before each suite
-     *
-     * @param Codeception\TestCase $test
-     */
-    public function _after(Codeception\TestCase $test)
-    {
-    }
-
-    /**
-     * HOOK: on fail
-     *
-     * @param Codeception\TestCase $test
-     * @param $fail
-     */
-    public function _failed(Codeception\TestCase $test, $fail)
-    {
-    }
 }

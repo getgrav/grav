@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -119,7 +119,7 @@ class SimpleStorage extends AbstractFilesystemStorage
             $this->buildIndex();
         }
 
-        return $key && strpos($key, '@@') === false && isset($this->data[$key]);
+        return $key && !str_contains($key, '@@') && isset($this->data[$key]);
     }
 
     /**
@@ -148,7 +148,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::readRows()
      */
-    public function readRows(array $rows, array &$fetched = null): array
+    public function readRows(array $rows, ?array &$fetched = null): array
     {
         if (null === $this->data) {
             $this->buildIndex();
@@ -305,7 +305,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getStoragePath()
      */
-    public function getStoragePath(string $key = null): ?string
+    public function getStoragePath(?string $key = null): ?string
     {
         return $this->dataFolder . '/' . $this->dataPattern;
     }
@@ -314,7 +314,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): ?string
+    public function getMediaPath(?string $key = null): ?string
     {
         return null;
     }
@@ -355,7 +355,7 @@ class SimpleStorage extends AbstractFilesystemStorage
             if (isset($row[$this->keyField])) {
                 $key = $row[$this->keyField];
             }
-            if (strpos($key, '@@') !== false) {
+            if (str_contains((string) $key, '@@')) {
                 $key = $this->getNewKey();
             }
 

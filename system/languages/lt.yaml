@@ -76,3 +76,8 @@ GRAV:
     - 'Penktadienis'
     - 'Šeštadienis'
     - 'Sekmadienis'
+
+PLUGIN_ADMIN:
+    MEDIA: "Medija"
+    MIME_TYPE: "Mime tipas"
+    FILE_EXTENSION: "Failo plėtinys"

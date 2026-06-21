@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Filesystem
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -75,21 +75,21 @@ abstract class Archiver
      * @param callable|null $status
      * @return $this
      */
-    abstract public function compress($folder, callable $status = null);
+    abstract public function compress($folder, ?callable $status = null);
 
     /**
      * @param string $destination
      * @param callable|null $status
      * @return $this
      */
-    abstract public function extract($destination, callable $status = null);
+    abstract public function extract($destination, ?callable $status = null);
 
     /**
      * @param array $folders
      * @param callable|null $status
      * @return $this
      */
-    abstract public function addEmptyFolders($folders, callable $status = null);
+    abstract public function addEmptyFolders($folders, ?callable $status = null);
 
     /**
      * @param string $rootPath

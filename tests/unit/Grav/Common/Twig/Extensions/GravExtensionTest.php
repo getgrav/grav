@@ -7,7 +7,7 @@ use Grav\Common\Twig\Extension\GravExtension;
 /**
  * Class GravExtensionTest
  */
-class GravExtensionTest extends \Codeception\TestCase\Test
+class GravExtensionTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -15,8 +15,9 @@ class GravExtensionTest extends \Codeception\TestCase\Test
     /** @var  GravExtension $twig_ext */
     protected $twig_ext;
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $this->grav = Fixtures::get('grav');
         $this->twig_ext = new GravExtension();
     }
@@ -42,8 +43,8 @@ class GravExtensionTest extends \Codeception\TestCase\Test
 
     public function testKsortFilter(): void
     {
-        $object = array("name"=>"Bob","age"=>8,"colour"=>"red");
-        self::assertSame(array("age"=>8,"colour"=>"red","name"=>"Bob"), $this->twig_ext->ksortFilter($object));
+        $object = ["name"=>"Bob", "age"=>8, "colour"=>"red"];
+        self::assertSame(["age"=>8, "colour"=>"red", "name"=>"Bob"], $this->twig_ext->ksortFilter($object));
     }
 
     public function testContainsFilter(): void
@@ -66,7 +67,7 @@ class GravExtensionTest extends \Codeception\TestCase\Test
 
         for ($i=0; $i<count($measures); $i++) {
             $time = 'three' . ucfirst($measures[$i]);
-            self::assertSame('3 ' . $measures[$i] . ' ago', $this->twig_ext->nicetimeFunc($$time));
+            self::assertSame('3 ' . $measures[$i] . ' ago', $this->twig_ext->nicetimeFunc(${$time}));
         }
     }
 

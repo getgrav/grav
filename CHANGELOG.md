@@ -1,3 +1,34 @@
+# v2.0.0
+## 06/20/2026
+
+1. [](#new)
+    * Grav Version 2.0 stable is released - read all about it here: https://getgrav.org/blog/grav-2-stable-released
+1. [](#bugfix)
+    * [security] Install packages uploaded through Direct Install are now rejected when their contents exceed safe limits on total uncompressed size, file count, or folder nesting depth, so a crafted archive can no longer fill the disk, exhaust inodes, or crash extraction (GHSA-2vcx-h8p2-9pg9).
+
+# v2.0.0-rc.10
+## 06/18/2026
+
+1. [](#bugfix)
+    * [security] Image `resize` in page content (for example `![logo](img.png?resize=...)`) now only accepts numeric dimensions, closing a stored CSS injection where a crafted resize value could write extra style declarations, such as a full-page overlay, into the image for a higher-privileged viewer (CWE-79). Media actions in an image URL are now limited to the documented set, so page content can no longer reach other internal methods on a media object, and inline styles are validated again when the image is rendered. Thanks to @DavidCarliez for the report.
+    * Twig in page content that puts an output tag inside an `if` block, such as `{% if x %}{{ y }}{% endif %}`, no longer fails with an "Unknown endif tag" error when Markdown runs first. Fixes [getgrav/grav#4126](https://github.com/getgrav/grav/issues/4126).
+    * Twig in the content of a modular page's modules, such as a `{% include %}` tag, is now processed the same way it is in a regular page instead of being left as literal text. Fixes [getgrav/grav#4142](https://github.com/getgrav/grav/issues/4142).
+    * Hyphenized anchors and slugs now keep accented and other Unicode letters such as `ä`, `ö` and `ü` instead of mangling them, so on-page menu links to modules with those characters point to the right place. Thanks to @Xoriander. [getgrav/grav#4143](https://github.com/getgrav/grav/pull/4143)
+
+# v2.0.0-rc.9
+## 06/16/2026
+
+1. [](#new)
+    * Added a `GRAV_ENV_PATH` environment variable that loads the `.env` file(s) from a directory or file path outside the web root, so secrets such as API keys no longer have to live in the publicly served document root.
+    * Added an `onFlexObjectMedia` event so a plugin can rewrite a flex object's media links, letting the original files be served through a controlled route while resized or cropped versions still load straight from the image cache.
+2. [](#bugfix)
+    * [security] Inline styles set on an image from page content (for example `![logo](img.png?style=...)`) are now limited to safe layout CSS, so an editor can no longer store a full-page overlay or a `url()` callout that would target an administrator viewing the page (CWE-79). Thanks to @CyberKareem for the report.
+    * [security] Direct web access to the `user/accounts`, `user/config`, `user/data` and `user/env` folders is now blocked in every bundled webserver config, closing a hole where files such as certificates, tokens and databases stored under `user/data` with an unlisted extension could be downloaded directly.
+    * [security] A backup deny-all `.htaccess` now ships inside `user/accounts`, `user/config` and `user/data` so Apache installs stay protected even when the site root `.htaccess` has been customised or is out of date.
+    * [security] The upgrade postflight now patches an existing stock root `.htaccess` to add the folder block automatically, so installs that updated from an earlier version are protected without editing the file by hand.
+    * The new `user/data` block now makes an exception for public media uploads, such as Flex Object images, so they keep displaying instead of returning a 403, while data files, databases and keys stay blocked. Fixes [getgrav/grav#4129](https://github.com/getgrav/grav/issues/4129).
+    * [security] The Twig filesystem helpers such as `read_file` and `file_exists` now reject `../` path traversal and null bytes in their argument, an extra safeguard on top of the sandbox that already keeps these functions out of editor-authored page content.
+
 # v1.7.53
 ## 06/16/2026
 
@@ -7,6 +38,107 @@
     * [security] The upgrade postflight now patches an existing stock root `.htaccess` to add the folder block automatically, so installs that updated from an earlier version are protected without editing the file by hand.
     * [security] URL query image transforms (such as `image.jpg?resize=`) are now turned off by default and, when enabled, refuse oversized dimensions above a configurable pixel limit, closing an unauthenticated denial of service where huge resize values could exhaust server memory.
 
+# v2.0.0-rc.8
+## 06/09/2026
+
+1. [](#improved)
+    * Page Authors in a page's Security settings is now picked from a searchable list of the users who can edit pages, instead of typed-in usernames.
+2. [](#bugfix)
+    * [security] URL-based image resizing (e.g. `image.jpg?resize=2000,2000`) is now off by default and, when enabled, capped by a configurable total-pixel limit, so an unauthenticated visitor can no longer exhaust server memory by requesting oversized image transforms (CWE-400). Thanks to @iliaal for the report.
+    * [security] With error display off, an uncaught error no longer leaks the file path, line, and exception message to a JSON or AJAX request, which now receives a generic JSON error instead (CWE-209). Thanks to @iliaal for the report.
+    * The default theme is now `quark2` to match the theme bundled with Grav 2.0, so reverting the theme setting in the Admin panel no longer leaves the site pointing at the missing `quark` theme. Fixes [getgrav/grav#4108](https://github.com/getgrav/grav/issues/4108).
+    * A missing theme no longer takes the Admin panel and API down along with the frontend, so the site stays reachable to fix the theme setting.
+    * A Twig template that calls a function or filter which isn't registered in the current context, such as a plugin function referenced in a template while that plugin is inactive in the Admin panel, now renders as empty again instead of failing with an "Unknown function" error. This also restores form notification emails whose data template uses an unregistered filter, which were arriving with the raw `{% include %}` tag in the body. Calls to real PHP functions still require an explicit `safe_functions` entry. Fixes [getgrav/grav#4110](https://github.com/getgrav/grav/issues/4110) and [getgrav/grav#4115](https://github.com/getgrav/grav/issues/4115).
+    * Twig in page content can again read media by filename under the security sandbox in deeply modular and nested layouts, so an expression like `{{ page.media['photo.jpg'].url }}` resolves instead of leaking its raw `{{ ... }}` into the output. Fixes [getgrav/grav#4114](https://github.com/getgrav/grav/issues/4114).
+
+# v2.0.0-rc.7
+## 06/04/2026
+
+1. [](#bugfix)
+    * Upgrading Grav core from the Admin panel no longer fails with "Failed to upgrade Grav core" because the installer misread the incoming release version and then wrongly flagged every installed plugin as incompatible; command line upgrades were unaffected.
+
+# v2.0.0-rc.6
+## 06/04/2026
+
+1. [](#new)
+    * Added GitHub-style task lists: `- [ ]` and `- [x]` now render as (disabled) checkboxes. Can be turned off under Configuration > System > Markdown.
+    * Added `==highlight==`, `~subscript~`, and `^superscript^` inline syntax, rendering as `<mark>`, `<sub>`, and `<sup>`. Can be turned off under Markdown settings.
+    * Disallowed raw HTML tags in page content (`script`, `iframe`, `style`, `textarea`, and similar) are now escaped in the output to match GitHub Flavored Markdown. Can be turned off under Markdown settings.
+    * Bare `www.` URLs and email addresses in content are now turned into links automatically (GitHub Flavored Markdown autolinks). Can be turned off under Markdown settings.
+    * Tables gained five optional extensions, all off by default and toggled under Markdown settings: an empty cell can merge into the cell on its left (colspan), a table can start at the divider row with no header row (header-less), a `[Caption]` line immediately after a table becomes a caption, a `{.class #id}` line immediately after a table sets the class and id on the table element (the kramdown `{:.class}` form is accepted too), and a row ending in a backslash continues onto the next line so a cell can span multiple lines.
+    * Plugins can now add custom markdown block and inline syntax through a documented extension API with an element builder, instead of injecting closures and hand-building element arrays. The previous approach still works.
+    * Plugins can now register their own safe Twig functions for use inside sandboxed page content, so a plugin's custom functions work in editor-authored Twig without turning the security sandbox off.
+    * Grav now reads environment variables from a `.env` file in the site root natively, so the separate DotEnv plugin is no longer needed; `.env.local` and per-environment files such as `.env.production` are layered on top in that order, and real server-set variables always take precedence. Use it to set things like `GRAV_ENVIRONMENT` or any `GRAV_CONFIG__*` override.
+1. [](#bugfix)
+    * [security] The `ZipArchiver` extraction helper now refuses any archive entry whose path would escape the destination directory, bringing it in line with the Zip Slip guard already on the GPM installer (CWE-22). Thanks to @XananasX7 for the report.
+    * [security] Restricted scheduler job queue deserialization to the `Job` class as defense in depth, on top of the existing HMAC integrity check on queue entries (CWE-502). Thanks to @XananasX7 for the report.
+    * `bin/grav server` no longer shows the "PHP webserver requires a router" message and serves the site correctly when the Symfony local server falls back to PHP's built-in web server (for example on systems without php-fpm). Fixes [getgrav/grav#4099](https://github.com/getgrav/grav/issues/4099).
+    * Markdown Extra no longer triggers an "implicitly marking parameter as nullable is deprecated" notice on PHP 8.4 and newer; the bundled Markdown Extra parser is now a maintained fork with the fix applied.
+    * Fenced code blocks with a trailing attribute block (for example ` ```python {#id .class} `) now apply the id and classes to the code element instead of corrupting the language class. Requires Markdown Extra to be enabled.
+    * Twig in modular and editor page content can read page media again while the security sandbox is enabled, so expressions like `{{ page.media['photo.jpg'].url }}` work without disabling the sandbox. Fixes [getgrav/grav#4105](https://github.com/getgrav/grav/issues/4105).
+    * [security] Removed the `undefined_functions` and `undefined_filters` Twig settings, which let any non-blocklisted PHP function be called from a template by default (deprecated since Grav 1.7). The `safe_functions` and `safe_filters` allow-lists remain as an explicit opt-in, empty by default, and now refuse command and code-execution functions outright so they can no longer be used to enable `system`, `exec`, and similar. Templates that called PHP functions directly will need those functions added to the allow-list, or registered through a plugin.
+    * Requests sending an empty or malformed `Accept` header no longer trigger a "header string should not be empty" error during page content-type negotiation.
+
+# v2.0.0-rc.5
+## 05/29/2026
+
+1. [](#improved)
+    * Enabling Twig in content under Configuration > Security > Twig in Content is now the only setting needed to allow editor-authored Twig site-wide, and the per-page checkbox in the page editor follows the same setting so the admin UI and the live render always agree.
+    * Flex pages now honor the Twig in content security gate the same way classic pages do, both at render time and when busting cached content after the gate is changed.
+    * The security log no longer reports modular pages as Twig-blocked when they actually rendered, so the audit trail only lists pages the gate actually stopped.
+1. [](#bugfix)
+    * Loading the page index no longer returns a 500 when a single broken symlink or otherwise unreadable file sits inside a page folder; the offending path is logged to `grav.log` and skipped so the rest of the pages still load.
+    * **[security] The `evaluate_twig` and `evaluate` Twig functions are now rendered through the same `@Var:` sandbox as `Twig::processString()`.** Before this fix, both built a fresh `Twig\Environment` with no `SandboxExtension` or `SourcePolicy`, so a trusted theme that called `{{ evaluate_twig(page.content|raw, {page: page}) }}` rendered editor-authored Twig with the full unrestricted Twig surface — a complete sandbox bypass for any editor with page-edit access. The internal implementation now delegates to `Twig::processString()` so the same source policy, allowed-method/property/filter/function lists, and `SandboxConfig` denied-path facade all apply.
+    * **The second argument to `{{ evaluate_twig(twig, variables) }}` and `{{ evaluate(expression, variables) }}` is now honored.** Both functions were registered with `needs_context: true` but their PHP signature only declared two parameters, so the caller's variables array was silently dropped and the docs example `{{ evaluate_twig('{{ foo }}', {foo: 'bar'}) }}` rendered nothing for `foo`. Caller variables now merge over the parent template context with caller winning. Fixes [getgrav/grav#4098](https://github.com/getgrav/grav/issues/4098).
+    * **Per-page content cache now invalidates on configuration changes, matching the pages-index cache.** The page-content cache id now mixes in `$config->checksum()` alongside the page identity, so any change to system, site, security, or plugin configuration evicts previously rendered output — including the new `security.twig_content.*` gates, every markdown rendering option, `system.pages.twig_first`, sandbox allow-lists, the summary delimiter, and the active plugin set. Previously the content cache only watched the page file's mtime, so toggling a security setting or enabling a plugin that subscribes to `onPageContent*` did nothing until a manual `bin/grav cache --clear-all`. The pages-index cache has used this strategy since 1.7; the per-page content cache was overlooked. Fixes [getgrav/grav#4098](https://github.com/getgrav/grav/issues/4098).
+
+# v2.0.0-rc.4
+## 05/21/2026
+
+1. [](#new)
+    * [security] Twig processing in page content is now off by default and configurable under Configuration > Security > Twig in Content, with separate toggles for enabling it site-wide, letting trusted editors turn it on per page, and exposing the `config` variable to sandboxed renders. Pages that used Twig on the source site are detected during migration and the gate is flipped back on automatically.
+1. [](#improved)
+    * [security] Synced the bundled Twig fork with upstream 3.x to pick up its 2025-2026 sandbox-bypass and XSS security fixes (CVE-2026-46627, -46628, -46629, -46633, -46634, -46635, -46637, -46638, -46639, -46640, -47730, -47732, and -24425).
+    * Cleared the Twig 3.21+ deprecation warnings emitted by the bundled Deferred block extension, and added unit coverage for its defer/resolve flow including conditional child overrides.
+    * Refreshed the `bin/grav clean` distribution-trim list for Grav 2.0: stripped stale entries for packages no longer shipped (Gregwar Image/Cache, MaximeBF DebugBar, MatthiasMullie Minify, PHIVE Twig Extensions Deferred, monolithic Symfony Contracts, Swiftmailer, Antimatter theme, Admin Classic vendor bundles) and added coverage for the new ones (Getgrav Image, Multiavatar, Tubalmartin CSSMin, Tedivm JShrink, PHP-DebugBar, Doctrine Deprecations, PSR Event Dispatcher, and the split Symfony Cache / String / Var-Exporter / Polyfill packages), shrinking the release zip and incidentally clearing a Sanesecurity `phpcomment.UNOFFICIAL` antivirus false positive against a test fixture image ([#4088](https://github.com/getgrav/grav/issues/4088)).
+1. [](#bugfix)
+    * Fixed a multi-site issue where saving a theme, plugin, or system config from the admin panel could silently create a stray `user/env/<host>/` folder when the request hostname differed from the page-load hostname (for example a proxy quirk delivering a bare hostname for the POST while page loads arrive as `www.`). Grav now refuses to materialize a per-host environment folder that does not already exist on disk and falls back to the shared `user/config/` instead, matching the long-standing Grav 1.7 admin behavior ([#4086](https://github.com/getgrav/grav/issues/4086)).
+    * Fixed an issue where `CompiledFile` (used for account, config, and other YAML reads) cached its parsed contents into the PHP session, so an admin's permission changes to a logged-in user wouldn't take effect until that user's session was destroyed. The file is now re-read fresh on each request.
+
+# v2.0.0-rc.3
+## 05/13/2026
+
+1. [](#improved)
+    * [security] Hardened client-IP resolution against forwarded-header spoofing: every `X-Forwarded-*`, `CF-Connecting-IP`, and `Client-IP` header is now opt-in via its own `system.http_x_forwarded.*` toggle (defaults all `false` in 2.0), with `FILTER_VALIDATE_IP` enforced on the result ([#4078](https://github.com/getgrav/grav/issues/4078)).
+1. [](#bugfix)
+    * Fixed `bin/gpm` commands silently exiting with no error on a fresh Grav 2.0 + Admin install before any user accounts had been created ([#4079](https://github.com/getgrav/grav/issues/4079)).
+    * Fixed JIT stack exhaustion in `Twig3CompatibilityTransformer` when processing content with many Unicode characters (e.g. middle-dots), caused by catastrophic backtracking in the negative-lookahead regex of `rewriteSameAsTests`, `rewriteDivisibleByTests`, and `rewriteNoneTests` ([#4015](https://github.com/getgrav/grav/issues/4015)).
+
+# v2.0.0-rc.2
+## 05/08/2026
+
+1. [](#improved)
+    * Hardened the Twig `read_file()` function with strict allow-lists for streams, file extensions, and a configurable max file size, all tunable under `security.read_file.*` and surfaced in the admin under Configuration → Security ([grav-premium-issues#573](https://github.com/getgrav/grav-premium-issues/issues/573)).
+    * All hardcoded English in core blueprints now uses `PLUGIN_ADMIN.*` translation keys, so admin labels and help text translate correctly even without admin classic installed.
+1. [](#bugfix)
+    * [security] Closed a Twig sandbox hole that let editor-role users dump plugin secrets like SMTP passwords, API tokens, and OAuth keys via `config.toArray()` (GHSA-j274-39qw-32c9).
+    * Restored `addLoader()` on the Twig loader so plugins that extend Twig with their own loaders (including Admin) no longer crash on Grav 2.
+    * Fixed a typo in the Page Permissions section header on per-page security tabs.
+
+# v2.0.0-rc.1
+## 05/04/2026
+
+1. [](#new)
+    * New `system.pages.order_digits` setting (default `2`) lets sites that use 3- or 4-digit folder prefixes (e.g. `005.about`) set the width once and have all admin and API page operations honor it.
+1. [](#bugfix)
+    * Editing and saving a page no longer rewrites its folder prefix to a different width, which previously turned `005.about` into `05.about` and produced a duplicate page under flex pages ([grav-plugin-admin#2492](https://github.com/getgrav/grav-plugin-admin/issues/2492)).
+
+# v2.0.0-beta.4
+## 04/29/2026
+
+1. [](#bugfix)
+    * [security] Extended default `uploads_dangerous_extensions` to include `md`, `yaml`, `yml`, `json`, `twig`, and `ini`, blocking page-content extensions from being uploaded via permissive form `accept` policies (GHSA-w4rc-p66m-x6qq).
+
 # v1.7.52
 ## 04/29/2026
 
@@ -14,6 +146,12 @@
     * GPM client now sends the running PHP version with index requests so the server can substitute PHP-aware compat fallbacks when a plugin's latest release requires a newer PHP than the client can run.
 1. [](#bugfix)
     * [security] Extended default `uploads_dangerous_extensions` to include `md`, `yaml`, `yml`, `json`, `twig`, `ini` — page-content extensions that can be weaponised via permissive form-upload `accept` policies (GHSA-w4rc-p66m-x6qq, defense-in-depth alongside the Form 9.1.0 plugin fix).
+
+# v2.0.0-beta.3
+## 04/28/2026
+
+1. [](#improved)
+    * Retired the legacy `security.twig_filter.*` regex pre-filter for editor-authored Twig; the Twig sandbox introduced in beta.2 is now the sole SSTI protection, toggleable via `security.twig_sandbox.enabled`, with no upgrade action needed.
 
 # v1.7.51
 ## 04/28/2026
@@ -37,6 +175,289 @@
     * Fixed `schedule` flag not being honored in backup profiles
     * Fixed default-language loading when using the session-based language store
     * Allow `lang` query parameter to switch back to the default language
+
+# v2.0.0-beta.2
+## 04/25/2026
+
+1. [](#new)
+    * **NEW** Twig content sandbox so editor-authored page content renders inside an allowlist-based Twig sandbox, blocking SSTI attacks while leaving theme templates unaffected.
+    * **NEW** Dedicated `logs/security.log` that records every blocked Twig expression with the page route and a hint pointing at the setting to change.
+    * **NEW** "Twig Sandbox" section under Admin → Configuration → Security with toggles and editable allowlists for tags, filters, functions, methods, and properties.
+1. [](#improved)
+    * Smarter dangerous-Twig filter that no longer flags safe expressions like `{{ page.header.user.mail }}` for containing a substring that matches a dangerous function name.
+    * Sandbox violations now soft-fail so the rest of the page still renders, with visitors seeing a small placeholder and admins seeing a pointer to the log entry.
+    * The sandbox can be disabled from the admin UI or YAML if a site genuinely needs the unrestricted behaviour.
+1. [](#bugfix)
+    * [security] Fixed unauthenticated path traversal in `FormFlash` so the `__form-flash-id` parameter can no longer be used to create arbitrary directories on disk (GHSA-hmcx-ch82-3fv2).
+    * [security] Moved the HMAC key for CSRF nonces and admin rate-limit hashing out of Config and into `user/config/security-private.php` so it can no longer leak through sandboxed Twig; existing sessions and nonces survive the upgrade (GHSA-3f29-pqwf-v4j4).
+    * [security] Hardened the new-user uniqueness check so a low-privileged user with `admin.users.create` can no longer disrupt a super-admin account by reusing its username on the add-user form (GHSA-rr73-568v-28f8).
+    * [security] Added HMAC integrity to file-based cache entries so tampered or attacker-planted cache files are treated as misses and removed instead of being deserialized; existing caches rebuild transparently on first read (GHSA-gwfr-jfjf-92vv).
+    * [security] Closed a five-part advisory covering tampered job queues, forged session flash payloads, shell-injection in `bin/gpm install` git arguments, and additional Twig callables added to the dangerous-Twig blocklist (GHSA-vj3m-2g9h-vm4p).
+    * [security] Tightened the XSS detector's `on*` event-handler regex so attributes without quotes or whitespace around `=` (e.g. `<img onerror=alert(1)>`) are no longer missed (GHSA-9695-8fr9-hw5q, GHSA-c2q3-p4jr-c55f, GHSA-w8cg-7jcj-4vv2).
+    * [security] Added `svg`, `math`, `option`, and `select` to default `security.xss_dangerous_tags` to block XML-namespace inline scripting and the select-context escape used against admin form templates (GHSA-w8cg-7jcj-4vv2, GHSA-c2q3-p4jr-c55f).
+    * [security] Markdown images can no longer inject event-handler attributes via `?attribute=onload,…` query strings; attribute names now pass a strict identifier check and denylist (GHSA-r7fx-8g49-7hhr).
+    * [security] Hardened SVG dimension reading against XXE and billion-laughs attacks by stripping DOCTYPE/ENTITY declarations before parse and parsing with `LIBXML_NONET` (GHSA-3446-6mgw-f79p).
+    * [security] `Installer::unZip` now refuses Zip Slip archive entries (paths containing `..`, absolute paths, Windows drive letters, or NUL bytes) before extraction (GHSA-w48r-jppp-rcfw).
+
+# v2.0.0-beta.1
+## 04/16/2026
+
+1. [](#new)
+    * Rebranded 1.8-beta as 2.0-beta.
+    * **NEW** Quark2 theme for Grav 2.0.
+    * **NEW** Migrate Grav plugin required to upgrade from 1.x to 2.0.
+    * **NEW** API plugin now required to support Admin 2.0.
+    * **NEW** Admin 2.0 is the new default admin for Grav 2.0.
+    * Switched from Markdown Notices to GitHub Markdown Alerts.
+
+# v1.8.0-beta.30
+## 04/15/2026
+
+1. [](#new)
+    * Added family-aware GPM upgrade gate: blocks cross-major.minor auto-upgrades (e.g. 1.8 → 2.0) and points users at the `migrate-grav` plugin
+    * Added `next_major` hint surfaced from the remote GPM feed so admin/CLI can display upcoming major-version availability
+    * Added compatibility blueprint support for major-version upgrade gating
+    * Added `media://` stream for a site-level media directory
+    * Added fast static asset serving for plugin-bundled SPA apps
+    * Added `onFlexDirectoryConfigBeforeSave` event
+    * Added `cache-cleanup` CLI command
+    * Added `-v` verbose flag to `yamllinter` command
+1. [](#improved)
+    * Moved media config blueprint and translations from admin plugin to core
+    * `yamllinter` now uses Grav's built-in YAML parser for more detailed errors
+    * More readable date/time output in `LogViewerCommand` (#4007, #4009)
+    * Postflight cleanup removes stale `upgrade.php` and `needs_fixing.txt` from existing 1.8 beta installs
+    * Updated vendor libs
+    * Removed `SafeUpgradeService`, `RecoveryManager`, `system/recovery.php`, and the standalone `upgrade.php` fallback script — replaced by the `migrate-grav` plugin for major-version migrations
+    * Removed recovery-mode config options from `system.yaml`
+1. [](#bugfix)
+    * Fix for undefined array key path triggered through URL-encoded characters (#4012)
+    * Fix for default language loading when using session store
+    * Fix for `schedule` flag being ignored in backup profiles
+    * Fixes for modern scheduler
+
+# v1.8.0-beta.29
+## 12/27/2025
+
+1. [](#improved)
+    * Avoid mail in twig content trigger security error
+    * Don’t do internal grav-based gzip, rely on webserver
+    * Updated vendor libs
+1. [](#bugfix)
+    * Fix for grav not picking up config + page changes
+    * Fix for unusual format SVGs
+    * Fix for nested config changes
+    * Fix for user editing causing `hashed_password` to be removed
+    * Fix of setEscaper move in Twig 3.9+
+    * Fix for broken symlinks
+
+# v1.8.0-beta.28
+## 12/08/2025
+
+1. [](#new)
+    * Added `updates.recovery_mode` config option to enable/disable recovery mode
+    * Added admin blueprint toggle for recovery mode setting
+1. [](#improved)
+    * Redesigned recovery mode screen with clearer messaging and modern UI
+    * Added collapsible stack trace details to recovery mode screen
+    * Added "Clear Recovery Mode" button that works without token authentication
+    * Added "Disable Recovery Mode" option to disable via config from recovery screen
+    * Added stack trace capture for exceptions in recovery context
+    * Added PHP version validation from package's `defines.php` during safe upgrade
+    * Added proxy methods to `Twig3CompatibilityLoader` for backwards compatibility with plugins that call loader methods directly (addPath, prependPath, getPaths, etc.)
+1. [](#bugfix)
+    * Fixed recovery mode image path for Grav installations in subdirectories
+    * Fixed backup restriction preventing backups on systems with Grav installed under `/var/www` - Fixes [#4002](https://github.com/getgrav/grav/issues/4002)
+    * Fixed XSS false positives for legitimate HTML tags containing 'on' (caption, button, section) - Fixes [grav-plugin-admin#2472](https://github.com/getgrav/grav-plugin-admin/issues/2472)
+
+# v1.8.0-beta.27
+## 11/30/2025
+
+1. [](#improved)
+    * Hardened Twig sandbox with expanded blacklist blocking 150+ dangerous functions and attack patterns
+    * Added static regex caching in Security class for improved performance
+    * Added path traversal protection to backup root configuration
+    * Added validation for language codes to prevent regex injection DoS
+1. [](#bugfix)
+    * Fixed path traversal vulnerability in username during account creation
+    * Fixed username uniqueness bypass allowing duplicate accounts
+    * Fixed arbitrary file read via `read_file()` Twig function
+    * Fixed DoS via malformed cron expressions in scheduler
+    * Fixed password hash exposure to frontend via JSON serialization
+    * Fixed email disclosure in user edit page title
+    * Fixed XSS via `isindex` tag bypass (CVE-2023-31506)
+    * Fixed issue with FlexObjects caching [flex-objects#187](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/187)
+
+# v1.8.0-beta.26
+## 11/29/2025
+
+1. [](#improved)
+    * Improvements for JS minification and now pulls any broken JS out of pipeline
+    * Disallow xref/xhref in SVGs
+    * Upgraded to recently released Symfony 7.4
+1. [](#bugfix)
+   * fix range requests for partial content in Utils::downloads() - Fixes [#3990](https://github.com/getgrav/grav-plugin-admin/issues/3990)
+
+# v1.8.0-beta.25
+## 11/22/2025
+
+1. [](#bugfix)
+   * Fixed Twig version
+
+# v1.8.0-beta.24
+## 11/20/2025
+
+1. [](#improved)
+    * More Twig3 compatibility fixes and tests
+    * Changed snapshot creationg to use copy instead of move for improved reliability
+    * Lazy load page optimization
+    * Regex caching optimization
+    * Gated Debugger `addEvent()` optimization
+    * Various SafeUpgrade performance optimizations
+    * Improved Twig Deferred block implementation
+1. [](#bugfix)
+    * Fix various Twig3 deprecated notices
+    * Fixed slow purge snapshot functionality and test
+
+# v1.8.0-beta.23
+## 11/14/2025
+
+1. [](#improved)
+    * Refactored safe-upgrade from scratch with simplified 'install' step
+
+# v1.8.0-beta.22
+## 11/06/2025
+
+1. [](#bugfix)
+    * Removed over zealous safety checks
+    * Removed .gitattributes which was causing some unintended issues
+
+# v1.8.0-beta.21
+## 11/05/2025
+
+1. [](#improved)
+    * Exclude dev files from exports
+1. [](#bugfix)
+    * Ignore .github and .phan folders during self-upgrade
+    * Fixed path check in self-upgrade
+
+# v1.8.0-beta.20
+## 11/05/2025
+
+1. [](#bugfix)
+    * Fixed an issue where non-upgradable root-level folders were snapshotted
+
+# v1.8.0-beta.19
+## 11/05/2025
+
+1. [](#new)
+    * Added new `bin/gpm preflight` command
+    * Added `--safe` and `--legacy` overrides for `bin/gpm self-upgrade` command
+1. [](#improved)
+    * Improved JS assets pipeline handling to support different loading strategies
+    * Cache fallbacks for unsupported Cache drivers
+    * More safe-upgrade fixes around safe guarding `/user/` and maintaining permissions better
+1. [](#bugfix)
+   * Fixed a regex issue that corrupted safe-upgrade output
+
+# v1.8.0-beta.18
+## 10/31/2025
+
+1. [](#improved)
+    * Replaced legacy Doctrine cache dependency with Symfony-backed provider while keeping compatibility layer
+    * More safe-upgrade improvements
+
+# v1.8.0-beta.17
+## 10/23/2025
+
+1. [](#improved)
+    * Reworked `Monolog3` ship for better compatibility
+    * Latest vendor libraries
+    * Don't crash if `getManifest()` is not available
+
+# v1.8.0-beta.16
+## 10/20/2025
+
+1. [](#improved)
+    * Set `bin/*` binaries to `+x` permission when upgrading via CLI
+    * Improved Twig3 compatibility fixes
+
+# v1.8.0-beta.15
+## 10/19/2025
+
+1. [](#improved)
+    * Safe handling of disabled plugins
+    * Move `recover.flag` into `user://data`
+
+# v1.8.0-beta.14
+## 10/18/2025
+
+1. [](#improved)
+    * Implemented more robust snapshot management via the `bin/restore` command
+
+# v1.8.0-beta.13
+## 10/17/2025
+
+1. [](#improved)
+    * Refactored safe-upgrade check to use copy-based snapshot/install/restore system
+
+# v1.8.0-beta.12
+## 10/17/2025
+
+1. [](#bugfix)
+    * new low-level routing for safe-upgrade check
+
+# v1.8.0-beta.11
+## 10/16/2025
+
+1. [](#bugfix)
+    * Sync 1.7 changes to 1.8 branch
+
+# v1.8.0-beta.10
+## 10/16/2025
+
+1. [](#bugfix)
+    * Fixed an issue with **safe upgrade** losing dot files
+
+# v1.8.0-beta.9
+## 10/16/2025
+
+1. [](#new)
+    * Added new **core safe upgrade** installer with staging, validation, and rollback support
+
+# v1.8.0-beta.8
+## 10/14/2025
+
+1. [](#improved)
+    * Upgraded to latest Symfony 7 (might cause issues with some plugins)
+    * `wordCount` twig filter (merged from 1.7 branch)
+    * More PHP 8.4 compatibility fixes
+    * Update all vendor libraries to latest
+1. [](#bugfix)
+    * Fixed some CLI level bugs
+    * Fixed a Twig Sandbox bybpass issue
+
+# v1.8.0-beta.7
+## 09/22/2025
+
+1. [](#bugfix)
+    * Changed `private` to `public` for YamlUpdater::get() and YamUpdater::set() methods
+    * Fixed a session cookie issue that manifested when logging-in to client side
+
+# v1.8.0-beta.6
+## 09/22/2025
+
+1. [](#bugfix)
+    * Fixed a missing YamlUpdater::exists() method
+
+# v1.8.0-beta.5
+## 09/22/2025
+
+1. [](#new)
+    * Deferred Extension support in Forked version of Twig 3
+    * Added separate `strict_mode.twig2_compat` and `strict_mode.twig3_compat` toggles to manage auto-escape behaviour and automatic Twig 3 compatible template rewrites
+1. [](#bugfix)
+    * Fix for cache blowing up when upgrading from 1.7 to 1.8 via CLI
 
 # v1.7.49.5
 ## 09/10/2025
@@ -89,6 +510,39 @@
     * Bug in `exif_read_data` [#3878](https://github.com/getgrav/grav/pull/3878)
     * Fix parser error in URI: [#3894](https://github.com/getgrav/grav/issues/3894)
 
+# v1.8.0-beta.4
+## 01/27/2025
+
+1. [](#bugfix)
+    * Fixed a PHP compatibility issue with `AbstractLazyCollection`
+1. [](#improved)
+    * Global PHP 8.2 code optimizations
+    * More PHP 8.4 compatibility fixes
+    * Twig 2.x forked to getgrav/twig 2.x for PHP 8.4 compatibility
+    * Switch to cache@v4 + limit PHP version for Github actions
+    * Trigger testing Github action for Grav 1.8
+    * Merge latest Grav 1.7 fixes into Grav 1.8
+
+# v1.8.0-beta.3
+## 11/21/2024
+
+1. [](#improved)
+    * Updated composer libraries to latest versions for compatibility fixes
+
+# v1.8.0-beta.2
+## 10/28/2024
+
+1. [](#new)
+    * Use `dev-master` branch of Clockwork to support Monolog2 / Monolog3
+    * `AVIF` image support via updates to `getgrav/Image` library
+    * Upgraded to **Doctrine Collection 2.2**
+1. [](#improved)
+    * Updated composer libraries
+    * Updated composer.php binary to `v2.8.1`
+    * Fixes for PHP 8.4 - Implicitly nullable parameter declarations deprecated
+    * Added back Missing `RocketTheme\Toolbox\Event\EventSubscriberInterface` for Gantry5
+1. [](#bugfix)
+    * Various fixes to use `$log->debug()`, `$log->info()`, `$log->warning()` and `$log->error()` For Monolog2 support
 
 # v1.7.48
 ## 10/28/2024
@@ -99,6 +553,21 @@
     * Fix for #3164. Adds aliases as possible commands during lookup [#3863](https://github.com/getgrav/grav/pull/3863)
 1. [](#bugfix)
     * Fix style conflict with Clockwork and tooltips [#3861](https://github.com/getgrav/grav/pull/3861)
+
+# v1.8.0-beta.1
+## 10/23/2024
+
+1. [](#new)
+    * Set minimum requirements to **PHP 8.3**
+    * Updated to **Twig 2.14**
+    * Updated to **Symfony 6.4**
+    * Updated to **Monolog 2.3**
+    * Updated to **RocketTheme/Toolbox 2.0**
+    * Updated to **Composer/Semver 3.2**
+    * Use **Symfony Cache** instead of unmaintained **Doctrine Cache**
+    * Removed unsupported **APC**, **WinCache**, **XCache** and **Memcache**, use apcu or memcached instead
+    * Removed `system.umask_fix` setting for security reasons
+    * Support phpstan level 6 in Framework classes
 
 # v1.7.47
 ## 10/23/2024
@@ -980,6 +1449,22 @@
     * Fixed twig script/style tag `{% script 'file.js' at 'bottom' %}`, replaces broken `in` operator [#3084](https://github.com/getgrav/grav/issues/3084)
     * Fixed dropped query params when `?` is preceded with `/` [#2964](https://github.com/getgrav/grav/issues/2964)
 
+# v1.6.31
+## 12/14/2020
+
+1. [](#improved)
+    * Allow all CSS and JS via `robots.txt` [#2006](https://github.com/getgrav/grav/issues/2006) [#3067](https://github.com/getgrav/grav/issues/3067)
+1. [](#bugfix)
+    * Fixed `pages` field escaping issues, needs admin update, too [admin#1990](https://github.com/getgrav/grav-plugin-admin/issues/1990)
+    * Fix `svg-image` issue with classes applied to all elements [#3068](https://github.com/getgrav/grav/issues/3068)
+
+# v1.6.30
+## 12/03/2020
+
+1. [](#bugfix)
+    * Rollback `samesite` cookie logic as it causes issues with PHP < 7.3 [#309](https://github.com/getgrav/grav/issues/3089)
+    * Fixed issue with `.travis.yml` due to GitHub API deprecated functionality
+
 # v1.7.0-rc.19
 ## 12/02/2020
 
@@ -1035,6 +1520,29 @@
     * Fixed Flex and Page ordering to be natural and case insensitive [flex-objects#87](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/87)
     * Fixed plugin/theme priority ordering to be numeric
 
+# v1.6.29
+## 12/02/2020
+
+1. [](#new)
+    * Added basic support for `user/config/versions.yaml`
+1. [](#improved)
+    * Updated bundled JQuery to latest version `3.5.1`
+    * Forward a `sid` to GPM when downloading a premium package via CLI
+    * Better handling of missing repository index [grav-plugin-admin#1916](https://github.com/getgrav/grav-plugin-admin/issues/1916)
+    * Set `grav_cli` as referrer when using `Response` from CLI
+    * Add option for timeout in `self-upgrade` command [#3013](https://github.com/getgrav/grav/pull/3013)
+    * Allow to set SameSite from system.yaml [#3063](https://github.com/getgrav/grav/pull/3063)
+    * Update media.yaml with some MS Office mimetypes [#3070](https://github.com/getgrav/grav/pull/3070)
+1. [](#bugfix)
+    * Fixed hardcoded system folder in blueprints, config and language streams
+    * Added `.htaccess` rule to block attempts to use Twig in the request URL
+    * Fix compatibility with Symfony 4.2 and up. [#3048](https://github.com/getgrav/grav/pull/3048)
+    * Fix failing example custom shceduled job. [#3050](https://github.com/getgrav/grav/pull/3050)
+    * Fix for XSS advisory [GHSA-cvmr-6428-87w9](https://github.com/getgrav/grav/security/advisories/GHSA-cvmr-6428-87w9)
+    * Fix uploads_dangerous_extensions checking [#3060](https://github.com/getgrav/grav/pull/3060)
+    * Remove redundant prefixing of `.` to extension [#3060](https://github.com/getgrav/grav/pull/3060)
+    * Check exact extension in checkFilename utility [#3061](https://github.com/getgrav/grav/pull/3061)
+
 # v1.7.0-rc.17
 ## 10/07/2020
 
@@ -1059,6 +1567,25 @@
     * Fixed Referer reference during GPM calls.
     * Fixed fatal error with toggled lists
 
+# v1.6.28
+## 10/07/2020
+
+1. [](#new)
+    * Back-ported twig `{% cache %}` tag from Grav 1.7
+    * Back-ported `Utils::fullPath()` helper function from Grav 1.7
+    * Back-ported `{{ svg_image() }}` Twig function from Grav 1.7
+    * Back-ported `Folder::countChildren()` function from Grav 1.7
+1. [](#improved)
+    * Use new `{{ theme_var() }}` enhanced logic from Grav 1.7
+    * Improved `Excerpts` class with fixes and functionality from Grav 1.7
+    * Ensure `onBlueprintCreated()` is initialized first
+    * Do not cache default `404` error page
+    * Composer update of vendor libraries
+    * Switched `Caddyfile` to use new Caddy2 syntax + improved usability
+1. [](#bugfix)
+    * Fixed Referer reference during GPM calls.
+    * Fixed fatal error with toggled lists
+
 # v1.7.0-rc.16
 ## 09/01/2020
 
@@ -1073,6 +1600,14 @@
     * Fixed `Flex Pages` bug where `onAdminSave` passes page as `$event['page']` instead of `$event['object']` [#2995](https://github.com/getgrav/grav/issues/2995)
     * Fixed `Flex Pages` bug where changing a modular page template added duplicate file [admin#1899](https://github.com/getgrav/grav-plugin-admin/issues/1899)
     * Fixed `Flex Pages` bug where renaming slug causes bad ordering range after save [#2997](https://github.com/getgrav/grav/issues/2997)
+
+# v1.6.27
+## 09/01/2020
+
+1. [](#improved)
+    * Right trim route for safety
+    * Use the proper ellipsis for summary [#2939](https://github.com/getgrav/grav/pull/2939)
+    * Left pad schedule times with zeros [#2921](https://github.com/getgrav/grav/pull/2921)
 
 # v1.7.0-rc.15
 ## 07/22/2020
@@ -1137,6 +1672,16 @@
     * Fixed saving nested file fields in `Flex Objects` [flex-objects#34](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/34)
     * JSON Route of homepage with no ‘route’ set is valid [form#425](https://github.com/getgrav/grav-plugin-form/issues/425)
 
+# v1.6.26
+## 06/08/2020
+
+1. [](#improved)
+    * Added new configuration option to control the supported attributes in markdown links [#2882](https://github.com/getgrav/grav/issues/2882)
+1. [](#bugfix)
+    * Fixed blueprint for `system.pages.hide_empty_folders` [#1925](https://github.com/getgrav/grav/issues/2925)
+    * JSON Route of homepage with no ‘route’ set is valid
+    * Fix case-insensitive search of location header [form#425](https://github.com/getgrav/grav-plugin-form/issues/425)
+
 # v1.7.0-rc.11
 ## 05/14/2020
 
@@ -1152,6 +1697,14 @@
 1. [](#bugfix)
     * Fix for uppercase image extensions
     * Fix for `&` errors in HTML when passed to `Excerpts.php`
+
+# v1.6.25
+## 05/14/2020
+
+1. [](#improved)
+    * Added system configuration support for `HTTP_X_Forwarded` headers (host disabled by default)
+    * Updated `PHPUserAgentParser` to 1.0.0
+    * Bump `Go` to version 1.13 in `travis.yaml`
 
 # v1.7.0-rc.10
 ## 04/30/2020
@@ -1187,6 +1740,13 @@
     * Fixed saving new `Flex Object` with custom key
     * Fixed broken `Plugin::config()` method
 
+# v1.6.24
+## 04/27/2020
+
+1. [](#improved)
+    * Added support for `X-Forwarded-Host` [#2891](https://github.com/getgrav/grav/pull/2891)
+    * Disable XDebug in Travis builds
+
 # v1.7.0-rc.8
 ## 03/19/2020
 
@@ -1203,6 +1763,19 @@
     * Fixed issue with PHP `HTTP_X_HTTP_METHOD_OVERRIDE` [#2847](https://github.com/getgrav/grav/issues/2847)
     * Fixed numeric usernames not working in `Flex Users`
     * Implemented missing Flex `$page->move()` method
+
+# v1.6.23
+## 03/19/2020
+
+1. [](#new)
+    * Moved `Parsedown` 1.6 and `ParsedownExtra` 0.7 into `Grav\Framework\Parsedown` to allow fixes
+    * Added `aliases.php` with references to direct `\Parsedown` and `\ParsedownExtra` references
+1. [](#improved)
+    * Upgraded `jQuery` to latest 3.4.1 version [#2859](https://github.com/getgrav/grav/issues/2859)
+1. [](#bugfix)
+    * Fixed PHP 7.4 issue in ParsedownExtra [#2832](https://github.com/getgrav/grav/issues/2832)
+    * Fix for [user reported](https://twitter.com/OriginalSicksec) CVE path-based open redirect
+    * Fix for `stream_set_option` error with PHP 7.4 via Toolbox#28 [#2850](https://github.com/getgrav/grav/issues/2850)
 
 # v1.7.0-rc.7
 ## 03/05/2020
@@ -1222,6 +1795,18 @@
     * Fixed fatal error on storing flex flash using new object without a key
     * Regression: Fixed unchecking toggleable having no effect in Flex forms
     * Fixed changing page template in Flex Pages [#2828](https://github.com/getgrav/grav/issues/2828)
+
+# v1.6.22
+## 03/05/2020
+
+1. [](#new)
+    * Added `Pages::reset()` method
+1. [](#improved)
+    * Updated Negotiation library to address issues [#2513](https://github.com/getgrav/grav/issues/2513)
+1. [](#bugfix)
+    * Fixed issue with search plugins not being able to switch between page translations
+    * Fixed issues with `Pages::baseRoute()` not picking up active language reliably
+    * Reverted `validation: strict` fix as it breaks sites, see [#1273](https://github.com/getgrav/grav/issues/1273)
 
 # v1.7.0-rc.6
 ## 02/11/2020
@@ -1243,6 +1828,22 @@
     * Grav 1.7: Fixed saving Flex configuration with ignored values becoming null
     * Grav 1.7: Fixed `bin/plugin` initialization
     * Grav 1.7: Fixed Flex Page cache key not taking account active language
+
+# v1.6.21
+## 02/11/2020
+
+1. [](#new)
+    * Added `ConsoleCommand::setLanguage()` method to set language to be used from CLI
+    * Added `ConsoleCommand::initializeGrav()` method to properly set up Grav instance to be used from CLI
+    * Added `ConsoleCommand::initializePlugins()`method to properly set up all plugins to be used from CLI
+    * Added `ConsoleCommand::initializeThemes()`method to properly set up current theme to be used from CLI
+    * Added `ConsoleCommand::initializePages()` method to properly set up pages to be used from CLI
+1. [](#improved)
+    * Vendor updates
+1. [](#bugfix)
+    * Fixed `bin/plugin` CLI calling `$themes->init()` way too early (removed it, use above methods instead)
+    * Fixed call to `$grav['page']` crashing CLI
+    * Fixed encoding problems when PHP INI setting `default_charset` is not `utf-8` [#2154](https://github.com/getgrav/grav/issues/2154)
 
 # v1.7.0-rc.5
 ## 02/03/2020
@@ -1286,6 +1887,21 @@
     * Grav 1.7: Fixed `Flex Pages` unserialize issues if Flex-Objects Plugin has not been installed
     * Grav 1.7: Require Flex-Objects Plugin to edit Flex Accounts
     * Grav 1.7: Fixed bad result on testing `isPage()` when using Flex Pages
+
+# v1.6.20
+## 02/03/2020
+
+1. [](#bugfix)
+    * Fixed incorrect routing caused by `str_replace()` in `Uri::init()` [#2754](https://github.com/getgrav/grav/issues/2754)
+    * Fixed session cookie is being set twice in the HTTP header [#2745](https://github.com/getgrav/grav/issues/2745)
+    * Fixed session not restarting if user was invalid (downgrading from Grav 1.7)
+    * Fixed filesystem iterator calls with non-existing folders
+    * Fixed `checkbox` field not being saved, requires also Form v4.0.2 [#1225](https://github.com/getgrav/grav/issues/1225)
+    * Fixed `validation: strict` not working in blueprints [#1273](https://github.com/getgrav/grav/issues/1273)
+    * Fixed `Data::filter()` removing empty fields (such as empty list) by default [#2805](https://github.com/getgrav/grav/issues/2805)
+    * Fixed fatal error with non-integer page param value [#2803](https://github.com/getgrav/grav/issues/2803)
+    * Fixed `Assets::addInlineJs()` parameter type mismatch between v1.5 and v1.6 [#2659](https://github.com/getgrav/grav/issues/2659)
+    * Fixed `site.metadata` saving issues [#2615](https://github.com/getgrav/grav/issues/2615)
 
 # v1.7.0-rc.3
 ## 01/02/2020
@@ -1332,6 +1948,26 @@
     * Grav 1.7: Reverted `$object->getStorageKey()` interface as it was not a good idea, added `getMasterKey()` for pages
     * Grav 1.7: Fixed logged in user being able to delete his own account from admin account manager
 
+# v1.6.19
+## 12/04/2019
+
+1. [](#new)
+    * Catch PHP 7.4 deprecation messages and report them in debugbar instead of throwing fatal error
+1. [](#bugfix)
+    * Fixed fatal error when calling `{{ grav.undefined }}`
+    * Fixed multiple issues when there are no pages in the site
+    * PHP 7.4 fix for [#2750](https://github.com/getgrav/grav/issues/2750)
+
+# v1.6.18
+## 12/02/2019
+
+1. [](#bugfix)
+    * PHP 7.4 fix in `Pages::buildSort()`
+    * Updated vendor libraries for PHP 7.4 fixes in Twig and other libraries
+    * Fixed fatal error when `$page->id()` is null [#2731](https://github.com/getgrav/grav/pull/2731)
+    * Fixed cache conflicts on pages with no set id
+    * Fix rewrite rule for for `lighttpd` default config [#721](https://github.com/getgrav/grav/pull/2721)
+
 # v1.7.0-rc.1
 ## 11/06/2019
 
@@ -1365,6 +2001,21 @@
     * Grav 1.7: Fixed fatal error in multi-site setups
     * Grav 1.7: Fixed `Flex Pages` routing if using translated slugs or `system.hide_in_urls` setting
     * Grav 1.7: Fixed bug where Flex index file couldn't be disabled
+
+# v1.6.17
+## 11/06/2019
+
+1. [](#new)
+    * Added working ETag (304 Not Modified) support based on the final rendered HTML
+1. [](#improved)
+    * Safer file handling + customizable null char replacement in `CsvFormatter::decode()`
+    * Change of Behavior: `Inflector::hyphenize` will now automatically trim dashes at beginning and end of a string.
+    * Change in Behavior for `Folder::all()` so no longer fails if trying to copy non-existent dot file [#2581](https://github.com/getgrav/grav/pull/2581)
+    * renamed composer `test-plugins` script to `phpstan-plugins` to be more explicit [#2637](https://github.com/getgrav/grav/pull/2637)
+1. [](#bugfix)
+    * Fixed PHP 7.1 bug in FlexMedia
+    * Fix cache image generation when using cropResize [#2639](https://github.com/getgrav/grav/pull/2639)
+    * Fix `array_merge()` exception with non-array page header metadata [#2701](https://github.com/getgrav/grav/pull/2701)
 
 # v1.7.0-beta.10
 ## 10/03/2019
@@ -1414,6 +2065,13 @@
     * Fixed avatars not being displayed with flex users [#2431](https://github.com/getgrav/grav/issues/2431)
     * Fixed initial Flex Object state when creating a new objects in a form
 
+# v1.6.16
+## 09/19/2019
+
+1. [](#bugfix)
+    * Fixed Flex user creation if file storage is being used [#2444](https://github.com/getgrav/grav/issues/2444)
+    * Fixed `Badly encoded JSON data` warning when uploading files [#2663](https://github.com/getgrav/grav/issues/2663)
+
 # v1.7.0-beta.7
 ## 08/30/2019
 
@@ -1437,6 +2095,56 @@
     * Grav 1.7: Fixed enabling PHP Debug Bar causes fatal error in Gantry [#2634](https://github.com/getgrav/grav/issues/2634)
     * Grav 1.7: Fixed broken taxonomies [#2633](https://github.com/getgrav/grav/issues/2633)
     * Grav 1.7: Fixed unpublished blog posts being displayed on the front-end [#2650](https://github.com/getgrav/grav/issues/2650)
+
+# v1.6.15
+## 08/20/2019
+
+1. [](#improved)
+    * Improved robots.txt [#2632](https://github.com/getgrav/grav/issues/2632)
+1. [](#bugfix)
+    * Fixed broken markdown Twig tag [#2635](https://github.com/getgrav/grav/issues/2635)
+    * Force Symfony 4.2 in Grav 1.6 to remove a bunch of deprecated messages
+
+# v1.6.14
+## 08/18/2019
+
+1. [](#bugfix)
+    * Actually include fix for `system\router.php` [#2627](https://github.com/getgrav/grav/issues/2627)
+
+# v1.6.13
+## 08/16/2019
+
+1. [](#bugfix)
+    * Regression fix for `system\router.php` [#2627](https://github.com/getgrav/grav/issues/2627)
+
+# v1.6.12
+## 08/14/2019
+
+1. [](#new)
+    * Added support for custom `FormFlash` save locations
+    * Added a new `Utils::arrayLower()` method for lowercasing arrays
+    * Support new GRAV_BASEDIR environment variable [#2541](https://github.com/getgrav/grav/pull/2541)
+    * Allow users to override plugin handler priorities [#2165](https://github.com/getgrav/grav/pull/2165)
+1. [](#improved)
+    * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)
+    * Updated vendor libraries
+    * Markdown filter is now page-aware so that it works with modular references [admin#1731](https://github.com/getgrav/grav-plugin-admin/issues/1731)
+    * Check of `GRAV_USER_INSTANCE` constant is already defined [#2621](https://github.com/getgrav/grav/pull/2621)
+1. [](#bugfix)
+    * Fixed some potential issues when `$grav['user']` is not set
+    * Fixed error when calling `Media::add($name, null)`
+    * Fixed `url()` returning wrong path if using stream with grav root path in it, eg: `user-data://shop` when Grav is in `/shop`
+    * Fixed `url()` not returning a path to non-existing file (`user-data://shop` => `/user/data/shop`) if it is set to fail gracefully
+    * Fixed `url()` returning false on unknown streams, such as `ftp://domain.com`, they should be treated as external URL
+    * Fixed Flex User to have permissions to save and delete his own user
+    * Fixed new Flex User creation not being possible because of username could not be given
+    * Fixed fatal error 'Expiration date must be an integer, a DateInterval or null, "double" given' [#2529](https://github.com/getgrav/grav/issues/2529)
+    * Fixed non-existing Flex object having a bad media folder
+    * Fixed collections using `page@.self:` should allow modular pages if requested
+    * Fixed an error when trying to delete a file from non-existing Flex Object
+    * Fixed `FlexObject::exists()` failing sometimes just after the object has been saved
+    * Fixed CSV formatter not encoding strings with `"` and `,` properly
+    * Fixed var order in `Validation.php` [#2610](https://github.com/getgrav/grav/issues/2610)
 
 # v1.7.0-beta.5
 ## 08/11/2019
@@ -1494,256 +2202,6 @@
 1. [](#improved)
     * Updated the Clockwork text
 
-# v1.7.0-beta.1
-## 06/14/2019
-
-1. [](#new)
-    * Added support for [Clockwork](https://underground.works/clockwork) developer tools (now default debugger)
-    * Added support for [Tideways XHProf](https://github.com/tideways/php-xhprof-extension) PHP Extension for profiling method calls
-    * Added Twig profiling for Clockwork debugger
-    * Added support for Twig 2.11 (compatible with Twig 1.40+)
-    * Optimization: Initialize debugbar only after the configuration has been loaded
-    * Optimization: Combine some early Grav processors into a single one
-
-# v1.6.31
-## 12/14/2020
-
-1. [](#improved)
-    * Allow all CSS and JS via `robots.txt` [#2006](https://github.com/getgrav/grav/issues/2006) [#3067](https://github.com/getgrav/grav/issues/3067)
-1. [](#bugfix)
-    * Fixed `pages` field escaping issues, needs admin update, too [admin#1990](https://github.com/getgrav/grav-plugin-admin/issues/1990)
-    * Fix `svg-image` issue with classes applied to all elements [#3068](https://github.com/getgrav/grav/issues/3068)
-
-# v1.6.30
-## 12/03/2020
-
-1. [](#bugfix)
-    * Rollback `samesite` cookie logic as it causes issues with PHP < 7.3 [#309](https://github.com/getgrav/grav/issues/3089)
-    * Fixed issue with `.travis.yml` due to GitHub API deprecated functionality
-
-# v1.6.29
-## 12/02/2020
-
-1. [](#new)
-    * Added basic support for `user/config/versions.yaml`
-1. [](#improved)
-    * Updated bundled JQuery to latest version `3.5.1`
-    * Forward a `sid` to GPM when downloading a premium package via CLI
-    * Better handling of missing repository index [grav-plugin-admin#1916](https://github.com/getgrav/grav-plugin-admin/issues/1916)
-    * Set `grav_cli` as referrer when using `Response` from CLI
-    * Add option for timeout in `self-upgrade` command [#3013](https://github.com/getgrav/grav/pull/3013)
-    * Allow to set SameSite from system.yaml [#3063](https://github.com/getgrav/grav/pull/3063)
-    * Update media.yaml with some MS Office mimetypes [#3070](https://github.com/getgrav/grav/pull/3070)
-1. [](#bugfix)
-    * Fixed hardcoded system folder in blueprints, config and language streams
-    * Added `.htaccess` rule to block attempts to use Twig in the request URL
-    * Fix compatibility with Symfony 4.2 and up. [#3048](https://github.com/getgrav/grav/pull/3048)
-    * Fix failing example custom shceduled job. [#3050](https://github.com/getgrav/grav/pull/3050)
-    * Fix for XSS advisory [GHSA-cvmr-6428-87w9](https://github.com/getgrav/grav/security/advisories/GHSA-cvmr-6428-87w9)
-    * Fix uploads_dangerous_extensions checking [#3060](https://github.com/getgrav/grav/pull/3060)
-    * Remove redundant prefixing of `.` to extension [#3060](https://github.com/getgrav/grav/pull/3060)
-    * Check exact extension in checkFilename utility [#3061](https://github.com/getgrav/grav/pull/3061)
-
-# v1.6.28
-## 10/07/2020
-
-1. [](#new)
-    * Back-ported twig `{% cache %}` tag from Grav 1.7
-    * Back-ported `Utils::fullPath()` helper function from Grav 1.7
-    * Back-ported `{{ svg_image() }}` Twig function from Grav 1.7
-    * Back-ported `Folder::countChildren()` function from Grav 1.7
-1. [](#improved)
-    * Use new `{{ theme_var() }}` enhanced logic from Grav 1.7
-    * Improved `Excerpts` class with fixes and functionality from Grav 1.7
-    * Ensure `onBlueprintCreated()` is initialized first
-    * Do not cache default `404` error page
-    * Composer update of vendor libraries
-    * Switched `Caddyfile` to use new Caddy2 syntax + improved usability
-1. [](#bugfix)
-    * Fixed Referer reference during GPM calls.
-    * Fixed fatal error with toggled lists
-
-# v1.6.27
-## 09/01/2020
-
-1. [](#improved)
-    * Right trim route for safety
-    * Use the proper ellipsis for summary [#2939](https://github.com/getgrav/grav/pull/2939)
-    * Left pad schedule times with zeros [#2921](https://github.com/getgrav/grav/pull/2921)
-
-# v1.6.26
-## 06/08/2020
-
-1. [](#improved)
-    * Added new configuration option to control the supported attributes in markdown links [#2882](https://github.com/getgrav/grav/issues/2882)
-1. [](#bugfix)
-    * Fixed blueprint for `system.pages.hide_empty_folders` [#1925](https://github.com/getgrav/grav/issues/2925)
-    * JSON Route of homepage with no ‘route’ set is valid
-    * Fix case-insensitive search of location header [form#425](https://github.com/getgrav/grav-plugin-form/issues/425)
-
-# v1.6.25
-## 05/14/2020
-
-1. [](#improved)
-    * Added system configuration support for `HTTP_X_Forwarded` headers (host disabled by default)
-    * Updated `PHPUserAgentParser` to 1.0.0
-    * Bump `Go` to version 1.13 in `travis.yaml`
-
-# v1.6.24
-## 04/27/2020
-
-1. [](#improved)
-    * Added support for `X-Forwarded-Host` [#2891](https://github.com/getgrav/grav/pull/2891)
-    * Disable XDebug in Travis builds
-
-# v1.6.23
-## 03/19/2020
-
-1. [](#new)
-    * Moved `Parsedown` 1.6 and `ParsedownExtra` 0.7 into `Grav\Framework\Parsedown` to allow fixes
-    * Added `aliases.php` with references to direct `\Parsedown` and `\ParsedownExtra` references
-1. [](#improved)
-    * Upgraded `jQuery` to latest 3.4.1 version [#2859](https://github.com/getgrav/grav/issues/2859)
-1. [](#bugfix)
-    * Fixed PHP 7.4 issue in ParsedownExtra [#2832](https://github.com/getgrav/grav/issues/2832)
-    * Fix for [user reported](https://twitter.com/OriginalSicksec) CVE path-based open redirect
-    * Fix for `stream_set_option` error with PHP 7.4 via Toolbox#28 [#2850](https://github.com/getgrav/grav/issues/2850)
-
-# v1.6.22
-## 03/05/2020
-
-1. [](#new)
-    * Added `Pages::reset()` method
-1. [](#improved)
-    * Updated Negotiation library to address issues [#2513](https://github.com/getgrav/grav/issues/2513)
-1. [](#bugfix)
-    * Fixed issue with search plugins not being able to switch between page translations
-    * Fixed issues with `Pages::baseRoute()` not picking up active language reliably
-    * Reverted `validation: strict` fix as it breaks sites, see [#1273](https://github.com/getgrav/grav/issues/1273)
-
-# v1.6.21
-## 02/11/2020
-
-1. [](#new)
-    * Added `ConsoleCommand::setLanguage()` method to set language to be used from CLI
-    * Added `ConsoleCommand::initializeGrav()` method to properly set up Grav instance to be used from CLI
-    * Added `ConsoleCommand::initializePlugins()`method to properly set up all plugins to be used from CLI
-    * Added `ConsoleCommand::initializeThemes()`method to properly set up current theme to be used from CLI
-    * Added `ConsoleCommand::initializePages()` method to properly set up pages to be used from CLI
-1. [](#improved)
-    * Vendor updates
-1. [](#bugfix)
-    * Fixed `bin/plugin` CLI calling `$themes->init()` way too early (removed it, use above methods instead)
-    * Fixed call to `$grav['page']` crashing CLI
-    * Fixed encoding problems when PHP INI setting `default_charset` is not `utf-8` [#2154](https://github.com/getgrav/grav/issues/2154)
-
-# v1.6.20
-## 02/03/2020
-
-1. [](#bugfix)
-    * Fixed incorrect routing caused by `str_replace()` in `Uri::init()` [#2754](https://github.com/getgrav/grav/issues/2754)
-    * Fixed session cookie is being set twice in the HTTP header [#2745](https://github.com/getgrav/grav/issues/2745)
-    * Fixed session not restarting if user was invalid (downgrading from Grav 1.7)
-    * Fixed filesystem iterator calls with non-existing folders
-    * Fixed `checkbox` field not being saved, requires also Form v4.0.2 [#1225](https://github.com/getgrav/grav/issues/1225)
-    * Fixed `validation: strict` not working in blueprints [#1273](https://github.com/getgrav/grav/issues/1273)
-    * Fixed `Data::filter()` removing empty fields (such as empty list) by default [#2805](https://github.com/getgrav/grav/issues/2805)
-    * Fixed fatal error with non-integer page param value [#2803](https://github.com/getgrav/grav/issues/2803)
-    * Fixed `Assets::addInlineJs()` parameter type mismatch between v1.5 and v1.6 [#2659](https://github.com/getgrav/grav/issues/2659)
-    * Fixed `site.metadata` saving issues [#2615](https://github.com/getgrav/grav/issues/2615)
-
-# v1.6.19
-## 12/04/2019
-
-1. [](#new)
-    * Catch PHP 7.4 deprecation messages and report them in debugbar instead of throwing fatal error
-1. [](#bugfix)
-    * Fixed fatal error when calling `{{ grav.undefined }}`
-    * Fixed multiple issues when there are no pages in the site
-    * PHP 7.4 fix for [#2750](https://github.com/getgrav/grav/issues/2750)
-
-# v1.6.18
-## 12/02/2019
-
-1. [](#bugfix)
-    * PHP 7.4 fix in `Pages::buildSort()`
-    * Updated vendor libraries for PHP 7.4 fixes in Twig and other libraries
-    * Fixed fatal error when `$page->id()` is null [#2731](https://github.com/getgrav/grav/pull/2731)
-    * Fixed cache conflicts on pages with no set id
-    * Fix rewrite rule for for `lighttpd` default config [#721](https://github.com/getgrav/grav/pull/2721)
-
-# v1.6.17
-## 11/06/2019
-
-1. [](#new)
-    * Added working ETag (304 Not Modified) support based on the final rendered HTML
-1. [](#improved)
-    * Safer file handling + customizable null char replacement in `CsvFormatter::decode()`
-    * Change of Behavior: `Inflector::hyphenize` will now automatically trim dashes at beginning and end of a string.
-    * Change in Behavior for `Folder::all()` so no longer fails if trying to copy non-existent dot file [#2581](https://github.com/getgrav/grav/pull/2581)
-    * renamed composer `test-plugins` script to `phpstan-plugins` to be more explicit [#2637](https://github.com/getgrav/grav/pull/2637)
-1. [](#bugfix)
-    * Fixed PHP 7.1 bug in FlexMedia
-    * Fix cache image generation when using cropResize [#2639](https://github.com/getgrav/grav/pull/2639)
-    * Fix `array_merge()` exception with non-array page header metadata [#2701](https://github.com/getgrav/grav/pull/2701)
-
-# v1.6.16
-## 09/19/2019
-
-1. [](#bugfix)
-    * Fixed Flex user creation if file storage is being used [#2444](https://github.com/getgrav/grav/issues/2444)
-    * Fixed `Badly encoded JSON data` warning when uploading files [#2663](https://github.com/getgrav/grav/issues/2663)
-
-# v1.6.15
-## 08/20/2019
-
-1. [](#improved)
-    * Improved robots.txt [#2632](https://github.com/getgrav/grav/issues/2632)
-1. [](#bugfix)
-    * Fixed broken markdown Twig tag [#2635](https://github.com/getgrav/grav/issues/2635)
-    * Force Symfony 4.2 in Grav 1.6 to remove a bunch of deprecated messages
-
-# v1.6.14
-## 08/18/2019
-
-1. [](#bugfix)
-    * Actually include fix for `system\router.php` [#2627](https://github.com/getgrav/grav/issues/2627)
-
-# v1.6.13
-## 08/16/2019
-
-1. [](#bugfix)
-    * Regression fix for `system\router.php` [#2627](https://github.com/getgrav/grav/issues/2627)
-
-# v1.6.12
-## 08/14/2019
-
-1. [](#new)
-    * Added support for custom `FormFlash` save locations
-    * Added a new `Utils::arrayLower()` method for lowercasing arrays
-    * Support new GRAV_BASEDIR environment variable [#2541](https://github.com/getgrav/grav/pull/2541)
-    * Allow users to override plugin handler priorities [#2165](https://github.com/getgrav/grav/pull/2165)
-1. [](#improved)
-    * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)
-    * Updated vendor libraries
-    * Markdown filter is now page-aware so that it works with modular references [admin#1731](https://github.com/getgrav/grav-plugin-admin/issues/1731)
-    * Check of `GRAV_USER_INSTANCE` constant is already defined [#2621](https://github.com/getgrav/grav/pull/2621)
-1. [](#bugfix)
-    * Fixed some potential issues when `$grav['user']` is not set
-    * Fixed error when calling `Media::add($name, null)`
-    * Fixed `url()` returning wrong path if using stream with grav root path in it, eg: `user-data://shop` when Grav is in `/shop`
-    * Fixed `url()` not returning a path to non-existing file (`user-data://shop` => `/user/data/shop`) if it is set to fail gracefully
-    * Fixed `url()` returning false on unknown streams, such as `ftp://domain.com`, they should be treated as external URL
-    * Fixed Flex User to have permissions to save and delete his own user
-    * Fixed new Flex User creation not being possible because of username could not be given
-    * Fixed fatal error 'Expiration date must be an integer, a DateInterval or null, "double" given' [#2529](https://github.com/getgrav/grav/issues/2529)
-    * Fixed non-existing Flex object having a bad media folder
-    * Fixed collections using `page@.self:` should allow modular pages if requested
-    * Fixed an error when trying to delete a file from non-existing Flex Object
-    * Fixed `FlexObject::exists()` failing sometimes just after the object has been saved
-    * Fixed CSV formatter not encoding strings with `"` and `,` properly
-    * Fixed var order in `Validation.php` [#2610](https://github.com/getgrav/grav/issues/2610)
-
 # v1.6.11
 ## 06/21/2019
 
@@ -1757,6 +2215,17 @@
     * Fixed empty form flash name after file upload or form state update
     * Fixed a bug in `Route::withParam()` method
     * Fixed issue with `FormFlash` objects when there is no session initialized
+
+# v1.7.0-beta.1
+## 06/14/2019
+
+1. [](#new)
+    * Added support for [Clockwork](https://underground.works/clockwork) developer tools (now default debugger)
+    * Added support for [Tideways XHProf](https://github.com/tideways/php-xhprof-extension) PHP Extension for profiling method calls
+    * Added Twig profiling for Clockwork debugger
+    * Added support for Twig 2.11 (compatible with Twig 1.40+)
+    * Optimization: Initialize debugbar only after the configuration has been loaded
+    * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.10
 ## 06/14/2019
@@ -3017,7 +3486,6 @@
     * Send slug name as part of installed packages
     * Fix for summary entities not being properly decoded [#825](https://github.com/getgrav/grav/issues/825)
 
-
 # v1.1.0-beta.3
 ## 05/04/2016
 
@@ -3155,7 +3623,6 @@
     * Fix for bug with `site.redirects` and `site.routes` being an empty list
     * [Markdown] Don't process links for **special protocols**
     * [Whoops] serve JSON errors when request is JSON
-
 
 # v1.0.8
 ## 01/08/2016
@@ -4245,7 +4712,6 @@
     * Fixed issue when installing in an apache userdir (~username) folder
     * Various mobile CSS issues in default themes
     * Various minor bug fixes
-
 
 # v0.8.0
 ## 08/13/2014

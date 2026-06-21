@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -24,16 +24,12 @@ abstract class AbstractFormatter implements FileFormatterInterface
 {
     use Serializable;
 
-    /** @var array */
-    private $config;
-
     /**
      * IniFormatter constructor.
      * @param array $config
      */
-    public function __construct(array $config = [])
+    public function __construct(private array $config = [])
     {
-        $this->config = $config;
     }
 
     /**
@@ -106,7 +102,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
      * @param string|null $name Configuration option (optional)
      * @return mixed
      */
-    protected function getConfig(string $name = null)
+    protected function getConfig(?string $name = null)
     {
         if (null !== $name) {
             return $this->config[$name] ?? null;

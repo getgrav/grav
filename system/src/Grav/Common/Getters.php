@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -29,7 +29,7 @@ abstract class Getters implements ArrayAccess, Countable
      * @param mixed $value  Medium value
      */
     #[\ReturnTypeWillChange]
-    public function __set($offset, $value)
+    public function __set($offset, mixed $value)
     {
         $this->offsetSet($offset, $value);
     }
@@ -103,10 +103,9 @@ abstract class Getters implements ArrayAccess, Countable
 
     /**
      * @param int|string $offset
-     * @param mixed $value
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, mixed $value)
     {
         if ($this->gettersVariable) {
             $var = $this->gettersVariable;

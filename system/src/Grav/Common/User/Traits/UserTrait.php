@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\User
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -76,7 +76,7 @@ trait UserTrait
      * @param  string|null $scope
      * @return bool|null
      */
-    public function authorize(string $action, string $scope = null): ?bool
+    public function authorize(string $action, ?string $scope = null): ?bool
     {
         // User needs to be enabled.
         if ($this->get('state', 'enabled') !== 'enabled') {
@@ -89,7 +89,7 @@ trait UserTrait
         }
 
         // User needs to be authorized (2FA).
-        if (strpos($action, 'login') === false && !$this->get('authorized', true)) {
+        if (!str_contains($action, 'login') && !$this->get('authorized', true)) {
             return false;
         }
 
@@ -184,7 +184,7 @@ trait UserTrait
                 return '';
             }
 
-            $hash = md5(strtolower(trim($email)));
+            $hash = md5(strtolower(trim((string) $email)));
 
             return 'https://www.gravatar.com/avatar/' . $hash;
         }

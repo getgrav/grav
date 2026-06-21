@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -35,7 +35,7 @@ trait FlexCollectionTrait
                 'collection' => $this
             ]);
         }
-        if (strpos($name, 'onFlexCollection') !== 0 && strpos($name, 'on') === 0) {
+        if (!str_starts_with($name, 'onFlexCollection') && str_starts_with($name, 'on')) {
             $name = 'onFlexCollection' . substr($name, 2);
         }
 

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Pagination
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -72,33 +72,33 @@ interface PaginationInterface extends Countable, IteratorAggregate
      * @param string|null $label
      * @return PaginationPage|null
      */
-    public function getPage(int $page, string $label = null): ?PaginationPage;
+    public function getPage(int $page, ?string $label = null): ?PaginationPage;
 
     /**
      * @param string|null $label
      * @param int $count
      * @return PaginationPage|null
      */
-    public function getFirstPage(string $label = null, int $count = 0): ?PaginationPage;
+    public function getFirstPage(?string $label = null, int $count = 0): ?PaginationPage;
 
     /**
      * @param string|null $label
      * @param int $count
      * @return PaginationPage|null
      */
-    public function getPrevPage(string $label = null, int $count = 1): ?PaginationPage;
+    public function getPrevPage(?string $label = null, int $count = 1): ?PaginationPage;
 
     /**
      * @param string|null $label
      * @param int $count
      * @return PaginationPage|null
      */
-    public function getNextPage(string $label = null, int $count = 1): ?PaginationPage;
+    public function getNextPage(?string $label = null, int $count = 1): ?PaginationPage;
 
     /**
      * @param string|null $label
      * @param int $count
      * @return PaginationPage|null
      */
-    public function getLastPage(string $label = null, int $count = 0): ?PaginationPage;
+    public function getLastPage(?string $label = null, int $count = 0): ?PaginationPage;
 }

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -138,7 +138,7 @@ class Upgrader
      * Returns true when the remote has advertised a newer major via the `next_major` hint.
      * Used for informational notices — never implies an automatic upgrade.
      *
-     * The server sends `next_major` to older-family clients (e.g. 1.7.x) alongside the
+     * The server sends `next_major` to older-family clients (e.g. 1.8.x) alongside the
      * family-appropriate release, so comparing raw remote/local versions here would miss it.
      *
      * @return bool

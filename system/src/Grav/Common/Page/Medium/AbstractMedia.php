@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -229,7 +229,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * @param  Blueprint|null $blueprint
      * @return Medium|null
      */
-    public function createFromArray(array $items = [], Blueprint $blueprint = null)
+    public function createFromArray(array $items = [], ?Blueprint $blueprint = null)
     {
         return MediumFactory::fromArray($items, $blueprint);
     }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -129,7 +129,7 @@ class PageObject extends FlexPageObject
     /**
      * @inheritdoc PageInterface
      */
-    public function getFormValue(string $name, $default = null, string $separator = null)
+    public function getFormValue(string $name, $default = null, ?string $separator = null)
     {
         $test = new stdClass();
 
@@ -261,7 +261,7 @@ class PageObject extends FlexPageObject
     /**
      * @param UserInterface|null $user
      */
-    public function check(UserInterface $user = null): void
+    public function check(?UserInterface $user = null): void
     {
         parent::check($user);
 
@@ -521,7 +521,7 @@ class PageObject extends FlexPageObject
             $template = $this->getProperty('template') . ($name ? '.' . $name : '');
 
             $blueprint = $this->getFlexDirectory()->getBlueprint($template, 'blueprints://pages');
-        } catch (RuntimeException $e) {
+        } catch (RuntimeException) {
             $template = 'default' . ($name ? '.' . $name : '');
 
             $blueprint = $this->getFlexDirectory()->getBlueprint($template, 'blueprints://pages');
@@ -554,7 +554,7 @@ class PageObject extends FlexPageObject
         $initial = $options['initial'] ?? null;
         $var = $initial ? 'leaf_route' : 'route';
         $route = $options[$var] ?? '';
-        if ($route !== '' && !str_starts_with($route, '/')) {
+        if ($route !== '' && !str_starts_with((string) $route, '/')) {
             $filesystem = Filesystem::getInstance();
 
             $route = "/{$this->getKey()}/{$route}";
@@ -600,7 +600,7 @@ class PageObject extends FlexPageObject
                     $matches = $test->search((string)$value) > 0.0;
                     break;
                 case 'page_type':
-                    $types = $value ? explode(',', $value) : [];
+                    $types = $value ? explode(',', (string) $value) : [];
                     $matches = in_array($test->template(), $types, true);
                     break;
                 case 'extension':
@@ -698,7 +698,7 @@ class PageObject extends FlexPageObject
         } elseif (array_key_exists('ordering', $elements) && array_key_exists('order', $elements)) {
             // Store ordering.
             $ordering = $elements['order'] ?? null;
-            $this->_reorder = !empty($ordering) ? explode(',', $ordering) : [];
+            $this->_reorder = !empty($ordering) ? explode(',', (string) $ordering) : [];
 
             $order = false;
             if ((bool)($elements['ordering'] ?? false)) {

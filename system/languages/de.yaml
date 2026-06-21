@@ -145,3 +145,12 @@ GRAV:
     ERROR2: Ungültige Anzahl von Elementen
     ERROR3: jquery_element sollte in den jqCron Einstellungen gesetzt werden
     ERROR4: Unbekannter Ausdruck
+
+PLUGIN_ADMIN:
+    MEDIA: "Medien"
+    MEDIA_TYPES: "Medien-Typen"
+    IMAGE_OPTIONS: "Bildoptionen"
+    MIME_TYPE: "MIME-Typ"
+    THUMB: "Vorschaubild"
+    TYPE: "Typ"
+    FILE_EXTENSION: "Dateiendung"

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -92,9 +92,7 @@ trait PageTranslateTrait
             $list[$languageCode ?: $defaultCode] = $route ?? '';
         }
 
-        $list = array_filter($list, static function ($var) {
-            return null !== $var;
-        });
+        $list = array_filter($list, static fn($var) => null !== $var);
 
         // Hack to get the same result as with old pages.
         foreach ($list as &$path) {

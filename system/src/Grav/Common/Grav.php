@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -53,6 +53,7 @@ use Grav\Framework\RequestHandler\RequestHandler;
 use Grav\Framework\Route\Route;
 use Grav\Framework\Session\Messages;
 use InvalidArgumentException;
+use RuntimeException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
@@ -200,7 +201,7 @@ class Grav extends Container
      * @param string|null $environment
      * @return $this
      */
-    public function setup(string $environment = null)
+    public function setup(?string $environment = null)
     {
         if (isset($this->initialized['setup'])) {
             return $this;
@@ -261,51 +262,23 @@ class Grav extends Container
 
         $container = new Container(
             [
-                'multipartRequestSupport' => function () {
-                    return new MultipartRequestSupport();
-                },
-                'initializeProcessor' => function () {
-                    return new InitializeProcessor($this);
-                },
-                'backupsProcessor' => function () {
-                    return new BackupsProcessor($this);
-                },
-                'pluginsProcessor' => function () {
-                    return new PluginsProcessor($this);
-                },
-                'themesProcessor' => function () {
-                    return new ThemesProcessor($this);
-                },
-                'schedulerProcessor' => function () {
-                    return new SchedulerProcessor($this);
-                },
-                'requestProcessor' => function () {
-                    return new RequestProcessor($this);
-                },
-                'tasksProcessor' => function () {
-                    return new TasksProcessor($this);
-                },
-                'assetsProcessor' => function () {
-                    return new AssetsProcessor($this);
-                },
-                'twigProcessor' => function () {
-                    return new TwigProcessor($this);
-                },
-                'pagesProcessor' => function () {
-                    return new PagesProcessor($this);
-                },
-                'debuggerAssetsProcessor' => function () {
-                    return new DebuggerAssetsProcessor($this);
-                },
-                'renderProcessor' => function () {
-                    return new RenderProcessor($this);
-                },
+                'multipartRequestSupport' => fn() => new MultipartRequestSupport(),
+                'initializeProcessor' => fn() => new InitializeProcessor($this),
+                'backupsProcessor' => fn() => new BackupsProcessor($this),
+                'pluginsProcessor' => fn() => new PluginsProcessor($this),
+                'themesProcessor' => fn() => new ThemesProcessor($this),
+                'schedulerProcessor' => fn() => new SchedulerProcessor($this),
+                'requestProcessor' => fn() => new RequestProcessor($this),
+                'tasksProcessor' => fn() => new TasksProcessor($this),
+                'assetsProcessor' => fn() => new AssetsProcessor($this),
+                'twigProcessor' => fn() => new TwigProcessor($this),
+                'pagesProcessor' => fn() => new PagesProcessor($this),
+                'debuggerAssetsProcessor' => fn() => new DebuggerAssetsProcessor($this),
+                'renderProcessor' => fn() => new RenderProcessor($this),
             ]
         );
 
-        $default = static function () {
-            return new Response(404, ['Expires' => 0, 'Cache-Control' => 'no-store, max-age=0'], 'Not Found');
-        };
+        $default = static fn() => new Response(404, ['Expires' => 0, 'Cache-Control' => 'no-store, max-age=0'], 'Not Found');
 
         $collection = new RequestHandler($this->middleware, $default, $container);
 
@@ -326,7 +299,7 @@ class Grav extends Container
             $etag = md5($body);
             $response = $response->withHeader('ETag', '"' . $etag . '"');
 
-            $search = trim($this['request']->getHeaderLine('If-None-Match'), '"');
+            $search = trim((string) $this['request']->getHeaderLine('If-None-Match'), '"');
             if ($noCache === false && $search === $etag) {
                 $response = $response->withStatus(304);
                 $body = '';
@@ -373,6 +346,16 @@ class Grav extends Container
      */
     public function close(ResponseInterface $response): void
     {
+        // In CLI, throw instead of exit() so commands can report the problem
+        // rather than terminate silently. A plugin calling redirect()/close()
+        // during a console command (e.g. inside onPluginsInitialized) would
+        // otherwise kill the process with no error visible to the user.
+        if (\PHP_SAPI === 'cli') {
+            $location = $response->getHeaderLine('Location');
+            $detail = $location !== '' ? " (redirect to {$location})" : '';
+            throw new RuntimeException("Grav::close() called in CLI context{$detail}");
+        }
+
         $this->cleanOutputBuffers();
 
         // Close the session.
@@ -403,7 +386,7 @@ class Grav extends Container
             $etag = md5($body);
             $response = $response->withHeader('ETag', '"' . $etag . '"');
 
-            $search = trim($this['request']->getHeaderLine('If-None-Match'), '"');
+            $search = trim((string) $this['request']->getHeaderLine('If-None-Match'), '"');
             if ($noCache === false && $search === $etag) {
                 $response = $response->withStatus(304);
                 $body = '';
@@ -461,7 +444,7 @@ class Grav extends Container
             if (null === $code) {
                 // Check for redirect code in the route: e.g. /new/[301], /new[301]/route or /new[301].html
                 $regex = '/.*(\[(30[1-7])\])(.\w+|\/.*?)?$/';
-                preg_match($regex, $route, $matches);
+                preg_match($regex, (string) $route, $matches);
                 if ($matches) {
                     $route = str_replace($matches[1], '', $matches[0]);
                     $code = $matches[2];
@@ -474,9 +457,9 @@ class Grav extends Container
                 $url = rtrim($uri->rootUrl(), '/') . '/';
 
                 if ($this['config']->get('system.pages.redirect_trailing_slash', true)) {
-                    $url .= trim($route, '/'); // Remove trailing slash
+                    $url .= trim((string) $route, '/'); // Remove trailing slash
                 } else {
-                    $url .= ltrim($route, '/'); // Support trailing slash default routes
+                    $url .= ltrim((string) $route, '/'); // Support trailing slash default routes
                 }
             }
         } elseif ($route instanceof Route) {
@@ -522,7 +505,7 @@ class Grav extends Container
      * @param ResponseInterface|null $response
      * @return void
      */
-    public function header(ResponseInterface $response = null): void
+    public function header(?ResponseInterface $response = null): void
     {
         if (null === $response) {
             /** @var PageInterface $page */
@@ -533,7 +516,7 @@ class Grav extends Container
         header("HTTP/{$response->getProtocolVersion()} {$response->getStatusCode()} {$response->getReasonPhrase()}");
         foreach ($response->getHeaders() as $key => $values) {
             // Skip internal Grav headers.
-            if (strpos($key, 'Grav-Internal-') === 0) {
+            if (str_starts_with((string) $key, 'Grav-Internal-')) {
                 continue;
             }
             foreach ($values as $i => $value) {
@@ -552,7 +535,7 @@ class Grav extends Container
         // Initialize Locale if set and configured.
         if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
             $language = $this['language']->getLanguage();
-            setlocale(LC_ALL, strlen($language) < 3 ? ($language . '_' . strtoupper($language)) : $language);
+            setlocale(LC_ALL, strlen((string) $language) < 3 ? ($language . '_' . strtoupper((string) $language)) : $language);
         } elseif ($this['config']->get('system.default_locale')) {
             setlocale(LC_ALL, $this['config']->get('system.default_locale'));
         }
@@ -566,7 +549,7 @@ class Grav extends Container
     {
         /** @var EventDispatcherInterface $events */
         $events = $this['events'];
-        $eventName = get_class($event);
+        $eventName = $event::class;
 
         $timestamp = microtime(true);
         $event = $events->dispatch($event);
@@ -585,7 +568,7 @@ class Grav extends Container
      * @param  Event|null $event
      * @return Event
      */
-    public function fireEvent($eventName, Event $event = null)
+    public function fireEvent($eventName, ?Event $event = null)
     {
         /** @var EventDispatcherInterface $events */
         $events = $this['events'];
@@ -598,7 +581,9 @@ class Grav extends Container
 
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
-        $debugger->addEvent($eventName, $event, $events, $timestamp);
+        if ($debugger->enabled()) {
+            $debugger->addEvent($eventName, $event, $events, $timestamp);
+        }
 
         return $event;
     }
@@ -632,23 +617,24 @@ class Grav extends Container
                 // Unfortunately without FastCGI there is no way to force close the connection.
                 // We need to ask browser to close the connection for us.
 
-                if ($config->get('system.cache.gzip')) {
-                    // Flush gzhandler buffer if gzip setting was enabled to get the size of the compressed output.
-                    ob_end_flush();
-                } elseif ($config->get('system.cache.allow_webserver_gzip')) {
-                    // Let web server to do the hard work.
-                    header('Content-Encoding: identity');
-                } elseif (function_exists('apache_setenv')) {
-                    // Without gzip we have no other choice than to prevent server from compressing the output.
-                    // This action turns off mod_deflate which would prevent us from closing the connection.
-                    @apache_setenv('no-gzip', '1');
-                } else {
-                    // Fall back to unknown content encoding, it prevents most servers from deflating the content.
-                    header('Content-Encoding: none');
+                // Check if external compression is active (e.g., zlib.output_compression in php.ini).
+                if (!ini_get('zlib.output_compression')) {
+                    if ($config->get('system.cache.gzip') || $config->get('system.cache.allow_webserver_gzip')) {
+                        // Let web server handle compression.
+                        header('Content-Encoding: identity');
+                    } elseif (function_exists('apache_setenv')) {
+                        // Without gzip we have no other choice than to prevent server from compressing the output.
+                        // This action turns off mod_deflate which would prevent us from closing the connection.
+                        @apache_setenv('no-gzip', '1');
+                    } else {
+                        // Fall back to unknown content encoding, it prevents most servers from deflating the content.
+                        header('Content-Encoding: none');
+                    }
+
+                    // Get length and close the connection (only when not using compression).
+                    header('Content-Length: ' . ob_get_length());
                 }
 
-                // Get length and close the connection.
-                header('Content-Length: ' . ob_get_length());
                 header('Connection: close');
 
                 ob_end_flush();
@@ -734,9 +720,7 @@ class Grav extends Container
             if (is_int($serviceKey)) {
                 $this->register(new $serviceClass);
             } else {
-                $this[$serviceKey] = function ($c) use ($serviceClass) {
-                    return new $serviceClass($c);
-                };
+                $this[$serviceKey] = fn($c) => new $serviceClass($c);
             }
         }
     }
@@ -843,7 +827,7 @@ class Grav extends Container
 
             if ($extension) {
                 $download = true;
-                if (in_array(ltrim($extension, '.'), $config->get('system.media.unsupported_inline_types', []), true)) {
+                if (in_array(ltrim((string) $extension, '.'), $config->get('system.media.unsupported_inline_types', []), true)) {
                     $download = false;
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);

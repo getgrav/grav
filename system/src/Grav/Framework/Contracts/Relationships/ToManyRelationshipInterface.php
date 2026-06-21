@@ -25,7 +25,7 @@ interface ToManyRelationshipInterface extends RelationshipInterface
      * @return T|null
      * @phpstan-pure
      */
-    public function getIdentifier(string $id, string $type = null): ?IdentifierInterface;
+    public function getIdentifier(string $id, ?string $type = null): ?IdentifierInterface;
 
     /**
      * @param string $id
@@ -33,7 +33,7 @@ interface ToManyRelationshipInterface extends RelationshipInterface
      * @return T|null
      * @phpstan-pure
      */
-    public function getObject(string $id, string $type = null): ?object;
+    public function getObject(string $id, ?string $type = null): ?object;
 
     /**
      * @param iterable<T> $identifiers

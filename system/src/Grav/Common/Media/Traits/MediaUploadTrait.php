@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -71,7 +71,7 @@ trait MediaUploadTrait
      * @return string
      * @throws RuntimeException
      */
-    public function checkUploadedFile(UploadedFileInterface $uploadedFile, string $filename = null, array $settings = null): string
+    public function checkUploadedFile(UploadedFileInterface $uploadedFile, ?string $filename = null, ?array $settings = null): string
     {
         // Check if there is an upload error.
         switch ($uploadedFile->getError()) {
@@ -115,7 +115,7 @@ trait MediaUploadTrait
      * @return string
      * @throws RuntimeException
      */
-    public function checkFileMetadata(array $metadata, string $filename = null, array $settings = null): string
+    public function checkFileMetadata(array $metadata, ?string $filename = null, ?array $settings = null): string
     {
         // Add the defaults to the settings.
         $settings = $this->getUploadSettings($settings);
@@ -206,11 +206,11 @@ trait MediaUploadTrait
                 break;
             }
 
-            $isMime = strstr($type, '/');
+            $isMime = strstr((string) $type, '/');
             $find = str_replace(['.', '*', '+'], ['\.', '.*', '\+'], $type);
 
             if ($isMime) {
-                $match = preg_match('#' . $find . '$#', $mime);
+                $match = preg_match('#' . $find . '$#', (string) $mime);
                 if (!$match) {
                     // TODO: translate
                     $errors[] = 'The MIME type "' . $mime . '" for the file "' . $filepath . '" is not an accepted.';
@@ -219,7 +219,7 @@ trait MediaUploadTrait
                     break;
                 }
             } else {
-                $match = preg_match('#' . $find . '$#', $filename);
+                $match = preg_match('#' . $find . '$#', (string) $filename);
                 if (!$match) {
                     // TODO: translate
                     $errors[] = 'The File Extension for the file "' . $filepath . '" is not an accepted.';
@@ -252,7 +252,7 @@ trait MediaUploadTrait
      * @return void
      * @throws RuntimeException
      */
-    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, array $settings = null): void
+    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, ?array $settings = null): void
     {
         // Add the defaults to the settings.
         $settings = $this->getUploadSettings($settings);
@@ -286,7 +286,7 @@ trait MediaUploadTrait
                 if ($uploadedFile->getError() === \UPLOAD_ERR_OK) {
                     // Move uploaded file.
                     $this->doMoveUploadedFile($uploadedFile, $filename, $path);
-                } elseif (strpos($filename, 'original/') === 0 && !$this->fileExists($filename, $path) && $this->fileExists($basename, $path)) {
+                } elseif (str_starts_with($filename, 'original/') && !$this->fileExists($filename, $path) && $this->fileExists($basename, $path)) {
                     // Original image support: override original image if it's the same as the uploaded image.
                     $this->doCopy($basename, $filename, $path);
                 }
@@ -329,7 +329,7 @@ trait MediaUploadTrait
      * @return void
      * @throws RuntimeException
      */
-    public function deleteFile(string $filename, array $settings = null): void
+    public function deleteFile(string $filename, ?array $settings = null): void
     {
         // Add the defaults to the settings.
         $settings = $this->getUploadSettings($settings);
@@ -371,7 +371,7 @@ trait MediaUploadTrait
      * @param string $to
      * @param array|null $settings
      */
-    public function renameFile(string $from, string $to, array $settings = null): void
+    public function renameFile(string $from, string $to, ?array $settings = null): void
     {
         // Add the defaults to the settings.
         $settings = $this->getUploadSettings($settings);
@@ -558,7 +558,7 @@ trait MediaUploadTrait
         $fileParts = (array)$filesystem->pathinfo($filename);
 
         foreach ($dir as $file) {
-            $preg_name = preg_quote($fileParts['filename'], '`');
+            $preg_name = preg_quote((string) $fileParts['filename'], '`');
             $preg_ext = preg_quote($fileParts['extension'] ?? '.', '`');
             $preg_filename = preg_quote($basename, '`');
 

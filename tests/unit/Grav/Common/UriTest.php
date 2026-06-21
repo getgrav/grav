@@ -9,7 +9,7 @@ use Grav\Common\Utils;
 /**
  * Class UriTest
  */
-class UriTest extends \Codeception\TestCase\Test
+class UriTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -858,15 +858,16 @@ class UriTest extends \Codeception\TestCase\Test
         ],
     ];
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->uri = $this->grav['uri'];
         $this->config = $this->grav['config'];
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
     }
 
@@ -901,7 +902,7 @@ class UriTest extends \Codeception\TestCase\Test
             self::assertSame($expected, $result, "Test \$url->{$method}() for {$url}");
             // Deal with $url->query($key)
             if ($method === 'query') {
-                parse_str($expected, $queryParams);
+                parse_str((string) $expected, $queryParams);
                 foreach ($queryParams as $key => $value) {
                     self::assertSame($value, $this->uri->{$method}($key), "Test \$url->{$method}('{$key}') for {$url}");
                 }

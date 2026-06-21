@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Assets
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,13 +11,14 @@ namespace Grav\Common\Assets;
 
 use Grav\Common\Assets\Traits\AssetUtilsTrait;
 use Grav\Common\Config\Config;
+use Grav\Common\Debugger;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
-use MatthiasMullie\Minify\CSS;
-use MatthiasMullie\Minify\JS;
+use tubalmartin\CssMin\Minifier as CSSMinifier;
+use JShrink\Minifier as JSMinifier;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function array_key_exists;
 
@@ -144,9 +145,8 @@ class Pipeline extends PropertyObject
 
             // Minify if required
             if ($this->shouldMinify('css')) {
-                $minifier = new CSS();
-                $minifier->add($buffer);
-                $buffer = $minifier->minify();
+                $minifier = new CSSMinifier();
+                $buffer = $minifier->run($buffer);
             }
 
             // Write file
@@ -171,7 +171,9 @@ class Pipeline extends PropertyObject
      * @param array $assets
      * @param string $group
      * @param array $attributes
-     * @return bool|string     URL or generated content if available, else false
+     * @param int $type
+     * @return array{output: string, failed: array}|string|false  Returns array with output and failed assets when minifying,
+     *                                                             string when not minifying, or false if no assets
      */
     public function renderJs($assets, $group, $attributes = [], $type = self::JS_ASSET)
     {
@@ -186,42 +188,53 @@ class Pipeline extends PropertyObject
         // Store Attributes
         $this->attributes = $attributes;
 
-        // Compute uid based on assets and timestamp
-        $json_assets = json_encode($assets);
-        $uid = md5($json_assets . $this->js_minify . $group);
-        $file = $uid . '.js';
-        $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
-
-        $filepath = "{$this->assets_dir}/{$file}";
-        if (file_exists($filepath)) {
-            $buffer = file_get_contents($filepath) . "\n";
-        } else {
-            //if nothing found get out of here!
-            if (empty($assets)) {
-                return false;
-            }
-
-            // Concatenate files
-            $buffer = $this->gatherLinks($assets, $type);
-
-            // Minify if required
-            if ($this->shouldMinify('js')) {
-                $minifier = new JS();
-                $minifier->add($buffer);
-                $buffer = $minifier->minify();
-            }
-
-            // Write file
-            if (trim($buffer) !== '') {
-                file_put_contents($filepath, $buffer);
-            }
+        //if nothing found get out of here!
+        if (empty($assets)) {
+            return false;
         }
 
-        if ($inline_group) {
+        $shouldMinify = $this->shouldMinify('js');
+        $failedAssets = [];
+
+        // When minifying, process each file individually to isolate failures
+        if ($shouldMinify) {
+            $result = $this->gatherAndMinifyJs($assets, $type);
+            $buffer = $result['buffer'];
+            $failedAssets = $result['failed'];
+
+            // Compute uid based on successful assets only
+            $successfulAssets = array_diff_key($assets, array_flip(array_keys($failedAssets)));
+            $json_assets = json_encode($successfulAssets);
+        } else {
+            $buffer = $this->gatherLinks($assets, $type);
+            $json_assets = json_encode($assets);
+        }
+
+        $uid = md5($json_assets . (int)$shouldMinify . $group);
+        $file = $uid . '.js';
+        $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
+        $filepath = "{$this->assets_dir}/{$file}";
+
+        // Check for cached version (only if no failed assets, as cache key changes)
+        if (empty($failedAssets) && file_exists($filepath)) {
+            $buffer = file_get_contents($filepath) . "\n";
+        } elseif (trim($buffer) !== '') {
+            // Write file
+            file_put_contents($filepath, $buffer);
+        }
+
+        if (trim($buffer) === '') {
+            $output = '';
+        } elseif ($inline_group) {
             $output = '<script' . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
         } else {
             $this->asset = $relative_path;
             $output = '<script src="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . BaseAsset::integrityHash($this->asset) . "></script>\n";
+        }
+
+        // Return array with failed assets if minifying, otherwise just the output string
+        if ($shouldMinify) {
+            return ['output' => $output, 'failed' => $failedAssets];
         }
 
         return $output;
@@ -283,7 +296,7 @@ class Pipeline extends PropertyObject
             } else {
                 return str_replace($matches[2], $new_url, $matches[0]);
             }
-        }, $file);
+        }, (string) $file);
 
         return $file;
     }
@@ -343,5 +356,76 @@ class Pipeline extends PropertyObject
         }
 
         return $minify;
+    }
+
+    /**
+     * Gather JS files and minify each one individually.
+     * Files that fail minification are tracked and returned separately.
+     *
+     * @param array $assets Array of asset objects
+     * @param int $type Asset type (JS_ASSET or JS_MODULE_ASSET)
+     * @return array{buffer: string, failed: array} Combined minified content and failed assets
+     */
+    private function gatherAndMinifyJs(array $assets, int $type): array
+    {
+        $buffer = '';
+        $failed = [];
+
+        /** @var Debugger $debugger */
+        $debugger = Grav::instance()['debugger'];
+
+        foreach ($assets as $key => $asset) {
+            $local = true;
+            $link = $asset->getAsset();
+            $relative_path = $link;
+
+            if (static::isRemoteLink($link)) {
+                $local = false;
+                if (str_starts_with((string) $link, '//')) {
+                    $link = 'http:' . $link;
+                }
+                $relative_dir = dirname((string) $relative_path);
+            } else {
+                // Fix to remove relative dir if grav is in one
+                if (($this->base_url !== '/') && Utils::startsWith($relative_path, $this->base_url)) {
+                    $base_url = '#' . preg_quote($this->base_url, '#') . '#';
+                    $relative_path = ltrim((string) preg_replace($base_url, '/', (string) $link, 1), '/');
+                }
+
+                $relative_dir = dirname((string) $relative_path);
+                $link = GRAV_ROOT . '/' . $relative_path;
+            }
+
+            $file = $this->fetch_command instanceof \Closure ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
+
+            // No file found, skip it...
+            if ($file === false) {
+                continue;
+            }
+
+            // Ensure proper termination
+            $file = rtrim((string) $file, ' ;') . ';';
+
+            // Rewrite imports for JS modules
+            if ($type === self::JS_MODULE_ASSET) {
+                $file = $this->jsRewrite($file, $relative_dir, $local);
+            }
+
+            // Try to minify this individual file
+            try {
+                $file = JSMinifier::minify($file);
+                $file = rtrim($file) . PHP_EOL;
+                $buffer .= $file;
+            } catch (\Exception $e) {
+                // Track failed asset for individual rendering
+                $failed[$key] = $asset;
+
+                $message = "JS Minification failed for '{$asset->getAsset()}': {$e->getMessage()}";
+                $debugger->addMessage($message, 'error');
+                Grav::instance()['log']->error($message);
+            }
+        }
+
+        return ['buffer' => $buffer, 'failed' => $failed];
     }
 }

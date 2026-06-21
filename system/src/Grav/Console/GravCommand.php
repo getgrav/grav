@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -26,7 +26,7 @@ class GravCommand extends Command
      * @param OutputInterface $output
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->setupConsole($input, $output);
 
@@ -36,7 +36,9 @@ class GravCommand extends Command
             $this->initializeGrav();
         }
 
-        return $this->serve();
+        $result = $this->serve();
+
+        return is_int($result) ? $result : self::SUCCESS;
     }
 
     /**

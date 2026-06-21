@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -88,7 +88,7 @@ trait MediaFileTrait
         }
 
         $path = $this->path(false);
-        $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $path) ?: $path;
+        $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', (string) $path) ?: $path;
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->getGrav()['locator'];

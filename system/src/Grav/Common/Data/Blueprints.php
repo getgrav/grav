@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,8 +22,6 @@ use function is_object;
  */
 class Blueprints
 {
-    /** @var array|string */
-    protected $search;
     /** @var array */
     protected $types;
     /** @var array */
@@ -32,9 +30,8 @@ class Blueprints
     /**
      * @param  string|array  $search  Search path.
      */
-    public function __construct($search = 'blueprints://')
+    public function __construct(protected $search = 'blueprints://')
     {
-        $this->search = $search;
     }
 
     /**

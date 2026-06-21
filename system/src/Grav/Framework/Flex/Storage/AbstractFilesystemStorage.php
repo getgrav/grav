@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -163,19 +163,12 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
         $filename = $this->resolvePath($filename);
 
         // TODO: start using the new file classes.
-        switch ($this->dataFormatter->getDefaultFileExtension()) {
-            case '.json':
-                $file = CompiledJsonFile::instance($filename);
-                break;
-            case '.yaml':
-                $file = CompiledYamlFile::instance($filename);
-                break;
-            case '.md':
-                $file = CompiledMarkdownFile::instance($filename);
-                break;
-            default:
-                throw new RuntimeException('Unknown extension type ' . $this->dataFormatter->getDefaultFileExtension());
-        }
+        $file = match ($this->dataFormatter->getDefaultFileExtension()) {
+            '.json' => CompiledJsonFile::instance($filename),
+            '.yaml' => CompiledYamlFile::instance($filename),
+            '.md' => CompiledMarkdownFile::instance($filename),
+            default => throw new RuntimeException('Unknown extension type ' . $this->dataFormatter->getDefaultFileExtension()),
+        };
 
         return $file;
     }
@@ -227,6 +220,39 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      */
     protected function validateKey(string $key): bool
     {
-        return $key && (bool) preg_match('/^[^\\/?*:;{}\\\\\\n]+$/u', $key);
+        // Key must not be empty
+        if (!$key) {
+            return false;
+        }
+
+        // Key must not contain filesystem-dangerous characters: \ / ? * : ; { } or newlines
+        if (!preg_match('/^[^\\/?*:;{}\\\\\\n]+$/u', $key)) {
+            return false;
+        }
+
+        // Key must not contain path traversal sequences (..)
+        if (str_contains($key, '..')) {
+            return false;
+        }
+
+        // Key must not start with a dot (hidden files)
+        if (str_starts_with($key, '.')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validates a key and throws an exception if invalid.
+     *
+     * @param string $key
+     * @throws \InvalidArgumentException
+     */
+    public function assertValidKey(string $key): void
+    {
+        if (!$this->validateKey($key)) {
+            throw new \InvalidArgumentException(sprintf('Invalid storage key: "%s"', $key));
+        }
     }
 }

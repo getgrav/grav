@@ -13,7 +13,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 /**
  * Class ExcerptsTest
  */
-class ExcerptsTest extends \Codeception\TestCase\Test
+class ExcerptsTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Parsedown $parsedown */
     protected $parsedown;
@@ -38,8 +38,9 @@ class ExcerptsTest extends \Codeception\TestCase\Test
 
     protected $old_home;
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->pages = $this->grav['pages'];
@@ -70,7 +71,7 @@ class ExcerptsTest extends \Codeception\TestCase\Test
         $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
         $this->config->set('system.home.alias', $this->old_home);
     }
@@ -78,11 +79,11 @@ class ExcerptsTest extends \Codeception\TestCase\Test
 
     public function testProcessImageHtml(): void
     {
-        self::assertRegexp(
+        self::assertMatchesRegularExpression(
             '|<img alt="Sample Image" src="\/images\/.*-sample-image.jpe?g\" data-src="sample-image\.jpg\?cropZoom=300,300" \/>|',
             Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=300,300" alt="Sample Image" />', $this->page)
         );
-        self::assertRegexp(
+        self::assertMatchesRegularExpression(
             '|<img alt="Sample Image" class="foo" src="\/images\/.*-sample-image.jpe?g\" data-src="sample-image\.jpg\?classes=foo" \/>|',
             Excerpts::processImageHtml('<img src="sample-image.jpg?classes=foo" alt="Sample Image" />', $this->page)
         );

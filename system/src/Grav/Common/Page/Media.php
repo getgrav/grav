@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -38,7 +38,7 @@ class Media extends AbstractMedia
      * @param array|null $media_order
      * @param bool   $load
      */
-    public function __construct($path, array $media_order = null, $load = true)
+    public function __construct($path, ?array $media_order = null, $load = true)
     {
         $this->setPath($path);
         $this->media_order = $media_order;
@@ -152,14 +152,14 @@ class Media extends AbstractMedia
         foreach ($iterator as $file => $info) {
             // Ignore folders and Markdown files.
             $filename = $info->getFilename();
-            if (!$info->isFile() || $info->getExtension() === 'md' || $filename === 'frontmatter.yaml' || $filename === 'media.json' || strpos($filename, '.') === 0) {
+            if (!$info->isFile() || $info->getExtension() === 'md' || $filename === 'frontmatter.yaml' || $filename === 'media.json' || str_starts_with($filename, '.')) {
                 continue;
             }
 
             // Find out what type we're dealing with
             [$basename, $ext, $type, $extra] = $this->getFileParts($filename);
 
-            if (!in_array(strtolower($ext), $media_types, true)) {
+            if (!in_array(strtolower((string) $ext), $media_types, true)) {
                 continue;
             }
 

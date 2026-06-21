@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -66,7 +66,7 @@ class FileCollection extends AbstractFileCollection
      * @param callable|null $filterFunction
      * @return $this
      */
-    public function setFilter(callable $filterFunction = null)
+    public function setFilter(?callable $filterFunction = null)
     {
         $this->filterFunction = $filterFunction;
 
@@ -88,7 +88,7 @@ class FileCollection extends AbstractFileCollection
      * @param callable|null $objectFunction
      * @return $this
      */
-    public function setObjectBuilder(callable $objectFunction = null)
+    public function setObjectBuilder(?callable $objectFunction = null)
     {
         $this->createObjectFunction = $objectFunction ?: [$this, 'createObject'];
 

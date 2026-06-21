@@ -10,11 +10,13 @@ custom_base_url: ''                              # Set the base_url manually, e.
 username_regex: '^[a-z0-9_-]{3,16}$'             # Only lowercase chars, digits, dashes, underscores. 3 - 16 chars
 pwd_regex: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}' # At least one number, one uppercase and lowercase letter, and be at least 8+ chars
 intl_enabled: true                               # Special logic for PHP International Extension (mod_intl)
-http_x_forwarded:                                # Configuration options for the various HTTP_X_FORWARD headers
-  protocol: true
-  host: false
-  port: true
-  ip: true
+http_x_forwarded:                                # Each header is opt-in: only enable when the site is genuinely behind a proxy that sets and overwrites that header. Defaults are off in Grav 2.0 to prevent client-supplied spoofing of client IP, host, port, or protocol.
+  protocol: false                                #   X-Forwarded-Proto
+  host: false                                    #   X-Forwarded-Host
+  port: false                                    #   X-Forwarded-Port
+  ip: false                                      #   X-Forwarded-For / X-Forwarded / Forwarded-For / Forwarded
+  client_ip: false                               #   Client-IP (rare; usually only set by specific load balancers)
+  cf_connecting_ip: false                        #   CF-Connecting-IP (enable when behind Cloudflare)
 
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
@@ -37,10 +39,11 @@ home:
 pages:
   type: regular                                  # EXPERIMENTAL: Page type: regular or flex
   dirs: ['page://']                              # Advanced functionality, allows for multiple page paths
-  theme: quark                                   # Default theme (defaults to "quark" theme)
+  theme: quark2                                  # Default theme (defaults to "quark2" theme)
   order:
     by: default                                  # Order pages by "default", "alpha" or "date"
     dir: asc                                     # Default ordering direction, "asc" or "desc"
+  order_digits: 2                                # Zero-pad width of folder order prefix (1-6). Default 2 = "05.foo". Use 3 for "005.foo".
   list:
     count: 20                                    # Default item count per page
   dateformat:
@@ -50,7 +53,6 @@ pages:
   publish_dates: true                            # automatically publish/unpublish based on dates
   process:
     markdown: true                               # Process Markdown
-    twig: false                                  # Process Twig
   twig_first: false                              # Process Twig before markdown when processing both on a page
   never_cache_twig: false                        # Only cache content, never cache twig processed in content (incompatible with `twig_first: true`)
   events:
@@ -70,6 +72,17 @@ pages:
       - id
       - class
       - classes
+    gfm:                                         # GitHub Flavored Markdown extensions
+      task_lists: true                           # Render `- [ ]` / `- [x]` list items as checkboxes
+      marks: true                                # Enable `==highlight==`, `~subscript~`, `^superscript^`
+      tagfilter: true                            # Escape disallowed raw HTML tags (script, iframe, style, etc.)
+      autolinks: true                            # Autolink bare `www.` URLs and email addresses
+    tables:                                      # Non-GFM table extensions (off by default)
+      colspan: false                             # An empty cell merges into the cell on its left (colspan)
+      headerless: false                          # A table may start with the divider row (no header row)
+      captions: false                            # A `[Caption]` line after a table becomes a `<caption>`
+      attributes: false                          # A `{.class #id}` line after a table sets attributes on the table
+      multiline: false                           # A row ending in `\` continues into the next line (multi-line cells)
   types: [html,htm,xml,txt,json,rss,atom]        # list of valid page types
   append_url_extension: ''                       # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)
@@ -93,13 +106,14 @@ cache:
   enabled: true                                  # Set to true to enable caching
   check:
     method: file                                 # Method to check for updates in pages: file|folder|hash|none
-  driver: auto                                   # One of: auto|file|apcu|memcache|wincache
+    interval: 0                                  # Seconds to reuse previous filesystem hash before rechecking (0 = every request)
+  driver: auto                                   # One of: auto|file|apcu|memcached|redis
   prefix: 'g'                                    # Cache prefix string (prevents cache conflicts)
   purge_at: '0 4 * * *'                          # How often to purge old file cache (using new scheduler)
   clear_at: '0 3 * * *'                           # How often to clear cache (using new scheduler)
   clear_job_type: 'standard'                     # Type to clear when processing the scheduled clear job `standard`|`all`
   clear_images_by_default: false                 # By default grav does not include processed images in cache clear, this can be enabled
-  cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcache, etc.)
+  cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcached, etc.)
   lifetime: 604800                               # Lifetime of cached data in seconds (0 = infinite)
   purge_max_age_days: 30                         # Maximum age of cache items in days before they are purged
   gzip: false                                    # GZip compress the page output
@@ -114,11 +128,8 @@ twig:
   debug: true                                    # Enable Twig debug
   auto_reload: true                              # Refresh cache on changes
   autoescape: true                               # Autoescape Twig vars (DEPRECATED, always enabled in strict mode)
-  undefined_functions: true                      # Allow undefined functions
-  undefined_filters: true                        # Allow undefined filters
-  safe_functions: []                             # List of PHP functions which are allowed to be used as Twig functions
-  safe_filters: []                               # List of PHP functions which are allowed to be used as Twig filters
-  umask_fix: false                               # By default Twig creates cached files as 755, fix switches this to 775
+  safe_functions: []                             # Opt-in allow-list of PHP functions callable from trusted templates (dangerous functions are always refused)
+  safe_filters: []                               # Opt-in allow-list of PHP functions usable as filters in trusted templates (dangerous functions are always refused)
 
 assets:                                          # Configuration for Assets Manager (JS, CSS)
   css_pipeline: false                            # The CSS pipeline is the unification of multiple CSS resources into one file
@@ -204,6 +215,10 @@ session:
 gpm:
   releases: stable                               # Set to either 'stable' or 'testing'
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
+  archive:
+    max_uncompressed_size: 1073741824            # Reject install packages whose total uncompressed size exceeds this many bytes (decompression bomb guard). 0 disables. Default 1 GiB
+    max_files: 50000                             # Reject install packages with more than this many entries (inode exhaustion guard). 0 disables
+    max_depth: 48                                # Reject install packages nested deeper than this many directory levels (recursive-cleanup stack guard). 0 disables
 
 http:
   method: auto                                   # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
@@ -233,5 +248,6 @@ flex:
 
 strict_mode:
   yaml_compat: false                            # Set to true to enable YAML backwards compatibility
-  twig_compat: false                            # Set to true to enable deprecated Twig settings (autoescape: false)
+  twig2_compat: false                           # Set to true to enable deprecated Twig settings (autoescape: false)
+  twig3_compat: true                            # Set to true to enable automatic fixes for Twig 3 syntax changes
   blueprint_compat: false                       # Set to true to enable backward compatible strict support for blueprints

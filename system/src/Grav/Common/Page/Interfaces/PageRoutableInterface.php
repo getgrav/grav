@@ -133,7 +133,7 @@ interface PageRoutableInterface
      * @param  PageInterface|null $var the parent page object
      * @return PageInterface|null the parent page object if it exists.
      */
-    public function parent(PageInterface $var = null);
+    public function parent(?PageInterface $var = null);
 
     /**
      * Gets the top parent object for this page. Can return page itself.

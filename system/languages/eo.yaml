@@ -38,3 +38,12 @@ GRAV:
     - ''
     - ''
     - ''
+
+PLUGIN_ADMIN:
+    MEDIA: "Aŭdvidaĵoj"
+    MEDIA_TYPES: "Specoj de aŭdvidaĵoj"
+    IMAGE_OPTIONS: "Bildagordoj"
+    MIME_TYPE: "MIME-tipo"
+    THUMB: "Antaŭvido"
+    TYPE: "Tipo"
+    FILE_EXTENSION: "Dosiernoma sufikso"

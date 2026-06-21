@@ -91,3 +91,7 @@ GRAV:
     ERROR1: الوسم %s غير مدعوم!
     ERROR2: عدد عناصر غير صالح.
     ERROR4: تعبير غير معروف
+
+PLUGIN_ADMIN:
+    MEDIA: "وسائط"
+    IMAGE_OPTIONS: "خيارات الصورة"

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -44,7 +44,7 @@ class IniFormatter extends AbstractFormatter
             $string .= $key . '="' .  preg_replace(
                 ['/"/', '/\\\/', "/\t/", "/\n/", "/\r/"],
                 ['\"',  '\\\\', '\t',   '\n',   '\r'],
-                $value
+                (string) $value
             ) . "\"\n";
         }
 

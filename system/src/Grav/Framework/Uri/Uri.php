@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Uri
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -209,7 +209,7 @@ class Uri extends AbstractUri
      * @return bool
      * @link https://tools.ietf.org/html/rfc3986#section-4.4
      */
-    public function isSameDocumentReference(UriInterface $base = null)
+    public function isSameDocumentReference(?UriInterface $base = null)
     {
         return GuzzleUri::isSameDocumentReference($this, $base);
     }

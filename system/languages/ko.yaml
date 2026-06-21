@@ -88,3 +88,6 @@ GRAV:
     ERROR2: 잘못된 요소 수
     ERROR3: jquery_element는 jqCron 설정에서 설정할 수 있습니다.
     ERROR4: 인식할 수 없는 표현 
+
+PLUGIN_ADMIN:
+    MEDIA: "미디어"

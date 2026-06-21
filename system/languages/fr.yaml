@@ -145,3 +145,12 @@ GRAV:
     ERROR2: Nombre invalide d'éléments
     ERROR3: L'élément jquery_element doit être défini dans les paramètres jqCron
     ERROR4: Expression non reconnue
+
+PLUGIN_ADMIN:
+    MEDIA: "Média"
+    MEDIA_TYPES: "Types de média"
+    IMAGE_OPTIONS: "Options d'image"
+    MIME_TYPE: "Type Mime"
+    THUMB: "Miniature"
+    TYPE: "Type"
+    FILE_EXTENSION: "Extension de fichier"

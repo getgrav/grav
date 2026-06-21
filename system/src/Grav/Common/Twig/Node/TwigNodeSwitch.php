@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -26,12 +26,12 @@ class TwigNodeSwitch extends Node
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(Node $value, Node $cases, Node $default = null, $lineno = 0, $tag = null)
+    public function __construct(Node $value, Node $cases, ?Node $default = null, $lineno = 0, $tag = null)
     {
         $nodes = ['value' => $value, 'cases' => $cases, 'default' => $default];
         $nodes = array_filter($nodes);
 
-        parent::__construct($nodes, [], $lineno, $tag);
+        parent::__construct($nodes, [], $lineno);
     }
 
     /**

@@ -14,7 +14,7 @@ return [
                 $yaml = YamlUpdater::instance(GRAV_ROOT . '/user/config/system.yaml');
                 $yaml->define('twig.autoescape', false);
                 $yaml->define('strict_mode.yaml_compat', true);
-                $yaml->define('strict_mode.twig_compat', true);
+                $yaml->define('strict_mode.twig2_compat', true);
                 $yaml->define('strict_mode.blueprint_compat', true);
                 $yaml->save();
             } catch (\Exception $e) {

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  * @origin     https://gist.github.com/maxgalbu/9409182
  */
@@ -13,6 +13,7 @@ namespace Grav\Common\Twig\TokenParser;
 use Grav\Common\Twig\Node\TwigNodeSwitch;
 use Twig\Error\SyntaxError;
 use Twig\Node\Node;
+use Twig\Node\Nodes;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
@@ -40,21 +41,22 @@ class TwigTokenParserSwitch extends AbstractTokenParser
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
 
-        $name = $this->parser->getExpressionParser()->parseExpression();
+        $name = $this->parser->parseExpression();
         $stream->expect(Token::BLOCK_END_TYPE);
 
         // There can be some whitespace between the {% switch %} and first {% case %} tag.
-        while ($stream->getCurrent()->getType() === Token::TEXT_TYPE && trim($stream->getCurrent()->getValue()) === '') {
+        while ($stream->getCurrent()->test(Token::TEXT_TYPE) && trim((string) $stream->getCurrent()->getValue()) === '') {
             $stream->next();
         }
 
         $stream->expect(Token::BLOCK_START_TYPE);
 
-        $expressionParser = $this->parser->getExpressionParser();
-
         $default = null;
         $cases = [];
         $end = false;
+        
+        // 'or' operator precedence is 10. We want to stop parsing if we encounter it.
+        $orPrecedence = 10;
 
         while (!$end) {
             $next = $stream->next();
@@ -64,7 +66,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
                     $values = [];
 
                     while (true) {
-                        $values[] = $expressionParser->parsePrimaryExpression();
+                        $values[] = $this->parser->parseExpression($orPrecedence + 1);
                         // Multiple allowed values?
                         if ($stream->test(Token::OPERATOR_TYPE, 'or')) {
                             $stream->next();
@@ -74,16 +76,16 @@ class TwigTokenParserSwitch extends AbstractTokenParser
                     }
 
                     $stream->expect(Token::BLOCK_END_TYPE);
-                    $body = $this->parser->subparse([$this, 'decideIfFork']);
-                    $cases[] = new Node([
-                        'values' => new Node($values),
+                    $body = $this->parser->subparse($this->decideIfFork(...));
+                    $cases[] = new class([
+                        'values' => new Nodes($values),
                         'body' => $body
-                    ]);
+                    ]) extends Node {};
                     break;
 
                 case 'default':
                     $stream->expect(Token::BLOCK_END_TYPE);
-                    $default = $this->parser->subparse([$this, 'decideIfEnd']);
+                    $default = $this->parser->subparse($this->decideIfEnd(...));
                     break;
 
                 case 'endswitch':
@@ -97,7 +99,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new TwigNodeSwitch($name, new Node($cases), $default, $lineno, $this->getTag());
+        return new TwigNodeSwitch($name, new Nodes($cases), $default, $lineno, $this->getTag());
     }
 
     /**

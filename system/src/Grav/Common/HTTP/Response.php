@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\HTTP
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -41,7 +41,7 @@ class Response
      * @return string
      * @throws TransportExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface|ClientExceptionInterface
      */
-    public static function get(string $uri = '', array $overrides = [], callable $callback = null): string
+    public static function get(string $uri = '', array $overrides = [], ?callable $callback = null): string
     {
         $response = static::request('GET', $uri, $overrides, $callback);
         return $response->getContent();
@@ -58,7 +58,7 @@ class Response
      * @return ResponseInterface
      * @throws TransportExceptionInterface
      */
-    public static function request(string $method, string $uri, array $overrides = [], callable $callback = null): ResponseInterface
+    public static function request(string $method, string $uri, array $overrides = [], ?callable $callback = null): ResponseInterface
     {
         if (empty($method)) {
             throw new TransportException('missing method (GET, PUT, etc.)');
@@ -73,7 +73,7 @@ class Response
             if (Utils::functionExists('set_time_limit')) {
                 @set_time_limit(0);
             }
-        } catch (Exception $e) {}
+        } catch (Exception) {}
 
         $client = Client::getClient($overrides, 6, $callback);
 

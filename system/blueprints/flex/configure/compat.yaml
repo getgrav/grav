@@ -1,13 +1,13 @@
 form:
   compatibility:
     type: tab
-    title: Compatibility
+    title: PLUGIN_ADMIN.COMPATIBILITY
     fields:
       object.compat.events:
         type: toggle
         toggleable: true
-        label: Admin event compatibility
-        help: Enables onAdminSave and onAdminAfterSave events for plugins
+        label: PLUGIN_ADMIN.FLEX_ADMIN_EVENT_COMPAT
+        help: PLUGIN_ADMIN.FLEX_ADMIN_EVENT_COMPAT_HELP
         highlight: 1
         default: 1
         options:

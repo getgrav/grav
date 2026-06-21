@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -83,7 +83,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
      * @param FlexDirectory $directory
      * @param array|null $options
      */
-    public function __construct(string $name, FlexDirectory $directory, array $options = null)
+    public function __construct(string $name, FlexDirectory $directory, ?array $options = null)
     {
         $this->name = $name;
         $this->setDirectory($directory);
@@ -148,11 +148,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
 
     /**
      * @param string $name
-     * @param mixed $default
      * @param string|null $separator
      * @return mixed
      */
-    public function get($name, $default = null, $separator = null)
+    public function get($name, mixed $default = null, $separator = null)
     {
         switch (strtolower($name)) {
             case 'id':
@@ -176,11 +175,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
 
     /**
      * @param string $name
-     * @param mixed $value
      * @param string|null $separator
      * @return $this
      */
-    public function set($name, $value, $separator = null)
+    public function set($name, mixed $value, $separator = null)
     {
         switch (strtolower($name)) {
             case 'id':
@@ -350,7 +348,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
      * @param string|null $extension
      * @return string
      */
-    public function getMediaTaskRoute(array $params = [], string $extension = null): string
+    public function getMediaTaskRoute(array $params = [], ?string $extension = null): string
     {
         return '';
     }
@@ -374,11 +372,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
 
     /**
      * @param string $name
-     * @param mixed $value
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function __set($name, $value)
+    public function __set($name, mixed $value)
     {
         $method = "set{$name}";
         if (method_exists($this, $method)) {

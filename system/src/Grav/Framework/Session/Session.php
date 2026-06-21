@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Session
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -198,7 +198,7 @@ class Session implements SessionInterface
         $sessionExists = isset($_COOKIE[$sessionName]);
 
         // Protection against invalid session cookie names throwing exception: http://php.net/manual/en/function.session-id.php#116836
-        if ($sessionExists && !preg_match('/^[-,a-zA-Z0-9]{1,128}$/', $_COOKIE[$sessionName])) {
+        if ($sessionExists && !preg_match('/^[-,a-zA-Z0-9]{1,128}$/', (string) $_COOKIE[$sessionName])) {
             unset($_COOKIE[$sessionName]);
             $sessionExists = false;
         }
@@ -260,7 +260,7 @@ class Session implements SessionInterface
             if ($user && (!$user instanceof UserInterface || (method_exists($user, 'isValid') && !$user->isValid()))) {
                 throw new RuntimeException('Bad user');
             }
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             $this->invalidate();
             throw new SessionException('Invalid User object, session destroyed.', 500);
         }
@@ -477,7 +477,7 @@ class Session implements SessionInterface
      * @param int|null $lifetime
      * @return array
      */
-    public function getCookieOptions(int $lifetime = null): array
+    public function getCookieOptions(?int $lifetime = null): array
     {
         $params = session_get_cookie_params();
 
@@ -519,7 +519,7 @@ class Session implements SessionInterface
 
         foreach (headers_list() as $header) {
             // Identify cookie headers
-            if (strpos($header, 'Set-Cookie:') === 0) {
+            if (str_starts_with($header, 'Set-Cookie:')) {
                 // Add all but session cookie(s).
                 if (!str_contains($header, $search)) {
                     $cookies[] = $header;
@@ -543,10 +543,9 @@ class Session implements SessionInterface
 
     /**
      * @param string $key
-     * @param mixed $value
      * @return void
      */
-    protected function setOption($key, $value)
+    protected function setOption($key, mixed $value)
     {
         if (!is_string($value)) {
             if (is_bool($value)) {

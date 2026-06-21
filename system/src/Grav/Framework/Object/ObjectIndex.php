@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -49,7 +49,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
             return $type . static::$type;
         }
 
-        $class = get_class($this);
+        $class = static::class;
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 

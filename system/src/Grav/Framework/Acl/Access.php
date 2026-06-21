@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Acl
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -28,8 +28,6 @@ use function strlen;
  */
 class Access implements JsonSerializable, IteratorAggregate, Countable
 {
-    /** @var string */
-    private $name;
     /** @var array */
     private $rules;
     /** @var array */
@@ -45,9 +43,8 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
      * @param array|null $rules
      * @param string $name
      */
-    public function __construct($acl = null, array $rules = null, string $name = '')
+    public function __construct($acl = null, ?array $rules = null, private readonly string $name = '')
     {
-        $this->name = $name;
         $this->rules = $rules ?? [];
         $this->ops = ['+' => true, '-' => false];
         if (is_string($acl)) {
@@ -70,7 +67,7 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
      * @param string|null $name
      * @return void
      */
-    public function inherit(Access $parent, string $name = null)
+    public function inherit(Access $parent, ?string $name = null)
     {
         // Remove cached null actions from acl.
         $acl = $this->getAllActions();
@@ -88,7 +85,7 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
      * @param  string|null $scope
      * @return bool|null
      */
-    public function authorize(string $action, string $scope = null): ?bool
+    public function authorize(string $action, ?string $scope = null): ?bool
     {
         if (null !== $scope) {
             $action = $scope !== 'test' ? "{$scope}.{$action}" : $action;
@@ -110,7 +107,7 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
      */
     public function getAllActions(): array
     {
-        return array_filter($this->acl, static function($val) { return $val !== null; });
+        return array_filter($this->acl, static fn($val) => $val !== null);
     }
 
     /**

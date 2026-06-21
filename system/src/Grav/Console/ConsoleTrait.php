@@ -3,12 +3,13 @@
 /**
  * @package    Grav\Console
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Console;
 
+use Closure;
 use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Grav;
@@ -83,13 +84,14 @@ trait ConsoleTrait
      * @param int|null                      $mode        The option mode: One of the InputOption::VALUE_* constants
      * @param string                        $description A description text
      * @param string|string[]|int|bool|null $default     The default value (must be null for InputOption::VALUE_NONE)
+     * @param \Closure|array              $suggestedValues Suggested values or completion callback
      * @return $this
      * @throws InvalidArgumentException If option mode is invalid or incompatible
      */
-    public function addOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
+    public function addOption(string $name, array|string|null $shortcut = null, ?int $mode = null, string $description = '', mixed $default = null, Closure|array $suggestedValues = []): static
     {
         if ($name !== 'env' && $name !== 'lang') {
-            parent::addOption($name, $shortcut, $mode, $description, $default);
+            parent::addOption($name, $shortcut, $mode, $description, $default, $suggestedValues);
         }
 
         return $this;
@@ -106,7 +108,7 @@ trait ConsoleTrait
                 // Set used language.
                 $this->setLanguage($language);
             }
-        } catch (InvalidArgumentException $e) {}
+        } catch (InvalidArgumentException) {}
 
         // Initialize cache with CLI compatibility
         $grav = Grav::instance();
@@ -140,7 +142,7 @@ trait ConsoleTrait
      * @param string|null $code
      * @return $this
      */
-    final protected function setLanguage(string $code = null)
+    final protected function setLanguage(?string $code = null)
     {
         $this->initializeGrav();
 

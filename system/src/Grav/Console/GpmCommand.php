@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -28,7 +28,7 @@ class GpmCommand extends Command
      * @param OutputInterface $output
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->setupConsole($input, $output);
 
@@ -38,7 +38,9 @@ class GpmCommand extends Command
         // @phpstan-ignore-next-line
         $grav['accounts'];
 
-        return $this->serve();
+        $result = $this->serve();
+
+        return is_int($result) ? $result : self::SUCCESS;
     }
 
     /**
@@ -62,7 +64,7 @@ class GpmCommand extends Command
 
         $io = $this->getIO();
         $io->newLine();
-        $io->writeln('GPM Releases Configuration: <yellow>' . ucfirst($config->get('system.gpm.releases')) . '</yellow>');
+        $io->writeln('GPM Releases Configuration: <yellow>' . ucfirst((string) $config->get('system.gpm.releases')) . '</yellow>');
         $io->newLine();
     }
 }
