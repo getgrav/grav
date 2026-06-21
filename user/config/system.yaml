@@ -23,7 +23,7 @@ debugger:
   provider: clockwork
 
 gpm:
-  releases: testing
+  releases: stable
   verify_peer: true
 
 updates:
