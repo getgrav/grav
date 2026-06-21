@@ -215,6 +215,10 @@ session:
 gpm:
   releases: stable                               # Set to either 'stable' or 'testing'
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
+  archive:
+    max_uncompressed_size: 1073741824            # Reject install packages whose total uncompressed size exceeds this many bytes (decompression bomb guard). 0 disables. Default 1 GiB
+    max_files: 50000                             # Reject install packages with more than this many entries (inode exhaustion guard). 0 disables
+    max_depth: 48                                # Reject install packages nested deeper than this many directory levels (recursive-cleanup stack guard). 0 disables
 
 http:
   method: auto                                   # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
