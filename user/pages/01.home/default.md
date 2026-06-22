@@ -6,7 +6,7 @@ body_classes: title-center title-h1h2
 # Say Hello to Grav 2.0!
 ## installation successful...
 
-Congratulations! You have installed the **Base Grav 2.0 Package** that provides a **simple page** and the new default **Quark 2** theme to get you started — built on [Pico CSS](https://picocss.com), Font Awesome 7, and a refined typographic system with light/dark/auto appearance.
+Congratulations! You have installed the **Base Grav 2.0 Package** that provides a **simple page** and the new default **Quark 2** theme to get you started — built on [Blades CSS](https://blades.ninja/) (the actively maintained successor to Pico CSS), Font Awesome 7, and a refined typographic system with light/dark/auto appearance.
 
 > [!WARNING]
 > If you see a **404 Error** when you click `Typography` in the menu, please refer to the [troubleshooting guide](http://learn.getgrav.org/troubleshooting/page-not-found).
@@ -51,7 +51,7 @@ Grav 2.0 is the biggest release in the project's history — a modernized core, 
 
 * **PHP 8.3+** baseline, with a modernized core and typed internals throughout.
 * **Symfony 7 + Twig 3** dependency stack, bringing the latest framework improvements and long-term support.
-* **Quark 2** as the default theme — [Pico CSS](https://picocss.com), Font Awesome 7, auto/light/dark mode with `localStorage` persistence, locally-hosted Cal Sans + Inter fonts, and a refined Cal.com-inspired design system.
+* **Quark 2** as the default theme — [Blades CSS](https://blades.ninja/), Font Awesome 7, auto/light/dark mode with `localStorage` persistence, locally-hosted Cal Sans + Inter fonts, and a refined Cal.com-inspired design system.
 * **Admin 2.0** — a fully API-powered SPA interface that's dramatically faster, more responsive, and decoupled from page renders. Navigation, form saves, and media operations no longer trigger full reloads.
 * **Public REST API** — the same endpoints that power Admin 2.0 are available to your own tools and integrations.
 * **GitHub Markdown Alerts** — the legacy `markdown-notices` plugin has been replaced by `github-markdown-alerts`, using the familiar `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]` syntax.
