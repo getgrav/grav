@@ -3,7 +3,7 @@ title: Typography
 ---
 
 > [!NOTE]
-> Quark 2 is Grav 2.0's default theme. It uses [Pico CSS](https://picocss.com) as a classless foundation, layered with a Cal.com-inspired design system. Full Pico capabilities are documented in the [Official Pico CSS Docs](https://picocss.com/docs).
+> Quark 2 is Grav 2.0's default theme. It uses [Blades CSS](https://blades.ninja/) (the actively maintained successor to Pico CSS) as a classless foundation, layered with a Cal.com-inspired design system. Full Blades capabilities are documented in the [Official Blades CSS Docs](https://blades.ninja/#docs).
 
 The [Quark 2 theme](https://github.com/getgrav/grav-theme-quark2) is Grav's new default, replacing the long-serving Quark (1.x) theme. It pairs a pure-grayscale palette with **Cal Sans** for display and **Inter** for body text (both hosted locally), Font Awesome 7 icons, and auto/light/dark appearance that persists in the user's browser. The layout system is CSS Grid + modern custom properties rather than a framework grid.
 
