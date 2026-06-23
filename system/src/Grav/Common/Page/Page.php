@@ -492,10 +492,15 @@ class Page implements PageInterface
             if (isset($this->header->menu)) {
                 $this->menu = trim($this->header->menu);
             }
-            if (isset($this->header->routable)) {
+            if (isset($this->header->routable) && $this->header->routable !== '') {
                 $this->routable = (bool)$this->header->routable;
             }
-            if (isset($this->header->visible)) {
+            // An empty string is not a meaningful boolean — leave `visible` as
+            // null so the numeric-folder-prefix auto-detection in visible()
+            // still runs. Admin can persist `visible: ''` for an untouched
+            // toggleable field; without this guard `(bool)'' === false` would
+            // force the page out of navigation. See getgrav/grav#4153.
+            if (isset($this->header->visible) && $this->header->visible !== '') {
                 $this->visible = (bool)$this->header->visible;
             }
             if (isset($this->header->redirect)) {

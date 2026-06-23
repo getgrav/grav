@@ -69,7 +69,10 @@ trait PageRoutableTrait
         $value = $this->loadHeaderProperty(
             'routable',
             $var,
-            static fn($value) => $value ?? true
+            // Treat an empty string (untouched toggleable field) as unset so it
+            // falls back to the `true` default rather than a falsy ''. See
+            // getgrav/grav#4153.
+            static fn($value) => (($value ?? '') === '' ? null : $value) ?? true
         );
 
         return $value && $this->published() && !$this->isModule() && !$this->root() && $this->getLanguages(true);

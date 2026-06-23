@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * [security] ZIP archives extracted through the internal ZipArchiver are now rejected when their contents exceed safe limits on total uncompressed size, file count, or folder nesting depth, closing a second extraction path with the same decompression-bomb risk that was fixed for Direct Install (GHSA-928x-9mpw-8h56).
     * [security] Editor-authored Twig in page content now has its rendered output re-checked for XSS, closing a bypass where a payload assembled at render time (such as `{{ "on" ~ "error" }}`) passed the source validator and then emitted live markup (GHSA-2c4f-86xc-cr74).
+    * A page marked Visible in the admin no longer vanishes from navigation after saving, because a blank visibility setting now falls back to its normal default instead of being read as hidden. Fixes [getgrav/grav#4153](https://github.com/getgrav/grav/issues/4153).
 
 # v2.0.0
 ## 06/20/2026
