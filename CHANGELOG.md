@@ -1,3 +1,9 @@
+# v2.0.1
+## 06/22/2026
+
+1. [](#bugfix)
+    * [security] ZIP archives extracted through the internal ZipArchiver are now rejected when their contents exceed safe limits on total uncompressed size, file count, or folder nesting depth, closing a second extraction path with the same decompression-bomb risk that was fixed for Direct Install (GHSA-928x-9mpw-8h56).
+
 # v2.0.0
 ## 06/20/2026
 

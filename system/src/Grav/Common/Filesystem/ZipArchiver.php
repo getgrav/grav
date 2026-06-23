@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Filesystem;
 
+use Grav\Common\Grav;
 use InvalidArgumentException;
 use RuntimeException;
 use ZipArchive;
@@ -32,18 +33,60 @@ class ZipArchiver extends Archiver
         $archive = $zip->open($this->archive_file);
 
         if ($archive === true) {
-            Folder::create($destination);
+            // Validate every entry before creating the destination or extracting
+            // anything, so a bad archive leaves nothing on disk. Two guards run
+            // in this single pass:
+            //
+            //  - Zip Slip: reject any entry whose path resolves outside the
+            //    destination directory (e.g. "../../evil.php"). CWE-22.
+            //  - Decompression bomb: ZipArchive::extractTo applies no limit on
+            //    total uncompressed size, entry count, or directory depth, so a
+            //    crafted archive can fill the disk / exhaust inodes (CWE-409) or
+            //    nest deeply enough to overflow recursive cleanup (CWE-674).
+            //    Reject anything over the configured limits, matching the caps
+            //    GPM\Installer::unZip() already enforces (GHSA-2vcx-h8p2-9pg9,
+            //    GHSA-928x-9mpw-8h56).
+            [$maxSize, $maxFiles, $maxDepth] = $this->archiveLimits();
+            $numFiles = $zip->count();
 
-            // Guard against Zip Slip: reject any entry whose path would resolve
-            // outside the destination directory (e.g. "../../evil.php") before
-            // extracting anything. CWE-22.
-            for ($i = 0, $count = $zip->count(); $i < $count; $i++) {
+            if ($maxFiles > 0 && $numFiles > $maxFiles) {
+                $zip->close();
+                throw new RuntimeException('ZipArchiver: refused to extract ' . $this->archive_file . '. Archive exceeds the maximum file count (' . $maxFiles . ').');
+            }
+
+            $totalSize = 0;
+            for ($i = 0; $i < $numFiles; $i++) {
                 $name = $zip->getNameIndex($i);
-                if ($name !== false && !$this->isSafeEntryPath($name)) {
+                if ($name === false) {
+                    continue;
+                }
+
+                if (!$this->isSafeEntryPath($name)) {
                     $zip->close();
                     throw new RuntimeException('ZipArchiver: refused to extract ' . $this->archive_file . '. Entry "' . $name . '" would escape the destination directory (Zip Slip).');
                 }
+
+                if ($maxDepth > 0) {
+                    $depth = count(array_filter(preg_split('#[\\\\/]+#', trim($name, '/\\'))));
+                    if ($depth > $maxDepth) {
+                        $zip->close();
+                        throw new RuntimeException('ZipArchiver: refused to extract ' . $this->archive_file . '. Entry "' . $name . '" exceeds the maximum nesting depth (' . $maxDepth . ').');
+                    }
+                }
+
+                if ($maxSize > 0) {
+                    $stat = $zip->statIndex($i);
+                    if (is_array($stat) && isset($stat['size'])) {
+                        $totalSize += (int) $stat['size'];
+                        if ($totalSize > $maxSize) {
+                            $zip->close();
+                            throw new RuntimeException('ZipArchiver: refused to extract ' . $this->archive_file . '. Archive exceeds the maximum uncompressed size (' . $maxSize . ' bytes).');
+                        }
+                    }
+                }
             }
+
+            Folder::create($destination);
 
             if (!$zip->extractTo($destination)) {
                 throw new RuntimeException('ZipArchiver: ZIP failed to extract ' . $this->archive_file . ' to ' . $destination);
@@ -55,6 +98,25 @@ class ZipArchiver extends Archiver
         }
 
         throw new RuntimeException('ZipArchiver: Failed to open ' . $this->archive_file);
+    }
+
+    /**
+     * Resolve the uncompressed-size / file-count / nesting-depth caps applied
+     * before extraction. Shares the same config keys and defaults as
+     * GPM\Installer so both ZIP extraction paths enforce identical limits. A
+     * limit of 0 disables that particular check.
+     *
+     * @return array{0:int,1:int,2:int} [maxUncompressedBytes, maxFiles, maxDepth]
+     */
+    protected function archiveLimits(): array
+    {
+        $config = Grav::instance()['config'] ?? null;
+
+        $maxSize  = $config ? (int) $config->get('system.gpm.archive.max_uncompressed_size', 1073741824) : 1073741824; // 1 GiB
+        $maxFiles = $config ? (int) $config->get('system.gpm.archive.max_files', 50000) : 50000;
+        $maxDepth = $config ? (int) $config->get('system.gpm.archive.max_depth', 48) : 48;
+
+        return [$maxSize, $maxFiles, $maxDepth];
     }
 
     /**
