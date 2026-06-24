@@ -125,4 +125,95 @@ class TwigContentXssOutputTest extends \PHPUnit\Framework\TestCase
             ['<a href="javascript:alert(1)">click</a>', 'invalid_protocols', 'literal javascript: protocol'],
         ];
     }
+
+    // =========================================================================
+    // detectXssInRenderedOutput — the SVG/MathML-aware backstop used by
+    // Page::processTwig. Legitimate inline SVG (svg-icon shortcode, GitHub-style
+    // alert icons, theme glyphs) must NOT blank the page, while assembled
+    // payloads outside a well-formed svg/math subtree must still be caught.
+    // =========================================================================
+
+    /**
+     * The regression itself: rendered inline SVG/MathML — full of xmlns,
+     * <title>, <style> and the svg/math tags the raw detector flags — must pass
+     * the render-time scan untouched. Before the fix every one of these blanked
+     * the whole page (forum: v2.0.0 → v2.0.1 "most pages stopped rendering").
+     *
+     * @dataProvider providerLegitimateInlineSvg
+     */
+    public function testDetectXssInRenderedOutput_LegitimateSvgIsNotFlagged(string $html, string $description): void
+    {
+        self::assertNull(
+            Security::detectXssInRenderedOutput($html),
+            "Legitimate rendered SVG/MathML must not trip the output scan: $description"
+        );
+    }
+
+    public static function providerLegitimateInlineSvg(): array
+    {
+        return [
+            'svg-icon shortcode output' => [
+                '<p>Look: <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>telescope</title><path d="M1 2h3"/></svg> done.</p>',
+                'inline svg with xmlns + <title>',
+            ],
+            'duotone icon with inline <style>' => [
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><style>.a{fill:red}</style><path class="a" d="M1 1"/></svg>',
+                'svg carrying a <style> child (a dangerous tag in raw HTML)',
+            ],
+            'github-style alert with svg icon' => [
+                '<div class="markdown-alert"><p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 0"/></svg> Important</p></div>',
+                'alert block wrapping an inline status icon',
+            ],
+            'inline mathml' => [
+                '<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>x</mi></mrow></math>',
+                'mathml namespace block',
+            ],
+            'two icons in one page' => [
+                '<svg xmlns="http://www.w3.org/2000/svg"><title>a</title></svg> text <svg xmlns="http://www.w3.org/2000/svg"><title>b</title></svg>',
+                'multiple svg subtrees stripped independently',
+            ],
+        ];
+    }
+
+    /**
+     * The backstop must NOT go blind just because an svg/math subtree is present:
+     * a payload sitting outside the subtree, or in a malformed/unclosed svg, is
+     * still caught. This is the fail-safe half of the SVG carve-out.
+     *
+     * @dataProvider providerPayloadStillCaughtAroundSvg
+     */
+    public function testDetectXssInRenderedOutput_PayloadOutsideSvgStillFlagged(string $html, string $expectedRule, string $description): void
+    {
+        self::assertSame(
+            $expectedRule,
+            Security::detectXssInRenderedOutput($html),
+            "Payload must still be caught despite an svg/math subtree being present: $description"
+        );
+    }
+
+    public static function providerPayloadStillCaughtAroundSvg(): array
+    {
+        return [
+            'onerror after a clean svg' => [
+                '<svg xmlns="http://www.w3.org/2000/svg"><title>ok</title></svg><img src=1 onerror=alert(1)>',
+                'on_events',
+                'legit icon then an assembled handler',
+            ],
+            'script before a clean svg' => [
+                '<script>alert(1)</script><svg xmlns="http://www.w3.org/2000/svg"></svg>',
+                'dangerous_tags',
+                'script tag preceding an icon',
+            ],
+            'unclosed svg cannot smuggle a payload' => [
+                '<svg xmlns="http://www.w3.org/2000/svg"><img src=1 onerror=alert(1)>',
+                'on_events',
+                'no closing </svg>, so nothing is stripped and the handler is scanned',
+            ],
+            'javascript protocol outside math' => [
+                '<math xmlns="http://www.w3.org/1998/Math/MathML"></math><a href="javascript:alert(1)">x</a>',
+                'invalid_protocols',
+                'mathml then a javascript: link',
+            ],
+        ];
+    }
 }

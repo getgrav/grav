@@ -196,6 +196,14 @@ class Security
         }
 
         $enabled_rules = (array)($options['enabled_rules'] ?? null);
+        // `xmlns` was historically folded into the `on_events` regex, so callers
+        // (and the security.xss_enabled config) only know about `on_events`.
+        // Default `xmlns` to follow it unless a caller explicitly opts out — the
+        // render-time output scan in Page::processTwig sets it false so legit
+        // rendered <svg xmlns=...> no longer blanks the page.
+        if (!array_key_exists('xmlns', $enabled_rules)) {
+            $enabled_rules['xmlns'] = $enabled_rules['on_events'] ?? false;
+        }
         $dangerous_tags = (array)($options['dangerous_tags'] ?? null);
         if (!$dangerous_tags) {
             $enabled_rules['dangerous_tags'] = false;
@@ -230,7 +238,7 @@ class Security
 
         // Set the patterns we'll test against
         $patterns = [
-            // Match any attribute starting with "on" or xmlns (must be preceded by an
+            // Match any attribute starting with "on" (must be preceded by an
             // attribute boundary: whitespace, NUL, quote or slash). We deliberately
             // do NOT try to match the attribute value itself — the previous regex
             // required quotes-or-spaces around the `=` sign and was bypassed by
@@ -239,7 +247,16 @@ class Security
             // GHSA-w8cg-7jcj-4vv2). Detecting the attribute name + `=` is enough
             // for a tripwire; trade-off is occasional false positives when an
             // unrelated `on*=` substring appears inside another attribute's value.
-            'on_events' => '#<[^>]*?[\s\x00-\x20\"\'\/](on\s*[a-z]+|xmlns)\s*=#iu',
+            'on_events' => '#<[^>]*?[\s\x00-\x20\"\'\/]on\s*[a-z]+\s*=#iu',
+
+            // xmlns namespace declarations. Split out from on_events (which it
+            // historically shared a regex with) so the render-time output scan
+            // can suppress it independently: every legitimate rendered inline
+            // <svg xmlns=...> / <math xmlns=...> carries one, so leaving it on
+            // for post-render HTML blanks pages that merely display an icon. It
+            // stays on by default for raw-input sanitization (it follows the
+            // on_events toggle below).
+            'xmlns' => '#<[^>]*?[\s\x00-\x20\"\'\/]xmlns\s*=#iu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',
@@ -257,9 +274,10 @@ class Security
         // Iterate over rules and return label if fail
         foreach ($patterns as $name => $regex) {
             if (!empty($enabled_rules[$name])) {
-                // Skip testing 'on_events' against stripped version to avoid false positives
-                // with tags like <caption>, <button>, <section> that end with 'on' or contain 'on'
-                if ($name === 'on_events') {
+                // Skip testing 'on_events'/'xmlns' against stripped version to avoid false
+                // positives with tags like <caption>, <button>, <section> that end with 'on'
+                // or contain 'on'
+                if ($name === 'on_events' || $name === 'xmlns') {
                     if (preg_match($regex, (string) $string) || preg_match($regex, $orig)) {
                         return $name;
                     }
@@ -272,6 +290,46 @@ class Security
         }
 
         return null;
+    }
+
+    /**
+     * Render-time XSS backstop for editor-authored content Twig (GHSA-2c4f-86xc-cr74).
+     *
+     * The blueprint validator only sees the raw page source, so a payload
+     * assembled at render time — `{{ "on" ~ "error" }}`, `<s{{ "c"~"r"~... }}>`
+     * — passes it and then emits live markup. Page::processTwig re-runs the
+     * detector on the *rendered* output to catch that.
+     *
+     * The wrinkle this method solves: a shortcode or plugin that emits inline
+     * SVG/MathML (the svg-icon shortcode, GitHub-style alert icons, theme
+     * glyphs) is indistinguishable from an assembled payload to the raw
+     * detector — a legitimate `<svg>` subtree is full of the very tokens it
+     * flags (`xmlns`, `<title>`, `<style>`, the `<svg>`/`<math>` tags). Scanning
+     * it verbatim blanks the whole page on every icon.
+     *
+     * So complete `<svg>…</svg>` / `<math>…</math>` subtrees are excised before
+     * scanning, and the full detector runs on what remains. An unclosed or
+     * booby-trapped svg/math (no matching close tag) does NOT match the strip
+     * pattern, so any trailing markup is still scanned — fail-safe. The residual
+     * gap (a render-time payload assembled *inside* a well-formed svg subtree) is
+     * narrow and stays behind the admin-only content-Twig gate plus the Twig
+     * sandbox; this scan is a backstop, not the primary defense.
+     *
+     * @param string $html Rendered page content (post-Twig).
+     * @return string|null Rule name that fired, or null if clean.
+     */
+    public static function detectXssInRenderedOutput(string $html): ?string
+    {
+        if ($html === '') {
+            return null;
+        }
+
+        // Excise well-formed SVG/MathML subtrees (the `\1` backreference pins the
+        // matching close tag). `s` = dotall so multi-line icons are removed whole;
+        // `i` = case-insensitive; `u` = unicode.
+        $scanTarget = preg_replace('#<(svg|math)\b[^>]*>.*?</\1\s*>#isu', ' ', $html);
+
+        return static::detectXss(is_string($scanTarget) ? $scanTarget : $html);
     }
 
     public static function getXssDefaults(): array

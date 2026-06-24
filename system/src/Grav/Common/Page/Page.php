@@ -1046,7 +1046,13 @@ class Page implements PageInterface
 
         if ($scanXss && is_string($this->content) && $this->content !== ''
             && (bool) Grav::instance()['config']->get('security.twig_content.xss_scan_output', true)) {
-            $found = Security::detectXss($this->content);
+            // Render-time XSS backstop. Uses the SVG/MathML-aware scan so that
+            // legitimate inline <svg>/<math> from shortcodes and plugins (the
+            // svg-icon shortcode, GitHub-style alert icons, theme glyphs) does
+            // not false-positive and blank the page, while assembled on*=,
+            // <script> and javascript: payloads outside those subtrees are still
+            // caught. See Security::detectXssInRenderedOutput. (GHSA-2c4f-86xc-cr74)
+            $found = Security::detectXssInRenderedOutput($this->content);
             if ($found !== null) {
                 Security::logTwigContentXssBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), $found);
                 $this->content = '';

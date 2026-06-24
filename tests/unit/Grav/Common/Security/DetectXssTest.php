@@ -51,8 +51,28 @@ class DetectXssTest extends \PHPUnit\Framework\TestCase
             ['</option></select><img src=x onerror=alert(1)>', 'GHSA-c2q3 select-context break + unquoted onerror'],
             // Obfuscation: whitespace inside the event name (e.g. on  error=)
             ['<img src=x on error=alert(1)>', 'whitespace between on and event name'],
-            // xmlns is also covered by the same rule — keep regression coverage:
+        ];
+    }
+
+    /**
+     * xmlns detection was split out of the on_events regex into its own rule so
+     * the render-time output scan (Page::processTwig) can suppress it without
+     * losing on*-handler coverage. Raw-input sanitization must still flag it —
+     * just under the dedicated `xmlns` label now.
+     *
+     * @dataProvider providerXmlns
+     */
+    public function testDetectXss_FlagsXmlnsNamespaceDeclaration(string $payload, string $description): void
+    {
+        $result = Security::detectXss($payload);
+        self::assertSame('xmlns', $result, "Should flag xmlns for: $description");
+    }
+
+    public static function providerXmlns(): array
+    {
+        return [
             ['<svg xmlns=http://example.com/ns>', 'unquoted xmlns'],
+            ['<svg xmlns="http://www.w3.org/2000/svg">', 'quoted xmlns'],
         ];
     }
 
