@@ -640,7 +640,7 @@ class Installer
                 break;
 
             default:
-                $msg = 'Unknown Error';
+                $msg = 'Unknown installer error (code: ' . self::$error . ')';
                 break;
         }
 

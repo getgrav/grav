@@ -10,7 +10,6 @@
 namespace Grav\Installer;
 
 use Composer\Autoload\ClassLoader;
-use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
@@ -344,6 +343,8 @@ ERR;
             throw new RuntimeException('Oops, installer was run without prepare()!', 500);
         }
 
+        $installResult = false;
+
         try {
             if (null === $this->updater) {
                 $versions = Versions::instance(USER_DIR . 'config/versions.yaml');
@@ -365,7 +366,7 @@ ERR;
             }
             $this->relayProgress('installing', 'Running Grav standard installer...', null);
 
-            Installer::install(
+            $installResult = Installer::install(
                 $this->zip ?? '',
                 GRAV_ROOT,
                 ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $this->ignores],
@@ -374,18 +375,57 @@ ERR;
             );
 
             $this->relayProgress('complete', 'Grav standard installer finished.', 100);
-        } catch (Exception $e) {
-            Installer::setError($e->getMessage());
+        } catch (Throwable $e) {
+            // Catch Throwable (not just Exception): a PHP Error/TypeError from the
+            // file operations on a newer runtime must still be reported, not lost.
+            Installer::setError($e->getMessage() !== '' ? $e->getMessage() : ('Unexpected ' . get_class($e)));
+            $this->logInstallError('Exception during Grav core install', $e);
         } finally {
             self::$allowPendingOverride = false;
         }
 
         $errorCode = Installer::lastErrorCode();
 
-        $success = !(is_string($errorCode) || ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)));
+        // Any non-OK state is a failure. The previous check let a non-zip integer
+        // error code (e.g. a leftover/unknown code) slip through as "success",
+        // which is exactly how a real failure surfaced later as a contextless code.
+        $success = $installResult && !is_string($errorCode) && (int) $errorCode === Installer::OK;
 
         if (!$success) {
-            throw new RuntimeException(Installer::lastErrorMsg());
+            $message = Installer::lastErrorMsg();
+            $this->relayProgress('error', 'Grav install failed: ' . $message, null);
+            $this->logInstallError('Grav core install failed: ' . $message . ' (code: ' . var_export($errorCode, true) . ')');
+
+            throw new RuntimeException($message);
+        }
+    }
+
+    /**
+     * Log an install failure to logs/grav.log. Best effort only — logging must
+     * never derail the upgrade, so any failure here is swallowed.
+     *
+     * @param string         $message
+     * @param Throwable|null  $e
+     * @return void
+     */
+    private function logInstallError(string $message, ?Throwable $e = null): void
+    {
+        try {
+            $log = Grav::instance()['log'] ?? null;
+            if (!$log || !is_callable([$log, 'error'])) {
+                return;
+            }
+
+            $context = ['target_version' => $this->getVersion(), 'from' => GRAV_VERSION];
+            if (null !== $e) {
+                $context['exception'] = get_class($e);
+                $context['where'] = $e->getFile() . ':' . $e->getLine();
+                $context['trace'] = $e->getTraceAsString();
+            }
+
+            $log->error('GPM install: ' . $message, $context);
+        } catch (Throwable) {
+            // Never let logging interfere with the install flow.
         }
     }
 
