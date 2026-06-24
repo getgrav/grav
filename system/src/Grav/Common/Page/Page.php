@@ -492,10 +492,15 @@ class Page implements PageInterface
             if (isset($this->header->menu)) {
                 $this->menu = trim($this->header->menu);
             }
-            if (isset($this->header->routable)) {
+            if (isset($this->header->routable) && $this->header->routable !== '') {
                 $this->routable = (bool)$this->header->routable;
             }
-            if (isset($this->header->visible)) {
+            // An empty string is not a meaningful boolean — leave `visible` as
+            // null so the numeric-folder-prefix auto-detection in visible()
+            // still runs. Admin can persist `visible: ''` for an untouched
+            // toggleable field; without this guard `(bool)'' === false` would
+            // force the page out of navigation. See getgrav/grav#4153.
+            if (isset($this->header->visible) && $this->header->visible !== '') {
                 $this->visible = (bool)$this->header->visible;
             }
             if (isset($this->header->redirect)) {
@@ -804,7 +809,11 @@ class Page implements PageInterface
             if ($content_twig_requested && !$content_twig_allowed && !$this->modularTwig()) {
                 Security::logTwigContentGateBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), 'content');
             }
-            $process_twig = ($content_twig_requested && $content_twig_allowed) || $this->modularTwig();
+            // Editor-authored content Twig (gated by process_enabled) gets its
+            // rendered output re-scanned for XSS; trusted modular/theme Twig
+            // does not. (GHSA-2c4f-86xc-cr74)
+            $scan_twig_xss = $content_twig_requested && $content_twig_allowed;
+            $process_twig = $scan_twig_xss || $this->modularTwig();
 
             $cache_enable = $this->header->cache_enable ?? $config->get(
                 'system.cache.enabled',
@@ -840,7 +849,7 @@ class Page implements PageInterface
                 }
 
                 if ($process_twig) {
-                    $this->processTwig();
+                    $this->processTwig($scan_twig_xss);
                 }
             } else {
                 if ($this->content === false || $cache_enable === false) {
@@ -849,7 +858,7 @@ class Page implements PageInterface
 
                     if ($twig_first) {
                         if ($process_twig) {
-                            $this->processTwig();
+                            $this->processTwig($scan_twig_xss);
                         }
                         if ($process_markdown) {
                             $this->processMarkdown();
@@ -866,7 +875,7 @@ class Page implements PageInterface
                         Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
 
                         if ($process_twig) {
-                            $this->processTwig();
+                            $this->processTwig($scan_twig_xss);
                         }
                     }
 
@@ -1019,13 +1028,30 @@ class Page implements PageInterface
     /**
      * Process the Twig page content.
      *
+     * @param bool $scanXss When true, re-run the XSS detector on the rendered
+     *                      output. Set only for editor-authored content Twig
+     *                      gated by security.twig_content.process_enabled — the
+     *                      blueprint validator sees the raw source, so a payload
+     *                      assembled at render time (e.g. `{{ "on" ~ "error" }}`)
+     *                      passes validation but emits live markup. This is the
+     *                      post-render backstop. Trusted modular/theme Twig is
+     *                      never scanned. (GHSA-2c4f-86xc-cr74)
      * @return void
      */
-    private function processTwig()
+    private function processTwig(bool $scanXss = false)
     {
         /** @var Twig $twig */
         $twig = Grav::instance()['twig'];
         $this->content = $twig->processPage($this, $this->content);
+
+        if ($scanXss && is_string($this->content) && $this->content !== ''
+            && (bool) Grav::instance()['config']->get('security.twig_content.xss_scan_output', true)) {
+            $found = Security::detectXss($this->content);
+            if ($found !== null) {
+                Security::logTwigContentXssBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), $found);
+                $this->content = '';
+            }
+        }
     }
 
     /**

@@ -565,6 +565,36 @@ class Security
         }
     }
 
+    /**
+     * Log an XSS hit detected in the *rendered* output of editor-authored Twig
+     * content. The blueprint-time validator only inspects the raw source, so a
+     * payload assembled at render time (string concatenation, dynamic tag/attr
+     * names) slips past it; this is the post-render backstop. (GHSA-2c4f-86xc-cr74)
+     *
+     * @param string $route Route of the offending page.
+     * @param string $found The XSS token detected in the rendered output.
+     */
+    public static function logTwigContentXssBlocked(string $route, string $found): void
+    {
+        try {
+            $grav = Grav::instance();
+            if (!$grav->offsetExists('log.security')) {
+                return;
+            }
+
+            $grav['log.security']->warning(
+                sprintf('[TwigContentXss] blocked route=%s found=%s', $route, $found),
+                [
+                    'route' => $route,
+                    'found' => $found,
+                    'hint'  => 'Rendered Twig content produced markup the XSS detector flags. The blueprint validator cannot see render-time-assembled payloads; content was blanked. Disable security.twig_content.xss_scan_output to allow it.',
+                ]
+            );
+        } catch (Exception) {
+            // Never let a logging failure break rendering.
+        }
+    }
+
     private static function twigSandboxHint(string $rule, string $token, string $className): string
     {
         return match ($rule) {

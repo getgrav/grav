@@ -101,6 +101,15 @@ twig_content:
   process_enabled: false
   editor_enabled: false
   config_access: false
+  # Re-run the XSS detector on the *rendered* output of editor-authored Twig
+  # content. The blueprint-time XSS validator only sees the raw source, so a
+  # payload assembled at render time — e.g. `{{ "on" ~ "error" }}` or
+  # `<s{{ "c"~"r"~"i"~"p"~"t" }}>` — passes validation but produces an
+  # `onerror=`/`<script>` in the output. This scan closes that gap by
+  # inspecting the post-Twig HTML; on a hit the content is blanked and the
+  # event logged to logs/security.log. Only applies to content gated by
+  # process_enabled above (never to trusted modular/theme Twig). (GHSA-2c4f-86xc-cr74)
+  xss_scan_output: true
 
 twig_sandbox:
   enabled: true

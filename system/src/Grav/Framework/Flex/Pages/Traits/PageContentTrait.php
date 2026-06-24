@@ -227,7 +227,11 @@ trait PageContentTrait
         $value = $this->loadHeaderProperty(
             'visible',
             $var,
-            fn($value) => ($value ?? $this->order() !== false) && !$this->isModule()
+            // An empty string (e.g. an untouched toggleable `visible` field
+            // saved by admin) is not a meaningful boolean — coerce it to null
+            // so the folder-order auto-detection still runs instead of forcing
+            // the page out of navigation. See getgrav/grav#4153.
+            fn($value) => ((($value ?? '') === '' ? null : $value) ?? $this->order() !== false) && !$this->isModule()
         );
 
         return $value && $this->published();

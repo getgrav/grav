@@ -28,8 +28,10 @@ user/themes/*
 # security.yaml holds only policy now (twig_content, twig_sandbox, xss rules) —
 # the per-site secret moved to security-private.php in 2.0.0-beta.2
 # (GHSA-3f29-pqwf-v4j4), so the policy file is safe (and useful) to commit.
-user/**/config/security-private.php
-user/**/config/security-private.php.tmp
+# The *-private.php glob also covers per-plugin secret files written into
+# user/config (e.g. api-private.php from the API plugin's JWT secret).
+user/**/config/*-private.php
+user/**/config/*-private.php.tmp
 
 # Environments
 .env
