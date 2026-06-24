@@ -75,6 +75,12 @@ class ZipArchiver extends Archiver
                 }
 
                 if ($maxSize > 0) {
+                    // Advisory only: statIndex()['size'] is the uncompressed size
+                    // declared in the central directory, which the archive author
+                    // controls and can forge small (GHSA-8h9x-89f2-m7x3). It gives
+                    // an early reject for honest oversized archives, but the real
+                    // enforcement happens during streamed extraction below, against
+                    // the bytes actually inflated.
                     $stat = $zip->statIndex($i);
                     if (is_array($stat) && isset($stat['size'])) {
                         $totalSize += (int) $stat['size'];
@@ -88,7 +94,13 @@ class ZipArchiver extends Archiver
 
             Folder::create($destination);
 
-            if (!$zip->extractTo($destination)) {
+            if ($maxSize > 0) {
+                // Enforce the uncompressed-size cap against bytes actually written,
+                // so a forged-small declared size cannot smuggle a bomb past the
+                // advisory pre-pass above (GHSA-8h9x-89f2-m7x3).
+                $this->extractStreamed($zip, $destination, $numFiles, $maxSize);
+            } elseif (!$zip->extractTo($destination)) {
+                $zip->close();
                 throw new RuntimeException('ZipArchiver: ZIP failed to extract ' . $this->archive_file . ' to ' . $destination);
             }
 
@@ -155,6 +167,98 @@ class ZipArchiver extends Archiver
         }
 
         return true;
+    }
+
+    /**
+     * Extract every entry through a counting stream, aborting the moment the
+     * cumulative inflated size exceeds $maxSize. Unlike ZipArchive::extractTo,
+     * this enforces the cap against bytes actually written rather than the
+     * attacker-controlled sizes declared in the central directory, so a forged
+     * archive cannot fill the disk (GHSA-8h9x-89f2-m7x3). Entry paths were
+     * validated in the caller's pre-pass, so they are safe to write here.
+     *
+     * @param ZipArchive $zip
+     * @param string $destination
+     * @param int $numFiles
+     * @param int $maxSize
+     * @return void
+     */
+    protected function extractStreamed(ZipArchive $zip, string $destination, int $numFiles, int $maxSize): void
+    {
+        $written = 0;
+        $chunkSize = 262144; // 256 KiB
+
+        for ($i = 0; $i < $numFiles; $i++) {
+            $name = $zip->getNameIndex($i);
+            if ($name === false) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $name);
+            $target = $destination . '/' . $relative;
+
+            // Directory entry: create it and move on.
+            if (str_ends_with($relative, '/')) {
+                Folder::create($target);
+                continue;
+            }
+
+            $dir = dirname($target);
+            if (!is_dir($dir)) {
+                Folder::create($dir);
+            }
+
+            $stream = $zip->getStream($name);
+            if ($stream === false) {
+                $this->abortExtraction($zip, $destination, 'ZipArchiver: failed to read entry "' . $name . '" from ' . $this->archive_file . '.');
+            }
+
+            $out = fopen($target, 'wb');
+            if ($out === false) {
+                fclose($stream);
+                $this->abortExtraction($zip, $destination, 'ZipArchiver: failed to write "' . $target . '".');
+            }
+
+            while (!feof($stream)) {
+                $buffer = fread($stream, $chunkSize);
+                if ($buffer === false) {
+                    break;
+                }
+
+                $written += strlen($buffer);
+                if ($written > $maxSize) {
+                    fclose($out);
+                    fclose($stream);
+                    $this->abortExtraction($zip, $destination, 'ZipArchiver: refused to extract ' . $this->archive_file . '. Archive exceeds the maximum uncompressed size (' . $maxSize . ' bytes).');
+                }
+
+                if ($buffer !== '' && fwrite($out, $buffer) === false) {
+                    fclose($out);
+                    fclose($stream);
+                    $this->abortExtraction($zip, $destination, 'ZipArchiver: failed to write "' . $target . '".');
+                }
+            }
+
+            fclose($out);
+            fclose($stream);
+        }
+    }
+
+    /**
+     * Close the archive, remove everything extracted so far, and throw. Keeps a
+     * rejected archive from leaving partial output on disk.
+     *
+     * @param ZipArchive $zip
+     * @param string $destination
+     * @param string $message
+     * @return never
+     */
+    protected function abortExtraction(ZipArchive $zip, string $destination, string $message): void
+    {
+        $zip->close();
+        Folder::delete($destination);
+
+        throw new RuntimeException($message);
     }
 
     /**

@@ -2,6 +2,7 @@
 ## 06/24/2026
 
 1. [](#bugfix)
+    * [security] ZIP extraction in both Direct Install and the internal archiver now enforces the uncompressed-size limit against the bytes actually written, rather than the size each entry claims, so an archive that understates its real size can no longer slip a decompression bomb past the limit (GHSA-8h9x-89f2-m7x3).
     * A failed `bin/gpm self-upgrade` now reports the specific reason it stopped and records the full details in `logs/grav.log`, instead of showing a generic "Unknown error" with nothing to act on. Fixes [getgrav/grav#4158](https://github.com/getgrav/grav/issues/4158).
 
 # v2.0.1
