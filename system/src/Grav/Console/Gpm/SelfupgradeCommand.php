@@ -9,7 +9,6 @@
 
 namespace Grav\Console\Gpm;
 
-use Exception;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\HTTP\Response;
 use Grav\Common\GPM\Installer;
@@ -56,6 +55,8 @@ class SelfupgradeCommand extends GpmCommand
     private $currentStageStartedAt = null;
     /** @var array */
     private $currentStageExtras = [];
+    /** @var \Throwable|null Last throwable captured while staging the upgrade */
+    private $lastThrowable = null;
 
     /** @var string */
     protected $all_yes;
@@ -530,10 +531,39 @@ class SelfupgradeCommand extends GpmCommand
 
         $errorCode = Installer::lastErrorCode();
         if ($errorCode) {
+            $errorMsg = Installer::lastErrorMsg();
+
             $io->write("\x0D");
             // extra white spaces to clear out the buffer properly
             $io->writeln('  |- Installing upgrade...    <red>error</red>                             ');
-            $io->writeln("  |  '- " . Installer::lastErrorMsg());
+            $io->writeln("  |  '- " . $errorMsg);
+            if (!is_string($errorCode)) {
+                $io->writeln(sprintf("  |  '- (installer error code: %d)", $errorCode));
+            }
+
+            $this->logUpgrade('error', $errorMsg, [
+                'error_code' => $errorCode,
+                'from' => GRAV_VERSION,
+                'to' => $this->upgrader ? $this->upgrader->getRemoteVersion() : null,
+                'package' => $this->file,
+                'staging_dir' => $this->tmp,
+                'php' => PHP_VERSION . ' (cli)',
+                'exception' => $this->lastThrowable ? get_class($this->lastThrowable) : null,
+            ]);
+
+            if ($io->isVerbose()) {
+                $io->writeln("  |  '- <yellow>diagnostics:</yellow>");
+                $io->writeln('  |     - installer error code: ' . var_export($errorCode, true));
+                $io->writeln('  |     - downloaded package: ' . ($this->file ?: '(none)'));
+                $io->writeln('  |     - staging dir: ' . ($this->tmp ?: '(none)'));
+                $io->writeln('  |     - PHP: ' . PHP_VERSION . ' (cli)');
+                if (null !== $this->lastThrowable) {
+                    $io->writeln('  |     - exception: ' . get_class($this->lastThrowable) . ' in ' . $this->lastThrowable->getFile() . ':' . $this->lastThrowable->getLine());
+                    $io->writeln($this->lastThrowable->getTraceAsString());
+                }
+            } else {
+                $io->writeln("  |  '- Re-run with <white>-v</white> for diagnostics; details were logged to <white>logs/grav.log</white>.");
+            }
 
             return false;
         }
@@ -617,8 +647,46 @@ class SelfupgradeCommand extends GpmCommand
             } else {
                 throw new RuntimeException('Uploaded archive file is not a valid Grav update package');
             }
-        } catch (Exception $e) {
-            Installer::setError($e->getMessage());
+        } catch (\Throwable $e) {
+            // Catch Throwable (not just Exception) so a PHP Error/TypeError raised
+            // by the bundled installer on a newer PHP runtime still produces a
+            // meaningful message instead of an uncaught fatal with no context.
+            $this->lastThrowable = $e;
+
+            $message = $e->getMessage();
+            if ($message === '') {
+                $message = 'Unexpected ' . get_class($e) . ' during upgrade';
+            }
+            Installer::setError($message);
+
+            $this->logUpgrade('error', 'Exception while staging upgrade: ' . $message, [
+                'exception' => get_class($e),
+                'where' => $e->getFile() . ':' . $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+    }
+
+    /**
+     * Log a self-upgrade event to logs/grav.log. Logging must never break the
+     * upgrade itself, so any failure here is swallowed.
+     *
+     * @param string $level   Monolog level method (error|warning|info|debug)
+     * @param string $message
+     * @param array  $context
+     * @return void
+     */
+    private function logUpgrade(string $level, string $message, array $context = []): void
+    {
+        try {
+            $log = Grav::instance()['log'] ?? null;
+            if ($log && is_callable([$log, $level])) {
+                $log->{$level}('GPM self-upgrade: ' . $message, array_filter($context, static function ($value) {
+                    return $value !== null;
+                }));
+            }
+        } catch (\Throwable) {
+            // Never let logging interfere with the upgrade flow.
         }
     }
 
