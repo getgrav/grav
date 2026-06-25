@@ -2,11 +2,11 @@
 
 ## Supported Versions
 
-Active development of Grav happens on the **2.0** branch, which is currently shipping as **release candidates**. 2.0 RC replaces the older **1.8 beta** line outright. All security work lands on 2.0 first, and 2.0 is the recommended target for any new install.
+Active development of Grav happens on the **develop** branch. All security work lands on 2.0 first, and 2.0 is the recommended target for any new install.
 
 | Version | Status                           | Notes                                                                                                                                  |
 | ------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| 2.0.x   | :white_check_mark: Active        | Current development line, shipping as RC. All security fixes land here.                                                                |
+| 2.0.x   | :white_check_mark: Active        | Current development line, shipping as stable. All security fixes land here.                                                                |
 | 1.7.x   | :warning: Limited maintenance    | Only critical issues exploitable **without** admin or publisher access get backported. See [What gets backported to 1.7](#what-gets-backported-to-17) below. |
 | 1.8.x   | :x: Not supported                | 1.8 was only ever a beta line. It has been replaced wholesale by 2.0 RC. No further releases or backports.                             |
 | < 1.7   | :x: Not supported                |                                                                                                                                        |
