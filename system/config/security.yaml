@@ -368,8 +368,16 @@ twig_sandbox:
     # sandbox (e.g. `{{ page.media['x.png'].url }}`). __tostring lives here too
     # so printing a medium keeps working when config_access is off (which
     # strips the Data fallback below).
+    #
+    # The action methods after the read accessors mirror Medium::ALLOWED_ACTIONS
+    # (the documented media chain on learn.getgrav.org /content/media — resize,
+    # cropResize, lightbox, link, format, the player attributes, etc.). These
+    # are the same actions already trusted from editor-authored URLs, so the
+    # standard `{{ page.media['x.jpg'].cropResize(..).lightbox(..).html() }}`
+    # idiom works under the sandbox without per-site allowlist edits. Keep this
+    # list in sync with Medium::ALLOWED_ACTIONS when new actions are documented.
     - class: 'Grav\Common\Page\Medium\Medium'
-      methods: 'url, html, filepath, filename, metadata, thumbnail, parsedownelement, __tostring'
+      methods: 'url, html, filepath, filename, metadata, thumbnail, parsedownelement, __tostring, resize, forceresize, cropresize, crop, zoomcrop, cropzoom, negate, brightness, contrast, grayscale, emboss, smooth, sharp, edge, colorize, sepia, enableprogressive, rotate, flip, fixorientation, gaussianblur, format, quality, watermark, derivatives, cache, lightbox, link, classes, style, id, attribute, width, height, sizes, autosizes, aspectratio, retinascale, loading, decoding, fetchpriority, display, reset, controls, controlslist, loop, autoplay, muted, preload, playsinline, poster'
     - class: 'Grav\Common\User\Interfaces\UserInterface'
       methods: 'authorize, authorized, authenticated, username, fullname, email, language, offsetget, offsetexists'
     - class: 'Grav\Common\Taxonomy'
