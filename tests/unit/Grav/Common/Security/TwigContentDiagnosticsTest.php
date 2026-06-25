@@ -251,4 +251,50 @@ class TwigContentDiagnosticsTest extends \PHPUnit\Framework\TestCase
             $config->set('security.twig_content.editor_enabled', $prevEditor);
         }
     }
+
+    // =========================================================================
+    // Content Twig-token extractor + scan (Phase 4): the shared extractor that
+    // suggests what content needs and that migrate-grav#11 reuses.
+    // =========================================================================
+
+    public function testExtractTwigTokens_PullsTagsFiltersFunctions(): void
+    {
+        $tokens = Security::extractTwigTokens(
+            '{% if x %}{{ "a" | upper | truncate(5) }} {{ date("now") }}{% endif %}'
+        );
+
+        self::assertContains('if', $tokens['tags']);
+        self::assertContains('endif', $tokens['tags']);
+        self::assertContains('upper', $tokens['filters']);
+        self::assertContains('truncate', $tokens['filters']);
+        self::assertContains('date', $tokens['functions']);
+    }
+
+    public function testExtractTwigTokens_SkipsMethodCallsAndPlainText(): void
+    {
+        $tokens = Security::extractTwigTokens(
+            'Plain text with maybe(parens). {{ page.media("x.jpg").url }} {{ foo() }}'
+        );
+
+        // page.media(...) is a method call, not a function; only foo() counts.
+        self::assertContains('foo', $tokens['functions']);
+        self::assertNotContains('media', $tokens['functions']);
+        // Text outside Twig islands is ignored entirely.
+        self::assertNotContains('maybe', $tokens['functions']);
+    }
+
+    public function testScanContentTwigUsage_ReportsOnlyNotAllowedTokens(): void
+    {
+        $usage = Security::scanContentTwigUsage($this->leakPages());
+
+        // `upper` is allowed and `if` is structural → not reported.
+        self::assertArrayNotHasKey('upper', $usage['filters']);
+        self::assertArrayNotHasKey('if', $usage['tags']);
+
+        // The not-allowed filter and function ARE reported, with the route.
+        self::assertArrayHasKey('frobnicate', $usage['filters']);
+        self::assertContains('/scan', $usage['filters']['frobnicate']);
+        self::assertArrayHasKey('evaluate', $usage['functions']);
+        self::assertContains('/scan', $usage['functions']['evaluate']);
+    }
 }

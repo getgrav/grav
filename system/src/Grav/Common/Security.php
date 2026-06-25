@@ -1039,6 +1039,168 @@ class Security
         ];
     }
 
+    /**
+     * Heuristically extract the Twig tags, filters, and functions referenced in
+     * a chunk of page content. Used by the Admin "scan content for Twig the
+     * sandbox will block" action and by the migrate-grav allowlist suggester
+     * (getgrav/grav-plugin-migrate-grav#11) so both produce identical results.
+     *
+     * This is a lexical approximation (regex over the `{{ }}` / `{% %}` islands),
+     * not a full parse: it can over-report (a function-like name inside a string
+     * literal) and under-report (dynamically-built names). It is only ever used
+     * to *suggest* review — the precise, authoritative signal is the render-time
+     * sandbox block captured in recentTwigContentEvents(). Never wire a
+     * one-click allowlist add directly off this output without review.
+     *
+     * @return array{tags:list<string>,filters:list<string>,functions:list<string>}
+     */
+    public static function extractTwigTokens(string $content): array
+    {
+        $tags = [];
+        $filters = [];
+        $functions = [];
+
+        // Pull out every Twig island: {{ ... }} and {% ... %} (and {%- -%}).
+        if (preg_match_all('/\{\{(.*?)\}\}|\{%-?(.*?)-?%\}/s', $content, $islands, PREG_SET_ORDER)) {
+            foreach ($islands as $island) {
+                $isStatement = ($island[2] ?? '') !== '' || str_starts_with($island[0], '{%');
+                $expr = $island[1] !== '' ? $island[1] : ($island[2] ?? '');
+
+                // Statement tag name: first word after {% .
+                if ($isStatement && preg_match('/^\s*(\w+)/', $expr, $m)) {
+                    $tags[] = strtolower($m[1]);
+                }
+
+                // Filters: `| name` (optionally `| name(...)`). Excludes `||`.
+                if (preg_match_all('/\|\s*(\w+)/', $expr, $fm)) {
+                    foreach ($fm[1] as $name) {
+                        $filters[] = $name;
+                    }
+                }
+
+                // Functions: `name(` not preceded by a member/`|`/word char, so
+                // `page.media(` (method) and `x|filter(` (filter args) are skipped.
+                if (preg_match_all('/(?<![\w.|])([a-zA-Z_]\w*)\s*\(/', $expr, $cm)) {
+                    foreach ($cm[1] as $name) {
+                        $functions[] = $name;
+                    }
+                }
+            }
+        }
+
+        return [
+            'tags'      => array_values(array_unique($tags)),
+            'filters'   => array_values(array_unique($filters)),
+            'functions' => array_values(array_unique($functions)),
+        ];
+    }
+
+    /**
+     * Scan all page content for Twig tags/filters/functions that the sandbox
+     * allowlists do NOT currently permit — i.e. constructs that will be blocked
+     * if/when the page runs editor Twig. Informational: it shows operators what
+     * their content needs before they enable the gate, complementing the precise
+     * render-time blocks in recentTwigContentEvents().
+     *
+     * @param Pages $pages
+     * @param callable|null $status Optional progress callback (count/progress).
+     * @return array{
+     *   tags:array<string,list<string>>,
+     *   filters:array<string,list<string>>,
+     *   functions:array<string,list<string>>
+     * } Each map is token => list of routes using it.
+     */
+    public static function scanContentTwigUsage(Pages $pages, ?callable $status = null): array
+    {
+        $config = null;
+        try {
+            $config = Grav::instance()['config'];
+        } catch (Exception) {
+            // No config → treat every used token as not-allowed.
+        }
+
+        $allowedTags = self::lowerSet((array) ($config?->get('security.twig_sandbox.allowed_tags', []) ?? []));
+        $allowedFilters = self::lowerSet((array) ($config?->get('security.twig_sandbox.allowed_filters', []) ?? []));
+        $allowedFunctions = self::lowerSet((array) ($config?->get('security.twig_sandbox.allowed_functions', []) ?? []));
+
+        // Tags Twig always provides that are never sandbox-checked / always safe.
+        $structuralTags = ['endif', 'else', 'elseif', 'endfor', 'endblock', 'endset', 'endmacro', 'endapply', 'endautoescape', 'endembed', 'endfilter', 'endspaceless', 'endwith', 'endsandbox', 'endverbatim', 'endcache', 'in', 'as'];
+        foreach ($structuralTags as $t) {
+            $allowedTags[$t] = true;
+        }
+
+        $out = ['tags' => [], 'filters' => [], 'functions' => []];
+
+        $routes = $pages->getList(null, 0, true);
+        unset($routes['/']);
+
+        $status && $status(['type' => 'count', 'steps' => count($routes)]);
+
+        foreach (array_keys($routes) as $route) {
+            $status && $status(['type' => 'progress']);
+            try {
+                $page = $pages->find($route);
+                if (!$page || !$page->exists()) {
+                    continue;
+                }
+                if (method_exists($page, 'modularTwig') && $page->modularTwig()) {
+                    continue;
+                }
+                $page->header();
+                $content = (string) $page->value('content');
+                if (!str_contains($content, '{{') && !str_contains($content, '{%')) {
+                    continue;
+                }
+
+                $routeLabel = (string) ($page->route() ?? $page->rawRoute() ?? $route);
+                $tokens = self::extractTwigTokens($content);
+
+                foreach ($tokens['tags'] as $tag) {
+                    if (!isset($allowedTags[strtolower($tag)])) {
+                        $out['tags'][$tag][] = $routeLabel;
+                    }
+                }
+                foreach ($tokens['filters'] as $filter) {
+                    if (!isset($allowedFilters[strtolower($filter)])) {
+                        $out['filters'][$filter][] = $routeLabel;
+                    }
+                }
+                foreach ($tokens['functions'] as $function) {
+                    if (!isset($allowedFunctions[strtolower($function)])) {
+                        $out['functions'][$function][] = $routeLabel;
+                    }
+                }
+            } catch (Exception) {
+                continue;
+            }
+        }
+
+        // De-dup routes per token.
+        foreach ($out as $type => $map) {
+            foreach ($map as $token => $routeList) {
+                $out[$type][$token] = array_values(array_unique($routeList));
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param array<int,mixed> $values
+     * @return array<string,true>
+     */
+    private static function lowerSet(array $values): array
+    {
+        $set = [];
+        foreach ($values as $value) {
+            if (is_string($value) && $value !== '') {
+                $set[strtolower($value)] = true;
+            }
+        }
+
+        return $set;
+    }
+
     private static function twigSandboxHint(string $rule, string $token, string $className): string
     {
         return match ($rule) {
