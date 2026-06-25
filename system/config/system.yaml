@@ -209,6 +209,7 @@ media:
 session:
   enabled: true                                  # Enable Session support
   initialize: true                               # Initialize session from Grav (if false, plugin needs to start the session)
+  read_and_close: false                          # Release the session lock right after the initial read (read-only start); the first write re-acquires it. Lets requests sharing a session id run concurrently instead of serializing on PHP's per-session lock. Opt-in: read-modify-write across a request is no longer atomic.
   timeout: 1800                                  # Timeout in seconds
   name: grav-site                                # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
   uniqueness: path                               # Should sessions be `path` based or `security.salt` based

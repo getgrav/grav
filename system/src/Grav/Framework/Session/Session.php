@@ -31,6 +31,8 @@ class Session implements SessionInterface
     protected $options = [];
     /** @var bool */
     protected $started = false;
+    /** @var bool Lock released after a read-only start; the first write re-acquires it. */
+    protected $readonly = false;
 
     /** @var Session */
     protected static $instance;
@@ -204,9 +206,6 @@ class Session implements SessionInterface
         }
 
         $options = $this->options;
-        if ($readonly) {
-            $options['read_and_close'] = '1';
-        }
 
         try {
             $success = @session_start($options);
@@ -271,7 +270,43 @@ class Session implements SessionInterface
             $this->setCookie();
         }
 
+        // Read-only start: now that the data has been read, validated and the
+        // cookie refreshed, release the exclusive session lock immediately. The
+        // session stays readable ($_SESSION is kept after close) and the first
+        // write re-acquires the lock via reopen(). This lets requests that share
+        // a session id (e.g. an SPA's parallel API calls, multi-tab browsing,
+        // concurrent AJAX) read concurrently instead of serializing on PHP's
+        // per-session file lock. Opt-in via system.session.read_and_close.
+        if ($readonly && \PHP_SESSION_ACTIVE === session_status()) {
+            session_write_close();
+            $this->readonly = true;
+        }
+
         return $this;
+    }
+
+    /**
+     * Re-acquire the exclusive session lock after a read-only start so a write
+     * can persist for the rest of the request. No-op unless the session was
+     * started read-only and its lock has since been released. Re-opens with the
+     * same id and without re-sending the cookie (already set during start()).
+     */
+    protected function reopen(): void
+    {
+        if (!$this->readonly) {
+            return;
+        }
+
+        $this->readonly = false;
+
+        if (\PHP_SAPI === 'cli' || \PHP_SESSION_ACTIVE === session_status()) {
+            return;
+        }
+
+        $options = $this->options;
+        $options['use_cookies'] = '0';
+        $options['use_only_cookies'] = '0';
+        @session_start($options);
     }
 
     /**
@@ -284,6 +319,10 @@ class Session implements SessionInterface
      */
     public function regenerateId()
     {
+        // Rotating the id writes — re-acquire the lock if it was released after
+        // a read-only start, otherwise the session would look unstarted here.
+        $this->reopen();
+
         if (!$this->isSessionStarted()) {
             return $this;
         }
@@ -347,6 +386,9 @@ class Session implements SessionInterface
      */
     public function invalidate()
     {
+        // Destroying the session writes — re-acquire the lock if it was released.
+        $this->reopen();
+
         $name = $this->getName();
         if (null !== $name) {
             $this->removeCookie();
@@ -373,11 +415,14 @@ class Session implements SessionInterface
      */
     public function close()
     {
-        if ($this->started) {
+        // After a read-only start the lock is already released and the session
+        // closed; only commit when it is genuinely active to avoid a warning.
+        if ($this->started && \PHP_SESSION_ACTIVE === session_status()) {
             session_write_close();
         }
 
         $this->started = false;
+        $this->readonly = false;
 
         return $this;
     }
@@ -387,6 +432,7 @@ class Session implements SessionInterface
      */
     public function clear()
     {
+        $this->reopen();
         session_unset();
 
         return $this;
@@ -441,6 +487,7 @@ class Session implements SessionInterface
     #[\ReturnTypeWillChange]
     public function __set($name, $value)
     {
+        $this->reopen();
         $_SESSION[$name] = $value;
     }
 
@@ -450,6 +497,7 @@ class Session implements SessionInterface
     #[\ReturnTypeWillChange]
     public function __unset($name)
     {
+        $this->reopen();
         unset($_SESSION[$name]);
     }
 
