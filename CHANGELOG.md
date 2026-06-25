@@ -1,3 +1,9 @@
+# v2.0.3
+## 06/25/2026
+
+1. [](#bugfix)
+    * A `bin/gpm self-upgrade` that stops while replacing core files now names the exact file or folder it could not remove and the reason why, and points out when the file is owned by a different user than the one running the command, which is the usual cause of an upgrade that works from the admin but fails on the command line. Fixes [getgrav/grav#4162](https://github.com/getgrav/grav/issues/4162).
+
 # v2.0.2
 ## 06/24/2026
 
