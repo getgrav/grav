@@ -41,11 +41,14 @@ use Iterator;
 use JsonSerializable;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Traversable;
+use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
+use Twig\Extension\SandboxExtension;
 use Twig\Markup;
+use Twig\Sandbox\SecurityNotAllowedFilterError;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use function array_slice;
@@ -144,8 +147,12 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('array_unique', 'array_unique'),
             new TwigFilter('basename', 'basename'),
             new TwigFilter('dirname', 'dirname'),
-            new TwigFilter('print_r', $this->print_r(...)),
-            new TwigFilter('yaml_encode', $this->yamlEncodeFilter(...)),
+            new TwigFilter('print_r', $this->printRGuarded(...), ['needs_environment' => true]),
+            new TwigFilter('yaml_encode', $this->yamlEncodeGuarded(...), ['needs_environment' => true]),
+            // Overrides Twig core's `json_encode` filter so the sandbox guard
+            // applies; the override wins because GravExtension is registered
+            // after CoreExtension. (GHSA-mc5q-6hpj-rp7j)
+            new TwigFilter('json_encode', $this->jsonEncodeGuarded(...), ['needs_environment' => true]),
             new TwigFilter('yaml_decode', $this->yamlDecodeFilter(...)),
             new TwigFilter('nicecron', $this->niceCronFilter(...)),
             new TwigFilter('replace_last', $this->replaceLastFilter(...)),
@@ -156,7 +163,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('ta', $this->translateArray(...)),
 
             // Casting values
-            new TwigFilter('string', $this->stringFilter(...)),
+            new TwigFilter('string', $this->stringGuarded(...), ['needs_environment' => true]),
             new TwigFilter('int', $this->intFilter(...), ['is_safe' => ['all']]),
             new TwigFilter('bool', $this->boolFilter(...)),
             new TwigFilter('float', $this->floatFilter(...), ['is_safe' => ['all']]),
@@ -195,8 +202,8 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('authorize', $this->authorize(...)),
             new TwigFunction('debug', $this->dump(...), ['needs_context' => true, 'needs_environment' => true]),
             new TwigFunction('dump', $this->dump(...), ['needs_context' => true, 'needs_environment' => true]),
-            new TwigFunction('vardump', $this->vardumpFunc(...)),
-            new TwigFunction('print_r', $this->print_r(...)),
+            new TwigFunction('vardump', $this->vardumpGuarded(...), ['needs_environment' => true]),
+            new TwigFunction('print_r', $this->printRGuarded(...), ['needs_environment' => true]),
             new TwigFunction('http_response_code', 'http_response_code'),
             new TwigFunction('evaluate', $this->evaluateStringFunc(...), ['needs_context' => true]),
             new TwigFunction('evaluate_twig', $this->evaluateTwigFunc(...), ['needs_context' => true]),
@@ -283,6 +290,156 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     public function print_r(mixed $var)
     {
         return print_r($var, true);
+    }
+
+    /**
+     * Sandbox guard for the dump/serialize filters (print_r, vardump,
+     * json_encode, yaml_encode, string).
+     *
+     * These bypass the Twig sandbox member gate: print_r/vardump reflect an
+     * object's private and protected state directly, while json_encode/
+     * yaml_encode/string serialize it — none of them route member access through
+     * GravSecurityPolicy::checkMethodAllowed/checkPropertyAllowed. So a content
+     * author can dump an object that leaked into scope (e.g. the redacting
+     * `config` facade, which holds the real Config in a private property, or a
+     * raw Config reached via the container) and exfiltrate every value the
+     * sandbox is supposed to hide. (GHSA-mc5q-6hpj-rp7j)
+     *
+     * Two tiers, applied recursively (arrays are walked):
+     *  - $reflective true (print_r, vardump): these expose all private/protected
+     *    state, so the only object they may receive is a plain stdClass (pure
+     *    data, e.g. a page header built from YAML). Any other object is refused.
+     *  - $reflective false (json_encode, yaml_encode, string): the object's
+     *    class must be allow-listed by the active policy. This keeps the
+     *    redacting SandboxConfig facade usable (json_encode sees no public
+     *    props; yaml_encode routes through its redacting toArray) while refusing
+     *    a raw Config/Data or any other non-allow-listed object.
+     *
+     * No-op outside a sandboxed render, so trusted theme/plugin/modular Twig is
+     * unaffected.
+     *
+     * @param Environment $env
+     * @param mixed $var
+     * @param string $filter
+     * @param bool $reflective
+     * @return void
+     */
+    protected function assertSandboxDumpSafe(Environment $env, mixed $var, string $filter, bool $reflective): void
+    {
+        /** @var SandboxExtension $sandbox */
+        $sandbox = $env->getExtension(SandboxExtension::class);
+        if (!$sandbox->isSandboxed()) {
+            return;
+        }
+
+        $policy = $sandbox->getSecurityPolicy();
+        $this->scanSandboxDump($policy instanceof GravSecurityPolicy ? $policy : null, $var, $filter, $reflective);
+    }
+
+    /**
+     * Recursive worker for assertSandboxDumpSafe(). Throws
+     * SecurityNotAllowedFilterError on the first object that is not permitted, so
+     * the sandboxed render soft-fails and logs the violation like any other
+     * sandbox block.
+     *
+     * @param GravSecurityPolicy|null $policy
+     * @param mixed $var
+     * @param string $filter
+     * @param bool $reflective
+     * @param int $depth
+     * @return void
+     */
+    private function scanSandboxDump(?GravSecurityPolicy $policy, mixed $var, string $filter, bool $reflective, int $depth = 0): void
+    {
+        if ($depth > 16) {
+            // Pathological nesting / cycles: refuse rather than recurse forever.
+            throw new SecurityNotAllowedFilterError(
+                sprintf('Filter "%s" is not allowed on deeply nested data inside sandboxed content.', $filter),
+                $filter
+            );
+        }
+
+        if (is_array($var)) {
+            foreach ($var as $item) {
+                $this->scanSandboxDump($policy, $item, $filter, $reflective, $depth + 1);
+            }
+            return;
+        }
+
+        if (!is_object($var)) {
+            return;
+        }
+
+        $allowed = $reflective
+            ? $var instanceof \stdClass
+            : ($policy !== null && $policy->isClassAllowed($var));
+
+        if (!$allowed) {
+            throw new SecurityNotAllowedFilterError(
+                sprintf('Filter "%s" is not allowed on a "%s" object inside sandboxed content.', $filter, $var::class),
+                $filter
+            );
+        }
+    }
+
+    /**
+     * @param Environment $env
+     * @param mixed $var
+     * @return string
+     */
+    public function printRGuarded(Environment $env, mixed $var)
+    {
+        $this->assertSandboxDumpSafe($env, $var, 'print_r', true);
+        return $this->print_r($var);
+    }
+
+    /**
+     * @param Environment $env
+     * @param mixed $var
+     * @return void
+     */
+    public function vardumpGuarded(Environment $env, mixed $var)
+    {
+        $this->assertSandboxDumpSafe($env, $var, 'vardump', true);
+        $this->vardumpFunc($var);
+    }
+
+    /**
+     * @param Environment $env
+     * @param mixed $data
+     * @param int $inline
+     * @return string
+     */
+    public function yamlEncodeGuarded(Environment $env, $data, $inline = 10)
+    {
+        $this->assertSandboxDumpSafe($env, $data, 'yaml_encode', false);
+        return $this->yamlEncodeFilter($data, $inline);
+    }
+
+    /**
+     * Guarded override of Twig core's `json_encode` filter.
+     *
+     * @param Environment $env
+     * @param mixed $value
+     * @param int $flags
+     * @param int $depth
+     * @return string|false
+     */
+    public function jsonEncodeGuarded(Environment $env, mixed $value, int $flags = 0, int $depth = 512)
+    {
+        $this->assertSandboxDumpSafe($env, $value, 'json_encode', false);
+        return json_encode($value, $flags, $depth);
+    }
+
+    /**
+     * @param Environment $env
+     * @param mixed $value
+     * @return string
+     */
+    public function stringGuarded(Environment $env, mixed $value)
+    {
+        $this->assertSandboxDumpSafe($env, $value, 'string', false);
+        return $this->stringFilter($value);
     }
 
     /**

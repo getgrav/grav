@@ -1,3 +1,12 @@
+# v2.0.2
+## 06/24/2026
+
+1. [](#bugfix)
+    * [security] ZIP extraction in both Direct Install and the internal archiver now enforces the uncompressed-size limit against the bytes actually written, rather than the size each entry claims, so an archive that understates its real size can no longer slip a decompression bomb past the limit (GHSA-8h9x-89f2-m7x3).
+    * [security] Editor-authored Twig in page content can no longer read configuration secrets by dumping the config object through a filter such as `print_r` or `json_encode`, closing a sandbox bypass that exposed plugin credentials and API keys (GHSA-mc5q-6hpj-rp7j).
+    * A failed `bin/gpm self-upgrade` now reports the specific reason it stopped and records the full details in `logs/grav.log`, instead of showing a generic "Unknown error" with nothing to act on. Fixes [getgrav/grav#4158](https://github.com/getgrav/grav/issues/4158).
+    * A page that displays inline SVG or MathML icons, such as the svg-icon shortcode or GitHub-style alert callouts, no longer renders blank when page-content Twig processing is enabled, because the render-time security scan now skips that legitimate icon markup while still catching injected scripts around it.
+
 # v2.0.1
 ## 06/23/2026
 

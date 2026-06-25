@@ -79,6 +79,27 @@ final class GravSecurityPolicy implements SecurityPolicyInterface
         );
     }
 
+    /**
+     * True when $obj is an instance of any class in the method allowlist — i.e.
+     * a type sandboxed content is permitted to interact with at all. The
+     * dump/serialize filter guards (print_r, json_encode, yaml_encode, string)
+     * use this to refuse objects that bypass the member gate by serializing PHP
+     * state directly. Note: when `security.twig_content.config_access` is off,
+     * the raw `Config`/`Data` entries are stripped in
+     * Security::buildTwigSandboxPolicy(), so this returns false for them — only
+     * the redacting SandboxConfig facade stays allowed. (GHSA-mc5q-6hpj-rp7j)
+     */
+    public function isClassAllowed(object $obj): bool
+    {
+        foreach (array_keys($this->allowedMethods) as $class) {
+            if ($obj instanceof $class) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function checkPropertyAllowed($obj, $property): void
     {
         foreach ($this->allowedProperties as $class => $properties) {

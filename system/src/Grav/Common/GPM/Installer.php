@@ -196,6 +196,8 @@ class Installer
             // enough that the recursive cleanup (Folder::delete) overflows the
             // stack (CWE-674). Reject anything over the configured limits *before*
             // creating the destination or extracting, so nothing lands on disk.
+            // GHSA-8h9x-89f2-m7x3: the declared uncompressed size is forgeable, so
+            // the size cap is enforced again during streamed extraction below.
             [$maxSize, $maxFiles, $maxDepth] = self::archiveLimits();
             $numFiles = $zip->numFiles;
 
@@ -226,6 +228,11 @@ class Installer
                 }
 
                 if ($maxSize > 0) {
+                    // Advisory only: statIndex()['size'] is the central-directory
+                    // declared size, which the archive author can forge small
+                    // (GHSA-8h9x-89f2-m7x3). Good for an early reject of honest
+                    // oversized archives; the real cap is enforced during the
+                    // streamed extraction below, against bytes actually inflated.
                     $stat = $zip->statIndex($i);
                     if (is_array($stat) && isset($stat['size'])) {
                         $totalSize += (int) $stat['size'];
@@ -240,10 +247,16 @@ class Installer
 
             Folder::create($destination);
 
-            $unzip = $zip->extractTo($destination);
-
-
-            if (!$unzip) {
+            if ($maxSize > 0) {
+                // Enforce the uncompressed-size cap against bytes actually written,
+                // so a forged-small declared size cannot smuggle a bomb past the
+                // advisory pre-pass above (GHSA-8h9x-89f2-m7x3). On failure the
+                // helper sets self::$error and removes the destination.
+                if (!self::extractStreamed($zip, $destination, $numFiles, $maxSize)) {
+                    $zip->close();
+                    return false;
+                }
+            } elseif (!$zip->extractTo($destination)) {
                 self::$error = self::ZIP_EXTRACT_ERROR;
                 Folder::delete($destination);
                 $zip->close();
@@ -314,6 +327,93 @@ class Installer
         $maxDepth = $config ? (int) $config->get('system.gpm.archive.max_depth', 48) : 48;
 
         return [$maxSize, $maxFiles, $maxDepth];
+    }
+
+    /**
+     * Extract every entry through a counting stream, aborting the moment the
+     * cumulative inflated size exceeds $maxSize. Enforces the cap against bytes
+     * actually written rather than the attacker-controlled sizes declared in the
+     * central directory, so a forged archive cannot fill the disk
+     * (GHSA-8h9x-89f2-m7x3). Entry paths were validated by isSafeArchiveEntry()
+     * in unZip()'s pre-pass, so they are safe to write here.
+     *
+     * On failure this sets self::$error and removes $destination; the caller is
+     * responsible for closing the archive.
+     *
+     * @param ZipArchive $zip
+     * @param string $destination
+     * @param int $numFiles
+     * @param int $maxSize
+     * @return bool true on success, false if a limit was hit or an entry failed to write
+     */
+    protected static function extractStreamed(ZipArchive $zip, string $destination, int $numFiles, int $maxSize): bool
+    {
+        $written = 0;
+        $chunkSize = 262144; // 256 KiB
+
+        for ($i = 0; $i < $numFiles; $i++) {
+            $name = $zip->getNameIndex($i);
+            if ($name === false) {
+                continue;
+            }
+
+            $relative = str_replace('\\', '/', $name);
+            $target = $destination . '/' . $relative;
+
+            if (str_ends_with($relative, '/')) {
+                Folder::create($target);
+                continue;
+            }
+
+            $dir = dirname($target);
+            if (!is_dir($dir)) {
+                Folder::create($dir);
+            }
+
+            $stream = $zip->getStream($name);
+            if ($stream === false) {
+                self::$error = self::ZIP_EXTRACT_ERROR;
+                Folder::delete($destination);
+                return false;
+            }
+
+            $out = fopen($target, 'wb');
+            if ($out === false) {
+                fclose($stream);
+                self::$error = self::ZIP_EXTRACT_ERROR;
+                Folder::delete($destination);
+                return false;
+            }
+
+            while (!feof($stream)) {
+                $buffer = fread($stream, $chunkSize);
+                if ($buffer === false) {
+                    break;
+                }
+
+                $written += strlen($buffer);
+                if ($written > $maxSize) {
+                    fclose($out);
+                    fclose($stream);
+                    self::$error = self::ZIP_LIMITS_ERROR;
+                    Folder::delete($destination);
+                    return false;
+                }
+
+                if ($buffer !== '' && fwrite($out, $buffer) === false) {
+                    fclose($out);
+                    fclose($stream);
+                    self::$error = self::ZIP_EXTRACT_ERROR;
+                    Folder::delete($destination);
+                    return false;
+                }
+            }
+
+            fclose($out);
+            fclose($stream);
+        }
+
+        return true;
     }
 
     /**
@@ -640,7 +740,7 @@ class Installer
                 break;
 
             default:
-                $msg = 'Unknown Error';
+                $msg = 'Unknown installer error (code: ' . self::$error . ')';
                 break;
         }
 

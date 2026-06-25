@@ -332,8 +332,13 @@ twig_sandbox:
   # case-sensitive. Use '*' to mean "any member" (only for data-only classes
   # like stdClass where member access carries no executable risk).
   allowed_methods:
+    # `offsetget`/`__get` are intentionally NOT allow-listed: they return raw
+    # services straight from the container, including the real Config
+    # (`grav.offsetGet('config')`), which a dump/serialize filter could then
+    # exfiltrate past the SandboxConfig facade. Only the safe, value-returning
+    # members are exposed. (GHSA-mc5q-6hpj-rp7j)
     - class: 'Grav\Common\Grav'
-      methods: 'offsetget, offsetexists, __get, getversion, theme'
+      methods: 'offsetexists, getversion, theme'
     # `toarray` is intentionally NOT allow-listed on the raw Config or Data
     # classes. The sandboxed `config` Twig variable is replaced with a
     # SandboxConfig facade in Twig::processPage()/processString(), and that

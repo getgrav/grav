@@ -132,6 +132,7 @@ class Application extends \Symfony\Component\Console\Application
         $formatter->setStyle('green', new OutputFormatterStyle('green', null, ['bold']));
         $formatter->setStyle('magenta', new OutputFormatterStyle('magenta', null, ['bold']));
         $formatter->setStyle('white', new OutputFormatterStyle('white', null, ['bold']));
+        $formatter->setStyle('blue', new OutputFormatterStyle('blue', null, ['bold']));
 
         parent::configureIO($input, $output);
     }
