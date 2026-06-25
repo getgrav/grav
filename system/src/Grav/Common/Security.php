@@ -352,6 +352,16 @@ class Security
     private static ?string $twigSandboxPolicyKey = null;
 
     /**
+     * Stream URI of the file-backed ring buffer of recent Twig-content security
+     * events. Lives under log:// (the logs/ folder) so it survives
+     * `bin/grav clear` and cache TTL eviction, unlike anything in cache://.
+     */
+    private const TWIG_CONTENT_EVENTS_URI = 'log://twig-content-events.json';
+
+    /** @var int How many recent Twig-content events the ring buffer retains. */
+    private const TWIG_CONTENT_EVENTS_CAP = 50;
+
+    /**
      * Build (or return cached) Twig sandbox SecurityPolicy from security.twig_sandbox.* config.
      * Cached per-request, invalidated when the config hash changes.
      */
@@ -475,6 +485,9 @@ class Security
                     'hint' => $hint,
                 ]
             );
+
+            // Mirror the event into the structured ring buffer the Admin reads.
+            self::recordTwigContentEvent('sandbox_' . $rule, $route, $token, $className, $hint);
         } catch (Exception) {
             // Never let a logging failure break rendering.
         }
@@ -610,14 +623,21 @@ class Security
             }
             $logged[$key] = true;
 
+            $hint = 'Enable security.twig_content.process_enabled to allow Twig processing in page content.';
+
             $grav['log.security']->warning(
                 sprintf('[TwigContentGate] blocked source=%s route=%s', $source, $route),
                 [
                     'source' => $source,
                     'route'  => $route,
-                    'hint'   => 'Enable security.twig_content.process_enabled to allow Twig processing in page content.',
+                    'hint'   => $hint,
                 ]
             );
+
+            // Mirror the event into the structured ring buffer the Admin reads.
+            // `token` carries the source (content|frontmatter) so the report can
+            // distinguish a body-content gate hit from a frontmatter one.
+            self::recordTwigContentEvent('gate_blocked', $route, $source, '', $hint);
         } catch (Exception) {
             // Never let a logging failure break rendering.
         }
@@ -640,17 +660,296 @@ class Security
                 return;
             }
 
+            $hint = 'Rendered Twig content produced markup the XSS detector flags. The blueprint validator cannot see render-time-assembled payloads; content was blanked. Disable security.twig_content.xss_scan_output to allow it.';
+
             $grav['log.security']->warning(
                 sprintf('[TwigContentXss] blocked route=%s found=%s', $route, $found),
                 [
                     'route' => $route,
                     'found' => $found,
-                    'hint'  => 'Rendered Twig content produced markup the XSS detector flags. The blueprint validator cannot see render-time-assembled payloads; content was blanked. Disable security.twig_content.xss_scan_output to allow it.',
+                    'hint'  => $hint,
                 ]
             );
+
+            // Mirror the event into the structured ring buffer the Admin reads.
+            self::recordTwigContentEvent('xss_blanked', $route, $found, '', $hint);
         } catch (Exception) {
             // Never let a logging failure break rendering.
         }
+    }
+
+    /**
+     * Append a structured Twig-content security event to the file-backed ring
+     * buffer that the Admin "Twig in Content" report reads. Written alongside
+     * (never instead of) the human-readable log.security line so the audit
+     * trail in logs/security.log is preserved.
+     *
+     * The buffer is a small capped JSON array, newest-first. Each write does a
+     * read → prepend → truncate-to-cap → atomic publish (tmp + rename) under an
+     * advisory file lock so concurrent renders don't clobber each other.
+     *
+     * @param string $type  One of gate_blocked|sandbox_{tag,filter,function,method,property}|xss_blanked.
+     * @param string $route Route of the offending page.
+     * @param string $token The blocked token (tag/filter/function/method/property name, XSS marker, or gate source).
+     * @param string $class Owning class name for method/property rules; '' otherwise.
+     * @param string $hint  Plain-text remediation hint (the same string logged to security.log).
+     */
+    private static function recordTwigContentEvent(string $type, string $route, string $token, string $class, string $hint): void
+    {
+        try {
+            $grav = Grav::instance();
+            if (!$grav->offsetExists('locator')) {
+                return;
+            }
+            /** @var UniformResourceLocator $locator */
+            $locator = $grav['locator'];
+            $file = $locator->findResource(self::TWIG_CONTENT_EVENTS_URI, true, true);
+            if (!is_string($file) || $file === '') {
+                return;
+            }
+
+            // The log:// directory may not exist yet on a fresh site; this can
+            // be the first thing to write there.
+            $dir = dirname($file);
+            if (!is_dir($dir)) {
+                Folder::mkdir($dir);
+            }
+
+            $record = [
+                'type'      => $type,
+                'route'     => $route,
+                'token'     => $token,
+                'class'     => $class,
+                'hint'      => $hint,
+                'timestamp' => time(),
+            ];
+
+            // Serialize the read-modify-write across concurrent requests with an
+            // advisory lock on a sidecar file, then publish via atomic rename.
+            $lock = @fopen($file . '.lock', 'c');
+            if ($lock === false) {
+                return;
+            }
+            try {
+                @flock($lock, LOCK_EX);
+
+                $events = [];
+                if (is_file($file)) {
+                    $raw = @file_get_contents($file);
+                    if (is_string($raw) && $raw !== '') {
+                        $decoded = json_decode($raw, true);
+                        if (is_array($decoded)) {
+                            $events = $decoded;
+                        }
+                    }
+                }
+
+                array_unshift($events, $record);
+                if (count($events) > self::TWIG_CONTENT_EVENTS_CAP) {
+                    $events = array_slice($events, 0, self::TWIG_CONTENT_EVENTS_CAP);
+                }
+
+                $json = json_encode($events, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                if ($json !== false) {
+                    $tmp = $file . '.tmp';
+                    if (@file_put_contents($tmp, $json) !== false) {
+                        if (!@rename($tmp, $file)) {
+                            @unlink($tmp);
+                        }
+                    }
+                }
+            } finally {
+                @flock($lock, LOCK_UN);
+                @fclose($lock);
+            }
+        } catch (\Throwable) {
+            // Diagnostics must never break rendering.
+        }
+    }
+
+    /**
+     * Return the recent Twig-content security events from the ring buffer,
+     * newest first. Consumed by the api plugin's "Twig in Content" report.
+     *
+     * @param int $limit Cap the number returned; 0 returns all retained events.
+     * @return array<int,array{type:string,route:string,token:string,class:string,hint:string,timestamp:int}>
+     */
+    public static function recentTwigContentEvents(int $limit = 0): array
+    {
+        try {
+            $grav = Grav::instance();
+            if (!$grav->offsetExists('locator')) {
+                return [];
+            }
+            /** @var UniformResourceLocator $locator */
+            $locator = $grav['locator'];
+            // Resolve via the same (absolute, first) lookup the writer uses so a
+            // negatively-cached "not found" from an earlier absent-file read
+            // can't mask a file the writer has since created.
+            $file = $locator->findResource(self::TWIG_CONTENT_EVENTS_URI, true, true);
+            if (!is_string($file) || !is_file($file)) {
+                return [];
+            }
+            $raw = @file_get_contents($file);
+            if (!is_string($raw) || $raw === '') {
+                return [];
+            }
+            $events = json_decode($raw, true);
+            if (!is_array($events)) {
+                return [];
+            }
+            if ($limit > 0 && count($events) > $limit) {
+                $events = array_slice($events, 0, $limit);
+            }
+
+            return array_values($events);
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * Clear the Twig-content events ring buffer. Used after the operator has
+     * resolved the flagged issues (e.g. via the Admin report's dismiss action).
+     *
+     * @return bool True if the buffer file was removed or already absent.
+     */
+    public static function clearTwigContentEvents(): bool
+    {
+        try {
+            $grav = Grav::instance();
+            if (!$grav->offsetExists('locator')) {
+                return false;
+            }
+            /** @var UniformResourceLocator $locator */
+            $locator = $grav['locator'];
+            $file = $locator->findResource(self::TWIG_CONTENT_EVENTS_URI, true, true);
+            if (!is_string($file) || !is_file($file)) {
+                return true;
+            }
+
+            return @unlink($file);
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * Find pages whose content contains raw Twig markers (`{{` / `{%`) that
+     * will NOT be rendered — i.e. they would leak verbatim to visitors. A page
+     * leaks when it has markers and is non-modular and its effective content
+     * Twig is off: either the per-page request flag is off, OR the master gate
+     * (security.twig_content.process_enabled) is off. Mirrors the traversal of
+     * detectXssFromPages().
+     *
+     * @param Pages $pages
+     * @param callable|null $status Optional progress callback (count/progress).
+     * @return array<string,array{route:string,requested:bool,gate:bool,reason:string}>
+     *         Keyed by raw route. reason is 'gate_off' when the master gate is
+     *         off (the dominant cause), else 'page_off'.
+     */
+    public static function detectTwigLeaksFromPages(Pages $pages, ?callable $status = null): array
+    {
+        $gateEnabled = false;
+        try {
+            $gateEnabled = (bool) Grav::instance()['config']->get('security.twig_content.process_enabled', false);
+        } catch (Exception) {
+            // Treat an unreadable config as gate-off.
+        }
+
+        $routes = $pages->getList(null, 0, true);
+        unset($routes['/']);
+
+        $list = [];
+
+        $status && $status([
+            'type' => 'count',
+            'steps' => count($routes),
+        ]);
+
+        foreach (array_keys($routes) as $route) {
+            $status && $status([
+                'type' => 'progress',
+            ]);
+
+            try {
+                $page = $pages->find($route);
+                if (!$page || !$page->exists()) {
+                    continue;
+                }
+
+                $leak = self::detectTwigLeakForPage($page, $gateEnabled);
+                if ($leak !== null) {
+                    $list[$page->rawRoute()] = $leak;
+                }
+            } catch (Exception) {
+                continue;
+            }
+        }
+
+        return $list;
+    }
+
+    /**
+     * Decide whether a single page would leak raw Twig markers to visitors, and
+     * why. Shared by detectTwigLeaksFromPages() (whole-site scan) and the api
+     * plugin's per-page editor banner. Returns null when the page is fine —
+     * no markers, modular/theme Twig, or its content Twig will actually render.
+     *
+     * @param PageInterface|mixed $page A page object exposing header()/value()/
+     *        modularTwig()/shouldProcess()/route()/rawRoute().
+     * @param bool|null $gateEnabled Pass the resolved master-gate value to avoid
+     *        re-reading config per page; null reads it from config.
+     * @return array{route:string,requested:bool,gate:bool,reason:string}|null
+     */
+    public static function detectTwigLeakForPage($page, ?bool $gateEnabled = null): ?array
+    {
+        if ($gateEnabled === null) {
+            $gateEnabled = false;
+            try {
+                $gateEnabled = (bool) Grav::instance()['config']->get('security.twig_content.process_enabled', false);
+            } catch (Exception) {
+                // Treat an unreadable config as gate-off.
+            }
+        }
+
+        if (!$page || !method_exists($page, 'value')) {
+            return null;
+        }
+
+        // Populate the page's process array (gate default applied) the same way
+        // detectXssFromPages() warms content.
+        if (method_exists($page, 'header')) {
+            $page->header();
+        }
+        $content = (string) $page->value('content');
+
+        if (!str_contains($content, '{{') && !str_contains($content, '{%')) {
+            return null;
+        }
+
+        // Modular/theme Twig bypasses the gate and renders normally, so it never
+        // leaks; skip it.
+        if (method_exists($page, 'modularTwig') && $page->modularTwig()) {
+            return null;
+        }
+
+        // Content Twig renders only when BOTH the per-page request flag AND the
+        // master gate are on; either off leaks the raw markers.
+        $requested = (bool) $page->shouldProcess('twig');
+        if ($requested && $gateEnabled) {
+            return null;
+        }
+
+        $route = method_exists($page, 'route') ? $page->route() : null;
+        $rawRoute = method_exists($page, 'rawRoute') ? $page->rawRoute() : null;
+
+        return [
+            'route'     => (string) ($route ?? $rawRoute ?? 'unknown'),
+            'requested' => $requested,
+            'gate'      => $gateEnabled,
+            'reason'    => $gateEnabled ? 'page_off' : 'gate_off',
+        ];
     }
 
     private static function twigSandboxHint(string $rule, string $token, string $className): string
