@@ -203,4 +203,52 @@ class TwigContentDiagnosticsTest extends \PHPUnit\Framework\TestCase
             $config->set('security.twig_content.process_enabled', $prevGate);
         }
     }
+
+    // =========================================================================
+    // Profile selector (Phase 3): the {process_enabled, editor_enabled} <-> named
+    // profile mapping that the admin selector reads/writes.
+    // =========================================================================
+
+    public function testProfileFromFlags_AllFourCombinations(): void
+    {
+        self::assertSame('off', Security::twigContentProfileFromFlags(false, false));
+        self::assertSame('trusted', Security::twigContentProfileFromFlags(true, false));
+        self::assertSame('all', Security::twigContentProfileFromFlags(true, true));
+        // Gate off but editor flag on is inert → custom, not a named profile.
+        self::assertSame('custom', Security::twigContentProfileFromFlags(false, true));
+    }
+
+    public function testFlagsForProfile_NamedProfilesExpand_CustomDoesNot(): void
+    {
+        self::assertSame(['process_enabled' => false, 'editor_enabled' => false], Security::twigContentFlagsForProfile('off'));
+        self::assertSame(['process_enabled' => true, 'editor_enabled' => false], Security::twigContentFlagsForProfile('trusted'));
+        self::assertSame(['process_enabled' => true, 'editor_enabled' => true], Security::twigContentFlagsForProfile('all'));
+        // custom (and any unknown value) must never rewrite the underlying keys.
+        self::assertNull(Security::twigContentFlagsForProfile('custom'));
+        self::assertNull(Security::twigContentFlagsForProfile('nonsense'));
+    }
+
+    public function testProfileOptions_CustomOnlyShownWhenCurrentIsCustom(): void
+    {
+        $config = $this->grav['config'];
+        $prevProcess = $config->get('security.twig_content.process_enabled');
+        $prevEditor  = $config->get('security.twig_content.editor_enabled');
+
+        try {
+            // Named state → custom not offered.
+            $config->set('security.twig_content.process_enabled', true);
+            $config->set('security.twig_content.editor_enabled', false);
+            self::assertSame('trusted', Security::twigContentProfile());
+            self::assertSame(['off', 'trusted', 'all'], array_keys(Security::twigContentProfileOptions()));
+
+            // Odd combo → custom appears so the selector can show/preserve it.
+            $config->set('security.twig_content.process_enabled', false);
+            $config->set('security.twig_content.editor_enabled', true);
+            self::assertSame('custom', Security::twigContentProfile());
+            self::assertSame(['off', 'trusted', 'all', 'custom'], array_keys(Security::twigContentProfileOptions()));
+        } finally {
+            $config->set('security.twig_content.process_enabled', $prevProcess);
+            $config->set('security.twig_content.editor_enabled', $prevEditor);
+        }
+    }
 }

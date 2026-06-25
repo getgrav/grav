@@ -604,6 +604,93 @@ class Security
     }
 
     /**
+     * The named "Twig in Content" profiles. These collapse the two underlying
+     * security.twig_content keys (process_enabled = the master gate;
+     * editor_enabled = whether any editor may opt a page in, vs. only super /
+     * admin.pages_twig holders) into one human choice. `custom` is not a stored
+     * value — it's the label for any flag combination a named profile can't
+     * represent (today: gate off while editor_enabled is on).
+     */
+    public const TWIG_CONTENT_PROFILE_OFF = 'off';
+    public const TWIG_CONTENT_PROFILE_TRUSTED = 'trusted';
+    public const TWIG_CONTENT_PROFILE_ALL = 'all';
+    public const TWIG_CONTENT_PROFILE_CUSTOM = 'custom';
+
+    /**
+     * Derive the named profile from the two underlying flags.
+     *
+     *   process=false, editor=false → off
+     *   process=true,  editor=false → trusted (super / admin.pages_twig only)
+     *   process=true,  editor=true  → all (any editor may enable Twig per page)
+     *   process=false, editor=true  → custom (the gate dominates, so editor=true
+     *                                  is inert — not a state a named profile sets)
+     */
+    public static function twigContentProfileFromFlags(bool $processEnabled, bool $editorEnabled): string
+    {
+        if (!$processEnabled) {
+            return $editorEnabled ? self::TWIG_CONTENT_PROFILE_CUSTOM : self::TWIG_CONTENT_PROFILE_OFF;
+        }
+
+        return $editorEnabled ? self::TWIG_CONTENT_PROFILE_ALL : self::TWIG_CONTENT_PROFILE_TRUSTED;
+    }
+
+    /**
+     * The current profile, computed from live config. Drives the admin profile
+     * selector's displayed value (data-default@-style resolver).
+     */
+    public static function twigContentProfile(): string
+    {
+        try {
+            $config = Grav::instance()['config'];
+            return self::twigContentProfileFromFlags(
+                (bool) $config->get('security.twig_content.process_enabled', false),
+                (bool) $config->get('security.twig_content.editor_enabled', false)
+            );
+        } catch (\Throwable) {
+            return self::TWIG_CONTENT_PROFILE_OFF;
+        }
+    }
+
+    /**
+     * The profile options to show. The three named profiles are always offered;
+     * `custom` is appended only when the live config is in a custom state, so
+     * the selector can show (and preserve) it without inviting users to pick it.
+     *
+     * @return array<string,string> profile key => human label
+     */
+    public static function twigContentProfileOptions(): array
+    {
+        $options = [
+            self::TWIG_CONTENT_PROFILE_OFF     => 'Off',
+            self::TWIG_CONTENT_PROFILE_TRUSTED => 'Trusted roles only',
+            self::TWIG_CONTENT_PROFILE_ALL     => 'All editors',
+        ];
+
+        if (self::twigContentProfile() === self::TWIG_CONTENT_PROFILE_CUSTOM) {
+            $options[self::TWIG_CONTENT_PROFILE_CUSTOM] = 'Custom';
+        }
+
+        return $options;
+    }
+
+    /**
+     * The {process_enabled, editor_enabled} a named profile expands to, or null
+     * for `custom` (which is never written — the underlying keys are left as-is,
+     * per the plan's BC rule: a hand-edited odd combo is preserved, not rewritten).
+     *
+     * @return array{process_enabled:bool,editor_enabled:bool}|null
+     */
+    public static function twigContentFlagsForProfile(string $profile): ?array
+    {
+        return match ($profile) {
+            self::TWIG_CONTENT_PROFILE_OFF     => ['process_enabled' => false, 'editor_enabled' => false],
+            self::TWIG_CONTENT_PROFILE_TRUSTED => ['process_enabled' => true,  'editor_enabled' => false],
+            self::TWIG_CONTENT_PROFILE_ALL     => ['process_enabled' => true,  'editor_enabled' => true],
+            default => null,
+        };
+    }
+
+    /**
      * Log when the security.twig_content.process_enabled gate blocks page-content
      * Twig processing. Called from Page::content() and Page::processFrontmatter()
      * paths. Deduped per-route per-request so a single page render emits one entry.
