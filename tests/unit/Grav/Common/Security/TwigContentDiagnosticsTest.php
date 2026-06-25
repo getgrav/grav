@@ -283,6 +283,30 @@ class TwigContentDiagnosticsTest extends \PHPUnit\Framework\TestCase
         self::assertNotContains('maybe', $tokens['functions']);
     }
 
+    public function testExtractTwigTokens_CapturesMethodChain(): void
+    {
+        $tokens = Security::extractTwigTokens(
+            "{{ page.media['x.jpg'].cropResize(300,200).lightbox().html() }}"
+        );
+
+        // The media chain members feed allowed_methods, not functions.
+        self::assertContains('cropResize', $tokens['methods']);
+        self::assertContains('lightbox', $tokens['methods']);
+        self::assertContains('html', $tokens['methods']);
+        self::assertNotContains('cropResize', $tokens['functions']);
+    }
+
+    public function testExtractTwigTokens_ExcludesLocalMacros(): void
+    {
+        $tokens = Security::extractTwigTokens(
+            "{% macro field(name) %}{{ name }}{% endmacro %}{{ field('x') }} {{ real_fn() }}"
+        );
+
+        // A locally-declared macro is not a sandbox function; a real call is.
+        self::assertNotContains('field', $tokens['functions']);
+        self::assertContains('real_fn', $tokens['functions']);
+    }
+
     public function testScanContentTwigUsage_ReportsOnlyNotAllowedTokens(): void
     {
         $usage = Security::scanContentTwigUsage($this->leakPages());

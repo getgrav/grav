@@ -1040,10 +1040,11 @@ class Security
     }
 
     /**
-     * Heuristically extract the Twig tags, filters, and functions referenced in
-     * a chunk of page content. Used by the Admin "scan content for Twig the
-     * sandbox will block" action and by the migrate-grav allowlist suggester
-     * (getgrav/grav-plugin-migrate-grav#11) so both produce identical results.
+     * Heuristically extract the Twig tags, filters, functions, and object-method
+     * calls referenced in a chunk of page content. Used by the Admin "scan
+     * content for Twig the sandbox will block" action and by the migrate-grav
+     * allowlist suggester (getgrav/grav-plugin-migrate-grav#11) so both produce
+     * identical results.
      *
      * This is a lexical approximation (regex over the `{{ }}` / `{% %}` islands),
      * not a full parse: it can over-report (a function-like name inside a string
@@ -1052,13 +1053,38 @@ class Security
      * sandbox block captured in recentTwigContentEvents(). Never wire a
      * one-click allowlist add directly off this output without review.
      *
-     * @return array{tags:list<string>,filters:list<string>,functions:list<string>}
+     * `methods` are the `obj.name(...)` calls (e.g. the `page.media['x'].cropResize(..)`
+     * media chain) that feed security.twig_sandbox.allowed_methods; locally
+     * declared/imported macro names are excluded from `functions`.
+     *
+     * @return array{tags:list<string>,filters:list<string>,functions:list<string>,methods:list<string>}
      */
     public static function extractTwigTokens(string $content): array
     {
         $tags = [];
         $filters = [];
         $functions = [];
+        $methods = [];
+
+        // Macro names declared (or imported) in this content are local callables,
+        // not sandbox-checked functions; collect them so they're excluded below.
+        $macros = [];
+        if (preg_match_all('/\{%-?\s*macro\s+([a-zA-Z_]\w*)\s*\(/', $content, $mm)) {
+            foreach ($mm[1] as $name) {
+                $macros[strtolower($name)] = true;
+            }
+        }
+        if (preg_match_all('/\{%-?\s*from\b[^%]*\bimport\b([^%]*)%\}/', $content, $im)) {
+            foreach ($im[1] as $clause) {
+                if (preg_match_all('/[a-zA-Z_]\w*/', $clause, $names)) {
+                    foreach ($names[0] as $name) {
+                        if (strtolower($name) !== 'as') {
+                            $macros[strtolower($name)] = true;
+                        }
+                    }
+                }
+            }
+        }
 
         // Pull out every Twig island: {{ ... }} and {% ... %} (and {%- -%}).
         if (preg_match_all('/\{\{(.*?)\}\}|\{%-?(.*?)-?%\}/s', $content, $islands, PREG_SET_ORDER)) {
@@ -1082,7 +1108,17 @@ class Security
                 // `page.media(` (method) and `x|filter(` (filter args) are skipped.
                 if (preg_match_all('/(?<![\w.|])([a-zA-Z_]\w*)\s*\(/', $expr, $cm)) {
                     foreach ($cm[1] as $name) {
-                        $functions[] = $name;
+                        if (!isset($macros[strtolower($name)])) {
+                            $functions[] = $name;
+                        }
+                    }
+                }
+
+                // Object methods: `.name(` — the member-call idiom the function
+                // capture deliberately skips. Seeds allowed_methods.
+                if (preg_match_all('/\.([a-zA-Z_]\w*)\s*\(/', $expr, $om)) {
+                    foreach ($om[1] as $name) {
+                        $methods[] = $name;
                     }
                 }
             }
@@ -1091,6 +1127,7 @@ class Security
         return [
             'tags'      => array_values(array_unique($tags)),
             'filters'   => array_values(array_unique($filters)),
+            'methods'   => array_values(array_unique($methods)),
             'functions' => array_values(array_unique($functions)),
         ];
     }
