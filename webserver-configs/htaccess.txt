@@ -60,9 +60,10 @@ RewriteRule .* index.php [L]
 RewriteRule ^(\.git|cache|bin|logs|backup|webserver-configs|tests)/(.*) error [F,NC]
 # Block all direct access to these sensitive user folders, whatever the file type
 RewriteRule ^(user)/(accounts|config|env)/(.*) error [F,NC]
-# Block user/data too, but allow public media uploads (e.g. Flex Object images)
-# to be served directly. SVG is intentionally excluded as a stored-XSS vector.
-RewriteCond %{REQUEST_URI} !\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf)$ [NC]
+# Block user/data too, but allow public asset uploads (e.g. Flex Object images)
+# to be served directly. SVG stays blocked as a stored-XSS vector; .css/.js are
+# served per project policy despite the same risk on this user-writable folder.
+RewriteCond %{REQUEST_URI} !\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf|woff2|woff|ttf|otf|eot|css|js)$ [NC]
 RewriteRule ^(user)/data/(.*) error [F,NC]
 # Block access to specific file types for these system folders
 RewriteRule ^(system|vendor)/(.*)\.(txt|xml|md|html|htm|shtml|shtm|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ error [F,NC]

@@ -1,6 +1,9 @@
-# Deny all direct web access to this folder and everything beneath it.
-# Grav reads these files server-side; they must never be served over HTTP.
-# This is a defense-in-depth backup for the rules in the site root .htaccess.
+# Deny direct web access to this folder, except the public asset uploads
+# (e.g. Flex Object images) that Grav has always served from here.
+# Data files (.yaml/.json/.md), databases, keys and tokens stay blocked.
+# SVG stays blocked as a stored-XSS vector; .css/.js are served per project
+# policy despite the same risk on this user-writable folder.
+# Defense-in-depth backup for the rules in the site root .htaccess.
 <IfModule mod_authz_core.c>
     Require all denied
 </IfModule>
@@ -8,3 +11,12 @@
     Order allow,deny
     Deny from all
 </IfModule>
+<FilesMatch "(?i)\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf|woff2|woff|ttf|otf|eot|css|js)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
