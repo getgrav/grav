@@ -419,9 +419,17 @@ abstract class Folder
             return false;
         }
 
-        $success = self::doDelete($target, $include_target);
+        $failure = null;
+        $success = self::doDelete($target, $include_target, $failure);
 
         if (!$success) {
+            // Prefer the precise reason captured at the first failing path
+            // (which file/dir, the OS error, and any owner/process mismatch).
+            // Fall back to the last PHP error, then to a generic message.
+            if (null !== $failure) {
+                throw new RuntimeException($failure);
+            }
+
             $error = error_get_last();
 
             throw new RuntimeException($error['message'] ?? 'Unknown error');
@@ -556,21 +564,110 @@ abstract class Folder
      * @return bool
      * @internal
      */
-    protected static function doDelete($folder, $include_target = true)
+    protected static function doDelete($folder, $include_target = true, &$failure = null)
     {
         // Special case for symbolic links.
         if ($include_target && is_link($folder)) {
-            return @unlink($folder);
+            if (!@unlink($folder)) {
+                $failure = $failure ?? self::deleteFailure('remove symlink', $folder);
+                return false;
+            }
+            return true;
         }
+
+        $success = true;
 
         // Go through all items in filesystem and recursively remove everything.
         $files = scandir($folder, SCANDIR_SORT_NONE);
         $files = $files ? array_diff($files, ['.', '..']) : [];
         foreach ($files as $file) {
             $path = "{$folder}/{$file}";
-            is_dir($path) ? self::doDelete($path) : @unlink($path);
+            if (is_dir($path)) {
+                // Recurse; keep the first failure but carry on so the report
+                // reflects the real culprit rather than the parent rmdir that
+                // only fails because the directory is left non-empty.
+                if (!self::doDelete($path, true, $failure)) {
+                    $success = false;
+                }
+            } elseif (!@unlink($path)) {
+                $failure = $failure ?? self::deleteFailure('delete file', $path);
+                $success = false;
+            }
         }
 
-        return $include_target ? @rmdir($folder) : true;
+        if ($include_target && !@rmdir($folder)) {
+            $failure = $failure ?? self::deleteFailure('remove directory', $folder);
+            $success = false;
+        }
+
+        return $success;
+    }
+
+    /**
+     * Build a descriptive failure message for a path that could not be deleted.
+     *
+     * Captures the OS error PHP recorded for the (suppressed) unlink/rmdir, plus
+     * any owner/process-user mismatch — the usual cause of "works from Admin,
+     * fails from CLI", where the web server owns files the CLI user cannot touch.
+     *
+     * @param  string $action
+     * @param  string $path
+     * @return string
+     * @internal
+     */
+    private static function deleteFailure($action, $path)
+    {
+        $message = sprintf('Unable to %s: %s', $action, $path);
+
+        $error = error_get_last();
+        $reason = $error['message'] ?? null;
+        if (null !== $reason) {
+            // Strip the "rmdir(/path): " / "unlink(/path): " prefix PHP prepends,
+            // leaving just the OS reason (e.g. "Permission denied").
+            if (($pos = strpos($reason, '): ')) !== false) {
+                $reason = substr($reason, $pos + 3);
+            }
+            $message .= ' (' . trim($reason) . ')';
+        }
+
+        $owner = self::ownershipHint($path);
+        if ('' !== $owner) {
+            $message .= ' ' . $owner;
+        }
+
+        return $message;
+    }
+
+    /**
+     * Describe an owner/process-user mismatch for a path, when POSIX info is
+     * available. Returns an empty string when ownership cannot be determined
+     * (e.g. Windows) or the process already owns the path.
+     *
+     * @param  string $path
+     * @return string
+     * @internal
+     */
+    private static function ownershipHint($path)
+    {
+        if (!function_exists('posix_geteuid') || !function_exists('posix_getpwuid')) {
+            return '';
+        }
+
+        $fileOwner = @fileowner($path);
+        $procUid = @posix_geteuid();
+        if ($fileOwner === false || $procUid === false || $fileOwner === $procUid) {
+            return '';
+        }
+
+        $fileUser = @posix_getpwuid($fileOwner);
+        $procUser = @posix_getpwuid($procUid);
+        $fileName = $fileUser['name'] ?? (string) $fileOwner;
+        $procName = $procUser['name'] ?? (string) $procUid;
+
+        return sprintf(
+            '[owned by "%s", but this process runs as "%s" — likely a permission/ownership mismatch]',
+            $fileName,
+            $procName
+        );
     }
 }

@@ -53,6 +53,14 @@ pages:
   publish_dates: true                            # automatically publish/unpublish based on dates
   process:
     markdown: true                               # Process Markdown
+    # NOTE: Twig-in-content is controlled site-wide by the security gate
+    # `security.twig_content.process_enabled` (Admin: Security > Twig in Content).
+    # A `twig:` key here is only a per-page/section REQUEST flag and is
+    # subordinate to that gate — content Twig runs only when BOTH are true. When
+    # unset, `twig` inherits the gate. Setting `twig: true` here while the gate is
+    # off does NOT enable Twig; it just requests it, and the Admin "Twig in
+    # Content" report explains why such pages render raw. Leave `twig` unset and
+    # use the gate as the single site-wide control.
   twig_first: false                              # Process Twig before markdown when processing both on a page
   never_cache_twig: false                        # Only cache content, never cache twig processed in content (incompatible with `twig_first: true`)
   events:
@@ -99,7 +107,7 @@ pages:
   hide_empty_folders: false                      # If folder has no .md file, should it be hidden
   url_taxonomy_filters: true                     # Enable auto-magic URL-based taxonomy filters for page collections
   frontmatter:
-    process_twig: false                          # Should the frontmatter be processed to replace Twig variables?
+    process_twig: false                          # Process Twig in frontmatter. Also gated by security.twig_content.process_enabled; when the gate is off, requested frontmatter Twig is blocked and reported in the Admin "Twig in Content" report.
     ignore_fields: ['form','forms']              # Fields that might contain Twig variables and should not be processed
 
 cache:
@@ -201,6 +209,7 @@ media:
 session:
   enabled: true                                  # Enable Session support
   initialize: true                               # Initialize session from Grav (if false, plugin needs to start the session)
+  read_and_close: false                          # Release the session lock right after the initial read (read-only start); the first write re-acquires it. Lets requests sharing a session id run concurrently instead of serializing on PHP's per-session lock. Opt-in: read-modify-write across a request is no longer atomic.
   timeout: 1800                                  # Timeout in seconds
   name: grav-site                                # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
   uniqueness: path                               # Should sessions be `path` based or `security.salt` based

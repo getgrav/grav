@@ -46,7 +46,15 @@ class Session extends \Grav\Framework\Session\Session
     public function init()
     {
         if ($this->autoStart && !$this->isStarted()) {
-            $this->start();
+            // Opt-in: start the session read-only so its exclusive lock is
+            // released right after the initial read. The first write transparently
+            // re-acquires it. Lets requests sharing a session id run concurrently
+            // instead of serializing on the lock (e.g. the SPA admin's parallel
+            // API calls). Default off — read-modify-write across the request is no
+            // longer atomic, which is fine for typical session use but is a
+            // behaviour change, so it stays opt-in.
+            $readonly = (bool) Grav::instance()['config']->get('system.session.read_and_close', false);
+            $this->start($readonly);
 
             $this->autoStart = false;
         }
