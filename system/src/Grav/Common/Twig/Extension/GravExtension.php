@@ -1473,7 +1473,13 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function regexReplace($subject, $pattern, $replace, $limit = -1)
     {
-        return preg_replace($pattern, $replace, $subject, $limit);
+        $result = @preg_replace($pattern, $replace, $subject, $limit);
+        if ($result === null && preg_last_error() !== PREG_NO_ERROR) {
+            // Catastrophic/backtrack-limited or invalid pattern: fail safe and leave subject unchanged.
+            return $subject;
+        }
+
+        return $result;
     }
 
     /**
