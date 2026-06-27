@@ -1,3 +1,9 @@
+# v2.0.4
+## 06/27/2026
+
+1. [](#bugfix)
+    * `bin/gpm self-upgrade` no longer fails on shared-folder setups such as a VirtualBox shared folder, where the `bin` directory holding the running script could not be deleted, by overwriting the upgrade files in place instead. Fixes [getgrav/grav#4171](https://github.com/getgrav/grav/issues/4171).
+
 # v2.0.3
 ## 06/25/2026
 
