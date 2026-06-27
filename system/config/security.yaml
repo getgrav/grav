@@ -42,6 +42,22 @@ xss_dangerous_tags:
   # of the admin select-template context.
   - option
   - select
+# Hostnames whose `<iframe src>` is exempt from the rendered-output XSS scan
+# (`twig_content.xss_scan_output`). Lets trusted provider embeds — YouTube,
+# Vimeo, maps, etc. injected by plugins — survive the scan that otherwise
+# blanks any page containing an iframe. A registered host also matches its
+# subdomains (e.g. `youtube.com` covers `www.youtube.com`). Only iframes whose
+# every src/data-src is a listed host AND that carry no inline event handlers
+# are exempt, so an editor still can't smuggle in `<iframe src="evil">`.
+# Plugins/themes add hosts at runtime via the `onXssAllowedIframeHosts` event.
+#
+# This is the declarative shortcut for the common embed case. For anything else
+# a plugin legitimately renders that the scan flags (an `<object>`/`<embed>`, a
+# JSON-LD `<script type="application/ld+json">`, a custom element, …) the plugin
+# excises its OWN markup from the rendered output via the general
+# `onXssTrustedMarkup` event — the scan still runs on everything it leaves, so
+# editor-authored content is never exempted. See Grav\Common\Security.
+xss_allowed_iframe_hosts: []
 uploads_dangerous_extensions:
   - php
   - php2
