@@ -144,7 +144,21 @@ class Debugger
 
             $clockwork = $debugbar = null;
 
-            switch ($this->config->get('system.debugger.provider', 'debugbar')) {
+            $provider = $this->config->get('system.debugger.provider', 'debugbar');
+
+            // DebugBar renders by injecting an HTML toolbar into the page, which
+            // is meaningless for API/AJAX requests that return JSON (every Admin2
+            // call, for one). Clockwork is the only provider those clients can
+            // read — via response headers and the /__clockwork endpoint — so force
+            // it whenever the request prefers JSON, whatever the configured
+            // provider. Full HTML page requests still honour the config, so a site
+            // that prefers the DebugBar toolbar on its frontend keeps it. Disabled
+            // stays disabled either way (we never reach here unless enabled).
+            if ($provider !== 'clockwork' && $this->prefersJson()) {
+                $provider = 'clockwork';
+            }
+
+            switch ($provider) {
                 case 'clockwork':
                     $this->clockwork = $clockwork = new Clockwork();
                     break;
@@ -215,6 +229,29 @@ class Debugger
         }
 
         return $this;
+    }
+
+    /**
+     * Whether the current request expects a JSON/AJAX response rather than an
+     * HTML page. Used to force the Clockwork provider, since DebugBar's injected
+     * HTML toolbar can't render into a JSON response (see init()).
+     *
+     * Reads $_SERVER directly because the PSR-7 request is not yet built when the
+     * debugger initialises.
+     *
+     * @return bool
+     */
+    protected function prefersJson(): bool
+    {
+        if (strcasecmp($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '', 'XMLHttpRequest') === 0) {
+            return true;
+        }
+
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+
+        return $accept !== ''
+            && str_contains($accept, 'application/json')
+            && !str_contains($accept, 'text/html');
     }
 
     public function finalize(): void

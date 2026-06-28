@@ -1,11 +1,12 @@
 # v2.0.4
-## 06/27/2026
+## 06/28/2026
 
 1. [](#new)
     * Plugins can now register trusted iframe hosts so legitimate provider embeds (such as YouTube) are no longer blanked by the content XSS scan on hardened sites.
     * Added an `onXssTrustedMarkup` event that lets a plugin exempt its own rendered markup from the content XSS scan without weakening it for editor-authored content.
 1. [](#bugfix)
     * `bin/gpm self-upgrade` no longer fails on shared-folder setups such as a VirtualBox shared folder, where the `bin` directory holding the running script could not be deleted, by overwriting the upgrade files in place instead. Fixes [getgrav/grav#4171](https://github.com/getgrav/grav/issues/4171).
+    * Debug messages logged during API requests now reach the Admin2 API debug panel and Clockwork even when the debugger is set to PHP DebugBar, which can only display on normal pages. Fixes [getgrav/grav-plugin-admin2#76](https://github.com/getgrav/grav-plugin-admin2/issues/76).
 
 # v2.0.3
 ## 06/25/2026
