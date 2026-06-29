@@ -326,6 +326,17 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     protected function assertSandboxDumpSafe(Environment $env, mixed $var, string $filter, bool $reflective): void
     {
+        // The SandboxExtension is only registered when security.twig_sandbox.enabled
+        // is true. With the sandbox off there is nothing to enforce, so these dump
+        // filters behave like their unguarded Twig counterparts. Calling
+        // getExtension() here without this guard throws "extension is not enabled"
+        // and breaks any trusted template that uses json_encode/print_r/yaml_encode/
+        // string — e.g. the Form plugin's form.html.twig — the moment an operator
+        // turns the sandbox off (getgrav/grav#4175).
+        if (!$env->hasExtension(SandboxExtension::class)) {
+            return;
+        }
+
         /** @var SandboxExtension $sandbox */
         $sandbox = $env->getExtension(SandboxExtension::class);
         if (!$sandbox->isSandboxed()) {

@@ -8,6 +8,7 @@
     * `bin/gpm self-upgrade` no longer fails on shared-folder setups such as a VirtualBox shared folder, where the `bin` directory holding the running script could not be deleted, by overwriting the upgrade files in place instead. Fixes [getgrav/grav#4171](https://github.com/getgrav/grav/issues/4171).
     * Debug messages logged during API requests now reach the Admin2 API debug panel and Clockwork even when the debugger is set to PHP DebugBar, which can only display on normal pages. Fixes [getgrav/grav-plugin-admin2#76](https://github.com/getgrav/grav-plugin-admin2/issues/76).
     * Resizing an image larger than its original size with `?resize=` no longer pads it onto an oversized canvas with a white border, returning the image at its natural size instead unless `?forceresize` is used. Fixes [getgrav/grav#4173](https://github.com/getgrav/grav/issues/4173).
+    * Turning off the Twig sandbox no longer breaks pages or modules that contain a form, which previously failed with a "SandboxExtension extension is not enabled" error. Fixes [getgrav/grav#4175](https://github.com/getgrav/grav/issues/4175).
 
 # v2.0.3
 ## 06/25/2026
