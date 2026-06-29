@@ -715,16 +715,16 @@
         },
         {
             "name": "getgrav/image",
-            "version": "v4.1.0",
+            "version": "v4.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Image.git",
-                "reference": "454e3016e7da4d7e28978bf5eb5ea8d84be1d6d7"
+                "reference": "14d4a919b912f9e55525a5dd6744cc52c49129ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Image/zipball/454e3016e7da4d7e28978bf5eb5ea8d84be1d6d7",
-                "reference": "454e3016e7da4d7e28978bf5eb5ea8d84be1d6d7",
+                "url": "https://api.github.com/repos/getgrav/Image/zipball/14d4a919b912f9e55525a5dd6744cc52c49129ac",
+                "reference": "14d4a919b912f9e55525a5dd6744cc52c49129ac",
                 "shasum": ""
             },
             "require": {
@@ -733,8 +733,7 @@
                 "php": "^7.2 || ^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^9",
-                "sllh/php-cs-fixer-styleci-bridge": "~1.0"
+                "phpunit/phpunit": "^9"
             },
             "suggest": {
                 "behat/transliterator": "Transliterator provides ability to set non-latin1 pretty names"
@@ -768,9 +767,9 @@
                 "image"
             ],
             "support": {
-                "source": "https://github.com/getgrav/Image/tree/v4.1.0"
+                "source": "https://github.com/getgrav/Image/tree/v4.1.1"
             },
-            "time": "2025-08-16T11:45:22+00:00"
+            "time": "2026-06-28T20:48:53+00:00"
         },
         {
             "name": "guzzlehttp/psr7",

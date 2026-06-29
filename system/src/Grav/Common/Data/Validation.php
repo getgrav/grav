@@ -35,6 +35,16 @@ use function is_string;
 class Validation
 {
     /**
+     * Values that failed an option-membership check during the most recent
+     * type-validation call. Set by typeArray() and consumed by validate() so
+     * the generic "Invalid input" message can name the offending value(s)
+     * (e.g. a gated `process.twig` key) instead of just the field.
+     *
+     * @var array<int,string>
+     */
+    protected static array $unexpectedValues = [];
+
+    /**
      * Validate value against a blueprint field definition.
      *
      * @param array $field
@@ -77,8 +87,15 @@ class Validation
 
         $messages = [];
 
+        self::$unexpectedValues = [];
         $success = method_exists(self::class, $method) ? self::$method($value, $validate, $field) : true;
         if (!$success) {
+            // When the failure is an option-membership rejection (checkboxes,
+            // select, array...), name the offending value(s) so the cause is
+            // debuggable rather than just "Invalid input in <field>".
+            if (self::$unexpectedValues) {
+                $message .= ' ' . $language->translate(['GRAV.FORM.UNEXPECTED_VALUES', implode(', ', self::$unexpectedValues)]);
+            }
             $messages[$field['name']][] = $message;
         }
 
@@ -817,7 +834,16 @@ class Validation
             $value = array_keys($value);
         }
 
-        return !($options && array_diff($value, $options));
+        if ($options) {
+            $unexpected = array_diff($value, $options);
+            if ($unexpected) {
+                self::$unexpectedValues = array_values(array_map('strval', $unexpected));
+
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

@@ -521,11 +521,24 @@ class Installer
             $path = $install_path . DS . $file->getFilename();
 
             if ($file->isDir()) {
-                Folder::delete($path);
-                if ($keep_source) {
-                    Folder::copy($file->getPathname(), $path);
-                } else {
-                    Folder::move($file->getPathname(), $path);
+                try {
+                    Folder::delete($path);
+                    if ($keep_source) {
+                        Folder::copy($file->getPathname(), $path);
+                    } else {
+                        Folder::move($file->getPathname(), $path);
+                    }
+                } catch (\Throwable) {
+                    // The fast path replaces a directory by deleting it and
+                    // dropping the new one in. That fails on shared-folder
+                    // filesystems (VirtualBox vboxsf, CIFS/SMB, some Docker bind
+                    // mounts) when the directory holds an open file — most
+                    // notably bin/, which contains bin/gpm, the very script
+                    // running this upgrade: those mounts refuse to unlink a file
+                    // that is currently open. Fall back to merging the new files
+                    // in place. Overwriting works even for the in-use script,
+                    // since PHP already holds it in memory (getgrav/grav#4171).
+                    self::mergeInstall($file->getPathname(), $path);
                 }
 
                 if ($file->getFilename() === 'bin') {
@@ -548,6 +561,69 @@ class Installer
         }
 
         return true;
+    }
+
+    /**
+     * Merge a directory into an existing one in place, without deleting the
+     * destination first.
+     *
+     * The standard install replaces a directory by removing it and copying the
+     * new one in. On shared-folder filesystems that refuse to unlink an open
+     * file (vboxsf, CIFS/SMB, some Docker bind mounts), that delete fails when
+     * the directory holds a file in use — e.g. bin/gpm during a CLI
+     * self-upgrade. Overwriting a file in place succeeds where unlinking does
+     * not, so this copies every entry from the new package over the existing
+     * tree and then best-effort prunes anything the new release no longer ships,
+     * matching the delete-then-replace result without the destructive delete.
+     *
+     * @param  string $source_path  Directory from the update package.
+     * @param  string $install_path Directory being upgraded, overwritten in place.
+     * @return void
+     */
+    protected static function mergeInstall($source_path, $install_path)
+    {
+        if (!is_dir($install_path)) {
+            Folder::create($install_path);
+        }
+
+        $keep = [];
+        foreach (new DirectoryIterator($source_path) as $file) {
+            if ($file->isDot()) {
+                continue;
+            }
+            $name = $file->getFilename();
+            $keep[$name] = true;
+            $target = $install_path . DS . $name;
+
+            if ($file->isDir()) {
+                self::mergeInstall($file->getPathname(), $target);
+            } else {
+                // Overwrite in place. copy() truncates the destination, which
+                // works even when the file is open (the running bin/gpm) on
+                // mounts that would reject an unlink of the same file.
+                @copy($file->getPathname(), $target);
+            }
+        }
+
+        // Best-effort prune of files the new release dropped, so an in-place
+        // merge leaves the same result as delete-then-replace. Suppressed: a
+        // leftover we cannot remove (in use, or a shared-folder quirk) must not
+        // abort an otherwise successful upgrade.
+        foreach (new DirectoryIterator($install_path) as $file) {
+            if ($file->isDot() || isset($keep[$file->getFilename()])) {
+                continue;
+            }
+            $stale = $file->getPathname();
+            if ($file->isDir()) {
+                try {
+                    Folder::delete($stale);
+                } catch (\Throwable) {
+                    // leave it; pruning is best-effort
+                }
+            } else {
+                @unlink($stale);
+            }
+        }
     }
 
     /**

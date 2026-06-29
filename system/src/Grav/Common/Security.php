@@ -328,8 +328,150 @@ class Security
         // matching close tag). `s` = dotall so multi-line icons are removed whole;
         // `i` = case-insensitive; `u` = unicode.
         $scanTarget = preg_replace('#<(svg|math)\b[^>]*>.*?</\1\s*>#isu', ' ', $html);
+        if (!is_string($scanTarget)) {
+            $scanTarget = $html;
+        }
 
-        return static::detectXss(is_string($scanTarget) ? $scanTarget : $html);
+        // Built-in convenience for the common case: excise provider <iframe>
+        // embeds (YouTube, Vimeo, …) whose hosts are registered as trusted via
+        // `security.xss_allowed_iframe_hosts` / the `onXssAllowedIframeHosts`
+        // event. Only iframes whose every src/data-src is a trusted host — and
+        // which carry no inline event handlers — are removed.
+        $scanTarget = static::exciseTrustedIframes($scanTarget, static::getAllowedIframeHosts());
+
+        // General extension point. A plugin/theme that legitimately emits markup
+        // the XSS detector flags — an embed iframe, an `<object>`/`<embed>`, a
+        // JSON-LD `<script type="application/ld+json">`, a custom element, etc. —
+        // removes ONLY the markup it positively recognizes as its own from
+        // `$event['html']` (the full, unmodified rendered output is in
+        // `$event['original']` for reference). Whatever a listener leaves behind
+        // is still scanned.
+        //
+        // Trust model: this is extended to operator-installed plugin/theme code,
+        // the same trust level a theme already has with unsandboxed Twig. It does
+        // NOT relax the scan for editor-authored content — the scanner still runs
+        // on everything not explicitly excised, so a listener can only vouch for
+        // markup IT produced. A too-narrow carve-out fails safe (its markup is
+        // scanned and may blank); it can never open a hole for content the
+        // listener didn't render. Listeners must therefore match tightly (their
+        // own marker class/attribute or, for embeds, {@see exciseTrustedIframes}
+        // with their provider hosts) and must not blanket-strip a tag.
+        $event = new Event(['html' => $scanTarget, 'original' => $html]);
+        Grav::instance()->fireEvent('onXssTrustedMarkup', $event);
+        if (is_string($event['html'])) {
+            $scanTarget = $event['html'];
+        }
+
+        return static::detectXss($scanTarget);
+    }
+
+    /** @var array<string>|null Per-request cache of trusted iframe hosts. */
+    private static ?array $allowedIframeHosts = null;
+
+    /**
+     * Hostnames whose `<iframe src>` is exempt from the rendered-output XSS
+     * scan. Sourced from `security.xss_allowed_iframe_hosts` plus the
+     * `onXssAllowedIframeHosts` event, which lets plugins/themes register their
+     * embed provider hosts (e.g. the YouTube plugin adds `youtube.com`).
+     *
+     * @return array<string> Normalized, lower-cased bare hostnames.
+     */
+    public static function getAllowedIframeHosts(): array
+    {
+        if (static::$allowedIframeHosts !== null) {
+            return static::$allowedIframeHosts;
+        }
+
+        $hosts = (array) (Grav::instance()['config']->get('security.xss_allowed_iframe_hosts') ?? []);
+
+        $event = new Event(['hosts' => $hosts]);
+        Grav::instance()->fireEvent('onXssAllowedIframeHosts', $event);
+        $hosts = (array) ($event['hosts'] ?? $hosts);
+
+        $clean = [];
+        foreach ($hosts as $host) {
+            $host = ltrim(strtolower(trim((string) $host)), '.');
+            if ($host !== '') {
+                $clean[$host] = true;
+            }
+        }
+
+        return static::$allowedIframeHosts = array_keys($clean);
+    }
+
+    /**
+     * Remove `<iframe>` elements that are safe provider embeds — every
+     * src/data-src points at one of `$allowedHosts` (a host also matches its
+     * subdomains) and there are no inline event handlers — so they don't trip
+     * the scan. Anything else is left untouched for {@see detectXss} to judge.
+     *
+     * Public and host-parameterized so a plugin can reuse the same safe
+     * host-checking for its own provider inside an `onXssTrustedMarkup`
+     * listener, e.g. `$e['html'] = Security::exciseTrustedIframes($e['html'], ['vimeo.com'])`.
+     *
+     * @param string $html
+     * @param array<string> $allowedHosts Bare hostnames (subdomains included).
+     * @return string
+     */
+    public static function exciseTrustedIframes(string $html, array $allowedHosts): string
+    {
+        if ($allowedHosts === [] || stripos($html, '<iframe') === false) {
+            return $html;
+        }
+        $allowed = [];
+        foreach ($allowedHosts as $host) {
+            $host = ltrim(strtolower(trim((string) $host)), '.');
+            if ($host !== '') {
+                $allowed[] = $host;
+            }
+        }
+        if ($allowed === []) {
+            return $html;
+        }
+
+        $result = preg_replace_callback(
+            '#<iframe\b[^>]*>.*?</iframe\s*>#isu',
+            static function (array $m) use ($allowed): string {
+                $tag = $m[0];
+
+                // Inline event handler (onload=, onerror=, …) → never exempt.
+                if (preg_match('#\son[a-z0-9_-]+\s*=#i', $tag)) {
+                    return $tag;
+                }
+
+                // Every src / data-src must resolve to a trusted host.
+                if (!preg_match_all('#\s(?:data-)?src\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)#i', $tag, $mm)) {
+                    return $tag; // no source to vouch for
+                }
+                foreach ($mm[1] as $raw) {
+                    $host = parse_url(trim($raw, "\"'"), PHP_URL_HOST);
+                    if (!is_string($host) || !static::iframeHostAllowed($host, $allowed)) {
+                        return $tag;
+                    }
+                }
+
+                return ' '; // trusted embed — exempt from the scan
+            },
+            $html
+        );
+
+        return is_string($result) ? $result : $html;
+    }
+
+    /**
+     * @param string $host
+     * @param array<string> $allowed
+     * @return bool
+     */
+    private static function iframeHostAllowed(string $host, array $allowed): bool
+    {
+        $host = strtolower($host);
+        foreach ($allowed as $a) {
+            if ($host === $a || str_ends_with($host, '.' . $a)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static function getXssDefaults(): array
@@ -918,6 +1060,98 @@ class Security
             return @unlink($file);
         } catch (\Throwable) {
             return false;
+        }
+    }
+
+    /**
+     * Remove ring-buffer events that an allowlist addition has just resolved, so
+     * the Admin report no longer shows a block the operator has already fixed.
+     * Matches on the violation type (`sandbox_{$rule}`) and token; method/property
+     * rules also match the owning class. Comparisons are case-insensitive to
+     * mirror Twig's member matching (and PHP's case-insensitive class names).
+     *
+     * @param string $rule  tag|filter|function|method|property (the `sandbox_` suffix).
+     * @param string $token The allowed token (tag/filter/function/method/property name).
+     * @param string $class Owning class for method/property rules; '' for the flat lists.
+     * @return int Number of events removed.
+     */
+    public static function resolveTwigContentEvents(string $rule, string $token, string $class = ''): int
+    {
+        if ($rule === '' || $token === '') {
+            return 0;
+        }
+
+        try {
+            $grav = Grav::instance();
+            if (!$grav->offsetExists('locator')) {
+                return 0;
+            }
+            /** @var UniformResourceLocator $locator */
+            $locator = $grav['locator'];
+            $file = $locator->findResource(self::TWIG_CONTENT_EVENTS_URI, true, true);
+            if (!is_string($file) || !is_file($file)) {
+                return 0;
+            }
+
+            $type = 'sandbox_' . $rule;
+
+            // Serialize the read-modify-write with the same advisory lock the
+            // writer uses, then publish atomically via rename.
+            $lock = @fopen($file . '.lock', 'c');
+            if ($lock === false) {
+                return 0;
+            }
+            $removed = 0;
+            try {
+                @flock($lock, LOCK_EX);
+
+                $raw = @file_get_contents($file);
+                if (!is_string($raw) || $raw === '') {
+                    return 0;
+                }
+                $events = json_decode($raw, true);
+                if (!is_array($events)) {
+                    return 0;
+                }
+
+                $kept = [];
+                foreach ($events as $event) {
+                    $matches = is_array($event)
+                        && ($event['type'] ?? '') === $type
+                        && strcasecmp((string) ($event['token'] ?? ''), $token) === 0
+                        && ($class === '' || strcasecmp((string) ($event['class'] ?? ''), $class) === 0);
+                    if ($matches) {
+                        $removed++;
+                        continue;
+                    }
+                    $kept[] = $event;
+                }
+
+                if ($removed === 0) {
+                    return 0;
+                }
+
+                if ($kept === []) {
+                    @unlink($file);
+                } else {
+                    $json = json_encode(array_values($kept), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                    if ($json !== false) {
+                        $tmp = $file . '.tmp';
+                        if (@file_put_contents($tmp, $json) !== false) {
+                            if (!@rename($tmp, $file)) {
+                                @unlink($tmp);
+                            }
+                        }
+                    }
+                }
+            } finally {
+                @flock($lock, LOCK_UN);
+                @fclose($lock);
+            }
+
+            return $removed;
+        } catch (\Throwable) {
+            return 0;
         }
     }
 
