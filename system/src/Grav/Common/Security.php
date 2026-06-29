@@ -1064,6 +1064,98 @@ class Security
     }
 
     /**
+     * Remove ring-buffer events that an allowlist addition has just resolved, so
+     * the Admin report no longer shows a block the operator has already fixed.
+     * Matches on the violation type (`sandbox_{$rule}`) and token; method/property
+     * rules also match the owning class. Comparisons are case-insensitive to
+     * mirror Twig's member matching (and PHP's case-insensitive class names).
+     *
+     * @param string $rule  tag|filter|function|method|property (the `sandbox_` suffix).
+     * @param string $token The allowed token (tag/filter/function/method/property name).
+     * @param string $class Owning class for method/property rules; '' for the flat lists.
+     * @return int Number of events removed.
+     */
+    public static function resolveTwigContentEvents(string $rule, string $token, string $class = ''): int
+    {
+        if ($rule === '' || $token === '') {
+            return 0;
+        }
+
+        try {
+            $grav = Grav::instance();
+            if (!$grav->offsetExists('locator')) {
+                return 0;
+            }
+            /** @var UniformResourceLocator $locator */
+            $locator = $grav['locator'];
+            $file = $locator->findResource(self::TWIG_CONTENT_EVENTS_URI, true, true);
+            if (!is_string($file) || !is_file($file)) {
+                return 0;
+            }
+
+            $type = 'sandbox_' . $rule;
+
+            // Serialize the read-modify-write with the same advisory lock the
+            // writer uses, then publish atomically via rename.
+            $lock = @fopen($file . '.lock', 'c');
+            if ($lock === false) {
+                return 0;
+            }
+            $removed = 0;
+            try {
+                @flock($lock, LOCK_EX);
+
+                $raw = @file_get_contents($file);
+                if (!is_string($raw) || $raw === '') {
+                    return 0;
+                }
+                $events = json_decode($raw, true);
+                if (!is_array($events)) {
+                    return 0;
+                }
+
+                $kept = [];
+                foreach ($events as $event) {
+                    $matches = is_array($event)
+                        && ($event['type'] ?? '') === $type
+                        && strcasecmp((string) ($event['token'] ?? ''), $token) === 0
+                        && ($class === '' || strcasecmp((string) ($event['class'] ?? ''), $class) === 0);
+                    if ($matches) {
+                        $removed++;
+                        continue;
+                    }
+                    $kept[] = $event;
+                }
+
+                if ($removed === 0) {
+                    return 0;
+                }
+
+                if ($kept === []) {
+                    @unlink($file);
+                } else {
+                    $json = json_encode(array_values($kept), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                    if ($json !== false) {
+                        $tmp = $file . '.tmp';
+                        if (@file_put_contents($tmp, $json) !== false) {
+                            if (!@rename($tmp, $file)) {
+                                @unlink($tmp);
+                            }
+                        }
+                    }
+                }
+            } finally {
+                @flock($lock, LOCK_UN);
+                @fclose($lock);
+            }
+
+            return $removed;
+        } catch (\Throwable) {
+            return 0;
+        }
+    }
+
+    /**
      * Find pages whose content contains raw Twig markers (`{{` / `{%`) that
      * will NOT be rendered — i.e. they would leak verbatim to visitors. A page
      * leaks when it has markers and is non-modular and its effective content

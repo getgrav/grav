@@ -122,6 +122,68 @@ class TwigContentDiagnosticsTest extends \PHPUnit\Framework\TestCase
         self::assertSame([], Security::recentTwigContentEvents());
     }
 
+    // =========================================================================
+    // resolveTwigContentEvents(): targeted removal once an allowlist add fixes
+    // the block, so the Admin report drops the now-resolved row.
+    // =========================================================================
+
+    public function testResolve_RemovesMatchingListEventsAndLeavesOthers(): void
+    {
+        $this->record('sandbox_filter', '/a', 'frobnicate', '', 'hint');
+        $this->record('sandbox_filter', '/b', 'frobnicate', '', 'hint');
+        $this->record('sandbox_function', '/c', 'evaluate', '', 'hint');
+
+        $removed = Security::resolveTwigContentEvents('filter', 'frobnicate');
+        self::assertSame(2, $removed);
+
+        $events = Security::recentTwigContentEvents();
+        self::assertCount(1, $events);
+        self::assertSame('sandbox_function', $events[0]['type']);
+    }
+
+    public function testResolve_MapRuleRequiresMatchingClass(): void
+    {
+        $this->record('sandbox_property', '/a', 'groups', 'Acme\\UserObject', 'hint');
+        $this->record('sandbox_property', '/b', 'groups', 'Acme\\OtherObject', 'hint');
+
+        // Same token, different owning class → only the matching class is removed.
+        $removed = Security::resolveTwigContentEvents('property', 'groups', 'Acme\\UserObject');
+        self::assertSame(1, $removed);
+
+        $events = Security::recentTwigContentEvents();
+        self::assertCount(1, $events);
+        self::assertSame('Acme\\OtherObject', $events[0]['class']);
+    }
+
+    public function testResolve_MatchesCaseInsensitively(): void
+    {
+        $this->record('sandbox_method', '/a', 'Save', 'Acme\\X', 'hint');
+
+        $removed = Security::resolveTwigContentEvents('method', 'save', 'acme\\x');
+        self::assertSame(1, $removed);
+        self::assertSame([], Security::recentTwigContentEvents());
+    }
+
+    public function testResolve_NoMatchLeavesBufferIntact(): void
+    {
+        $this->record('sandbox_filter', '/a', 'frobnicate', '', 'hint');
+
+        self::assertSame(0, Security::resolveTwigContentEvents('filter', 'nonexistent'));
+        self::assertCount(1, Security::recentTwigContentEvents());
+    }
+
+    public function testResolve_RemovesBufferFileWhenLastEventCleared(): void
+    {
+        $this->record('sandbox_filter', '/a', 'frobnicate', '', 'hint');
+
+        self::assertSame(1, Security::resolveTwigContentEvents('filter', 'frobnicate'));
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $file = $locator->findResource('log://twig-content-events.json');
+        self::assertFalse($file);
+    }
+
     public function testBuffer_PersistsToLogStream(): void
     {
         $this->record('gate_blocked', '/one', 'content');

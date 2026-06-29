@@ -10,6 +10,7 @@
     * Resizing an image larger than its original size with `?resize=` no longer pads it onto an oversized canvas with a white border, returning the image at its natural size instead unless `?forceresize` is used. Fixes [getgrav/grav#4173](https://github.com/getgrav/grav/issues/4173).
     * Turning off the Twig sandbox no longer breaks pages or modules that contain a form, which previously failed with a "SandboxExtension extension is not enabled" error. Fixes [getgrav/grav#4175](https://github.com/getgrav/grav/issues/4175).
     * A blueprint validation error now names the value it rejected, so a message like "Invalid input in Process" explains what actually caused it instead of leaving you guessing. Relates to [getgrav/grav#4178](https://github.com/getgrav/grav/issues/4178).
+    * Adding a blocked item to the Twig sandbox allowlist from the Tools report now clears that block from the recent-blocks list, so a resolved entry no longer lingers as if nothing happened. Fixes [getgrav/grav-plugin-admin2#85](https://github.com/getgrav/grav-plugin-admin2/issues/85).
 
 # v2.0.3
 ## 06/25/2026
