@@ -60,10 +60,11 @@ RewriteRule .* index.php [L]
 RewriteRule ^(\.git|cache|bin|logs|backup|webserver-configs|tests)/(.*) error [F,NC]
 # Block all direct access to these sensitive user folders, whatever the file type
 RewriteRule ^(user)/(config|env)/(.*) error [F,NC]
-# Block user/accounts too, but allow avatar images (account://avatars) to be
-# served directly. Account data (.yaml password hashes) stays blocked; SVG is
-# excluded as a stored-XSS vector.
-RewriteCond %{REQUEST_URI} !/user/accounts/avatars/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$ [NC]
+# Block user/accounts too, but allow avatar images to be served directly,
+# whether stored at user/accounts/avatars/<file> (flatfile accounts) or
+# user/accounts/<username>/<file> (Flex folder storage). Account data
+# (.yaml password hashes) stays blocked; SVG is excluded as a stored-XSS vector.
+RewriteCond %{REQUEST_URI} !/user/accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$ [NC]
 RewriteRule ^(user)/accounts/(.*) error [F,NC]
 # Block user/data too, but allow public asset uploads (e.g. Flex Object images)
 # to be served directly. SVG stays blocked as a stored-XSS vector; .css/.js are

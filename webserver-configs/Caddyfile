@@ -18,12 +18,13 @@ rewrite /(\.git|cache|bin|logs|backups|tests)/.* /403
 # deny all direct access to these sensitive user folders, whatever the file type
 rewrite /user/(config|env)/.* /403
 
-# block user/accounts too, but allow avatar images (account://avatars) to be
-# served directly. SVG is intentionally excluded as a stored-XSS vector.
+# block user/accounts too, but allow avatar images to be served directly, whether
+# stored at user/accounts/avatars/<file> (flatfile accounts) or user/accounts/
+# <username>/<file> (Flex folder storage). SVG is excluded as a stored-XSS vector.
 # (Go's RE2 has no lookbehind, so this uses a negated matcher.)
 @user_accounts_nonavatar {
 	path_regexp /user/accounts/.*
-	not path_regexp (?i)/user/accounts/avatars/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$
+	not path_regexp (?i)/user/accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$
 }
 rewrite @user_accounts_nonavatar /403
 
