@@ -17,6 +17,7 @@ use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Security;
+use Grav\Common\Twig\Cache\ResilientFilesystemCache;
 use Grav\Common\Twig\Sandbox\GravSourcePolicy;
 use Grav\Common\Twig\Sandbox\SandboxConfig;
 use Grav\Common\Twig\Compatibility\Twig3CompatibilityLoader;
@@ -187,7 +188,10 @@ class Twig
             $params = $config->get('system.twig');
             if (!empty($params['cache'])) {
                 $cachePath = $locator->findResource('cache://twig', true, true);
-                $params['cache'] = new FilesystemCache($cachePath, FilesystemCache::FORCE_BYTECODE_INVALIDATION);
+                // Resilient cache: a failed compiled-template write degrades to
+                // a logged warning + eval fallback instead of a 500 when the
+                // filesystem loses a concurrent rename race (getgrav/grav#4184).
+                $params['cache'] = new ResilientFilesystemCache($cachePath, FilesystemCache::FORCE_BYTECODE_INVALIDATION);
             }
 
             if (!$config->get('system.strict_mode.twig2_compat', false)) {
