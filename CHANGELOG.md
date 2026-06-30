@@ -1,3 +1,9 @@
+# v1.7.53.2
+## 06/30/2026
+
+1. [](#bugfix)
+    * [security] Flex user avatars stored under `user/accounts/<username>/` (folder storage) are now served too; the 1.7.53.1 avatar carve-out only covered the flatfile `user/accounts/avatars/` layout, so folder-storage avatars kept returning a 403. Existing sites self-heal on upgrade. Fixes [getgrav/grav#4185](https://github.com/getgrav/grav/issues/4185).
+
 # v1.7.53.1
 ## 06/30/2026
 
