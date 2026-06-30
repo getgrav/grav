@@ -1,6 +1,7 @@
-# Deny all direct web access to this folder and everything beneath it.
-# Grav reads these files server-side; they must never be served over HTTP.
-# This is a defense-in-depth backup for the rules in the site root .htaccess.
+# Deny direct web access to this folder, except avatar images (account://avatars)
+# that Grav serves over HTTP. Account data (.yaml password hashes), databases,
+# keys and tokens stay blocked; SVG is excluded as a stored-XSS vector.
+# Defense-in-depth backup for the rules in the site root .htaccess.
 <IfModule mod_authz_core.c>
     Require all denied
 </IfModule>
@@ -8,3 +9,12 @@
     Order allow,deny
     Deny from all
 </IfModule>
+<FilesMatch "(?i)\.(jpe?g|png|gif|webp|avif|bmp|ico)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>

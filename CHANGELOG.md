@@ -1,8 +1,9 @@
-# v1.7.54
-## 06/20/2026
+# v1.7.53.1
+## 06/30/2026
 
 1. [](#bugfix)
     * The `user/data` block added in 1.7.53 now makes an exception for public media uploads, such as Flex Object images, so they keep displaying instead of returning a 403, while data files, databases and keys stay blocked. Fixes [getgrav/grav#4129](https://github.com/getgrav/grav/issues/4129).
+    * [security] Profile avatars display again instead of returning a 403; the folder hardening that locked down `user/accounts` now makes a narrow exception for avatar images while account data such as password hashes stays blocked, and existing sites self-heal on upgrade. Fixes [getgrav/grav#4185](https://github.com/getgrav/grav/issues/4185).
 
 # v1.7.53
 ## 06/16/2026
