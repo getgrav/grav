@@ -16,7 +16,16 @@ php_fastcgi 127.0.0.1:9000
 rewrite /(\.git|cache|bin|logs|backups|tests)/.* /403
 
 # deny all direct access to these sensitive user folders, whatever the file type
-rewrite /user/(accounts|config|env)/.* /403
+rewrite /user/(config|env)/.* /403
+
+# block user/accounts too, but allow avatar images (account://avatars) to be
+# served directly. SVG is intentionally excluded as a stored-XSS vector.
+# (Go's RE2 has no lookbehind, so this uses a negated matcher.)
+@user_accounts_nonavatar {
+	path_regexp /user/accounts/.*
+	not path_regexp (?i)/user/accounts/avatars/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$
+}
+rewrite @user_accounts_nonavatar /403
 
 # block user/data too, but allow public media uploads (e.g. Flex Object images)
 # to be served directly. SVG is intentionally excluded as a stored-XSS vector.

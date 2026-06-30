@@ -307,12 +307,12 @@ class Page implements PageInterface
             if ($exists) {
                 $aPage = new Page();
                 $aPage->init(new SplFileInfo($path), $languageExtension);
-                $aPage->route($this->route());
-                $aPage->rawRoute($this->rawRoute());
-                $route = $aPage->header()->routes['default'] ?? $aPage->rawRoute();
-                if (!$route) {
-                    $route = $aPage->route();
-                }
+                // Attach the live parent so the translated page can compose its own
+                // route from the parent route plus its (possibly localized) slug.
+                // Setting the route directly from the current page, as before, would
+                // discard a localized `slug:` header on the translation.
+                $aPage->parent($this->parent());
+                $route = $aPage->header()->routes['default'] ?? $aPage->route();
 
                 if ($onlyPublished && !$aPage->published()) {
                     continue;
