@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * A page's `translatedLanguages()` now returns each language's own route, so a translation with a localized `slug:` produces the correct cross-language link instead of repeating the default language's URL. Fixes [getgrav/grav#4183](https://github.com/getgrav/grav/issues/4183).
+    * [security] Profile avatars display again instead of returning a 403; the folder hardening that locked down `user/accounts` now makes a narrow exception for avatar images while account data such as password hashes stays blocked, and existing sites self-heal on upgrade. Fixes [getgrav/grav#4185](https://github.com/getgrav/grav/issues/4185).
 
 # v2.0.4
 ## 06/29/2026
