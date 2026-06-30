@@ -1,3 +1,9 @@
+# v2.0.5
+## 06/30/2026
+
+1. [](#bugfix)
+    * A page's `translatedLanguages()` now returns each language's own route, so a translation with a localized `slug:` produces the correct cross-language link instead of repeating the default language's URL. Fixes [getgrav/grav#4183](https://github.com/getgrav/grav/issues/4183).
+
 # v2.0.4
 ## 06/29/2026
 

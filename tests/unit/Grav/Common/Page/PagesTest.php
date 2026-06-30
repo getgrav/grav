@@ -262,6 +262,21 @@ class PagesTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(["en" => "/translatedlong/part2", "fr" => "/translatedlong/part2"], $translatedLanguages);
     }
 
+    public function testTranslatedLanguagesLocalizedSlug(): void
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $folder = $locator->findResource('tests://');
+
+        $page = $this->pages->get($folder . '/fake/simple-site/user/pages/06.localized-slug');
+        $this->assertInstanceOf(PageInterface::class, $page);
+        $translatedLanguages = $page->translatedLanguages();
+        $this->assertIsArray($translatedLanguages);
+        // The fr translation declares `slug: slug-localise`, so its route must use
+        // the localized slug rather than mirroring the default-language route.
+        $this->assertSame(["en" => "/localized-slug", "fr" => "/slug-localise"], $translatedLanguages);
+    }
+
     public function testGetTypes(): void
     {
     }
