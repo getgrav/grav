@@ -277,6 +277,25 @@ class PagesTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(["en" => "/localized-slug", "fr" => "/slug-localise"], $translatedLanguages);
     }
 
+    public function testTranslatedLanguagesLocalizedAncestorSlug(): void
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $folder = $locator->findResource('tests://');
+
+        $page = $this->pages->get($folder . '/fake/simple-site/user/pages/07.localized-category/01.item');
+        $this->assertInstanceOf(PageInterface::class, $page);
+        $translatedLanguages = $page->translatedLanguages();
+        $this->assertIsArray($translatedLanguages);
+        // Regression test for getgrav/grav#4186: the ancestor `localized-category`
+        // declares `slug: categorie-localisee` in fr and the leaf declares
+        // `slug: article`, so BOTH segments must be localized — not just the leaf.
+        $this->assertSame(
+            ["en" => "/localized-category/item", "fr" => "/categorie-localisee/article"],
+            $translatedLanguages
+        );
+    }
+
     public function testGetTypes(): void
     {
     }

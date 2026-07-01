@@ -1,3 +1,9 @@
+# v2.0.7
+## 07/01/2026
+
+1. [](#bugfix)
+    * A page's `translatedLanguages()` now localizes ancestor slugs too, so a nested translation whose parent folder has a localized `slug:` produces the fully translated cross-language link instead of leaving parent segments in the current language. Fixes [getgrav/grav#4186](https://github.com/getgrav/grav/issues/4186).
+
 # v2.0.6
 ## 06/30/2026
 
