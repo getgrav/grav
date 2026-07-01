@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * A page's `translatedLanguages()` now localizes ancestor slugs too, so a nested translation whose parent folder has a localized `slug:` produces the fully translated cross-language link instead of leaving parent segments in the current language. Fixes [getgrav/grav#4186](https://github.com/getgrav/grav/issues/4186).
+    * Pointing the log stream at `environment://` (for example `log: environment://logs`) no longer crashes the site or `bin/grav clear` with a "stream must either be a resource or a string" error when the per-environment folder does not exist; logging now falls back to the default `logs/` folder instead. Fixes [getgrav/grav#4172](https://github.com/getgrav/grav/issues/4172).
 
 # v2.0.6
 ## 06/30/2026
