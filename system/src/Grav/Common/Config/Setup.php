@@ -142,7 +142,7 @@ class Setup extends Data
         'media' => [
             'type' => 'Stream',
             'prefixes' => [
-                '' => ['user://media']
+                '' => ['environment://media', 'user://media']
             ]
         ],
         'page' => [
