@@ -169,6 +169,23 @@ class Job
     }
 
     /**
+     * Set the enabled state of this job
+     *
+     * Used to seed a default state at registration time (e.g. from a profile
+     * flag). An explicit entry in the scheduler `status` config still takes
+     * precedence, as that is applied in the constructor.
+     *
+     * @param bool $enabled
+     * @return $this
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = (bool) $enabled;
+
+        return $this;
+    }
+
+    /**
      * Get optional arguments
      *
      * @return string|null

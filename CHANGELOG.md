@@ -6,6 +6,10 @@
     * Pointing the log stream at `environment://` (for example `log: environment://logs`) no longer crashes the site or `bin/grav clear` with a "stream must either be a resource or a string" error when the per-environment folder does not exist; logging now falls back to the default `logs/` folder instead. Fixes [getgrav/grav#4172](https://github.com/getgrav/grav/issues/4172).
     * The `media://` stream now checks the per-environment `user/env/<host>/media/` folder before the shared `user/media/`, so site media stored per environment resolves to the correct URL in the admin and in page content instead of a broken `user/media/` link. Fixes [getgrav/grav#4188](https://github.com/getgrav/grav/issues/4188).
     * Large file downloads such as site backups are now streamed to the browser in chunks instead of being loaded into memory all at once, so a download bigger than PHP's memory limit no longer fails with a blank server error. Fixes [getgrav/grav-plugin-api#12](https://github.com/getgrav/grav-plugin-api/issues/12).
+    * Backups initialization no longer runs twice when something that bypasses the normal request middleware (such as the API plugin) also attaches the backup scheduler listener, so the listener is registered only once.
+1. [](#improved)
+    * Updating a plugin or theme whose required dependency is held back by a newer Grav or PHP requirement now explains the real fix. Instead of reporting that the needed version is "higher than the latest release" and suggesting a cache refresh, the updater names the newer dependency release and the Grav (or PHP) version it needs, so you know to update Grav first. Relates to [getgrav/grav-plugin-admin2#93](https://github.com/getgrav/grav-plugin-admin2/issues/93).
+    * Backup profiles now always appear in the scheduler where each can be switched on or off with the Enabled/Disabled toggle, instead of a profile staying hidden until its schedule was turned on; the profile's schedule setting seeds the default state and an explicit toggle takes precedence.
 
 # v2.0.6
 ## 06/30/2026

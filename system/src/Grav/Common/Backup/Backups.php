@@ -45,11 +45,22 @@ class Backups
     /** @var array|null */
     protected static $backups;
 
+    /** @var bool */
+    protected $initialized = false;
+
     /**
      * @return void
      */
     public function init()
     {
+        // Guard against double-initialization: init() runs from BackupsProcessor
+        // during a normal request, but consumers that short-circuit the middleware
+        // (e.g. the API plugin) may also call it to attach the scheduler listener.
+        if ($this->initialized) {
+            return;
+        }
+        $this->initialized = true;
+
         $grav = Grav::instance();
 
         /** @var EventDispatcher $dispatcher */
@@ -85,11 +96,9 @@ class Backups
         /** @var Inflector $inflector */
         $inflector = $grav['inflector'];
 
-        foreach (static::getBackupProfiles() as $id => $profile) {
-            if (!($profile['schedule'] ?? false)) {
-                continue;
-            }
+        $status = $grav['config']->get('scheduler.status');
 
+        foreach (static::getBackupProfiles() as $id => $profile) {
             $at = $profile['schedule_at'];
             $name = $inflector::hyphenize($profile['name']);
             $logs = 'logs/backup-' . $name . '.out';
@@ -99,6 +108,14 @@ class Backups
             $job->at($at);
             $job->output($logs);
             $job->backlink('/tools/backups');
+
+            // Always register the job so it stays visible in the scheduler. The
+            // profile `schedule` flag seeds the default enabled state (out of
+            // rotation when false), while an explicit scheduler `status` entry
+            // set via the Enabled/Disabled toggle always wins.
+            if (!isset($status[$name])) {
+                $job->setEnabled((bool)($profile['schedule'] ?? false));
+            }
         }
     }
 

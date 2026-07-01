@@ -365,6 +365,55 @@ class GPM extends Iterator
     }
 
     /**
+     * Get the `blocked_upgrade` hint the repository attaches to a down-served
+     * package: the next release above the one being served, and the Grav/PHP
+     * floor that keeps this install from receiving it. Null when the served
+     * package is already the latest (no down-serving happened).
+     *
+     * @param string $package_name
+     * @return array|null
+     */
+    public function getBlockedUpgrade($package_name)
+    {
+        $repository = $this->getRepository();
+        if (null === $repository) {
+            return null;
+        }
+
+        foreach (['plugins', 'themes'] as $type) {
+            $packages = $repository[$type] ?? null;
+            if ($packages && isset($packages[$package_name])) {
+                $blocked = $packages[$package_name]->blocked_upgrade;
+
+                return is_array($blocked) && $blocked ? $blocked : null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract the lowest version-like token from a composer-style constraint
+     * (`>=2.0.7` → `2.0.7`, `^8.1` → `8.1`). Returns null when there's no
+     * usable version token.
+     *
+     * @param string|null $constraint
+     * @return string|null
+     */
+    protected function extractMinConstraintVersion($constraint)
+    {
+        if (!is_string($constraint) || $constraint === '' || $constraint === '*') {
+            return null;
+        }
+
+        if (!preg_match('/\d+(?:\.\d+){0,2}(?:[.-][a-zA-Z0-9.-]+)?/', $constraint, $m)) {
+            return null;
+        }
+
+        return $m[0];
+    }
+
+    /**
      * Check if a Plugin or Theme is updatable
      *
      * @param  string $slug The slug of the package
@@ -1056,6 +1105,44 @@ class GPM extends Iterator
                 $latestRelease = $this->getLatestVersionOfPackage($dependency_slug);
 
                 if ($this->firstVersionIsLower($latestRelease, $dependencyVersion)) {
+                    // The required version is newer than anything the GPM will
+                    // serve this install. The usual reason is that the newer
+                    // release raised its own Grav/PHP floor above what's running,
+                    // so the repository down-served an older one. When that's the
+                    // case the served package carries a `blocked_upgrade` hint —
+                    // use it to explain the real fix instead of guessing the
+                    // cache is stale.
+                    $blocked = $this->getBlockedUpgrade($dependency_slug);
+                    if ($blocked
+                        && isset($blocked['version'])
+                        && !$this->firstVersionIsLower($blocked['version'], $dependencyVersion)) {
+                        $needs = [];
+                        $gravMin = $this->extractMinConstraintVersion($blocked['grav'] ?? null);
+                        if ($gravMin && version_compare($gravMin, GRAV_VERSION, '>')) {
+                            $needs['Grav'] = $gravMin;
+                        }
+                        $phpMin = $this->extractMinConstraintVersion($blocked['php'] ?? null);
+                        if ($phpMin && version_compare($phpMin, PHP_VERSION, '>')) {
+                            $needs['PHP'] = $phpMin;
+                        }
+
+                        if ($needs) {
+                            $requires = [];
+                            $current = ['Grav' => GRAV_VERSION, 'PHP' => PHP_VERSION];
+                            foreach ($needs as $what => $min) {
+                                $requires[] = "<cyan>{$what} {$min}</cyan> (you have {$current[$what]})";
+                            }
+
+                            throw new RuntimeException(
+                                'Dependency <cyan>' . $package_yaml['name'] . '</cyan> requires version <cyan>'
+                                . $dependencyVersion . '</cyan>, but <cyan>' . $dependency_slug . ' '
+                                . $blocked['version'] . '</cyan> requires ' . implode(' and ', $requires)
+                                . '. Update ' . implode(' and ', array_keys($needs)) . ' first, then try again.',
+                                1
+                            );
+                        }
+                    }
+
                     //throw an exception if a required version cannot be found in the GPM yet
                     throw new RuntimeException(
                         'Dependency <cyan>' . $package_yaml['name'] . '</cyan> is required in version <cyan>' . $dependencyVersion . '</cyan> which is higher than the latest release, <cyan>' . $latestRelease . '</cyan>. Try running `bin/gpm -f index` to force a refresh of the GPM cache',
