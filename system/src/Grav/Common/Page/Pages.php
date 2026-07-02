@@ -2052,6 +2052,13 @@ class Pages
                         'routable' => $child->routable(),
                         'published' => $child->published(),
                         'module' => $child->isModule(),
+                        // Common sort keys, frozen here so ordered collections can
+                        // be sorted straight from the index without loading pages.
+                        'title' => $child->title(),
+                        'date' => $child->date(),
+                        'modified' => $child->modified(),
+                        'publish_date' => $child->publishDate(),
+                        'folder' => $child->folder(),
                     ];
                 }
             }
@@ -2382,45 +2389,55 @@ class Pages
         }
 
         foreach ($pages as $key => $info) {
-            $child = $this->get($key);
-            if (!$child) {
-                throw new RuntimeException("Page does not exist: {$key}");
-            }
+            // The index entry carries the common sort keys, so load the page only
+            // when the value we need isn't already there (header sorts, etc.).
+            $meta = is_array($info) ? $info : [];
+            $child = null;
+            $load = function () use (&$child, $key) {
+                if ($child === null) {
+                    $child = $this->get($key);
+                    if (!$child) {
+                        throw new RuntimeException("Page does not exist: {$key}");
+                    }
+                }
+
+                return $child;
+            };
 
             switch ($order_by) {
                 case 'title':
-                    $list[$key] = $child->title();
+                    $list[$key] = $meta['title'] ?? $load()->title();
                     break;
                 case 'date':
-                    $list[$key] = $child->date();
+                    $list[$key] = $meta['date'] ?? $load()->date();
                     $sort_flags = SORT_REGULAR;
                     break;
                 case 'modified':
-                    $list[$key] = $child->modified();
+                    $list[$key] = $meta['modified'] ?? $load()->modified();
                     $sort_flags = SORT_REGULAR;
                     break;
                 case 'publish_date':
-                    $list[$key] = $child->publishDate();
+                    $list[$key] = $meta['publish_date'] ?? $load()->publishDate();
                     $sort_flags = SORT_REGULAR;
                     break;
                 case 'unpublish_date':
-                    $list[$key] = $child->unpublishDate();
+                    $list[$key] = $load()->unpublishDate();
                     $sort_flags = SORT_REGULAR;
                     break;
                 case 'slug':
-                    $list[$key] = $child->slug();
+                    $list[$key] = $meta['slug'] ?? $load()->slug();
                     break;
                 case 'basename':
                     $list[$key] = Utils::basename($key);
                     break;
                 case 'folder':
-                    $list[$key] = $child->folder();
+                    $list[$key] = $meta['folder'] ?? $load()->folder();
                     break;
                 case 'manual':
                 case 'default':
                 default:
                     if (is_string($header_query)) {
-                        $child_header = $child->header();
+                        $child_header = $load()->header();
                         if (!$child_header instanceof Header) {
                             $child_header = new Header((array)$child_header);
                         }

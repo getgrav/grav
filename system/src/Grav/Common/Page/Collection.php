@@ -494,6 +494,12 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function translated()
     {
+        // Without multi-language support every page is trivially translated, so
+        // there is nothing to filter out and no need to load any page.
+        if (!Grav::instance()['language']->enabled()) {
+            return $this;
+        }
+
         $published = [];
 
         foreach ($this->items as $path => $slug) {
@@ -515,6 +521,14 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function nonTranslated()
     {
+        // Without multi-language support no page is untranslated, so the result
+        // is always empty and no page needs to be loaded.
+        if (!Grav::instance()['language']->enabled()) {
+            $this->items = [];
+
+            return $this;
+        }
+
         $published = [];
 
         foreach ($this->items as $path => $slug) {
