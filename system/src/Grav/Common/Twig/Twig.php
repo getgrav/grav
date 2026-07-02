@@ -601,12 +601,6 @@ class Twig
             $twig_vars['media'] = $page->media();
             $twig_vars['content'] = $content;
 
-            // determine if params are set, if so disable twig cache
-            $params = $grav['uri']->params(null, true);
-            if (!empty($params)) {
-                $this->twig->setCache(false);
-            }
-
             // Get Twig template layout
             $template = $this->getPageTwigTemplate($page, $format);
             $page->templateFormat($format);
