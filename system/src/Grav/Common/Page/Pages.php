@@ -102,6 +102,10 @@ class Pages
     protected $page_extension_regex;
     /** @var bool */
     protected $fire_events = false;
+    /** @var PageIndexStore|null Per-page store backing a lazily hydrated regular pages index. */
+    protected $index_store;
+    /** @var bool Guard against recursive rebuilds when a lazily indexed page fails to load. */
+    protected $index_store_rebuilding = false;
     /** @var Types|null */
     protected static $types;
     /** @var string|null */
@@ -399,6 +403,10 @@ class Pages
      */
     public function instances()
     {
+        // Full listings hydrate every page anyway, so pull all payloads from the
+        // index store in one query instead of a point-read per page.
+        $this->hydrateIndexedPages();
+
         $instances = [];
         foreach ($this->index as $path => $instance) {
             $page = $this->get($path);
@@ -408,6 +416,31 @@ class Pages
         }
 
         return $instances;
+    }
+
+    /**
+     * Bulk-hydrate all lazily indexed pages from the per-page index store.
+     *
+     * @return void
+     */
+    protected function hydrateIndexedPages(): void
+    {
+        if (!$this->index_store) {
+            return;
+        }
+
+        $payloads = null;
+        foreach ($this->index as $path => $instance) {
+            if ($instance === true && !array_key_exists($path, $this->instances)) {
+                $payloads ??= $this->index_store->readAll();
+
+                $page = isset($payloads[$path]) ? @unserialize($payloads[$path]) : null;
+                if ($page instanceof PageInterface) {
+                    $this->instances[$path] = $page;
+                }
+                // Missing rows fall through to get(), which rebuilds the index.
+            }
+        }
     }
 
     /**
@@ -857,7 +890,10 @@ class Pages
         }
 
         $instance = $this->index[$path] ?? null;
-        if (is_string($instance)) {
+        if ($instance === true) {
+            // Lazily hydrate a regular page from the per-page index store.
+            $instance = $this->loadIndexedPage($path);
+        } elseif (is_string($instance)) {
             if ($this->directory) {
                 /** @var Language $language */
                 $language = $this->grav['language'];
@@ -893,6 +929,43 @@ class Pages
         }
 
         return $instance;
+    }
+
+    /**
+     * Hydrate a single regular page from the per-page index store.
+     *
+     * A missing or unreadable row means the store and the cached index have
+     * drifted apart (for example the file was deleted mid-request), so the
+     * whole index is rebuilt once from the filesystem as a fallback.
+     *
+     * @param string $path
+     * @return PageInterface|null
+     */
+    protected function loadIndexedPage(string $path): ?PageInterface
+    {
+        $payload = $this->index_store ? $this->index_store->read($path) : null;
+        $instance = is_string($payload) ? @unserialize($payload) : null;
+        if ($instance instanceof PageInterface) {
+            return $instance;
+        }
+
+        if (!$this->index_store_rebuilding) {
+            $this->index_store_rebuilding = true;
+
+            /** @var Debugger $debugger */
+            $debugger = $this->grav['debugger'];
+            $debugger->addMessage(sprintf('Lazily indexed page %s is missing or broken, rebuilding pages..', $path), 'debug');
+
+            $this->resetPages($this->getPagesPaths());
+            $this->index_store_rebuilding = false;
+
+            $instance = $this->index[$path] ?? null;
+            if ($instance instanceof PageInterface) {
+                return $instance;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1743,13 +1816,21 @@ class Pages
             $cache = $this->grav['cache'];
             $cached = $cache->fetch($this->pages_cache_id);
             if ($cached && $this->getVersion() === $cached[0]) {
-                [, $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
+                // A lazy index stores true-markers instead of Page objects; the pages
+                // themselves live in the per-page index store and hydrate on access.
+                $lazy = !empty($cached[6]);
+                $store = $lazy ? $this->openIndexStore($pages_dirs) : null;
 
-                /** @var Taxonomy $taxonomy */
-                $taxonomy = $this->grav['taxonomy'];
-                $taxonomy->taxonomy($taxonomy_map);
+                if (!$lazy || ($store && $store->isValid($this->pages_cache_id))) {
+                    $this->index_store = $store;
+                    [, $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
 
-                return;
+                    /** @var Taxonomy $taxonomy */
+                    $taxonomy = $this->grav['taxonomy'];
+                    $taxonomy->taxonomy($taxonomy_map);
+
+                    return;
+                }
             }
 
             $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
@@ -1799,9 +1880,65 @@ class Pages
             /** @var Taxonomy $taxonomy */
             $taxonomy = $this->grav['taxonomy'];
 
+            // Store each page as its own row so warm requests hydrate only the pages
+            // they touch, instead of unserializing every page on the site. The full
+            // in-memory index built above keeps its objects for this request.
+            $index = $this->index;
+            $lazy = false;
+            if ($this->pages_cache_id) {
+                $store = $this->index_store ?? $this->openIndexStore($pages_dirs);
+                if ($store && $store->rebuild($this->pages_cache_id, $this->serializeIndex())) {
+                    $this->index_store = $store;
+                    $lazy = true;
+                    $index = array_fill_keys(array_keys($this->index), true);
+                }
+            }
+
             // save pages, routes, taxonomy, and sort to cache
-            $cache->save($this->pages_cache_id, [$this->getVersion(), $this->index, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]);
+            $cache->save($this->pages_cache_id, [$this->getVersion(), $index, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort, $lazy]);
         }
+    }
+
+    /**
+     * Serialize the in-memory page index for the per-page index store.
+     *
+     * @return \Generator<string,string>
+     */
+    protected function serializeIndex(): \Generator
+    {
+        foreach ($this->index as $path => $page) {
+            if ($page instanceof PageInterface) {
+                yield $path => serialize($page);
+            }
+        }
+    }
+
+    /**
+     * Open the per-page index store backing the lazy regular pages index.
+     * Returns null when disabled, when Flex pages are active, or when no
+     * supported database engine (pdo_sqlite or YetiSQL) is available.
+     *
+     * @param array $pagesDirs
+     * @return PageIndexStore|null
+     */
+    protected function openIndexStore(array $pagesDirs): ?PageIndexStore
+    {
+        if ($this->directory || !$this->grav['config']->get('system.pages.lazy_index', true)) {
+            return null;
+        }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $dir = $locator->findResource('cache://compiled/pages', true, true);
+        if (!is_string($dir)) {
+            return null;
+        }
+
+        // Stable name per page dirs + language; content changes are detected via
+        // the cache id stored inside the file, so the file gets rewritten in place.
+        $name = 'index-' . md5(json_encode($pagesDirs) . (string)$this->active_lang);
+
+        return PageIndexStore::open($dir, $name);
     }
 
     /**
@@ -1991,9 +2128,9 @@ class Pages
         // Get the home route
         $home = self::resetHomeRoute();
         // Build routes and taxonomy map.
-        /** @var PageInterface|string $page */
+        /** @var PageInterface|string|bool $page */
         foreach ($this->index as $path => $page) {
-            if (is_string($page)) {
+            if (!$page instanceof PageInterface) {
                 $page = $this->get($path);
             }
 
@@ -2270,7 +2407,10 @@ class Pages
      */
     protected function getVersion(): string
     {
-        return $this->directory ? 'flex' : 'regular';
+        // 'regular2': the cached tuple gained a lazy-index flag and marker entries;
+        // the bump makes older and newer Grav versions rebuild instead of
+        // misreading each other's cache.
+        return $this->directory ? 'flex' : 'regular2';
     }
 
     /**
