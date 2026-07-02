@@ -224,8 +224,9 @@ class Page implements PageInterface
         $this->routable(true);
         $this->header();
         $this->date();
-        $this->metadata();
-        $this->url();
+        // metadata() and url() are lazy getters computed on first access at render
+        // time; calling them here only bloated the serialized pages index with
+        // escaped metadata for every page on the site.
         $this->visible();
         $this->modularTwig(str_starts_with($this->slug(), '_'));
         $this->setPublishState();
@@ -901,8 +902,9 @@ class Page implements PageInterface
         }
         // If no content, process it
         if ($this->content === null) {
-            // Get media
-            $this->media();
+            // Media loads lazily via getMedia() on first use (templates, image
+            // excerpts), so a cached-content hit no longer unserializes the whole
+            // media collection up front.
 
             /** @var Config $config */
             $config = Grav::instance()['config'];

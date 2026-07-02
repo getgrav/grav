@@ -893,11 +893,11 @@ class Uri implements \Stringable
                         }
                     }
 
-                    // get page instances and try to find one that fits
-                    $instances = $grav['pages']->instances();
-                    if (isset($instances[$page_path])) {
-                        /** @var PageInterface $target */
-                        $target = $instances[$page_path];
+                    // look up the page for the path directly; building the full
+                    // instances() array is O(all pages) per converted link
+                    /** @var PageInterface|null $target */
+                    $target = $grav['pages']->get($page_path);
+                    if ($target) {
                         $url_bits['path'] = $base_url . rtrim((string) $target->route(), '/') . $filename;
 
                         $url_path = Uri::buildUrl($url_bits);
@@ -1120,11 +1120,11 @@ class Uri implements \Stringable
             }
         }
 
-        // get page instances and try to find one that fits
-        $instances = $grav['pages']->instances();
-        if (isset($instances[$page_path])) {
-            /** @var PageInterface $target */
-            $target = $instances[$page_path];
+        // look up the page for the path directly; building the full
+        // instances() array is O(all pages) per converted link
+        /** @var PageInterface|null $target */
+        $target = $grav['pages']->get($page_path);
+        if ($target) {
             $url_bits['path'] = $base_url . rtrim((string) $target->route(), '/') . $filename;
 
             return static::buildUrl($url_bits);
