@@ -106,10 +106,12 @@
         "ext-memcache": "Needed to support Memcache servers",
         "ext-memcached": "Needed to support Memcached servers",
         "ext-redis": "Needed to support Redis servers",
-        "ext-exif": "Needed to use exif data from images."
+        "ext-exif": "Needed to use exif data from images.",
+        "ext-apcu": "Speeds up class autoloading when combined with the apcu-autoloader setting."
     },
     "config": {
         "apcu-autoloader": true,
+        "optimize-autoloader": true,
         "platform": {
             "php": "8.3"
         }
