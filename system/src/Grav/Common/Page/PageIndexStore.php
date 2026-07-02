@@ -288,6 +288,32 @@ final class PageIndexStore
     }
 
     /**
+     * Read the pages matching a single taxonomy type/value pair, in original
+     * page order.
+     *
+     * @param string $type
+     * @param string $value
+     * @return array<string,array> path => info
+     */
+    public function readTaxonomyValue(string $type, string $value): array
+    {
+        try {
+            $stmt = $this->pdo->prepare('SELECT path, payload FROM taxonomy WHERE type = ? AND value = ? ORDER BY rowid');
+            $stmt->execute([$type, $value]);
+
+            $result = [];
+            foreach ($stmt->fetchAll(\PDO::FETCH_NUM) as [$path, $payload]) {
+                $info = @unserialize((string)$payload);
+                $result[$path] = is_array($info) ? $info : [];
+            }
+
+            return $result;
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
      * Reconstruct the taxonomy map for the indexed language.
      *
      * @return array<string,array<string,array<string,array>>> type => value => path => info

@@ -1901,7 +1901,11 @@ class Pages
                         $this->routes_lazy = true;
                         $this->children_lazy = true;
                         $this->sort_lazy = true;
-                        $taxonomy->setLoader(fn() => $this->index_store ? $this->index_store->readTaxonomy() : []);
+                        $taxonomy->setLoader(
+                            fn() => $this->index_store ? $this->index_store->readTaxonomy() : [],
+                            fn(string $type, string $value) => $this->index_store ? $this->index_store->readTaxonomyValue($type, $value) : [],
+                            $language->getLanguage()
+                        );
                     } else {
                         $taxonomy->taxonomy($taxonomy_map);
                     }

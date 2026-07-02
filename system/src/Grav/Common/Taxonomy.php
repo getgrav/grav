@@ -36,8 +36,12 @@ class Taxonomy
 {
     /** @var array */
     protected $taxonomy_map;
-    /** @var callable|null Lazy provider for the active language's taxonomy map. */
+    /** @var callable|null Lazy provider for a language's full taxonomy map. */
     protected $loader;
+    /** @var callable|null Targeted provider for a single type/value pair. */
+    protected $loader_query;
+    /** @var string|false|null Language the pending loader's data belongs to, exactly as Language::getLanguage() returns it (false when languages are not enabled); null means no loader. */
+    protected $loader_language;
     /** @var Grav */
     protected $grav;
     /** @var Language */
@@ -56,21 +60,32 @@ class Taxonomy
     }
 
     /**
-     * Set (or clear) a lazy provider for the active language's taxonomy map.
+     * Set (or clear) a lazy provider for a language's taxonomy map.
      *
      * When set, the map is fetched on first use instead of being carried in
      * the pages cache; requests that never touch taxonomy skip it entirely.
+     * The optional query provider serves findTaxonomy() lookups with targeted
+     * per-type/value reads so common taxonomy collections never need the full
+     * map at all.
      *
-     * @param callable|null $loader
+     * @param callable|null $loader Full-map provider: fn(): array
+     * @param callable|null $query Targeted provider: fn(string $type, string $value): array
+     * @param string|false|null $language Language the provided data belongs to, as returned by Language::getLanguage() - must not be coerced, since false (languages disabled) and '' are different array keys (defaults to the active language)
      * @return void
      */
-    public function setLoader(?callable $loader): void
+    public function setLoader(?callable $loader, ?callable $query = null, $language = null): void
     {
         $this->loader = $loader;
+        $this->loader_query = $loader ? $query : null;
+        $this->loader_language = $loader ? ($language ?? $this->language->getLanguage()) : null;
     }
 
     /**
      * Run the pending loader before the map is read or modified.
+     *
+     * The data is assigned to the language the loader was created for, so a
+     * mid-request language switch reads an empty slice (as it always has)
+     * instead of another language's data.
      *
      * @return void
      */
@@ -78,8 +93,11 @@ class Taxonomy
     {
         if ($this->loader) {
             $loader = $this->loader;
+            $language = $this->loader_language ?? $this->language->getLanguage();
             $this->loader = null;
-            $this->taxonomy_map[$this->language->getLanguage()] = (array)$loader();
+            $this->loader_query = null;
+            $this->loader_language = null;
+            $this->taxonomy_map[$language] = (array)$loader();
         }
     }
 
@@ -159,15 +177,26 @@ class Taxonomy
      */
     public function findTaxonomy($taxonomies, $operator = 'and')
     {
-        $this->ensureLoaded();
-
         $matches = [];
         $results = [];
         $active = $this->language->getLanguage();
 
-        foreach ((array)$taxonomies as $taxonomy => $items) {
-            foreach ((array)$items as $item) {
-                $matches[] = $this->taxonomy_map[$active][$taxonomy][$item] ?? [];
+        if ($this->loader && $this->loader_query && $active === $this->loader_language) {
+            // The stored map is untouched (no runtime additions have forced a full
+            // load), so fetch only the requested type/value pairs instead of
+            // materializing the whole map.
+            foreach ((array)$taxonomies as $taxonomy => $items) {
+                foreach ((array)$items as $item) {
+                    $matches[] = (array)($this->loader_query)((string)$taxonomy, (string)$item);
+                }
+            }
+        } else {
+            $this->ensureLoaded();
+
+            foreach ((array)$taxonomies as $taxonomy => $items) {
+                foreach ((array)$items as $item) {
+                    $matches[] = $this->taxonomy_map[$active][$taxonomy][$item] ?? [];
+                }
             }
         }
 
@@ -196,8 +225,13 @@ class Taxonomy
         $active = $this->language->getLanguage();
 
         if ($var) {
-            // An explicit set replaces whatever a pending loader would provide.
-            $this->loader = null;
+            // An explicit set replaces whatever a pending loader would provide
+            // for the same language; a loader for another language stays pending.
+            if ($this->loader_language === null || $this->loader_language === $active) {
+                $this->loader = null;
+                $this->loader_query = null;
+                $this->loader_language = null;
+            }
             $this->taxonomy_map[$active] = $var;
         } else {
             $this->ensureLoaded();
