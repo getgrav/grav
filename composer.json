@@ -107,7 +107,9 @@
         "ext-memcached": "Needed to support Memcached servers",
         "ext-redis": "Needed to support Redis servers",
         "ext-exif": "Needed to use exif data from images.",
-        "ext-apcu": "Speeds up class autoloading when combined with the apcu-autoloader setting."
+        "ext-apcu": "Speeds up class autoloading when combined with the apcu-autoloader setting.",
+        "ext-pdo_sqlite": "Enables the fast per-page index store for large sites.",
+        "yetidevworks/yetisql": "Pure PHP fallback engine for the per-page index store when pdo_sqlite is unavailable."
     },
     "config": {
         "apcu-autoloader": true,

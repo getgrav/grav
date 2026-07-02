@@ -89,6 +89,20 @@ final class PageIndexStore
      */
     private static function detectEngine(): ?string
     {
+        // Explicit override, mainly for testing the fallback engine and for
+        // hosts where the native driver misbehaves.
+        $forced = getenv('GRAV_PAGES_INDEX_ENGINE');
+        if ($forced === 'sqlite' || $forced === 'yetisql') {
+            if ($forced === 'sqlite' && extension_loaded('pdo_sqlite')) {
+                return 'sqlite';
+            }
+            if ($forced === 'yetisql' && class_exists(\YetiDevWorks\YetiSQL\PDO::class)) {
+                return 'yetisql';
+            }
+
+            return null;
+        }
+
         if (extension_loaded('pdo_sqlite')) {
             return 'sqlite';
         }
