@@ -269,9 +269,14 @@ class Job
      */
     public function isDue(?DateTime $date = null)
     {
-        // The execution time is being defaulted if not defined
+        // The expression is parsed lazily on first use (see IntervalTrait::at()).
+        // As before, a missing or invalid expression defaults to every minute.
         if (!$this->executionTime) {
-            $this->at('* * * * *');
+            try {
+                $this->executionTime = CronExpression::factory($this->at ?: '* * * * *');
+            } catch (\InvalidArgumentException $e) {
+                $this->executionTime = CronExpression::factory('* * * * *');
+            }
         }
 
         $date ??= $this->creationTime;

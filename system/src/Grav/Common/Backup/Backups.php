@@ -180,6 +180,7 @@ class Backups
             static::$backups = [];
 
             $grav = Grav::instance();
+            $grav['backups']->setup();
             $backups_itr = new GlobIterator(static::$backup_dir . '/*.zip', FilesystemIterator::KEY_AS_FILENAME | \FilesystemIterator::SKIP_DOTS);
             $inflector = $grav['inflector'];
             $long_date_format = DATE_RFC2822;
@@ -240,6 +241,7 @@ class Backups
         $name = $grav['inflector']->underscorize($backup->name);
         $date = date(static::BACKUP_DATE_FORMAT, time());
         $filename = trim((string) $name, '_') . '--' . $date . '.zip';
+        $grav['backups']->setup();
         $destination = static::$backup_dir . DS . $filename;
         $max_execution_time = ini_set('max_execution_time', '600');
         $backup_root = $backup->root;
