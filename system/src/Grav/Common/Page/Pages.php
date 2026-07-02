@@ -2014,15 +2014,18 @@ class Pages
 
     /**
      * Open the per-page index store backing the lazy regular pages index.
-     * Returns null when disabled, when Flex pages are active, or when no
+     * Returns null when not opted in, when Flex pages are active, or when no
      * supported database engine (pdo_sqlite or YetiSQL) is available.
+     *
+     * The lazy index is an experimental opt-in (system.pages.lazy_index);
+     * without it the classic single-blob pages cache is used unchanged.
      *
      * @param array $pagesDirs
      * @return PageIndexStore|null
      */
     protected function openIndexStore(array $pagesDirs): ?PageIndexStore
     {
-        if ($this->directory || !$this->grav['config']->get('system.pages.lazy_index', true)) {
+        if ($this->directory || !$this->grav['config']->get('system.pages.lazy_index', false)) {
             return null;
         }
 
