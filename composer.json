@@ -109,7 +109,7 @@
         "ext-exif": "Needed to use exif data from images.",
         "ext-apcu": "Speeds up class autoloading when combined with the apcu-autoloader setting.",
         "ext-pdo_sqlite": "Enables the fast per-page index store for large sites.",
-        "yetidevworks/yetisql": "Pure PHP fallback engine for the per-page index store when pdo_sqlite is unavailable."
+        "yetidevworks/yetisql": "Pure PHP fallback engine for the per-page index store when pdo_sqlite is unavailable; easiest installed via the database-yetisql plugin (bin/gpm install database-yetisql)."
     },
     "config": {
         "apcu-autoloader": true,
