@@ -106,10 +106,14 @@
         "ext-memcache": "Needed to support Memcache servers",
         "ext-memcached": "Needed to support Memcached servers",
         "ext-redis": "Needed to support Redis servers",
-        "ext-exif": "Needed to use exif data from images."
+        "ext-exif": "Needed to use exif data from images.",
+        "ext-apcu": "Speeds up class autoloading when combined with the apcu-autoloader setting.",
+        "ext-pdo_sqlite": "Enables the fast per-page index store for large sites.",
+        "yetidevworks/yetisql": "Pure PHP fallback engine for the per-page index store when pdo_sqlite is unavailable; easiest installed via the database-yetisql plugin (bin/gpm install database-yetisql)."
     },
     "config": {
         "apcu-autoloader": true,
+        "optimize-autoloader": true,
         "platform": {
             "php": "8.3"
         }
@@ -122,6 +126,9 @@
             "Twig\\": "system/src/Twig",
             "Pimple\\": "system/src/Pimple"
         },
+        "exclude-from-classmap": [
+            "/vendor/pimple/pimple/src/"
+        ],
         "files": [
             "system/defines.php",
             "system/src/DOMLettersIterator.php",

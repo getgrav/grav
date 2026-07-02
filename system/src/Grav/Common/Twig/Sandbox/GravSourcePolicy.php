@@ -33,6 +33,12 @@ final class GravSourcePolicy implements SourcePolicyInterface
     public function enableSandbox(Source $source): bool
     {
         $name = $source->getName();
+        // This runs for every attribute access in every template, and trusted disk
+        // templates (never '@'-prefixed) are the overwhelmingly common case.
+        if ($name === '' || $name[0] !== '@') {
+            return false;
+        }
+
         // Editor-authored string templates registered via Twig::setTemplate().
         return str_starts_with($name, '@Page:') || str_starts_with($name, '@Var:');
     }

@@ -153,12 +153,42 @@ class Data implements DataInterface, ArrayAccess, \Countable, JsonSerializable, 
 
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
+            // When every leaf in the defaults already has a key in the current data, the
+            // merge always resolves to the current data, so the (potentially expensive)
+            // blueprints load can be skipped entirely.
+            if (is_array($old) && is_array($value) && static::isNestedKeySubset($value, $old)) {
+                return $this;
+            }
+
             $value = $this->blueprints()->mergeData($value, $old, $name, $separator);
         }
 
         $this->set($name, $value, $separator);
 
         return $this;
+    }
+
+    /**
+     * Check if every leaf of $value already has a corresponding key in $old.
+     *
+     * @param array $value
+     * @param array $old
+     * @return bool
+     */
+    protected static function isNestedKeySubset(array $value, array $old): bool
+    {
+        foreach ($value as $key => $item) {
+            if (!array_key_exists($key, $old)) {
+                return false;
+            }
+            if (is_array($item) && $item !== []) {
+                if (!is_array($old[$key]) || !static::isNestedKeySubset($item, $old[$key])) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**

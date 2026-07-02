@@ -196,12 +196,26 @@ abstract class Utils
      */
     public static function startsWith($haystack, $needle, $case_sensitive = true)
     {
+        // Fast path: for valid UTF-8 a byte-prefix match and a character-prefix match
+        // are the same thing, and str_starts_with() avoids mb_strpos() scanning the
+        // whole haystack when the needle occurs later in the string.
+        if ($case_sensitive) {
+            if (is_string($needle)) {
+                return str_starts_with((string) $haystack, $needle);
+            }
+            foreach ((array) $needle as $each_needle) {
+                if (str_starts_with((string) $haystack, (string) $each_needle)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         $status = false;
 
-        $compare_func = $case_sensitive ? 'mb_strpos' : 'mb_stripos';
-
         foreach ((array)$needle as $each_needle) {
-            $status = $each_needle === '' || $compare_func((string) $haystack, $each_needle) === 0;
+            $status = $each_needle === '' || mb_stripos((string) $haystack, $each_needle) === 0;
             if ($status) {
                 break;
             }
@@ -220,13 +234,25 @@ abstract class Utils
      */
     public static function endsWith($haystack, $needle, $case_sensitive = true)
     {
-        $status = false;
+        // Fast path: byte-suffix and character-suffix matches agree for valid UTF-8.
+        if ($case_sensitive) {
+            if (is_string($needle)) {
+                return str_ends_with((string) $haystack, $needle);
+            }
+            foreach ((array) $needle as $each_needle) {
+                if (str_ends_with((string) $haystack, (string) $each_needle)) {
+                    return true;
+                }
+            }
 
-        $compare_func = $case_sensitive ? 'mb_strrpos' : 'mb_strripos';
+            return false;
+        }
+
+        $status = false;
 
         foreach ((array)$needle as $each_needle) {
             $expectedPosition = mb_strlen((string) $haystack) - mb_strlen($each_needle);
-            $status = $each_needle === '' || $compare_func((string) $haystack, $each_needle, 0) === $expectedPosition;
+            $status = $each_needle === '' || mb_strripos((string) $haystack, $each_needle, 0) === $expectedPosition;
             if ($status) {
                 break;
             }
@@ -245,12 +271,24 @@ abstract class Utils
      */
     public static function contains($haystack, $needle, $case_sensitive = true)
     {
+        // Fast path: substring presence is identical byte-wise and character-wise.
+        if ($case_sensitive) {
+            if (is_string($needle)) {
+                return str_contains((string) $haystack, $needle);
+            }
+            foreach ((array) $needle as $each_needle) {
+                if (str_contains((string) $haystack, (string) $each_needle)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         $status = false;
 
-        $compare_func = $case_sensitive ? 'mb_strpos' : 'mb_stripos';
-
         foreach ((array)$needle as $each_needle) {
-            $status = $each_needle === '' || $compare_func((string) $haystack, $each_needle) !== false;
+            $status = $each_needle === '' || mb_stripos((string) $haystack, $each_needle) !== false;
             if ($status) {
                 break;
             }
@@ -1011,6 +1049,13 @@ abstract class Utils
      */
     public static function pathinfo($path, ?int $flags = null)
     {
+        // Fast path: the encode/decode dance is only needed to keep the C-locale
+        // pathinfo() from mangling multibyte characters; plain printable-ASCII
+        // paths behave identically without it.
+        if (!preg_match('/[^\x20-\x7E]/', (string) $path)) {
+            return null === $flags ? pathinfo($path) : pathinfo($path, $flags);
+        }
+
         $path = str_replace(['%2F', '%5C'], ['/', '\\'], rawurlencode($path));
 
         if (null === $flags) {
@@ -1037,6 +1082,11 @@ abstract class Utils
      */
     public static function basename($path, string $suffix = ''): string
     {
+        // Fast path: see pathinfo() - ASCII paths don't need the unicode dance.
+        if (!preg_match('/[^\x20-\x7E]/', $path)) {
+            return basename($path, $suffix);
+        }
+
         return rawurldecode(basename(str_replace(['%2F', '%5C'], '/', rawurlencode($path)), $suffix));
     }
 

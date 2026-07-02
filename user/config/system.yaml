@@ -2,6 +2,7 @@ home:
   alias: '/home'
 
 pages:
+  lazy_index: true
   theme: quark2
 
 cache:

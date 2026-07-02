@@ -9,7 +9,6 @@
 
 namespace Grav\Common\Scheduler;
 
-use Cron\CronExpression;
 use InvalidArgumentException;
 use function is_string;
 
@@ -28,12 +27,11 @@ trait IntervalTrait
     public function at($expression)
     {
         $this->at = $expression;
-        try {
-            $this->executionTime = CronExpression::factory($expression);
-        } catch (InvalidArgumentException $e) {
-            // Invalid cron expression - set to null to prevent DoS
-            $this->executionTime = null;
-        }
+        // The parsed CronExpression is built lazily in isDue(); parsing here would
+        // load and run the cron parser for every registered job even when nothing
+        // in the request ever checks the schedule. Invalid expressions still
+        // resolve to null there, keeping the same never-due behavior.
+        $this->executionTime = null;
 
         return $this;
     }

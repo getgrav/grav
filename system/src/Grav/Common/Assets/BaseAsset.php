@@ -188,11 +188,17 @@ abstract class BaseAsset extends PropertyObject
     public static function integrityHash($input)
     {
         $grav = Grav::instance();
+
+        // Check the (default off) SRI flag before doing any URL work; this runs
+        // for every rendered asset.
+        $assetsConfig = $grav['config']->get('system.assets');
+        if (empty($assetsConfig['enable_asset_sri'])) {
+            return '';
+        }
+
         $uri = $grav['uri'];
 
-        $assetsConfig = $grav['config']->get('system.assets');
-
-        if (!self::isRemoteLink($input) && !empty($assetsConfig['enable_asset_sri']) && $assetsConfig['enable_asset_sri']) {
+        if (!self::isRemoteLink($input)) {
             $input = preg_replace('#^' . $uri->rootUrl() . '#', '', $input);
             $asset = File::instance(GRAV_WEBROOT . $input);
 

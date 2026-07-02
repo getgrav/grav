@@ -109,8 +109,8 @@ class PagesTest extends \PHPUnit\Framework\TestCase
         self::assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
         self::assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
-        self::assertSame(['slug' => 'post-one'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']);
-        self::assertSame(['slug' => 'post-two'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']);
+        self::assertSame('post-one', $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']['slug']);
+        self::assertSame('post-two', $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']['slug']);
 
         $subPagesSorted = $this->pages->sort($aPage, null, 'desc');
 
@@ -123,8 +123,8 @@ class PagesTest extends \PHPUnit\Framework\TestCase
         self::assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
         self::assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
-        self::assertSame(['slug' => 'post-one'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']);
-        self::assertSame(['slug' => 'post-two'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']);
+        self::assertSame('post-one', $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']['slug']);
+        self::assertSame('post-two', $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']['slug']);
     }
 
     public function testSortCollection(): void
@@ -145,8 +145,8 @@ class PagesTest extends \PHPUnit\Framework\TestCase
         self::assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
         self::assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
-        self::assertSame(['slug' => 'post-one'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']);
-        self::assertSame(['slug' => 'post-two'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']);
+        self::assertSame('post-one', $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']['slug']);
+        self::assertSame('post-two', $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']['slug']);
 
         $subPagesSorted = $this->pages->sortCollection($aPage->children(), $aPage->orderBy(), 'desc');
 
@@ -159,8 +159,8 @@ class PagesTest extends \PHPUnit\Framework\TestCase
         self::assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
         self::assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
-        self::assertSame(['slug' => 'post-one'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']);
-        self::assertSame(['slug' => 'post-two'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']);
+        self::assertSame('post-one', $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']['slug']);
+        self::assertSame('post-two', $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']['slug']);
     }
 
     public function testGet(): void

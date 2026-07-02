@@ -30,6 +30,12 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class ConfigServiceProvider implements ServiceProviderInterface
 {
+    /** @var int|null Live system.cache.check.interval value, known once config has been loaded. */
+    protected static $checkInterval = null;
+
+    /** @var array<string,array{file:string,cache:array}> File lists loaded before config was available. */
+    protected static $loadedFileLists = [];
+
     /**
      * @param Container $container
      * @return void
@@ -52,6 +58,11 @@ class ConfigServiceProvider implements ServiceProviderInterface
             if (!$config->get('system.strict_mode.yaml_compat', true)) {
                 YamlFile::globalSettings(['compat' => false, 'native' => true]);
             }
+
+            // The file lists used to build the configuration are validated before the
+            // configuration itself is available, so the staleness tolerance they use is
+            // snapshotted into their cache files here, once the live value is known.
+            static::syncCheckInterval((int)$config->get('system.cache.check.interval', 0));
 
             return $config;
         };
@@ -266,6 +277,20 @@ class ConfigServiceProvider implements ServiceProviderInterface
             return null;
         }
 
+        static::$loadedFileLists[$type] = ['file' => $cacheFile, 'cache' => $cache];
+
+        // Skip the mtime sweeps while the last successful validation (tracked by the cache
+        // file's own mtime) is within the configured staleness tolerance. The live config
+        // value isn't available while config itself is being built, so the value snapshotted
+        // into the cache file is used until then.
+        $interval = static::$checkInterval ?? (int)($cache['check_interval'] ?? 0);
+        if ($interval > 0) {
+            $age = time() - (int)@filemtime($cacheFile);
+            if ($age >= 0 && $age < $interval) {
+                return $cache['files'];
+            }
+        }
+
         // Validate cache by checking directory mtimes
         foreach ($cache['directories'] as $dir => $mtime) {
             // Check if directory still exists and mtime hasn't changed
@@ -283,6 +308,11 @@ class ConfigServiceProvider implements ServiceProviderInterface
                     return null;
                 }
             }
+        }
+
+        // Start a new freshness window from this successful validation.
+        if ($interval > 0) {
+            @touch($cacheFile);
         }
 
         return $cache['files'];
@@ -384,6 +414,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
             'type' => $type,
             'environment' => $environment,
             'timestamp' => time(),
+            'check_interval' => static::$checkInterval ?? 0,
             'directories' => $directories,
             'file_mtimes' => $fileMtimes,
             'files' => $files,
@@ -398,5 +429,31 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $file = PhpFile::instance($cacheFile);
         $file->save($cache);
         $file->free();
+
+        static::$loadedFileLists[$type] = ['file' => $cacheFile, 'cache' => $cache];
+    }
+
+    /**
+     * Update the staleness tolerance snapshotted into already-loaded file list caches
+     * once the live configuration value is known.
+     *
+     * @param int $interval
+     * @return void
+     */
+    protected static function syncCheckInterval(int $interval): void
+    {
+        static::$checkInterval = $interval;
+
+        foreach (static::$loadedFileLists as $type => $info) {
+            $cache = $info['cache'];
+            if ((int)($cache['check_interval'] ?? 0) !== $interval) {
+                $cache['check_interval'] = $interval;
+                $file = PhpFile::instance($info['file']);
+                $file->save($cache);
+                $file->free();
+
+                static::$loadedFileLists[$type]['cache'] = $cache;
+            }
+        }
     }
 }
