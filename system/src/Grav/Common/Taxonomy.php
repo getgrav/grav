@@ -36,6 +36,8 @@ class Taxonomy
 {
     /** @var array */
     protected $taxonomy_map;
+    /** @var callable|null Lazy provider for the active language's taxonomy map. */
+    protected $loader;
     /** @var Grav */
     protected $grav;
     /** @var Language */
@@ -51,6 +53,34 @@ class Taxonomy
         $this->grav = $grav;
         $this->language = $grav['language'];
         $this->taxonomy_map[$this->language->getLanguage()] = [];
+    }
+
+    /**
+     * Set (or clear) a lazy provider for the active language's taxonomy map.
+     *
+     * When set, the map is fetched on first use instead of being carried in
+     * the pages cache; requests that never touch taxonomy skip it entirely.
+     *
+     * @param callable|null $loader
+     * @return void
+     */
+    public function setLoader(?callable $loader): void
+    {
+        $this->loader = $loader;
+    }
+
+    /**
+     * Run the pending loader before the map is read or modified.
+     *
+     * @return void
+     */
+    protected function ensureLoaded(): void
+    {
+        if ($this->loader) {
+            $loader = $this->loader;
+            $this->loader = null;
+            $this->taxonomy_map[$this->language->getLanguage()] = (array)$loader();
+        }
     }
 
     /**
@@ -111,6 +141,9 @@ class Taxonomy
             if (!empty($key)) {
                 $taxonomy .= $key;
             }
+            // Load any stored map first so this addition extends it instead of
+            // being overwritten by a later lazy load.
+            $this->ensureLoaded();
             $active = $this->language->getLanguage();
             $this->taxonomy_map[$active][$taxonomy][(string) $value][$page->path()] = ['slug' => $page->slug()];
         }
@@ -126,6 +159,8 @@ class Taxonomy
      */
     public function findTaxonomy($taxonomies, $operator = 'and')
     {
+        $this->ensureLoaded();
+
         $matches = [];
         $results = [];
         $active = $this->language->getLanguage();
@@ -161,7 +196,11 @@ class Taxonomy
         $active = $this->language->getLanguage();
 
         if ($var) {
+            // An explicit set replaces whatever a pending loader would provide.
+            $this->loader = null;
             $this->taxonomy_map[$active] = $var;
+        } else {
+            $this->ensureLoaded();
         }
 
         return $this->taxonomy_map[$active] ?? [];
@@ -175,6 +214,8 @@ class Taxonomy
      */
     public function getTaxonomyItemKeys($taxonomy)
     {
+        $this->ensureLoaded();
+
         $active = $this->language->getLanguage();
         return isset($this->taxonomy_map[$active][$taxonomy]) ? array_keys($this->taxonomy_map[$active][$taxonomy]) : [];
     }

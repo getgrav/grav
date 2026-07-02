@@ -27,7 +27,7 @@ use Throwable;
 final class PageIndexStore
 {
     /** Meta schema version for the store file itself. */
-    private const SCHEMA = 1;
+    private const SCHEMA = 2;
 
     /** @var \PDO|\YetiDevWorks\YetiSQL\PDO */
     private $pdo;
@@ -203,17 +203,124 @@ final class PageIndexStore
     }
 
     /**
-     * Rebuild the store from scratch with the given payloads.
+     * Read the path a route maps to.
+     *
+     * @param string $route
+     * @return string|null
+     */
+    public function readRoute(string $route): ?string
+    {
+        try {
+            $stmt = $this->pdo->prepare('SELECT path FROM routes WHERE route = ?');
+            $stmt->execute([$route]);
+            $path = $stmt->fetchColumn();
+
+            return is_string($path) ? $path : null;
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Read the full route map in its original insertion order.
+     *
+     * @return array<string,string> route => path
+     */
+    public function readAllRoutes(): array
+    {
+        try {
+            $rows = $this->pdo->query('SELECT route, path FROM routes ORDER BY rowid')->fetchAll(\PDO::FETCH_NUM);
+
+            $result = [];
+            foreach ($rows as [$route, $path]) {
+                $result[$route] = $path;
+            }
+
+            return $result;
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Read the children list of a parent path.
+     *
+     * @param string $path
+     * @return array|null Null when the parent has no stored entry.
+     */
+    public function readChildren(string $path): ?array
+    {
+        return $this->readSerializedRow('children', $path);
+    }
+
+    /**
+     * Read the precomputed sort orders of a parent path.
+     *
+     * @param string $path
+     * @return array|null Null when the parent has no stored entry.
+     */
+    public function readSort(string $path): ?array
+    {
+        return $this->readSerializedRow('sorts', $path);
+    }
+
+    /**
+     * @param string $table
+     * @param string $path
+     * @return array|null
+     */
+    private function readSerializedRow(string $table, string $path): ?array
+    {
+        try {
+            $stmt = $this->pdo->prepare("SELECT payload FROM {$table} WHERE path = ?");
+            $stmt->execute([$path]);
+            $payload = $stmt->fetchColumn();
+            if (!is_string($payload)) {
+                return null;
+            }
+
+            $value = @unserialize($payload);
+
+            return is_array($value) ? $value : null;
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Reconstruct the taxonomy map for the indexed language.
+     *
+     * @return array<string,array<string,array<string,array>>> type => value => path => info
+     */
+    public function readTaxonomy(): array
+    {
+        try {
+            $rows = $this->pdo->query('SELECT type, value, path, payload FROM taxonomy ORDER BY rowid')->fetchAll(\PDO::FETCH_NUM);
+
+            $map = [];
+            foreach ($rows as [$type, $value, $path, $payload]) {
+                $info = @unserialize((string)$payload);
+                $map[$type][$value][$path] = is_array($info) ? $info : [];
+            }
+
+            return $map;
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Rebuild the store from scratch with the given sections.
      *
      * Writes into a temporary file and renames it over the live one so that
      * concurrent readers keep a consistent view. Returns false on any failure,
      * in which case the caller should fall back to the classic cache format.
      *
      * @param string $cacheId
-     * @param iterable<string,string> $payloads path => serialized page
+     * @param array{pages: iterable<string,string>, routes: array<string,string>, children: array<string,array>, sorts: array<string,array>, taxonomy: array} $sections
      * @return bool
      */
-    public function rebuild(string $cacheId, iterable $payloads): bool
+    public function rebuild(string $cacheId, array $sections): bool
     {
         $tmp = $this->file . '.tmp.' . getmypid();
 
@@ -232,11 +339,40 @@ final class PageIndexStore
 
             $pdo->exec('CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)');
             $pdo->exec('CREATE TABLE pages (path TEXT PRIMARY KEY, payload BLOB NOT NULL)');
+            $pdo->exec('CREATE TABLE routes (route TEXT PRIMARY KEY, path TEXT NOT NULL)');
+            $pdo->exec('CREATE TABLE children (path TEXT PRIMARY KEY, payload BLOB NOT NULL)');
+            $pdo->exec('CREATE TABLE sorts (path TEXT PRIMARY KEY, payload BLOB NOT NULL)');
+            $pdo->exec('CREATE TABLE taxonomy (type TEXT NOT NULL, value TEXT NOT NULL, path TEXT NOT NULL, payload BLOB NOT NULL)');
+            $pdo->exec('CREATE INDEX taxonomy_type_value ON taxonomy (type, value)');
 
             $pdo->exec('BEGIN');
             $insert = $pdo->prepare('INSERT INTO pages (path, payload) VALUES (?, ?)');
-            foreach ($payloads as $path => $payload) {
+            foreach ($sections['pages'] as $path => $payload) {
                 $insert->execute([$path, $payload]);
+            }
+
+            $insert = $pdo->prepare('INSERT INTO routes (route, path) VALUES (?, ?)');
+            foreach ($sections['routes'] as $route => $path) {
+                $insert->execute([(string)$route, (string)$path]);
+            }
+
+            $insert = $pdo->prepare('INSERT INTO children (path, payload) VALUES (?, ?)');
+            foreach ($sections['children'] as $path => $list) {
+                $insert->execute([(string)$path, serialize((array)$list)]);
+            }
+
+            $insert = $pdo->prepare('INSERT INTO sorts (path, payload) VALUES (?, ?)');
+            foreach ($sections['sorts'] as $path => $orders) {
+                $insert->execute([(string)$path, serialize((array)$orders)]);
+            }
+
+            $insert = $pdo->prepare('INSERT INTO taxonomy (type, value, path, payload) VALUES (?, ?, ?, ?)');
+            foreach ($sections['taxonomy'] as $type => $values) {
+                foreach ((array)$values as $value => $paths) {
+                    foreach ((array)$paths as $path => $info) {
+                        $insert->execute([(string)$type, (string)$value, (string)$path, serialize($info)]);
+                    }
+                }
             }
 
             $metaInsert = $pdo->prepare('INSERT INTO meta (key, value) VALUES (?, ?)');
