@@ -450,6 +450,34 @@ class Pages
     }
 
     /**
+     * Report how the pages index is being served this request, for the debugger.
+     *
+     * 'mode' is 'lazy' (per-page index store), 'blob' (classic single cache
+     * entry) or 'flex'. For lazy/blob, 'total' is the number of pages in the
+     * index and 'hydrated' is how many Page objects this request has actually
+     * built - the ratio shows whether the lazy index is saving work.
+     *
+     * @return array
+     */
+    public function getIndexStats(): array
+    {
+        if ($this->directory) {
+            return ['mode' => 'flex'];
+        }
+
+        $stats = [
+            'mode' => $this->index_store ? 'lazy' : 'blob',
+            'total' => count($this->index),
+            'hydrated' => count($this->instances),
+        ];
+        if ($this->index_store) {
+            $stats['engine'] = $this->index_store->getEngine();
+        }
+
+        return $stats;
+    }
+
+    /**
      * Returns a list of all routes.
      *
      * @return array

@@ -135,6 +135,16 @@ final class PageIndexStore
     }
 
     /**
+     * The database engine backing this store ('sqlite' or 'yetisql').
+     *
+     * @return string
+     */
+    public function getEngine(): string
+    {
+        return $this->engine;
+    }
+
+    /**
      * Check that the store contains a complete index for the given cache id,
      * built by this Grav version.
      *

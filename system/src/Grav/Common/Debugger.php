@@ -80,6 +80,8 @@ class Debugger
     protected $initialized = false;
     /** @var bool True once init() has read the config and decided whether the debugger is enabled. */
     protected $decided = false;
+    /** @var bool Guards the once-per-request pages index summary message. */
+    protected $pages_index_info_added = false;
     /** @var array */
     protected $timers = [];
     /** @var array */
@@ -382,8 +384,62 @@ class Debugger
     /**
      * @return void
      */
+    /**
+     * Emit a one-line summary of how the pages index was served this request.
+     *
+     * Only reports when the pages service was actually built (so it never
+     * forces a build just to inspect it), and only once per request.
+     *
+     * @return void
+     */
+    protected function addPagesIndexInfo(): void
+    {
+        if (!$this->enabled || $this->pages_index_info_added) {
+            return;
+        }
+
+        // Never trigger a pages build just to report on it.
+        if (!$this->grav->initialized('pages')) {
+            return;
+        }
+
+        $this->pages_index_info_added = true;
+
+        $stats = $this->grav['pages']->getIndexStats();
+        $mode = $stats['mode'] ?? 'blob';
+
+        if ($mode === 'flex') {
+            $this->addMessage('Pages index: flex', 'info');
+
+            return;
+        }
+
+        $total = (int)($stats['total'] ?? 0);
+        $hydrated = (int)($stats['hydrated'] ?? 0);
+
+        if ($mode === 'lazy') {
+            $percent = $total > 0 ? round($hydrated / $total * 100) : 0;
+            $message = sprintf(
+                'Pages index: lazy [%s] - hydrated %d / %d pages (%d%%)',
+                $stats['engine'] ?? '?',
+                $hydrated,
+                $total,
+                $percent
+            );
+            if ($total > 0 && $hydrated >= $total) {
+                $message .= ' - this request touches every page, so lazy loading saves no memory here';
+            }
+        } else {
+            $message = sprintf('Pages index: standard cache blob - %d pages', $total);
+        }
+
+        $this->addMessage($message, 'info');
+    }
+
     protected function addMeasures(): void
     {
+        $this->addPagesIndexInfo();
+
         if (!$this->enabled) {
             return;
         }
