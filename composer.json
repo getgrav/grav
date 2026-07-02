@@ -126,6 +126,9 @@
             "Twig\\": "system/src/Twig",
             "Pimple\\": "system/src/Pimple"
         },
+        "exclude-from-classmap": [
+            "/vendor/pimple/pimple/src/"
+        ],
         "files": [
             "system/defines.php",
             "system/src/DOMLettersIterator.php",
