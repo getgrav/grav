@@ -80,6 +80,8 @@ class Uri implements \Stringable
     protected $params;
     /** @var string */
     protected $root;
+    /** @var string|null Memoized host-less rootUrl(), derived from base + root. */
+    protected $root_url;
     /** @var string */
     protected $setup_base;
     /** @var string */
@@ -187,6 +189,7 @@ class Uri implements \Stringable
         } else {
             $this->root = $this->base . $this->root_path;
         }
+        $this->root_url = null;
 
         $this->url = $this->base . $this->uri;
 
@@ -569,7 +572,9 @@ class Uri implements \Stringable
             return $this->root;
         }
 
-        return Utils::replaceFirstOccurrence($this->base, '', $this->root);
+        // base and root only change in init()/reset()/setUriProperties(), which
+        // clear this memo; the derived value is requested for every asset and URL.
+        return $this->root_url ??= Utils::replaceFirstOccurrence($this->base, '', $this->root);
     }
 
     /**
@@ -1377,6 +1382,7 @@ class Uri implements \Stringable
         $this->base         = $this->buildBaseUrl();
         $this->root_path    = $this->buildRootPath();
         $this->root         = $this->base . $this->root_path;
+        $this->root_url     = null;
         $this->url          = $this->base . $this->uri;
     }
 
@@ -1462,6 +1468,13 @@ class Uri implements \Stringable
             }
             $this->{$property} = $data[$property]; // assign value to object
         }
+
+        // Unless explicitly provided, drop the memoized root url so it gets
+        // re-derived from the possibly changed base/root.
+        if (!array_key_exists('root_url', $data)) {
+            $this->root_url = null;
+        }
+
         return $this;
     }
 

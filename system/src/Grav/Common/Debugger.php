@@ -78,6 +78,8 @@ class Debugger
     protected $enabled = false;
     /** @var bool */
     protected $initialized = false;
+    /** @var bool True once init() has read the config and decided whether the debugger is enabled. */
+    protected $decided = false;
     /** @var array */
     protected $timers = [];
     /** @var array */
@@ -138,6 +140,13 @@ class Debugger
         // Enable/disable debugger based on configuration.
         $this->enabled = (bool)$this->config->get('system.debugger.enabled');
         $this->censored = (bool)$this->config->get('system.debugger.censored', false);
+
+        // The enabled decision is now made; when disabled, timers collected during
+        // early bootstrap are no longer needed and new ones can be skipped.
+        $this->decided = true;
+        if (!$this->enabled) {
+            $this->timers = [];
+        }
 
         if ($this->enabled) {
             $this->initialized = true;
@@ -728,6 +737,12 @@ class Debugger
      */
     public function startTimer($name, $description = null)
     {
+        // Timers must collect before init() has read the config; after that,
+        // a disabled debugger skips the bookkeeping (every processor calls this).
+        if ($this->decided && !$this->enabled) {
+            return $this;
+        }
+
         $this->timers[$name] = [$description, microtime(true)];
 
         return $this;
@@ -741,6 +756,10 @@ class Debugger
      */
     public function stopTimer($name)
     {
+        if ($this->decided && !$this->enabled) {
+            return $this;
+        }
+
         if (isset($this->timers[$name])) {
             $endTime = microtime(true);
             $this->timers[$name][] = $endTime;
