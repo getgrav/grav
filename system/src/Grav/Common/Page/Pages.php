@@ -1990,6 +1990,7 @@ class Pages
         }
 
         $this->buildRoutes();
+        $this->enrichChildrenIndex();
 
         // cache if needed
         if ($this->grav['config']->get('system.cache.enabled')) {
@@ -2022,6 +2023,37 @@ class Pages
                 $cache->save($this->pages_cache_id, [$this->getVersion(), $index, [], [], [], [], true]);
             } else {
                 $cache->save($this->pages_cache_id, [$this->getVersion(), $index, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort, false]);
+            }
+        }
+    }
+
+    /**
+     * Record each child's menu-relevant flags in the children index.
+     *
+     * Navigation filters a folder's children down to the visible ones, and
+     * collections filter by routable/published/module. Those flags are set at
+     * page init (folder prefix, header, publish state) and are frozen in the
+     * cache just like the rest of the page, so storing them alongside each
+     * child lets the Collection filters prune without hydrating every page
+     * first - the whole point when the index is lazy. Runs once at build time,
+     * when every page is already in memory.
+     *
+     * @return void
+     */
+    protected function enrichChildrenIndex(): void
+    {
+        foreach ($this->children as $parentPath => $list) {
+            foreach ($list as $childPath => $info) {
+                $child = $this->index[$childPath] ?? null;
+                if ($child instanceof PageInterface) {
+                    $this->children[$parentPath][$childPath] = [
+                        'slug' => $info['slug'] ?? $child->slug(),
+                        'visible' => $child->visible(),
+                        'routable' => $child->routable(),
+                        'published' => $child->published(),
+                        'module' => $child->isModule(),
+                    ];
+                }
             }
         }
     }
