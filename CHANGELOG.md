@@ -2,6 +2,7 @@
 ## 07/01/2026
 
 1. [](#bugfix)
+    * [security] A page editor can no longer run commands on the server by hiding a callable directive in a form field's settings; dynamic field data now refuses dangerous functions and cannot be tricked into reaching one through a helper ([GHSA-fj2p-qj2f-74v5](https://github.com/getgrav/grav/security/advisories/GHSA-fj2p-qj2f-74v5)).
     * A page's `translatedLanguages()` now localizes ancestor slugs too, so a nested translation whose parent folder has a localized `slug:` produces the fully translated cross-language link instead of leaving parent segments in the current language. Fixes [getgrav/grav#4186](https://github.com/getgrav/grav/issues/4186).
     * Pointing the log stream at `environment://` (for example `log: environment://logs`) no longer crashes the site or `bin/grav clear` with a "stream must either be a resource or a string" error when the per-environment folder does not exist; logging now falls back to the default `logs/` folder instead. Fixes [getgrav/grav#4172](https://github.com/getgrav/grav/issues/4172).
     * The `media://` stream now checks the per-environment `user/env/<host>/media/` folder before the shared `user/media/`, so site media stored per environment resolves to the correct URL in the admin and in page content instead of a broken `user/media/` link. Fixes [getgrav/grav#4188](https://github.com/getgrav/grav/issues/4188).

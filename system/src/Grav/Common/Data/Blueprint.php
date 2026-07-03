@@ -12,6 +12,7 @@ namespace Grav\Common\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
+use Grav\Common\Utils;
 use RocketTheme\Toolbox\Blueprints\BlueprintForm;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
@@ -434,6 +435,20 @@ class Blueprint extends BlueprintForm
             $params = [];
         }
 
+        // Security guard. A `data-*@` directive may come from a user-controlled
+        // source, most notably a form blueprint the Form plugin assembles from
+        // page frontmatter, and this method hands the callable and its arguments
+        // straight to call_user_func_array(). Refuse anything that could run
+        // arbitrary code: a directly dangerous top-level function (system, exec,
+        // ...), or any argument that is itself a dangerous callable. The latter
+        // is what stops a benign-looking helper from being used as a trampoline,
+        // e.g. Utils::arrayFilterRecursive($cmd, 'system'). Legitimate providers
+        // are static methods returning option arrays and never take a callable
+        // argument, so real blueprints are unaffected. (GHSA-fj2p-qj2f-74v5)
+        if (!$this->isSafeDynamicCall($function, $params)) {
+            return;
+        }
+
         [$o, $f] = explode('::', (string) $function, 2);
 
         $data = null;
@@ -457,6 +472,52 @@ class Blueprint extends BlueprintForm
                 $field[$property] = $data;
             }
         }
+    }
+
+    /**
+     * Guard for {@see dynamicData}: decide whether a dynamic `data-*@` call is
+     * safe to execute. A bare top-level function (no `Class::method`) is refused
+     * when it is one of the dangerous functions Grav already recognises, and
+     * every argument is scanned recursively so a callable cannot be smuggled in
+     * as a parameter to a trampoline helper. (GHSA-fj2p-qj2f-74v5)
+     *
+     * @param mixed $function
+     * @param array $params
+     * @return bool
+     */
+    protected function isSafeDynamicCall($function, array $params): bool
+    {
+        if (is_string($function) && !str_contains($function, '::') && Utils::isDangerousFunction($function)) {
+            return false;
+        }
+
+        return !$this->paramsContainDangerousCallable($params);
+    }
+
+    /**
+     * Recursively test whether any argument value is a dangerous callable. This
+     * blocks the trampoline gadget where a safe helper is handed `system` (or a
+     * similar callable) to invoke on attacker-controlled input. (GHSA-fj2p-qj2f-74v5)
+     *
+     * @param array $params
+     * @return bool
+     */
+    protected function paramsContainDangerousCallable(array $params): bool
+    {
+        foreach ($params as $value) {
+            if (is_array($value)) {
+                if ($this->paramsContainDangerousCallable($value)) {
+                    return true;
+                }
+                continue;
+            }
+
+            if (is_string($value) && Utils::isDangerousFunction($value)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
