@@ -365,10 +365,21 @@ class Twig
      *
      * @param  PageInterface   $item    The page item to render
      * @param  string|null $content Optional content override
+     * @param  bool $scanXss When true, re-run the XSS detector on the resolved
+     *                       editor-authored content *before* the trusted
+     *                       theme/modular template wraps it. Set only for
+     *                       content whose in-page Twig was processed (the
+     *                       blueprint validator sees the raw source, so a
+     *                       payload assembled at render time — e.g.
+     *                       `{{ "on" ~ "error" }}` — passes validation but
+     *                       resolves to live markup). The scan never inspects
+     *                       the theme/modular template output, so legitimate
+     *                       template markup (embeds, form scripts, JS/CSS) can
+     *                       never trip it. (GHSA-2c4f-86xc-cr74)
      *
      * @return string          The rendered output
      */
-    public function processPage(PageInterface $item, $content = null)
+    public function processPage(PageInterface $item, $content = null, bool $scanXss = false)
     {
         $content ??= $item->content();
         $filtered = false;
@@ -424,6 +435,23 @@ class Twig
                     // owner can see what was blocked.
                     $output = $content;
                     $filtered = true;
+                }
+            }
+
+            // Render-time XSS backstop. Runs on the resolved editor-authored
+            // content — after its own in-page Twig above, but BEFORE the
+            // trusted theme/modular template below wraps it. Scanning here (not
+            // the final output) means legitimate template markup — provider
+            // embeds, form/reCAPTCHA scripts, theme JS/CSS — is never inspected,
+            // while an assembled `on*=`/`<script>`/`javascript:` payload in the
+            // content itself is still caught. On a hit the content is blanked
+            // and the event logged; a modular page keeps its (now empty) theme
+            // wrapper. Gated by security.content.xss_scan_output. (GHSA-2c4f-86xc-cr74)
+            if ($scanXss && is_string($content) && $content !== '' && Security::isXssScanOutputEnabled()) {
+                $found = Security::detectXssInRenderedOutput($content);
+                if ($found !== null) {
+                    Security::logTwigContentXssBlocked((string) ($item->route() ?? $item->filePath() ?? 'unknown'), $found);
+                    $output = $content = '';
                 }
             }
 

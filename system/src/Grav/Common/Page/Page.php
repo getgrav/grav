@@ -1156,36 +1156,22 @@ class Page implements PageInterface
     /**
      * Process the Twig page content.
      *
-     * @param bool $scanXss When true, re-run the XSS detector on the rendered
-     *                      output. Set only for editor-authored content Twig
-     *                      gated by security.twig_content.process_enabled — the
-     *                      blueprint validator sees the raw source, so a payload
-     *                      assembled at render time (e.g. `{{ "on" ~ "error" }}`)
-     *                      passes validation but emits live markup. This is the
-     *                      post-render backstop. Trusted modular/theme Twig is
-     *                      never scanned. (GHSA-2c4f-86xc-cr74)
+     * @param bool $scanXss When true, re-run the XSS detector on the resolved
+     *                      editor-authored content, before the trusted
+     *                      theme/modular template wraps it. Set only for content
+     *                      whose in-page Twig was processed — the blueprint
+     *                      validator sees the raw source, so a payload assembled
+     *                      at render time (e.g. `{{ "on" ~ "error" }}`) passes
+     *                      validation but resolves to live markup. The scan runs
+     *                      inside Twig::processPage() so it never inspects the
+     *                      theme/modular template output. (GHSA-2c4f-86xc-cr74)
      * @return void
      */
     private function processTwig(bool $scanXss = false)
     {
         /** @var Twig $twig */
         $twig = Grav::instance()['twig'];
-        $this->content = $twig->processPage($this, $this->content);
-
-        if ($scanXss && is_string($this->content) && $this->content !== ''
-            && (bool) Grav::instance()['config']->get('security.twig_content.xss_scan_output', true)) {
-            // Render-time XSS backstop. Uses the SVG/MathML-aware scan so that
-            // legitimate inline <svg>/<math> from shortcodes and plugins (the
-            // svg-icon shortcode, GitHub-style alert icons, theme glyphs) does
-            // not false-positive and blank the page, while assembled on*=,
-            // <script> and javascript: payloads outside those subtrees are still
-            // caught. See Security::detectXssInRenderedOutput. (GHSA-2c4f-86xc-cr74)
-            $found = Security::detectXssInRenderedOutput($this->content);
-            if ($found !== null) {
-                Security::logTwigContentXssBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), $found);
-                $this->content = '';
-            }
-        }
+        $this->content = $twig->processPage($this, $this->content, $scanXss);
     }
 
     /**

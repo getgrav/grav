@@ -365,6 +365,32 @@ class Security
         return static::detectXss($scanTarget);
     }
 
+    /**
+     * Whether the render-time XSS content scan is enabled.
+     *
+     * The setting lives at `security.content.xss_scan_output` (it validates
+     * editor-authored *content*, not Twig-in-content, so it is not tied to the
+     * `twig_content` gates). For backwards compatibility the legacy location
+     * `security.twig_content.xss_scan_output` is honored as a fallback when the
+     * new key is not set — sites that changed the old value keep their choice
+     * until it is migrated to the new location. Defaults to true when neither
+     * key is present.
+     *
+     * @return bool
+     */
+    public static function isXssScanOutputEnabled(): bool
+    {
+        $config = Grav::instance()['config'];
+
+        $value = $config->get('security.content.xss_scan_output');
+        if ($value === null) {
+            // Legacy location (pre-2.0 relocation). Auto-migrated on upgrade.
+            $value = $config->get('security.twig_content.xss_scan_output');
+        }
+
+        return $value === null ? true : (bool) $value;
+    }
+
     /** @var array<string>|null Per-request cache of trusted iframe hosts. */
     private static ?array $allowedIframeHosts = null;
 
@@ -889,7 +915,7 @@ class Security
                 return;
             }
 
-            $hint = 'Rendered Twig content produced markup the XSS detector flags. The blueprint validator cannot see render-time-assembled payloads; content was blanked. Disable security.twig_content.xss_scan_output to allow it.';
+            $hint = 'Editor-authored content resolved to markup the XSS detector flags. The blueprint validator cannot see render-time-assembled payloads; content was blanked. Disable security.content.xss_scan_output to allow it.';
 
             $grav['log.security']->warning(
                 sprintf('[TwigContentXss] blocked route=%s found=%s', $route, $found),

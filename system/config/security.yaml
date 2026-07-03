@@ -42,8 +42,8 @@ xss_dangerous_tags:
   # of the admin select-template context.
   - option
   - select
-# Hostnames whose `<iframe src>` is exempt from the rendered-output XSS scan
-# (`twig_content.xss_scan_output`). Lets trusted provider embeds — YouTube,
+# Hostnames whose `<iframe src>` is exempt from the content XSS scan
+# (`content.xss_scan_output`). Lets trusted provider embeds — YouTube,
 # Vimeo, maps, etc. injected by plugins — survive the scan that otherwise
 # blanks any page containing an iframe. A registered host also matches its
 # subdomains (e.g. `youtube.com` covers `www.youtube.com`). Only iframes whose
@@ -82,6 +82,28 @@ uploads_dangerous_extensions:
   - twig
   - ini
 sanitize_svg: true
+# Content security — applies to editor-authored page content whether or not
+# Twig-in-content is enabled.
+#
+# content.xss_scan_output (default: true): re-run the XSS detector on
+# editor-authored page content AFTER its own in-page Twig is resolved but
+# BEFORE the trusted theme / modular template wraps it. The blueprint-time XSS
+# validator only sees the raw source, so a payload assembled at render time —
+# e.g. `{{ "on" ~ "error" }}` or `<s{{ "c"~"r"~"i"~"p"~"t" }}>` — passes
+# validation but resolves to a live `onerror=`/`<script>`. This scan closes
+# that gap; on a hit the offending content is blanked and the event logged to
+# logs/security.log. It never inspects the theme/modular template output, so
+# legitimate template markup (provider embeds, form/reCAPTCHA scripts, theme
+# JS/CSS) can never trip it. (GHSA-2c4f-86xc-cr74)
+#
+# Relocated here from `security.twig_content.xss_scan_output` (it is a
+# content concern, not a Twig-in-content one). The old location is still
+# honored as a fallback and is auto-migrated to here on upgrade, so leaving
+# this commented keeps any legacy override in effect. Uncomment to set the
+# value explicitly at the new location.
+#content:
+#  xss_scan_output: true
+
 # Twig in Content — gate for editor-authored Twig inside page content.
 # Applies to Twig::processPage() and Twig::processString(). Theme templates
 # on disk are unaffected by these settings.
@@ -117,15 +139,6 @@ twig_content:
   process_enabled: false
   editor_enabled: false
   config_access: false
-  # Re-run the XSS detector on the *rendered* output of editor-authored Twig
-  # content. The blueprint-time XSS validator only sees the raw source, so a
-  # payload assembled at render time — e.g. `{{ "on" ~ "error" }}` or
-  # `<s{{ "c"~"r"~"i"~"p"~"t" }}>` — passes validation but produces an
-  # `onerror=`/`<script>` in the output. This scan closes that gap by
-  # inspecting the post-Twig HTML; on a hit the content is blanked and the
-  # event logged to logs/security.log. Only applies to content gated by
-  # process_enabled above (never to trusted modular/theme Twig). (GHSA-2c4f-86xc-cr74)
-  xss_scan_output: true
 
 twig_sandbox:
   enabled: true
