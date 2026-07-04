@@ -390,7 +390,7 @@ twig_sandbox:
       methods: 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'
     # Every media type (ImageMedium, VideoMedium, AudioMedium,
     # StaticImageMedium) extends this base class; url() / html() / metadata()
-    # / thumbnail() / parsedownElement() resolve on it via traits. Keyed on the
+    # / srcset() / parsedownElement() resolve on it via traits. Keyed on the
     # concrete base rather than an interface: the old `MediumInterface` key was
     # removed in the media overhaul and never existed here, so it matched no
     # object and page-content Twig could not read any media member under the
@@ -398,15 +398,30 @@ twig_sandbox:
     # so printing a medium keeps working when config_access is off (which
     # strips the Data fallback below).
     #
-    # The action methods after the read accessors mirror Medium::ALLOWED_ACTIONS
-    # (the documented media chain on learn.getgrav.org /content/media — resize,
-    # cropResize, lightbox, link, format, the player attributes, etc.). These
-    # are the same actions already trusted from editor-authored URLs, so the
-    # standard `{{ page.media['x.jpg'].cropResize(..).lightbox(..).html() }}`
-    # idiom works under the sandbox without per-site allowlist edits. Keep this
-    # list in sync with Medium::ALLOWED_ACTIONS when new actions are documented.
+    # Only the read/render ACCESSORS are listed by name here. The chainable
+    # action methods come from the `@media_actions` sentinel, which the policy
+    # builder expands to Medium::ALLOWED_ACTIONS (resize, cropResize, lightbox,
+    # link, format, thumbnail, the player attributes, …) — the same list Grav
+    # already trusts from editor-authored image URLs. That is the single source
+    # of truth: a new documented action added to ALLOWED_ACTIONS becomes
+    # callable under the sandbox automatically, so the two allowlists can never
+    # drift and no one has to add media methods here one at a time. The
+    # dangerous surface (save, set, copy, deleteFile, toArray, filepath, …) is
+    # absent from ALLOWED_ACTIONS and stays blocked.
     - class: 'Grav\Common\Page\Medium\Medium'
-      methods: 'url, html, filepath, filename, metadata, thumbnail, parsedownelement, __tostring, resize, forceresize, cropresize, crop, zoomcrop, cropzoom, negate, brightness, contrast, grayscale, emboss, smooth, sharp, edge, colorize, sepia, enableprogressive, rotate, flip, fixorientation, gaussianblur, format, quality, watermark, derivatives, cache, lightbox, link, classes, style, id, attribute, width, height, sizes, autosizes, aspectratio, retinascale, loading, decoding, fetchpriority, display, reset, controls, controlslist, loop, autoplay, muted, preload, playsinline, poster'
+      methods: 'url, html, filepath, filename, metadata, srcset, parsedownelement, __tostring, @media_actions'
+    # lightbox() and link() do not return a Medium — they return a Link wrapper
+    # (Medium::createLink() -> new Link), a standalone class that does NOT extend
+    # Medium. So every action chained AFTER .lightbox()/.link() — the common
+    # `{{ page.media['x.jpg'].lightbox(1024,768).cropResize(176,176).html() }}`
+    # idiom — is invoked on the Link, not the Medium, and the sandbox blocks it
+    # (token=cropresize / token=html) unless the wrapper is allowlisted too.
+    # Keyed on MediaLinkInterface so Link and any subclass are covered. Link
+    # forwards action calls to its source medium via __call (re-entering the same
+    # vetted surface); html/url/parsedownelement are its own render accessors.
+    # Shares the `@media_actions` sentinel so it tracks ALLOWED_ACTIONS too.
+    - class: 'Grav\Common\Media\Interfaces\MediaLinkInterface'
+      methods: 'html, url, __tostring, parsedownelement, srcset, @media_actions'
     - class: 'Grav\Common\User\Interfaces\UserInterface'
       methods: 'authorize, authorized, authenticated, username, fullname, email, language, offsetget, offsetexists'
     - class: 'Grav\Common\Taxonomy'
