@@ -14,11 +14,13 @@ use Twig\Loader\ArrayLoader;
  * `~` operator (e.g. `{{ "on" ~ "error" }}`) slips past it and then renders as a
  * live `onerror=` / `<script>` / `javascript:` in the output.
  *
- * The fix (Page::processTwig) re-runs Security::detectXss() on the rendered
- * output of editor-authored content Twig. These tests pin both halves of that
- * contract: the raw source is NOT flagged (proving the bypass is real and the
- * pre-render check alone is insufficient), and the rendered output IS flagged
- * (proving the post-render backstop catches it).
+ * The fix (Twig::processPage) re-runs Security::detectXss() on the resolved
+ * editor-authored content — after its own in-page Twig, but before the trusted
+ * theme/modular template wraps it, so legitimate template markup is never
+ * scanned. These tests pin both halves of that contract: the raw source is NOT
+ * flagged (proving the bypass is real and the pre-render check alone is
+ * insufficient), and the resolved content IS flagged (proving the backstop
+ * catches it). The toggle lives at security.content.xss_scan_output.
  *
  * Naming convention: test{Method}_{GHSA_ID}_{description}
  */
@@ -214,6 +216,46 @@ class TwigContentXssOutputTest extends \PHPUnit\Framework\TestCase
                 'invalid_protocols',
                 'mathml then a javascript: link',
             ],
+        ];
+    }
+
+    /**
+     * The scan toggle moved from security.twig_content.xss_scan_output to
+     * security.content.xss_scan_output. isXssScanOutputEnabled() must honor the
+     * new location, fall back to the legacy location when the new key is unset,
+     * and default to enabled when neither is present.
+     *
+     * @dataProvider providerScanEnabledResolution
+     */
+    public function testIsXssScanOutputEnabled_ResolvesNewThenLegacyThenDefault(
+        $newValue,
+        $legacyValue,
+        bool $expected,
+        string $description
+    ): void {
+        $config = $this->grav['config'];
+        $originalNew = $config->get('security.content.xss_scan_output');
+        $originalLegacy = $config->get('security.twig_content.xss_scan_output');
+
+        try {
+            $config->set('security.content.xss_scan_output', $newValue);
+            $config->set('security.twig_content.xss_scan_output', $legacyValue);
+
+            self::assertSame($expected, Security::isXssScanOutputEnabled(), $description);
+        } finally {
+            $config->set('security.content.xss_scan_output', $originalNew);
+            $config->set('security.twig_content.xss_scan_output', $originalLegacy);
+        }
+    }
+
+    public static function providerScanEnabledResolution(): array
+    {
+        return [
+            'new key wins over legacy'        => [true, false, true, 'new true overrides legacy false'],
+            'new false wins over legacy true' => [false, true, false, 'new false overrides legacy true'],
+            'legacy used when new unset'      => [null, false, false, 'falls back to legacy false'],
+            'legacy true when new unset'      => [null, true, true, 'falls back to legacy true'],
+            'default enabled when both unset' => [null, null, true, 'defaults to enabled'],
         ];
     }
 }

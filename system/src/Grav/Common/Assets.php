@@ -401,9 +401,10 @@ class Assets extends PropertyObject
                 if ($type === 'jsmodule') {
                     $type = 'js_module';
                 }
+                $type = strtolower($type);
 
-                if ($asset->getRemote() && $this->{strtolower($type) . '_pipeline_include_externals'} === false && $asset['position'] === 'pipeline') {
-                    if ($this->{strtolower($type) . '_pipeline_before_excludes'}) {
+                if ($asset->getRemote() && $this->{$type . '_pipeline_include_externals'} === false && $asset->getProperty('position') === 'pipeline') {
+                    if ($this->{$type . '_pipeline_before_excludes'}) {
                         $asset->setPosition('after');
                     } else {
                         $asset->setPosition('before');
@@ -412,10 +413,9 @@ class Assets extends PropertyObject
                 }
             }
 
-            if ($asset[$key] === $value) {
-                return true;
-            }
-            return false;
+            // Direct property access; ArrayAccess on assets goes through the
+            // dot-path machinery, and these keys are always flat.
+            return $asset->getProperty($key) === $value;
         });
 
         if ($sort && !empty($results)) {
@@ -432,7 +432,7 @@ class Assets extends PropertyObject
      */
     protected function sortAssets($assets)
     {
-        uasort($assets, static fn($a, $b) => $b['priority'] <=> $a['priority'] ?: $a['order'] <=> $b['order']);
+        uasort($assets, static fn($a, $b) => $b->getProperty('priority') <=> $a->getProperty('priority') ?: $a->getProperty('order') <=> $b->getProperty('order'));
 
         return $assets;
     }

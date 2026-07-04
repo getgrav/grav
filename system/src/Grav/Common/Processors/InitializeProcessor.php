@@ -233,10 +233,17 @@ class InitializeProcessor extends ProcessorBase
 
     /**
      * @param Config $config
-     * @return Logger
+     * @return Logger|null
      */
-    protected function initializeLogger(Config $config): Logger
+    protected function initializeLogger(Config $config): ?Logger
     {
+        // The default file handler needs no setup here, so the logger service can stay
+        // lazy and only gets built when something actually logs. Only the syslog
+        // handler requires replacing the default handler up front.
+        if ($config->get('system.log.handler', 'file') !== 'syslog') {
+            return null;
+        }
+
         $this->startTimer('_init_logger', 'Logger');
 
         $grav = $this->container;
@@ -244,18 +251,15 @@ class InitializeProcessor extends ProcessorBase
         // Initialize Logging
         /** @var Logger $log */
         $log = $grav['log'];
+        $log->popHandler();
 
-        if ($config->get('system.log.handler', 'file') === 'syslog') {
-            $log->popHandler();
+        $facility = $config->get('system.log.syslog.facility', 'local6');
+        $tag = $config->get('system.log.syslog.tag', 'grav');
+        $logHandler = new SyslogHandler($tag, $facility);
+        $formatter = new LineFormatter("%channel%.%level_name%: %message% %extra%");
+        $logHandler->setFormatter($formatter);
 
-            $facility = $config->get('system.log.syslog.facility', 'local6');
-            $tag = $config->get('system.log.syslog.tag', 'grav');
-            $logHandler = new SyslogHandler($tag, $facility);
-            $formatter = new LineFormatter("%channel%.%level_name%: %message% %extra%");
-            $logHandler->setFormatter($formatter);
-
-            $log->pushHandler($logHandler);
-        }
+        $log->pushHandler($logHandler);
 
         $this->stopTimer('_init_logger');
 

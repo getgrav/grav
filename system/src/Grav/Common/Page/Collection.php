@@ -368,23 +368,68 @@ class Collection extends Iterator implements PageCollectionInterface
     }
 
     /**
+     * Filter items by a structural flag (visible, routable, published, module)
+     * recorded in the children index at build time.
+     *
+     * Items carrying the stored flag are filtered without hydrating the page -
+     * the whole point when the index is lazy, since navigation prunes a folder
+     * to its visible children and would otherwise load every sibling. Items
+     * without the stored flag (a collection built from taxonomy, say) fall back
+     * to hydrating the page and asking it directly. The stored flags match what
+     * the page would report, since page state is frozen in the cache at build.
+     *
+     * @param string $flag
+     * @param bool $wanted
+     * @return $this
+     */
+    protected function filterByPageFlag(string $flag, bool $wanted)
+    {
+        $filtered = [];
+        foreach ($this->items as $path => $info) {
+            if (is_array($info) && array_key_exists($flag, $info)) {
+                $value = (bool)$info[$flag];
+            } else {
+                $page = $this->pages->get($path);
+                if ($page === null) {
+                    continue;
+                }
+                $value = $this->pageFlagValue($page, $flag);
+            }
+            if ($value === $wanted) {
+                $filtered[$path] = $info;
+            }
+        }
+        $this->items = $filtered;
+
+        return $this;
+    }
+
+    /**
+     * Read a structural flag directly from a hydrated page (fallback path).
+     *
+     * @param PageInterface $page
+     * @param string $flag
+     * @return bool
+     */
+    protected function pageFlagValue(PageInterface $page, string $flag): bool
+    {
+        return match ($flag) {
+            'visible' => $page->visible(),
+            'routable' => $page->routable(),
+            'published' => $page->published(),
+            'module' => $page->isModule(),
+            default => false,
+        };
+    }
+
+    /**
      * Creates new collection with only visible pages
      *
      * @return Collection The collection with only visible pages
      */
     public function visible()
     {
-        $visible = [];
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && $page->visible()) {
-                $visible[$path] = $slug;
-            }
-        }
-        $this->items = $visible;
-
-        return $this;
+        return $this->filterByPageFlag('visible', true);
     }
 
     /**
@@ -394,17 +439,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function nonVisible()
     {
-        $visible = [];
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && !$page->visible()) {
-                $visible[$path] = $slug;
-            }
-        }
-        $this->items = $visible;
-
-        return $this;
+        return $this->filterByPageFlag('visible', false);
     }
 
     /**
@@ -414,17 +449,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function pages()
     {
-        $modular = [];
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && !$page->isModule()) {
-                $modular[$path] = $slug;
-            }
-        }
-        $this->items = $modular;
-
-        return $this;
+        return $this->filterByPageFlag('module', false);
     }
 
     /**
@@ -434,17 +459,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function modules()
     {
-        $modular = [];
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && $page->isModule()) {
-                $modular[$path] = $slug;
-            }
-        }
-        $this->items = $modular;
-
-        return $this;
+        return $this->filterByPageFlag('module', true);
     }
 
     /**
@@ -479,6 +494,12 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function translated()
     {
+        // Without multi-language support every page is trivially translated, so
+        // there is nothing to filter out and no need to load any page.
+        if (!Grav::instance()['language']->enabled()) {
+            return $this;
+        }
+
         $published = [];
 
         foreach ($this->items as $path => $slug) {
@@ -500,6 +521,14 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function nonTranslated()
     {
+        // Without multi-language support no page is untranslated, so the result
+        // is always empty and no page needs to be loaded.
+        if (!Grav::instance()['language']->enabled()) {
+            $this->items = [];
+
+            return $this;
+        }
+
         $published = [];
 
         foreach ($this->items as $path => $slug) {
@@ -520,17 +549,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function published()
     {
-        $published = [];
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && $page->published()) {
-                $published[$path] = $slug;
-            }
-        }
-        $this->items = $published;
-
-        return $this;
+        return $this->filterByPageFlag('published', true);
     }
 
     /**
@@ -540,17 +559,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function nonPublished()
     {
-        $published = [];
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && !$page->published()) {
-                $published[$path] = $slug;
-            }
-        }
-        $this->items = $published;
-
-        return $this;
+        return $this->filterByPageFlag('published', false);
     }
 
     /**
@@ -560,19 +569,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function routable()
     {
-        $routable = [];
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-
-            if ($page !== null && $page->routable()) {
-                $routable[$path] = $slug;
-            }
-        }
-
-        $this->items = $routable;
-
-        return $this;
+        return $this->filterByPageFlag('routable', true);
     }
 
     /**
@@ -582,17 +579,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function nonRoutable()
     {
-        $routable = [];
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && !$page->routable()) {
-                $routable[$path] = $slug;
-            }
-        }
-        $this->items = $routable;
-
-        return $this;
+        return $this->filterByPageFlag('routable', false);
     }
 
     /**

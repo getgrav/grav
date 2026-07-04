@@ -9,7 +9,7 @@
 
 // Some standard defines
 define("GRAV", true);
-define("GRAV_VERSION", "2.0.6");
+define("GRAV_VERSION", "2.0.7");
 define("GRAV_SCHEMA", "1.8.0_2026-06-09_0");
 define("GRAV_TESTING", false);
 

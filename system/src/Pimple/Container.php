@@ -165,6 +165,19 @@ class Container implements ArrayAccess
     }
 
     /**
+     * Checks whether a service has already been resolved (instantiated), as
+     * opposed to merely being registered. Lets callers inspect a service
+     * without triggering its creation as a side effect.
+     *
+     * @param string $id The unique identifier for the service
+     * @return bool
+     */
+    public function initialized(mixed $id): bool
+    {
+        return is_string($id) && isset($this->frozen[$id]);
+    }
+
+    /**
      * Unsets a parameter or an object.
      *
      * @param string $id The unique identifier for the parameter or object

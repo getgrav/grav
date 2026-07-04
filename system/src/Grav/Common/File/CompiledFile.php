@@ -46,30 +46,28 @@ trait CompiledFile
                 // filemtime() is cheap and ensures changes are detected.
                 $modified = $this->modified();
 
-                // If file hasn't been modified and cache exists, load from compiled cache.
-                // When opcache is enabled, this benefits from bytecode caching.
-                if (!$modified && is_file($cacheFilename)) {
+                $class = get_class($this);
+
+                // Fast path: include the compiled file directly (served from opcache when
+                // enabled) and use it as long as it still matches the source file.
+                if ($modified && is_file($cacheFilename)) {
                     try {
-                        // Include the file directly to trigger loading from opcache
-                        $var = (array) include $cacheFilename;
+                        $cache = (array)include $cacheFilename;
 
-                        if (is_array($var) && isset($var['data'])) {
-                            $var = $var['data'];
-                        } else {
-                            $var = null;
+                        if (($cache['@class'] ?? null) === $class
+                            && ($cache['modified'] ?? null) === $modified
+                            && ($cache['filename'] ?? null) === $filename
+                            && ($cache['size'] ?? null) === filesize($filename)
+                            && isset($cache['data'])
+                        ) {
+                            $this->content = $cache['data'];
+
+                            return parent::content($var);
                         }
-
-                        if (!is_array($var)) {
-                            $var = $this->decode($this->raw());
-                        }
-
-                        return $var;
                     } catch (Throwable) {
                         // If the compiled file is broken, we can safely ignore the error and continue.
                     }
                 }
-
-                $class = get_class($this);
 
                 // Check if the source file exists before getting its size
                 if (!is_file($filename)) {

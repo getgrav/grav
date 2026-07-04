@@ -9,7 +9,6 @@
 
 namespace Grav\Common\Processors;
 
-use RocketTheme\Toolbox\Event\Event;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -32,11 +31,10 @@ class SchedulerProcessor extends ProcessorBase
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $this->startTimer();
-        $scheduler = $this->container['scheduler'];
-        $this->container->fireEvent('onSchedulerInitialized', new Event(['scheduler' => $scheduler]));
-        $this->stopTimer();
-
+        // Nothing in a web request runs scheduled jobs, so building the scheduler and
+        // firing onSchedulerInitialized here was pure overhead. The scheduler now
+        // initializes its jobs on first real use (see Scheduler::initializeJobs()),
+        // which the CLI runner, webhook, health check and job listings all go through.
         return $handler->handle($request);
     }
 }

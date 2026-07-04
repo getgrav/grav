@@ -685,7 +685,12 @@ trait PageContentTrait
         if ($content_twig_requested && !$content_twig_allowed && !$this->isModule()) {
             Security::logTwigContentGateBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), 'content');
         }
-        $process_twig = ($content_twig_requested && $content_twig_allowed) || $this->isModule();
+        // Editor-authored content Twig (gated by process_enabled) gets its
+        // resolved output re-scanned for XSS before the trusted theme/modular
+        // template wraps it; trusted template markup is never scanned. Mirrors
+        // Page::content(). (GHSA-2c4f-86xc-cr74)
+        $scan_twig_xss = $content_twig_requested && $content_twig_allowed;
+        $process_twig = $scan_twig_xss || $this->isModule();
 
         $cache_enable = $this->getNestedProperty('header.cache_enable') ?? $config->get('system.cache.enabled', true);
 
@@ -706,7 +711,7 @@ trait PageContentTrait
                 $this->_content_meta = $cached['content_meta'] ?? null;
 
                 if ($process_twig && $never_cache_twig) {
-                    $this->_content = $this->processTwig($this->_content);
+                    $this->_content = $this->processTwig($this->_content, $scan_twig_xss);
                 }
             }
         }
@@ -741,7 +746,7 @@ trait PageContentTrait
 
             if ($twig_first && !$never_cache_twig) {
                 if ($process_twig) {
-                    $this->_content = $this->processTwig($this->_content);
+                    $this->_content = $this->processTwig($this->_content, $scan_twig_xss);
                 }
 
                 if ($process_markdown) {
@@ -765,7 +770,7 @@ trait PageContentTrait
 
                 if ($process_twig) {
                     \assert(is_string($this->_content));
-                    $this->_content = $this->processTwig($this->_content);
+                    $this->_content = $this->processTwig($this->_content, $scan_twig_xss);
                 }
             }
 
@@ -794,15 +799,18 @@ trait PageContentTrait
      * Process the Twig page content.
      *
      * @param  string $content
+     * @param  bool $scanXss When true, re-run the XSS detector on the resolved
+     *                       editor-authored content before the trusted
+     *                       theme/modular template wraps it. (GHSA-2c4f-86xc-cr74)
      * @return string
      */
-    protected function processTwig($content): string
+    protected function processTwig($content, bool $scanXss = false): string
     {
         /** @var Twig $twig */
         $twig = Grav::instance()['twig'];
 
         /** @var PageInterface $this */
-        return $twig->processPage($this, $content);
+        return $twig->processPage($this, $content, $scanXss);
     }
 
     /**

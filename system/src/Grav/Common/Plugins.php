@@ -144,7 +144,16 @@ class Plugins extends Iterator
                 // Register autoloader.
                 if (method_exists($instance, 'autoload')) {
                     try {
-                        $instance->setAutoloader($instance->autoload());
+                        $autoloader = $instance->autoload();
+                        if ($autoloader instanceof \Composer\Autoload\ClassLoader) {
+                            // Composer registers plugin loaders prepended, which forces every
+                            // core/vendor class loaded after this point through each plugin's
+                            // loader first. Move the plugin loader behind the core one; the
+                            // relative order between plugin loaders is preserved.
+                            $autoloader->unregister();
+                            $autoloader->register(false);
+                        }
+                        $instance->setAutoloader($autoloader);
                     } catch (\Throwable $e) {
                         // Log the autoload failure and disable the plugin
                         $grav['log']->error(

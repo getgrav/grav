@@ -56,6 +56,7 @@ use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -77,6 +78,17 @@ use function strlen;
  */
 class Grav extends Container
 {
+    /**
+     * Response bodies larger than this (or of unknown length) are streamed to
+     * the client in chunks instead of being cast to a string and echoed, which
+     * would otherwise buffer the whole body in memory. This keeps large file
+     * downloads (e.g. site backups) from exhausting `memory_limit`.
+     */
+    protected const STREAM_BODY_THRESHOLD = 2097152; // 2 MB
+
+    /** @var int Read size when streaming a response body directly to the client. */
+    protected const STREAM_BODY_CHUNK = 65536; // 64 KB
+
     /** @var string Processed output for the page. */
     public $output;
 
@@ -308,6 +320,16 @@ class Grav extends Container
 
         // Echo page content.
         $this->header($response);
+
+        // A large or unknown-length body (e.g. a file-backed download stream) is
+        // streamed straight to the client rather than echoed, which would buffer
+        // the whole thing in memory. Streaming flushes output and thus commits the
+        // headers, so the debugger and shutdown handler — both of which would try
+        // to write to an already-sent response — are skipped.
+        if ($this->streamResponseBody($body)) {
+            exit();
+        }
+
         echo $body;
 
         $this['debugger']->render();
@@ -334,6 +356,73 @@ class Grav extends Container
         }
         // Work around PHP bug #8218 (8.0.17 & 8.1.4).
         header_remove('Content-Encoding');
+    }
+
+    /**
+     * Whether a response body should be streamed to the client in chunks rather
+     * than echoed as one string.
+     *
+     * A plain string body (the common Twig-rendered page) reports a small, known
+     * size and is echoed as before. A body that is large or of unknown length —
+     * typically a file resource wrapped in a stream, as used for backup and media
+     * downloads — is streamed so it never has to be materialised in memory.
+     *
+     * @param string|StreamInterface $body
+     * @return bool
+     */
+    protected function isStreamedBody($body): bool
+    {
+        if (!$body instanceof StreamInterface || !$body->isReadable()) {
+            return false;
+        }
+
+        $size = $body->getSize();
+
+        // Unknown length (e.g. a pipe) or larger than the buffer threshold.
+        return $size === null || $size > static::STREAM_BODY_THRESHOLD;
+    }
+
+    /**
+     * Stream a large response body straight to the client in chunks.
+     *
+     * Casting a big stream to a string (via `echo`) buffers the whole payload in
+     * memory, which fails with an HTTP 500 once it exceeds `memory_limit` — the
+     * failure mode behind malformed backup downloads. Reading and flushing in
+     * fixed-size chunks keeps memory flat regardless of file size.
+     *
+     * Returns false without consuming the body when it is small enough to echo
+     * normally, so the caller falls back to the existing buffered path.
+     *
+     * @param string|StreamInterface $body
+     * @return bool True when the body was streamed (output already sent).
+     */
+    protected function streamResponseBody($body): bool
+    {
+        if (!$this->isStreamedBody($body)) {
+            return false;
+        }
+
+        /** @var StreamInterface $body */
+
+        // Drop any output buffering so bytes go straight to the socket instead of
+        // piling up in a buffer that would hit the same memory ceiling.
+        $this->cleanOutputBuffers();
+
+        if ($body->isSeekable()) {
+            $body->rewind();
+        }
+
+        while (!$body->eof()) {
+            if (connection_status() !== CONNECTION_NORMAL) {
+                break;
+            }
+            echo $body->read(static::STREAM_BODY_CHUNK);
+            flush();
+        }
+
+        $body->close();
+
+        return true;
     }
 
     /**
@@ -381,8 +470,11 @@ class Grav extends Container
             $response = $response->withHeader('Cache-Control', 'no-store, max-age=0');
         }
 
-        // Handle ETag and If-None-Match headers.
-        if ($response->getHeaderLine('ETag') === '1') {
+        // Handle ETag and If-None-Match headers. A streamed body (large or of
+        // unknown length) is left untouched: hashing it here would read the whole
+        // thing into memory, defeating the point of streaming, and file downloads
+        // don't need a content ETag.
+        if ($response->getHeaderLine('ETag') === '1' && !$this->isStreamedBody($body)) {
             $etag = md5($body);
             $response = $response->withHeader('ETag', '"' . $etag . '"');
 
@@ -395,7 +487,9 @@ class Grav extends Container
 
         // Echo page content.
         $this->header($response);
-        echo $body;
+        if (!$this->streamResponseBody($body)) {
+            echo $body;
+        }
         exit();
     }
 

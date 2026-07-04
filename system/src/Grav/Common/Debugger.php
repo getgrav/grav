@@ -78,6 +78,10 @@ class Debugger
     protected $enabled = false;
     /** @var bool */
     protected $initialized = false;
+    /** @var bool True once init() has read the config and decided whether the debugger is enabled. */
+    protected $decided = false;
+    /** @var bool Guards the once-per-request pages index summary message. */
+    protected $pages_index_info_added = false;
     /** @var array */
     protected $timers = [];
     /** @var array */
@@ -138,6 +142,13 @@ class Debugger
         // Enable/disable debugger based on configuration.
         $this->enabled = (bool)$this->config->get('system.debugger.enabled');
         $this->censored = (bool)$this->config->get('system.debugger.censored', false);
+
+        // The enabled decision is now made; when disabled, timers collected during
+        // early bootstrap are no longer needed and new ones can be skipped.
+        $this->decided = true;
+        if (!$this->enabled) {
+            $this->timers = [];
+        }
 
         if ($this->enabled) {
             $this->initialized = true;
@@ -373,8 +384,62 @@ class Debugger
     /**
      * @return void
      */
+    /**
+     * Emit a one-line summary of how the pages index was served this request.
+     *
+     * Only reports when the pages service was actually built (so it never
+     * forces a build just to inspect it), and only once per request.
+     *
+     * @return void
+     */
+    protected function addPagesIndexInfo(): void
+    {
+        if (!$this->enabled || $this->pages_index_info_added) {
+            return;
+        }
+
+        // Never trigger a pages build just to report on it.
+        if (!$this->grav->initialized('pages')) {
+            return;
+        }
+
+        $this->pages_index_info_added = true;
+
+        $stats = $this->grav['pages']->getIndexStats();
+        $mode = $stats['mode'] ?? 'blob';
+
+        if ($mode === 'flex') {
+            $this->addMessage('Pages index: flex', 'info');
+
+            return;
+        }
+
+        $total = (int)($stats['total'] ?? 0);
+        $hydrated = (int)($stats['hydrated'] ?? 0);
+
+        if ($mode === 'lazy') {
+            $percent = $total > 0 ? round($hydrated / $total * 100) : 0;
+            $message = sprintf(
+                'Pages index: lazy [%s] - hydrated %d / %d pages (%d%%)',
+                $stats['engine'] ?? '?',
+                $hydrated,
+                $total,
+                $percent
+            );
+            if ($total > 0 && $hydrated >= $total) {
+                $message .= ' - this request touches every page, so lazy loading saves no memory here';
+            }
+        } else {
+            $message = sprintf('Pages index: standard cache blob - %d pages', $total);
+        }
+
+        $this->addMessage($message, 'info');
+    }
+
     protected function addMeasures(): void
     {
+        $this->addPagesIndexInfo();
+
         if (!$this->enabled) {
             return;
         }
@@ -728,6 +793,12 @@ class Debugger
      */
     public function startTimer($name, $description = null)
     {
+        // Timers must collect before init() has read the config; after that,
+        // a disabled debugger skips the bookkeeping (every processor calls this).
+        if ($this->decided && !$this->enabled) {
+            return $this;
+        }
+
         $this->timers[$name] = [$description, microtime(true)];
 
         return $this;
@@ -741,6 +812,10 @@ class Debugger
      */
     public function stopTimer($name)
     {
+        if ($this->decided && !$this->enabled) {
+            return $this;
+        }
+
         if (isset($this->timers[$name])) {
             $endTime = microtime(true);
             $this->timers[$name][] = $endTime;

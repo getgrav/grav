@@ -12,6 +12,7 @@ namespace Grav\Common;
 use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Pages;
 use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
 use Rhukster\DomSanitizer\DOMSanitizer;
@@ -363,6 +364,32 @@ class Security
         }
 
         return static::detectXss($scanTarget);
+    }
+
+    /**
+     * Whether the render-time XSS content scan is enabled.
+     *
+     * The setting lives at `security.content.xss_scan_output` (it validates
+     * editor-authored *content*, not Twig-in-content, so it is not tied to the
+     * `twig_content` gates). For backwards compatibility the legacy location
+     * `security.twig_content.xss_scan_output` is honored as a fallback when the
+     * new key is not set — sites that changed the old value keep their choice
+     * until it is migrated to the new location. Defaults to true when neither
+     * key is present.
+     *
+     * @return bool
+     */
+    public static function isXssScanOutputEnabled(): bool
+    {
+        $config = Grav::instance()['config'];
+
+        $value = $config->get('security.content.xss_scan_output');
+        if ($value === null) {
+            // Legacy location (pre-2.0 relocation). Auto-migrated on upgrade.
+            $value = $config->get('security.twig_content.xss_scan_output');
+        }
+
+        return $value === null ? true : (bool) $value;
     }
 
     /** @var array<string>|null Per-request cache of trusted iframe hosts. */
@@ -889,7 +916,7 @@ class Security
                 return;
             }
 
-            $hint = 'Rendered Twig content produced markup the XSS detector flags. The blueprint validator cannot see render-time-assembled payloads; content was blanked. Disable security.twig_content.xss_scan_output to allow it.';
+            $hint = 'Editor-authored content resolved to markup the XSS detector flags. The blueprint validator cannot see render-time-assembled payloads; content was blanked. Disable security.content.xss_scan_output to allow it.';
 
             $grav['log.security']->warning(
                 sprintf('[TwigContentXss] blocked route=%s found=%s', $route, $found),
@@ -1553,6 +1580,20 @@ class Security
      * Accept a methods list as either an array of strings, a CSV string, or
      * a mix; return a flat list of member names.
      *
+     * The `@media_actions` sentinel expands to Medium::ALLOWED_ACTIONS — the
+     * single, already-curated list of safe chainable media actions (resize,
+     * cropResize, lightbox, format, the player attributes, …) that Grav also
+     * trusts from editor-authored image URLs (image.jpg?cropResize=100,100).
+     * Media class entries reference the sentinel instead of restating the
+     * action names, so a new documented action added to ALLOWED_ACTIONS (a
+     * requirement for querystring support anyway) automatically becomes
+     * callable under the sandbox — the two allowlists can never drift, and no
+     * one has to hunt down missing media methods one at a time. Expanded once
+     * here at policy-build time (the policy is memoized per request), so there
+     * is no per-render cost. Only the concrete safe actions are added — the
+     * dangerous surface (save, set, copy, delete, toArray, filepath, …) is
+     * absent from ALLOWED_ACTIONS and therefore stays blocked.
+     *
      * @param mixed $methods
      * @return list<string>
      */
@@ -1566,12 +1607,22 @@ class Security
         }
         $clean = [];
         foreach ($methods as $m) {
-            if (is_string($m)) {
-                $m = trim($m);
-                if ($m !== '') {
-                    $clean[] = $lowercase ? strtolower($m) : $m;
-                }
+            if (!is_string($m)) {
+                continue;
             }
+            $m = trim($m);
+            if ($m === '') {
+                continue;
+            }
+            // Sentinel is a methods-only concept; ignore it in property lists
+            // ($lowercase is false only for the case-sensitive property map).
+            if ($lowercase && strtolower($m) === '@media_actions') {
+                foreach (Medium::ALLOWED_ACTIONS as $action) {
+                    $clean[] = strtolower($action);
+                }
+                continue;
+            }
+            $clean[] = $lowercase ? strtolower($m) : $m;
         }
         return $clean;
     }

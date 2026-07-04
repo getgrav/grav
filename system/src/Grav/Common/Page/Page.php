@@ -87,6 +87,8 @@ class Page implements PageInterface
     protected $slug;
     /** @var string|null */
     protected $route;
+    /** @var array<string,string|null> per-language localized route cache, keyed by language code */
+    protected $translated_routes = [];
     /** @var string|null */
     protected $raw_route;
     /** @var string */
@@ -222,8 +224,9 @@ class Page implements PageInterface
         $this->routable(true);
         $this->header();
         $this->date();
-        $this->metadata();
-        $this->url();
+        // metadata() and url() are lazy getters computed on first access at render
+        // time; calling them here only bloated the serialized pages index with
+        // escaped metadata for every page on the site.
         $this->visible();
         $this->modularTwig(str_starts_with($this->slug(), '_'));
         $this->setPublishState();
@@ -286,6 +289,13 @@ class Page implements PageInterface
         /** @var Language $language */
         $language = $grav['language'];
 
+        // Single-language sites have nothing to translate. Bail before touching
+        // the filesystem or the ancestor chain so monolingual installs pay zero
+        // cost for this method.
+        if (!$language->enabled()) {
+            return [];
+        }
+
         $languages = $language->getLanguages();
         $defaultCode = $language->getDefault();
 
@@ -305,24 +315,141 @@ class Page implements PageInterface
             }
 
             if ($exists) {
-                $aPage = new Page();
-                $aPage->init(new SplFileInfo($path), $languageExtension);
-                // Attach the live parent so the translated page can compose its own
-                // route from the parent route plus its (possibly localized) slug.
-                // Setting the route directly from the current page, as before, would
-                // discard a localized `slug:` header on the translation.
-                $aPage->parent($this->parent());
-                $route = $aPage->header()->routes['default'] ?? $aPage->route();
-
-                if ($onlyPublished && !$aPage->published()) {
-                    continue;
+                // The published() flag lives in the translation's own header, so it
+                // is the one case that still needs a full page init.
+                if ($onlyPublished) {
+                    $aPage = new Page();
+                    $aPage->init(new SplFileInfo($path), $languageExtension);
+                    if (!$aPage->published()) {
+                        continue;
+                    }
                 }
 
-                $translatedLanguages[$languageCode] = $route;
+                // Resolve the route in the target language by walking the *localized*
+                // ancestor chain (see translatedRoute), so ancestor slugs are
+                // translated too rather than left in the current request language.
+                $translatedLanguages[$languageCode] = $this->translatedRoute($languageCode, $defaultCode);
             }
         }
 
         return $translatedLanguages;
+    }
+
+    /**
+     * Resolve this page's route in a specific language, translating every segment
+     * of the ancestor chain (not just this page's own slug).
+     *
+     * Grav only ever holds one language's Pages index in memory at a time, so a
+     * page object's parent chain always carries the *current* request language.
+     * This method rebuilds the route for `$languageCode` by resolving each node's
+     * localized slug from its own language file, mirroring Page::route()'s logic
+     * (home-route hiding, numeric-prefix stripping, `routes.default` overrides).
+     *
+     * Results are memoized per node and per language, so an ancestor shared by
+     * many siblings is resolved only once per language for the whole request.
+     *
+     * @param string      $languageCode target language (e.g. 'fr')
+     * @param string|null $defaultCode  default site language; resolved if null
+     * @return string|null localized route, or null if it cannot be composed
+     */
+    public function translatedRoute(string $languageCode, ?string $defaultCode = null): ?string
+    {
+        $grav = Grav::instance();
+
+        /** @var Language $language */
+        $language = $grav['language'];
+
+        // Fast path: monolingual sites and the active language need no walking —
+        // the in-memory route is already correct for the current language.
+        $active = $language->getLanguage() ?: $language->getDefault();
+        if (!$language->enabled() || $languageCode === $active) {
+            return $this->route();
+        }
+
+        if (array_key_exists($languageCode, $this->translated_routes)) {
+            return $this->translated_routes[$languageCode];
+        }
+
+        $defaultCode = $defaultCode ?? $language->getDefault();
+
+        // Resolve this node's own localized slug and any `routes.default` override.
+        [$slug, $routesDefault] = $this->translatedSlug($languageCode, $defaultCode);
+
+        // An explicit `routes.default` replaces the entire route from this node down.
+        if ($routesDefault !== null) {
+            return $this->translated_routes[$languageCode] = $routesDefault;
+        }
+
+        // Compose the localized base route from the parent chain, mirroring route().
+        $base = '';
+        $parent = $this->parent();
+        if ($parent && $parent->route()) {
+            if ($this->hide_home_route && $parent->route() === $this->home_route) {
+                $base = '';
+            } elseif ($parent instanceof self) {
+                $base = (string) $parent->translatedRoute($languageCode, $defaultCode);
+            } else {
+                // Non-regular parent (e.g. a Flex page) can't localize its chain;
+                // fall back to its current-language route.
+                $base = (string) $parent->route();
+            }
+        }
+
+        $route = $slug !== null ? $base . '/' . $slug : ($base ?: null);
+
+        return $this->translated_routes[$languageCode] = $route;
+    }
+
+    /**
+     * Read a node's slug and `routes.default` for a given language without a full
+     * page init. Only the frontmatter is parsed (no Twig, markdown, or metadata),
+     * and the default slug is folder-derived — language-independent — so nodes
+     * without an explicit `slug:` header cost only a cheap header read.
+     *
+     * @param string $languageCode
+     * @param string $defaultCode
+     * @return array{0: string|null, 1: string|null} [slug, routesDefault]
+     */
+    protected function translatedSlug(string $languageCode, string $defaultCode): array
+    {
+        $name = substr((string) $this->name, 0, -strlen($this->extension()));
+        $dir = $this->path . DS . $this->folder . DS;
+
+        // Prefer the target language file; fall back through the default language
+        // file and the language-agnostic file, matching Grav's content fallback so
+        // an untranslated ancestor inherits the slug the reader would actually see.
+        $candidates = ["{$name}.{$languageCode}.md"];
+        if ($languageCode !== $defaultCode) {
+            $candidates[] = "{$name}.{$defaultCode}.md";
+        }
+        $candidates[] = "{$name}.md";
+
+        $slug = null;
+        $routesDefault = null;
+        foreach ($candidates as $candidate) {
+            $file = $dir . $candidate;
+            if (!is_file($file)) {
+                continue;
+            }
+            $md = CompiledMarkdownFile::instance($file);
+            $header = (array) $md->header();
+            $md->free();
+            if (!empty($header['slug'])) {
+                $slug = $header['slug'];
+            }
+            if (isset($header['routes']['default']) && $header['routes']['default'] !== '') {
+                $routesDefault = $header['routes']['default'];
+            }
+            break;
+        }
+
+        // No explicit slug header: fall back to the folder-derived slug, which is
+        // identical across languages.
+        if ($slug === null) {
+            $slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', (string) $this->folder)) ?: null;
+        }
+
+        return [$slug, $routesDefault];
     }
 
     /**
@@ -775,8 +902,9 @@ class Page implements PageInterface
         }
         // If no content, process it
         if ($this->content === null) {
-            // Get media
-            $this->media();
+            // Media loads lazily via getMedia() on first use (templates, image
+            // excerpts), so a cached-content hit no longer unserializes the whole
+            // media collection up front.
 
             /** @var Config $config */
             $config = Grav::instance()['config'];
@@ -1028,36 +1156,22 @@ class Page implements PageInterface
     /**
      * Process the Twig page content.
      *
-     * @param bool $scanXss When true, re-run the XSS detector on the rendered
-     *                      output. Set only for editor-authored content Twig
-     *                      gated by security.twig_content.process_enabled — the
-     *                      blueprint validator sees the raw source, so a payload
-     *                      assembled at render time (e.g. `{{ "on" ~ "error" }}`)
-     *                      passes validation but emits live markup. This is the
-     *                      post-render backstop. Trusted modular/theme Twig is
-     *                      never scanned. (GHSA-2c4f-86xc-cr74)
+     * @param bool $scanXss When true, re-run the XSS detector on the resolved
+     *                      editor-authored content, before the trusted
+     *                      theme/modular template wraps it. Set only for content
+     *                      whose in-page Twig was processed — the blueprint
+     *                      validator sees the raw source, so a payload assembled
+     *                      at render time (e.g. `{{ "on" ~ "error" }}`) passes
+     *                      validation but resolves to live markup. The scan runs
+     *                      inside Twig::processPage() so it never inspects the
+     *                      theme/modular template output. (GHSA-2c4f-86xc-cr74)
      * @return void
      */
     private function processTwig(bool $scanXss = false)
     {
         /** @var Twig $twig */
         $twig = Grav::instance()['twig'];
-        $this->content = $twig->processPage($this, $this->content);
-
-        if ($scanXss && is_string($this->content) && $this->content !== ''
-            && (bool) Grav::instance()['config']->get('security.twig_content.xss_scan_output', true)) {
-            // Render-time XSS backstop. Uses the SVG/MathML-aware scan so that
-            // legitimate inline <svg>/<math> from shortcodes and plugins (the
-            // svg-icon shortcode, GitHub-style alert icons, theme glyphs) does
-            // not false-positive and blank the page, while assembled on*=,
-            // <script> and javascript: payloads outside those subtrees are still
-            // caught. See Security::detectXssInRenderedOutput. (GHSA-2c4f-86xc-cr74)
-            $found = Security::detectXssInRenderedOutput($this->content);
-            if ($found !== null) {
-                Security::logTwigContentXssBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), $found);
-                $this->content = '';
-            }
-        }
+        $this->content = $twig->processPage($this, $this->content, $scanXss);
     }
 
     /**

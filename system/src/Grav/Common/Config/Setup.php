@@ -142,7 +142,7 @@ class Setup extends Data
         'media' => [
             'type' => 'Stream',
             'prefixes' => [
-                '' => ['user://media']
+                '' => ['environment://media', 'user://media']
             ]
         ],
         'page' => [
@@ -433,6 +433,30 @@ class Setup extends Data
                 $prefixes['config'] = [];
 
                 $this->set('streams.schemes.environment.prefixes', $prefixes);
+                $this->initializeLocator($locator);
+            }
+
+            // Guarantee the core `log` stream always resolves to a writable path.
+            // It is consumed during early bootstrap by Monolog's StreamHandler,
+            // before Grav can trap and report errors. A user override that layers
+            // `log://` solely on top of `environment://` (which is registered with
+            // an empty prefix list whenever the per-host env folder is absent, see
+            // the constructor) leaves `log://` resolving to nothing; handing that
+            // `false` to StreamHandler throws and takes the whole request down
+            // before it can even boot. Restore the built-in default location as a
+            // forced fallback so logging degrades gracefully to `logs/` instead.
+            // This never materializes the env folder, so the #4086 protection is
+            // untouched: `environment://` stays empty and env-layered writes still
+            // fall through to the shared user paths.
+            if (!$locator->findResource('log://grav.log', true, true)) {
+                $prefixes = (array) $this->get('streams.schemes.log.prefixes.', []);
+                $prefixes[''] = array_merge($prefixes[''] ?? [], [GRAV_LOG_PATH]);
+
+                $this->set('streams.schemes.log.prefixes', $prefixes);
+                // Force the fallback so it survives even when `logs/` does not yet
+                // exist on disk (addPath() otherwise filters missing plain paths).
+                // StreamHandler creates the file and its parent dir on first write.
+                $this->set('streams.schemes.log.force', true);
                 $this->initializeLocator($locator);
             }
 
