@@ -1,5 +1,5 @@
 # v2.0.7
-## 07/01/2026
+## 07/04/2026
 
 1. [](#bugfix)
     * [security] A page editor can no longer run commands on the server by hiding a callable directive in a form field's settings; dynamic field data now refuses dangerous functions and cannot be tricked into reaching one through a helper ([GHSA-fj2p-qj2f-74v5](https://github.com/getgrav/grav/security/advisories/GHSA-fj2p-qj2f-74v5)).
@@ -11,6 +11,7 @@
     * Pages accessed with URL parameters such as pagination or taxonomy filters no longer recompile every Twig template on each request, restoring full template caching on exactly the pages that get the most traffic.
     * The per-file compiled cache for YAML and markdown files now loads through its intended opcache fast path, and a source file that has been deleted no longer serves stale cached data.
     * A modular page that outputs trusted theme or plugin markup, such as a form with a reCAPTCHA field, is no longer wrongly blanked by the content security scan, which now checks the editor's own content instead of the finished template output. Fixes [getgrav/grav-plugin-form#636](https://github.com/getgrav/grav-plugin-form/issues/636).
+    * Chaining media actions on page media under the content security scan, such as `{{ page.media['x.jpg'].lightbox(1024,768).cropResize(176,176).html() }}`, now works instead of being blocked, and the scan's list of allowed media methods stays in step with Grav's documented media actions automatically.
 1. [](#improved)
     * Updating a plugin or theme whose required dependency is held back by a newer Grav or PHP requirement now explains the real fix. Instead of reporting that the needed version is "higher than the latest release" and suggesting a cache refresh, the updater names the newer dependency release and the Grav (or PHP) version it needs, so you know to update Grav first. Relates to [getgrav/grav-plugin-admin2#93](https://github.com/getgrav/grav-plugin-admin2/issues/93).
     * Backup profiles now always appear in the scheduler where each can be switched on or off with the Enabled/Disabled toggle, instead of a profile staying hidden until its schedule was turned on; the profile's schedule setting seeds the default state and an explicit toggle takes precedence.
