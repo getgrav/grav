@@ -43,6 +43,8 @@ trait ParsedownGravTrait
     protected $gfm_tagfilter = true;
     /** @var bool Autolink bare `www.` URLs and email addresses (GFM extended autolinks). */
     protected $gfm_autolinks = true;
+    /** @var bool True while rendering inside a link label, so the extended autolink stands down (see line()). */
+    protected $inside_link = false;
     /** @var bool Non-GFM table extension: an empty cell merges into the cell on its left (colspan). */
     protected $table_colspan = false;
     /** @var bool Non-GFM table extension: a table may start with the divider row (no header). */
@@ -482,11 +484,39 @@ trait ParsedownGravTrait
     {
         $text = parent::unmarkedText($text);
 
-        if ($this->gfm_autolinks) {
+        if ($this->gfm_autolinks && !$this->inside_link) {
             $text = $this->autolinkExtended((string) $text);
         }
 
         return $text;
+    }
+
+    /**
+     * Track when we're rendering inside a link label so the extended autolink
+     * stands down there. Parsedown blocks nested markdown/`<>` links via the
+     * link element's `nonNestables` (['Url', 'Link']), but the GFM extended
+     * autolink runs in unmarkedText() and would otherwise bypass that and
+     * double-wrap an email or URL used as the link text, e.g.
+     * `[bob@example.com](mailto:bob@example.com)` (getgrav/grav#4191). Honor the
+     * same suppression by watching for those non-nestables.
+     *
+     * @param string     $text
+     * @param array<int, string> $nonNestables
+     * @return string
+     */
+    public function line($text, $nonNestables = []): string
+    {
+        $previous = $this->inside_link;
+        if (!$this->inside_link && $nonNestables
+            && (in_array('Link', $nonNestables, true) || in_array('Url', $nonNestables, true))) {
+            $this->inside_link = true;
+        }
+
+        try {
+            return parent::line($text, $nonNestables);
+        } finally {
+            $this->inside_link = $previous;
+        }
     }
 
     /**

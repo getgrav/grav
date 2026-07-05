@@ -1,3 +1,9 @@
+# v2.0.8
+## 07/05/2026
+
+1. [](#bugfix)
+    * An email or `www.` URL used as the visible text of a Markdown link is no longer turned into a second, nested link when GFM autolinks are enabled. Fixes [getgrav/grav#4191](https://github.com/getgrav/grav/issues/4191).
+
 # v2.0.7
 ## 07/04/2026
 
