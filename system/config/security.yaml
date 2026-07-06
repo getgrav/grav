@@ -335,6 +335,7 @@ twig_sandbox:
     - is_string
     - isajaxrequest
     - json_decode
+    - md5
     - media_directory
     - nicefilesize
     - nicenumber

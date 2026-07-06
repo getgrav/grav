@@ -218,6 +218,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('regex_match', $this->regexMatch(...)),
             new TwigFunction('regex_split', $this->regexSplit(...)),
             new TwigFunction('string', $this->stringFilter(...)),
+            new TwigFunction('md5', $this->md5Filter(...)),
             new TwigFunction('url', $this->urlFunc(...)),
             new TwigFunction('json_decode', $this->jsonDecodeFilter(...)),
             new TwigFunction('get_cookie', $this->getCookie(...)),

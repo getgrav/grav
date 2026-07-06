@@ -715,16 +715,16 @@
         },
         {
             "name": "getgrav/image",
-            "version": "v4.1.1",
+            "version": "v4.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Image.git",
-                "reference": "14d4a919b912f9e55525a5dd6744cc52c49129ac"
+                "reference": "c79662fd66cd3230f55a003dcce9c1bf459b49e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Image/zipball/14d4a919b912f9e55525a5dd6744cc52c49129ac",
-                "reference": "14d4a919b912f9e55525a5dd6744cc52c49129ac",
+                "url": "https://api.github.com/repos/getgrav/Image/zipball/c79662fd66cd3230f55a003dcce9c1bf459b49e4",
+                "reference": "c79662fd66cd3230f55a003dcce9c1bf459b49e4",
                 "shasum": ""
             },
             "require": {
@@ -767,9 +767,9 @@
                 "image"
             ],
             "support": {
-                "source": "https://github.com/getgrav/Image/tree/v4.1.1"
+                "source": "https://github.com/getgrav/Image/tree/v4.1.3"
             },
-            "time": "2026-06-28T20:48:53+00:00"
+            "time": "2026-07-06T14:38:32+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
