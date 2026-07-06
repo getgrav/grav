@@ -1,3 +1,11 @@
+# v2.0.8
+## 07/06/2026
+
+1. [](#bugfix)
+    * An email or `www.` URL used as the visible text of a Markdown link is no longer turned into a second, nested link when GFM autolinks are enabled. Fixes [getgrav/grav#4191](https://github.com/getgrav/grav/issues/4191).
+    * `md5()` can once again be called as a Twig function, not just as the `|md5` filter, so themes and plugins that generate an id or cache-busting hash with `md5(...)` keep working instead of failing with an "Unknown function" error. Fixes [getgrav/grav-theme-quark2#12](https://github.com/getgrav/grav-theme-quark2/issues/12).
+    * Replacing an image in place, such as swapping the image in a Flex object field, now shows the new image on the site instead of the previously cached version (updated `getgrav/image` to v4.1.3, which includes the source file's modification time and size in the derivative cache key). Fixes [getgrav/grav#4195](https://github.com/getgrav/grav/issues/4195).
+
 # v2.0.7
 ## 07/04/2026
 
