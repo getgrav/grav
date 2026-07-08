@@ -1,3 +1,9 @@
+# v2.0.9
+## 07/08/2026
+
+1. [](#bugfix)
+    * Images and links whose filename contains spaces now render when the path is wrapped in angle brackets, for example `![](<My image.jpg>)`. Fixes [getgrav/grav#4197](https://github.com/getgrav/grav/issues/4197).
+
 # v2.0.8
 ## 07/06/2026
 

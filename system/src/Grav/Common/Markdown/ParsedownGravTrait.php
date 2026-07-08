@@ -305,6 +305,12 @@ trait ParsedownGravTrait
      */
     protected function inlineImage($excerpt)
     {
+        // Support CommonMark angle-bracket destinations, e.g. `![](<My image.jpg>)`,
+        // so filenames containing spaces (or parentheses) can be referenced. Parsedown's
+        // own URL regex forbids these characters, so we percent-encode them before parsing
+        // and let Grav's media resolver urldecode them again downstream.
+        $extentAdjust = $this->encodeAngleBracketDestination($excerpt);
+
         if (preg_match($this->twig_link_regex, (string) $excerpt['text'], $matches)) {
             $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
             $excerpt = parent::inlineImage($excerpt);
@@ -316,6 +322,10 @@ trait ParsedownGravTrait
 
         $excerpt['type'] = 'image';
         $excerpt = parent::inlineImage($excerpt);
+
+        if (is_array($excerpt) && $extentAdjust && isset($excerpt['extent'])) {
+            $excerpt['extent'] += $extentAdjust;
+        }
 
         // if this is an image process it
         if (isset($excerpt['element']['attributes']['src'])) {
@@ -333,6 +343,10 @@ trait ParsedownGravTrait
     {
         $type = $excerpt['type'] ?? 'link';
 
+        // Support CommonMark angle-bracket destinations, e.g. `[doc](<My file.pdf>)`, so
+        // targets containing spaces (or parentheses) parse. See inlineImage() for details.
+        $extentAdjust = $this->encodeAngleBracketDestination($excerpt);
+
         // do some trickery to get around Parsedown requirement for valid URL if its Twig in there
         if (preg_match($this->twig_link_regex, (string) $excerpt['text'], $matches)) {
             $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
@@ -345,12 +359,60 @@ trait ParsedownGravTrait
 
         $excerpt = parent::inlineLink($excerpt);
 
+        if (is_array($excerpt) && $extentAdjust && isset($excerpt['extent'])) {
+            $excerpt['extent'] += $extentAdjust;
+        }
+
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
             $excerpt = $this->excerpts->processLinkExcerpt($excerpt, $type);
         }
 
         return $excerpt;
+    }
+
+    /**
+     * Rewrite a CommonMark angle-bracket link destination into a percent-encoded form
+     * that Parsedown's URL regex accepts.
+     *
+     * Parsedown's `inlineLink` regex rejects spaces and parentheses in the destination,
+     * so `![](<My image.jpg>)` never parses. CommonMark allows those characters when the
+     * destination is wrapped in angle brackets. This strips the brackets and percent-encodes
+     * ` `, `(` and `)` in place; Grav's Excerpts::processImageExcerpt()/processLinkExcerpt()
+     * urldecode the value again when resolving the media/route, so the original filename is
+     * recovered downstream.
+     *
+     * The text is mutated by reference. Because the rewritten destination is shorter than the
+     * `<...>` original, the caller must add the returned delta to the parsed excerpt's extent
+     * so Parsedown consumes the correct number of source characters.
+     *
+     * @param array $excerpt
+     * @return int Number of source characters to add back to the extent (0 if nothing changed).
+     */
+    protected function encodeAngleBracketDestination(array &$excerpt): int
+    {
+        $text = (string) ($excerpt['text'] ?? '');
+
+        // Match an optional `!`, a (possibly nested) `[label]`, then `(<destination>`.
+        if (!preg_match('/^(!?)(\[(?:[^\[\]]++|(?2))*+\])\(<([^<>\r\n]*)>/', $text, $matches)) {
+            return 0;
+        }
+
+        $inner = $matches[3];
+        if (strpbrk($inner, ' ()') === false) {
+            // Nothing Parsedown would choke on; drop the brackets but keep length bookkeeping.
+            $encoded = $inner;
+        } else {
+            $encoded = str_replace([' ', '(', ')'], ['%20', '%28', '%29'], $inner);
+        }
+
+        // Position of the `<` and the length of the `<inner>` span we are replacing.
+        $start = strlen($matches[1]) + strlen($matches[2]) + 1;
+        $original = strlen($inner) + 2; // include the angle brackets
+
+        $excerpt['text'] = substr_replace($text, $encoded, $start, $original);
+
+        return $original - strlen($encoded);
     }
 
     /**
