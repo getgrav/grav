@@ -445,7 +445,7 @@ class Blueprint extends BlueprintForm
         // e.g. Utils::arrayFilterRecursive($cmd, 'system'). Legitimate providers
         // are static methods returning option arrays and never take a callable
         // argument, so real blueprints are unaffected. (GHSA-fj2p-qj2f-74v5)
-        if (!$this->isSafeDynamicCall($function, $params)) {
+        if (!self::isSafeDynamicCall($function, $params)) {
             return;
         }
 
@@ -481,17 +481,22 @@ class Blueprint extends BlueprintForm
      * every argument is scanned recursively so a callable cannot be smuggled in
      * as a parameter to a trampoline helper. (GHSA-fj2p-qj2f-74v5)
      *
+     * Shared by {@see Blueprint::dynamicData} and Flex's
+     * {@see \Grav\Framework\Flex\FlexDirectory::dynamicDataField}, which route
+     * the same `data-*@` directive through separate dispatch paths and must
+     * enforce the same guard. (GHSA-fj2p-qj2f-74v5, GHSA-c4wf-2xxc-68qm)
+     *
      * @param mixed $function
      * @param array $params
      * @return bool
      */
-    protected function isSafeDynamicCall($function, array $params): bool
+    public static function isSafeDynamicCall($function, array $params): bool
     {
         if (is_string($function) && !str_contains($function, '::') && Utils::isDangerousFunction($function)) {
             return false;
         }
 
-        return !$this->paramsContainDangerousCallable($params);
+        return !self::paramsContainDangerousCallable($params);
     }
 
     /**
@@ -502,11 +507,11 @@ class Blueprint extends BlueprintForm
      * @param array $params
      * @return bool
      */
-    protected function paramsContainDangerousCallable(array $params): bool
+    private static function paramsContainDangerousCallable(array $params): bool
     {
         foreach ($params as $value) {
             if (is_array($value)) {
-                if ($this->paramsContainDangerousCallable($value)) {
+                if (self::paramsContainDangerousCallable($value)) {
                     return true;
                 }
                 continue;

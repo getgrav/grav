@@ -1,7 +1,8 @@
 # v2.0.9
-## 07/08/2026
+## 07/09/2026
 
 1. [](#bugfix)
+    * [security] A callable directive hidden in a Flex directory's blueprint field can no longer run commands on the server; dynamic field data on Flex types (Flex Pages, Flex Users, Flex Objects) now refuses dangerous functions, closing a path that bypassed the same guard added for page forms in 2.0.7 ([GHSA-c4wf-2xxc-68qm](https://github.com/getgrav/grav/security/advisories/GHSA-c4wf-2xxc-68qm)).
     * Images and links whose filename contains spaces now render when the path is wrapped in angle brackets, for example `![](<My image.jpg>)`. Fixes [getgrav/grav#4197](https://github.com/getgrav/grav/issues/4197).
 
 # v2.0.8
