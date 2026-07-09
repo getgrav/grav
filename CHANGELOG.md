@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * [security] A callable directive hidden in a Flex directory's blueprint field can no longer run commands on the server; dynamic field data on Flex types (Flex Pages, Flex Users, Flex Objects) now refuses dangerous functions, closing a path that bypassed the same guard added for page forms in 2.0.7 ([GHSA-c4wf-2xxc-68qm](https://github.com/getgrav/grav/security/advisories/GHSA-c4wf-2xxc-68qm)).
+    * [security] The scheduler webhook trigger now fails closed when no token is configured, so an enabled webhook left without a token can no longer run scheduled jobs for anonymous callers ([GHSA-xwv3-2mv2-w33x](https://github.com/getgrav/grav/security/advisories/GHSA-xwv3-2mv2-w33x)).
     * Images and links whose filename contains spaces now render when the path is wrapped in angle brackets, for example `![](<My image.jpg>)`. Fixes [getgrav/grav#4197](https://github.com/getgrav/grav/issues/4197).
 
 # v2.0.8

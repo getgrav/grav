@@ -1087,11 +1087,20 @@ class Scheduler
         if (!$this->webhookEnabled) {
             return ['success' => false, 'message' => 'Webhook triggers are not enabled'];
         }
-        
-        if ($this->webhookToken && $token !== $this->webhookToken) {
+
+        // Fail closed. An enabled webhook with no configured token must not run
+        // jobs for anonymous callers: require a token to be set, and require the
+        // caller to match it with a timing-safe comparison. A previous compound
+        // check short-circuited when the token was null, letting an unconfigured
+        // token accept every request. (GHSA-xwv3-2mv2-w33x / CVE-2026-57852)
+        if (!is_string($this->webhookToken) || $this->webhookToken === '') {
+            return ['success' => false, 'message' => 'Webhook token is not configured'];
+        }
+
+        if (!is_string($token) || !hash_equals($this->webhookToken, $token)) {
             return ['success' => false, 'message' => 'Invalid webhook token'];
         }
-        
+
         $this->initializeJobs();
 
         // Load custom jobs
