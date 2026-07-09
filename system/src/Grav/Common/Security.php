@@ -733,6 +733,33 @@ class Security
     }
 
     /**
+     * Normalize a configured `process` array to Grav's field defaults before it
+     * drives content rendering: ensure `markdown` is present (defaulting to on,
+     * Grav's default) and default `twig` from the security gate via
+     * applyTwigContentDefault(). An explicit value for either key always wins.
+     *
+     * This guards a config-merge foot-gun: a PARTIAL `system.pages.process`
+     * override (e.g. just `twig: false`) replaces the whole map at merge time —
+     * the blueprint models `process` as a single `checkboxes` field, so it's
+     * replaced wholesale rather than deep-merged — which silently drops the
+     * default `markdown: true` and leaves every page rendering raw Markdown
+     * source. Re-injecting the markdown default here heals such a site purely
+     * from core, with no edit to the site's YAML. Per-page `process` frontmatter
+     * is layered on top of this by the page classes, so it still overrides.
+     *
+     * @param array<string,mixed> $process Configured process array (may be empty).
+     * @return array<string,mixed> Same array with `markdown` and `twig` defaulted when unset.
+     */
+    public static function applyProcessDefaults(array $process): array
+    {
+        if (!array_key_exists('markdown', $process)) {
+            $process['markdown'] = true;
+        }
+
+        return self::applyTwigContentDefault($process);
+    }
+
+    /**
      * Per-page `process` field defaults for the page editor blueprint.
      * Pulls markdown/twig defaults from `system.pages.process`, defaults
      * `twig` from the security gate when unset, and intersects the result
