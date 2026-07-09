@@ -81,15 +81,22 @@ class SchedulerController
         if (!($config['webhook']['enabled'] ?? false)) {
             return $this->jsonResponse(['error' => 'Webhook triggers disabled'], 403);
         }
-        
+
+        // Fail closed: an enabled webhook with no configured token must reject
+        // anonymous callers rather than accept them. (GHSA-xwv3-2mv2-w33x)
+        $configuredToken = $config['webhook']['token'] ?? null;
+        if (!is_string($configuredToken) || $configuredToken === '') {
+            return $this->jsonResponse(['error' => 'Webhook token is not configured'], 403);
+        }
+
         // Get authorization header
         $authHeader = $request->getHeaderLine('Authorization');
         $token = null;
-        
+
         if (preg_match('/Bearer\s+(.+)$/i', $authHeader, $matches)) {
             $token = $matches[1];
         }
-        
+
         // Get query parameters
         $params = $request->getQueryParams();
         $jobId = $params['job'] ?? null;

@@ -922,6 +922,16 @@ class FlexDirectory implements FlexDirectoryInterface
             $params = [$object instanceof PageInterface && $object->isModule() ? 'modular' : 'standard'];
         }
 
+        // Security guard. A registered `data` handler makes Blueprint::init()
+        // dispatch here instead of Blueprint::dynamicData(), so this method must
+        // enforce the same guard or it becomes an unprotected bypass of that
+        // fix: is_callable() alone happily accepts exec/system/... and a
+        // trampoline callable smuggled in as a parameter. Reuse the exact check
+        // both paths share. (GHSA-fj2p-qj2f-74v5, GHSA-c4wf-2xxc-68qm)
+        if (!Blueprint::isSafeDynamicCall($function, $params)) {
+            return;
+        }
+
         $data = null;
         if (is_callable($function)) {
             $data = call_user_func_array($function, $params);
