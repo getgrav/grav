@@ -1,3 +1,9 @@
+# v2.0.10
+## 07/09/2026
+
+1. [](#bugfix)
+    * A partial `system.pages.process` override in `user/config/system.yaml` (for example setting only `twig: false`) no longer silently turns off Markdown and leaves every page rendering its raw source. Because `pages.process` is a single field in the blueprint, a partial override replaced the whole map and dropped the default `markdown: true`; core now re-applies that default, so an affected site recovers on update with no change to its config. An explicit `markdown: false` is still honored.
+
 # v2.0.9
 ## 07/09/2026
 
