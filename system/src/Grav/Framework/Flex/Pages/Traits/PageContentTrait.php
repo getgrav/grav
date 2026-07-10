@@ -282,7 +282,7 @@ trait PageContentTrait
             'process',
             $var,
             function ($value) {
-                $defaults = Security::applyTwigContentDefault(
+                $defaults = Security::applyProcessDefaults(
                     (array) Grav::instance()['config']->get('system.pages.process', [])
                 );
                 $value = array_replace($defaults, is_array($value) ? $value : []);

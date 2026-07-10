@@ -188,7 +188,7 @@ class Page implements PageInterface
             }
             $raw = [];
         }
-        $this->process = Security::applyTwigContentDefault((array) $raw);
+        $this->process = Security::applyProcessDefaults((array) $raw);
         $this->published = true;
     }
 

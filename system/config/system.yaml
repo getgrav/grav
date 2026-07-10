@@ -54,6 +54,11 @@ pages:
   publish_dates: true                            # automatically publish/unpublish based on dates
   process:
     markdown: true                               # Process Markdown
+    # NOTE: If you override this `process:` block in user/config/system.yaml,
+    # keep `markdown: true` here — a partial override REPLACES the whole map
+    # (this is a single checkboxes field in the blueprint, not a deep-merged
+    # group), so omitting markdown turns it off and pages render raw source.
+    # e.g. write BOTH keys: `process: { markdown: true, twig: false }`.
     # NOTE: Twig-in-content is controlled site-wide by the security gate
     # `security.twig_content.process_enabled` (Admin: Security > Twig in Content).
     # A `twig:` key here is only a per-page/section REQUEST flag and is
