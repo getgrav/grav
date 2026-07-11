@@ -36,6 +36,7 @@
         "symfony/process": "^7.0",
         "symfony/http-client": "^7.0",
         "twig/twig": "3.x-dev",
+        "twig/intl-extra": "^3.26",
         "monolog/monolog": "^3.0",
         "doctrine/collections": "^2.2",
         "nyholm/psr7-server": "^1.1",

@@ -39,6 +39,7 @@ use Twig\Extension\DebugExtension;
 use Twig\Extension\EscaperExtension;
 use Twig\Extension\SandboxExtension;
 use Twig\Extension\StringLoaderExtension;
+use Twig\Extra\Intl\IntlExtension;
 use Twig\Sandbox\SecurityError;
 use Twig\Sandbox\SecurityNotAllowedFilterError;
 use Twig\Sandbox\SecurityNotAllowedFunctionError;
@@ -273,6 +274,10 @@ class Twig
             $this->twig->addExtension(new FilesystemExtension());
             $this->twig->addExtension(new DeferredExtension());
             $this->twig->addExtension(new StringLoaderExtension());
+
+            if (extension_loaded('intl') && $this->grav['config']->get('system.intl_enabled', false)) {
+                $this->twig->addExtension(new IntlExtension());
+            }
 
             // Content sandbox — a SourcePolicy selects per-template whether to
             // enforce. Only editor-authored string templates (@Page: / @Var:)
