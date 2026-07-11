@@ -1,3 +1,12 @@
+# v2.0.11
+## 07/10/2026
+
+1. [](#bugfix)
+    * A page is no longer blanked when viewed just because a trusted plugin or shortcode on it outputs markup the content security scan flags, such as an embed, form, or icon; the check that guards against dangerous editor content now runs once when the page is saved rather than every time it is rendered ([GHSA-2c4f-86xc-cr74](https://github.com/getgrav/grav/security/advisories/GHSA-2c4f-86xc-cr74)).
+1. [](#improved)
+    * [security] Page content that uses Twig to assemble disallowed markup at render time, such as building an event handler or a `<script>` tag from separate pieces, is now refused when you save the page instead of being allowed through to visitors.
+    * The `raw` Twig filter is no longer allowed inside editor-authored page content, so page content can no longer output unescaped dynamic values past the content security check; trusted theme templates are unaffected.
+
 # v2.0.10
 ## 07/09/2026
 

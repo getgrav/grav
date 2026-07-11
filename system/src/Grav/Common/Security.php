@@ -11,7 +11,9 @@ namespace Grav\Common;
 
 use Exception;
 use Grav\Common\Config\Config;
+use Grav\Common\Data\Validation;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Pages;
 use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
@@ -294,211 +296,65 @@ class Security
     }
 
     /**
-     * Render-time XSS backstop for editor-authored content Twig (GHSA-2c4f-86xc-cr74).
+     * Save-time XSS backstop for editor-authored content Twig (GHSA-2c4f-86xc-cr74).
      *
-     * The blueprint validator only sees the raw page source, so a payload
-     * assembled at render time — `{{ "on" ~ "error" }}`, `<s{{ "c"~"r"~... }}>`
-     * — passes it and then emits live markup. Page::processTwig re-runs the
-     * detector on the *rendered* output to catch that.
+     * The blueprint validator (checkSafety) only inspects the raw page source,
+     * so a payload assembled at render time — `{{ "on" ~ "error" }}`,
+     * `<s{{ "c"~"r"~"i"~"p"~"t" }}>` — passes it and then resolves to live
+     * markup. This renders the sandboxed content-Twig pass on the raw content in
+     * isolation and runs the detector on the result, so an assembled tag/attr is
+     * caught before the page is ever stored.
      *
-     * The wrinkle this method solves: a shortcode or plugin that emits inline
-     * SVG/MathML (the svg-icon shortcode, GitHub-style alert icons, theme
-     * glyphs) is indistinguishable from an assembled payload to the raw
-     * detector — a legitimate `<svg>` subtree is full of the very tokens it
-     * flags (`xmlns`, `<title>`, `<style>`, the `<svg>`/`<math>` tags). Scanning
-     * it verbatim blanks the whole page on every icon.
+     * Enforced at save (PageObject::onBeforeSave and the API validator), not at
+     * render. By construction it only ever sees the editor's own output: no
+     * shortcodes or plugin `onPageContent*` listeners have run, so trusted
+     * plugin/theme markup can never trip it and there is no per-request cost or
+     * output-blanking. Superadmins (security.xss_whitelist) are exempt, matching
+     * Validation::checkSafety on the raw source.
      *
-     * So complete `<svg>…</svg>` / `<math>…</math>` subtrees are excised before
-     * scanning, and the full detector runs on what remains. An unclosed or
-     * booby-trapped svg/math (no matching close tag) does NOT match the strip
-     * pattern, so any trailing markup is still scanned — fail-safe. The residual
-     * gap (a render-time payload assembled *inside* a well-formed svg subtree) is
-     * narrow and stays behind the admin-only content-Twig gate plus the Twig
-     * sandbox; this scan is a backstop, not the primary defense.
-     *
-     * @param string $html Rendered page content (post-Twig).
-     * @return string|null Rule name that fired, or null if clean.
+     * @param string $rawContent Raw editor-authored page body (pre-render).
+     * @param PageInterface $page The page being saved (render + gate context).
+     * @return string|null Rule name that fired, or null if clean / not applicable.
      */
-    public static function detectXssInRenderedOutput(string $html): ?string
+    public static function detectXssInEditorContent(string $rawContent, PageInterface $page): ?string
     {
-        if ($html === '') {
+        if ($rawContent === '') {
             return null;
         }
 
-        // Excise well-formed SVG/MathML subtrees (the `\1` backreference pins the
-        // matching close tag). `s` = dotall so multi-line icons are removed whole;
-        // `i` = case-insensitive; `u` = unicode.
-        $scanTarget = preg_replace('#<(svg|math)\b[^>]*>.*?</\1\s*>#isu', ' ', $html);
-        if (!is_string($scanTarget)) {
-            $scanTarget = $html;
-        }
-
-        // Built-in convenience for the common case: excise provider <iframe>
-        // embeds (YouTube, Vimeo, …) whose hosts are registered as trusted via
-        // `security.xss_allowed_iframe_hosts` / the `onXssAllowedIframeHosts`
-        // event. Only iframes whose every src/data-src is a trusted host — and
-        // which carry no inline event handlers — are removed.
-        $scanTarget = static::exciseTrustedIframes($scanTarget, static::getAllowedIframeHosts());
-
-        // General extension point. A plugin/theme that legitimately emits markup
-        // the XSS detector flags — an embed iframe, an `<object>`/`<embed>`, a
-        // JSON-LD `<script type="application/ld+json">`, a custom element, etc. —
-        // removes ONLY the markup it positively recognizes as its own from
-        // `$event['html']` (the full, unmodified rendered output is in
-        // `$event['original']` for reference). Whatever a listener leaves behind
-        // is still scanned.
-        //
-        // Trust model: this is extended to operator-installed plugin/theme code,
-        // the same trust level a theme already has with unsandboxed Twig. It does
-        // NOT relax the scan for editor-authored content — the scanner still runs
-        // on everything not explicitly excised, so a listener can only vouch for
-        // markup IT produced. A too-narrow carve-out fails safe (its markup is
-        // scanned and may blank); it can never open a hole for content the
-        // listener didn't render. Listeners must therefore match tightly (their
-        // own marker class/attribute or, for embeds, {@see exciseTrustedIframes}
-        // with their provider hosts) and must not blanket-strip a tag.
-        $event = new Event(['html' => $scanTarget, 'original' => $html]);
-        Grav::instance()->fireEvent('onXssTrustedMarkup', $event);
-        if (is_string($event['html'])) {
-            $scanTarget = $event['html'];
-        }
-
-        return static::detectXss($scanTarget);
-    }
-
-    /**
-     * Whether the render-time XSS content scan is enabled.
-     *
-     * The setting lives at `security.content.xss_scan_output` (it validates
-     * editor-authored *content*, not Twig-in-content, so it is not tied to the
-     * `twig_content` gates). For backwards compatibility the legacy location
-     * `security.twig_content.xss_scan_output` is honored as a fallback when the
-     * new key is not set — sites that changed the old value keep their choice
-     * until it is migrated to the new location. Defaults to true when neither
-     * key is present.
-     *
-     * @return bool
-     */
-    public static function isXssScanOutputEnabled(): bool
-    {
+        /** @var Config $config */
         $config = Grav::instance()['config'];
 
-        $value = $config->get('security.content.xss_scan_output');
-        if ($value === null) {
-            // Legacy location (pre-2.0 relocation). Auto-migrated on upgrade.
-            $value = $config->get('security.twig_content.xss_scan_output');
+        // Only content that Twig will actually process at render time can carry a
+        // render-time-assembled payload. If the content-Twig gate is off, or this
+        // page doesn't request Twig, the raw-source validator already covers it.
+        if (!$config->get('security.twig_content.process_enabled', false) || !$page->shouldProcess('twig')) {
+            return null;
         }
 
-        return $value === null ? true : (bool) $value;
-    }
-
-    /** @var array<string>|null Per-request cache of trusted iframe hosts. */
-    private static ?array $allowedIframeHosts = null;
-
-    /**
-     * Hostnames whose `<iframe src>` is exempt from the rendered-output XSS
-     * scan. Sourced from `security.xss_allowed_iframe_hosts` plus the
-     * `onXssAllowedIframeHosts` event, which lets plugins/themes register their
-     * embed provider hosts (e.g. the YouTube plugin adds `youtube.com`).
-     *
-     * @return array<string> Normalized, lower-cased bare hostnames.
-     */
-    public static function getAllowedIframeHosts(): array
-    {
-        if (static::$allowedIframeHosts !== null) {
-            return static::$allowedIframeHosts;
+        // Mirror checkSafety's trust boundary: a user who may store literal
+        // dangerous markup (superadmin, per security.xss_whitelist) is not blocked
+        // from storing the assembled equivalent.
+        $user = Grav::instance()['user'] ?? null;
+        if (Validation::authorize($config->get('security.xss_whitelist', 'admin.super'), $user)) {
+            return null;
         }
 
-        $hosts = (array) (Grav::instance()['config']->get('security.xss_allowed_iframe_hosts') ?? []);
-
-        $event = new Event(['hosts' => $hosts]);
-        Grav::instance()->fireEvent('onXssAllowedIframeHosts', $event);
-        $hosts = (array) ($event['hosts'] ?? $hosts);
-
-        $clean = [];
-        foreach ($hosts as $host) {
-            $host = ltrim(strtolower(trim((string) $host)), '.');
-            if ($host !== '') {
-                $clean[$host] = true;
-            }
+        // Render the editor Twig in isolation through the same sandboxed path used
+        // at display time. No content events are fired, so the output contains the
+        // editor's markup and nothing else. A render/sandbox failure is not an XSS
+        // verdict — the raw-source validator still ran — so fail open on throw.
+        try {
+            $twig = Grav::instance()['twig'];
+            // A JSON API save may never have rendered a page, so the Twig
+            // environment isn't built yet; init() is idempotent (no-op once set).
+            $twig->init();
+            $rendered = $twig->processPage($page, $rawContent);
+        } catch (\Throwable) {
+            return null;
         }
 
-        return static::$allowedIframeHosts = array_keys($clean);
-    }
-
-    /**
-     * Remove `<iframe>` elements that are safe provider embeds — every
-     * src/data-src points at one of `$allowedHosts` (a host also matches its
-     * subdomains) and there are no inline event handlers — so they don't trip
-     * the scan. Anything else is left untouched for {@see detectXss} to judge.
-     *
-     * Public and host-parameterized so a plugin can reuse the same safe
-     * host-checking for its own provider inside an `onXssTrustedMarkup`
-     * listener, e.g. `$e['html'] = Security::exciseTrustedIframes($e['html'], ['vimeo.com'])`.
-     *
-     * @param string $html
-     * @param array<string> $allowedHosts Bare hostnames (subdomains included).
-     * @return string
-     */
-    public static function exciseTrustedIframes(string $html, array $allowedHosts): string
-    {
-        if ($allowedHosts === [] || stripos($html, '<iframe') === false) {
-            return $html;
-        }
-        $allowed = [];
-        foreach ($allowedHosts as $host) {
-            $host = ltrim(strtolower(trim((string) $host)), '.');
-            if ($host !== '') {
-                $allowed[] = $host;
-            }
-        }
-        if ($allowed === []) {
-            return $html;
-        }
-
-        $result = preg_replace_callback(
-            '#<iframe\b[^>]*>.*?</iframe\s*>#isu',
-            static function (array $m) use ($allowed): string {
-                $tag = $m[0];
-
-                // Inline event handler (onload=, onerror=, …) → never exempt.
-                if (preg_match('#\son[a-z0-9_-]+\s*=#i', $tag)) {
-                    return $tag;
-                }
-
-                // Every src / data-src must resolve to a trusted host.
-                if (!preg_match_all('#\s(?:data-)?src\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)#i', $tag, $mm)) {
-                    return $tag; // no source to vouch for
-                }
-                foreach ($mm[1] as $raw) {
-                    $host = parse_url(trim($raw, "\"'"), PHP_URL_HOST);
-                    if (!is_string($host) || !static::iframeHostAllowed($host, $allowed)) {
-                        return $tag;
-                    }
-                }
-
-                return ' '; // trusted embed — exempt from the scan
-            },
-            $html
-        );
-
-        return is_string($result) ? $result : $html;
-    }
-
-    /**
-     * @param string $host
-     * @param array<string> $allowed
-     * @return bool
-     */
-    private static function iframeHostAllowed(string $host, array $allowed): bool
-    {
-        $host = strtolower($host);
-        foreach ($allowed as $a) {
-            if ($host === $a || str_ends_with($host, '.' . $a)) {
-                return true;
-            }
-        }
-        return false;
+        return is_string($rendered) ? static::detectXss($rendered) : null;
     }
 
     public static function getXssDefaults(): array
@@ -921,41 +777,6 @@ class Security
             // `token` carries the source (content|frontmatter) so the report can
             // distinguish a body-content gate hit from a frontmatter one.
             self::recordTwigContentEvent('gate_blocked', $route, $source, '', $hint);
-        } catch (Exception) {
-            // Never let a logging failure break rendering.
-        }
-    }
-
-    /**
-     * Log an XSS hit detected in the *rendered* output of editor-authored Twig
-     * content. The blueprint-time validator only inspects the raw source, so a
-     * payload assembled at render time (string concatenation, dynamic tag/attr
-     * names) slips past it; this is the post-render backstop. (GHSA-2c4f-86xc-cr74)
-     *
-     * @param string $route Route of the offending page.
-     * @param string $found The XSS token detected in the rendered output.
-     */
-    public static function logTwigContentXssBlocked(string $route, string $found): void
-    {
-        try {
-            $grav = Grav::instance();
-            if (!$grav->offsetExists('log.security')) {
-                return;
-            }
-
-            $hint = 'Editor-authored content resolved to markup the XSS detector flags. The blueprint validator cannot see render-time-assembled payloads; content was blanked. Disable security.content.xss_scan_output to allow it.';
-
-            $grav['log.security']->warning(
-                sprintf('[TwigContentXss] blocked route=%s found=%s', $route, $found),
-                [
-                    'route' => $route,
-                    'found' => $found,
-                    'hint'  => $hint,
-                ]
-            );
-
-            // Mirror the event into the structured ring buffer the Admin reads.
-            self::recordTwigContentEvent('xss_blanked', $route, $found, '', $hint);
         } catch (Exception) {
             // Never let a logging failure break rendering.
         }

@@ -90,24 +90,6 @@ form:
             validate:
                 type: commalist
 
-        content_section:
-            type: section
-            title: PLUGIN_ADMIN.CONTENT_SECURITY
-            text: PLUGIN_ADMIN.CONTENT_SECURITY_HELP
-            underline: true
-
-        content.xss_scan_output:
-            type: toggle
-            label: PLUGIN_ADMIN.CONTENT_XSS_SCAN_OUTPUT
-            help: PLUGIN_ADMIN.CONTENT_XSS_SCAN_OUTPUT_HELP
-            highlight: 1
-            options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-            default: true
-            validate:
-                type: bool
-
         twig_content_section:
             type: section
             title: PLUGIN_ADMIN.TWIG_CONTENT

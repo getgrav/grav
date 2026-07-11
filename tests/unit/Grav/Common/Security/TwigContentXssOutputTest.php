@@ -14,13 +14,14 @@ use Twig\Loader\ArrayLoader;
  * `~` operator (e.g. `{{ "on" ~ "error" }}`) slips past it and then renders as a
  * live `onerror=` / `<script>` / `javascript:` in the output.
  *
- * The fix (Twig::processPage) re-runs Security::detectXss() on the resolved
- * editor-authored content — after its own in-page Twig, but before the trusted
- * theme/modular template wraps it, so legitimate template markup is never
- * scanned. These tests pin both halves of that contract: the raw source is NOT
- * flagged (proving the bypass is real and the pre-render check alone is
- * insufficient), and the resolved content IS flagged (proving the backstop
- * catches it). The toggle lives at security.content.xss_scan_output.
+ * The fix is enforced at SAVE time: Security::detectXssInEditorContent renders
+ * the sandboxed content-Twig pass in isolation and runs Security::detectXss() on
+ * the result, rejecting the save before the payload is ever stored. Because that
+ * render sees only the editor's own output (no shortcodes/plugins have run), it
+ * pins the two halves of the detector contract detectXssInEditorContent relies
+ * on: the raw source is NOT flagged (proving the pre-render check alone is
+ * insufficient), and the rendered equivalent IS flagged (proving detectXss
+ * catches the assembled markup).
  *
  * Naming convention: test{Method}_{GHSA_ID}_{description}
  */
@@ -60,7 +61,8 @@ class TwigContentXssOutputTest extends \PHPUnit\Framework\TestCase
 
     /**
      * The backstop: once the Twig is rendered, the live markup it produces must
-     * be caught by detectXss — this is exactly what Page::processTwig now runs.
+     * be caught by detectXss — this is exactly what detectXssInEditorContent runs
+     * on the save-time isolated render.
      *
      * @dataProvider providerConcatenationBypass
      */
@@ -71,7 +73,7 @@ class TwigContentXssOutputTest extends \PHPUnit\Framework\TestCase
         $result = Security::detectXss($rendered);
         self::assertNotNull(
             $result,
-            "Rendered Twig output must be flagged by the post-render scan: $description (rendered: $rendered)"
+            "Rendered Twig output must be flagged by the save-time scan: $description (rendered: $rendered)"
         );
         self::assertSame(
             $expectedRule,
@@ -125,137 +127,6 @@ class TwigContentXssOutputTest extends \PHPUnit\Framework\TestCase
             ['<img src=1 onerror=alert(1)>', 'on_events', 'literal onerror'],
             ['<script>alert(1)</script>', 'dangerous_tags', 'literal script tag'],
             ['<a href="javascript:alert(1)">click</a>', 'invalid_protocols', 'literal javascript: protocol'],
-        ];
-    }
-
-    // =========================================================================
-    // detectXssInRenderedOutput — the SVG/MathML-aware backstop used by
-    // Page::processTwig. Legitimate inline SVG (svg-icon shortcode, GitHub-style
-    // alert icons, theme glyphs) must NOT blank the page, while assembled
-    // payloads outside a well-formed svg/math subtree must still be caught.
-    // =========================================================================
-
-    /**
-     * The regression itself: rendered inline SVG/MathML — full of xmlns,
-     * <title>, <style> and the svg/math tags the raw detector flags — must pass
-     * the render-time scan untouched. Before the fix every one of these blanked
-     * the whole page (forum: v2.0.0 → v2.0.1 "most pages stopped rendering").
-     *
-     * @dataProvider providerLegitimateInlineSvg
-     */
-    public function testDetectXssInRenderedOutput_LegitimateSvgIsNotFlagged(string $html, string $description): void
-    {
-        self::assertNull(
-            Security::detectXssInRenderedOutput($html),
-            "Legitimate rendered SVG/MathML must not trip the output scan: $description"
-        );
-    }
-
-    public static function providerLegitimateInlineSvg(): array
-    {
-        return [
-            'svg-icon shortcode output' => [
-                '<p>Look: <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>telescope</title><path d="M1 2h3"/></svg> done.</p>',
-                'inline svg with xmlns + <title>',
-            ],
-            'duotone icon with inline <style>' => [
-                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><style>.a{fill:red}</style><path class="a" d="M1 1"/></svg>',
-                'svg carrying a <style> child (a dangerous tag in raw HTML)',
-            ],
-            'github-style alert with svg icon' => [
-                '<div class="markdown-alert"><p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 0"/></svg> Important</p></div>',
-                'alert block wrapping an inline status icon',
-            ],
-            'inline mathml' => [
-                '<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>x</mi></mrow></math>',
-                'mathml namespace block',
-            ],
-            'two icons in one page' => [
-                '<svg xmlns="http://www.w3.org/2000/svg"><title>a</title></svg> text <svg xmlns="http://www.w3.org/2000/svg"><title>b</title></svg>',
-                'multiple svg subtrees stripped independently',
-            ],
-        ];
-    }
-
-    /**
-     * The backstop must NOT go blind just because an svg/math subtree is present:
-     * a payload sitting outside the subtree, or in a malformed/unclosed svg, is
-     * still caught. This is the fail-safe half of the SVG carve-out.
-     *
-     * @dataProvider providerPayloadStillCaughtAroundSvg
-     */
-    public function testDetectXssInRenderedOutput_PayloadOutsideSvgStillFlagged(string $html, string $expectedRule, string $description): void
-    {
-        self::assertSame(
-            $expectedRule,
-            Security::detectXssInRenderedOutput($html),
-            "Payload must still be caught despite an svg/math subtree being present: $description"
-        );
-    }
-
-    public static function providerPayloadStillCaughtAroundSvg(): array
-    {
-        return [
-            'onerror after a clean svg' => [
-                '<svg xmlns="http://www.w3.org/2000/svg"><title>ok</title></svg><img src=1 onerror=alert(1)>',
-                'on_events',
-                'legit icon then an assembled handler',
-            ],
-            'script before a clean svg' => [
-                '<script>alert(1)</script><svg xmlns="http://www.w3.org/2000/svg"></svg>',
-                'dangerous_tags',
-                'script tag preceding an icon',
-            ],
-            'unclosed svg cannot smuggle a payload' => [
-                '<svg xmlns="http://www.w3.org/2000/svg"><img src=1 onerror=alert(1)>',
-                'on_events',
-                'no closing </svg>, so nothing is stripped and the handler is scanned',
-            ],
-            'javascript protocol outside math' => [
-                '<math xmlns="http://www.w3.org/1998/Math/MathML"></math><a href="javascript:alert(1)">x</a>',
-                'invalid_protocols',
-                'mathml then a javascript: link',
-            ],
-        ];
-    }
-
-    /**
-     * The scan toggle moved from security.twig_content.xss_scan_output to
-     * security.content.xss_scan_output. isXssScanOutputEnabled() must honor the
-     * new location, fall back to the legacy location when the new key is unset,
-     * and default to enabled when neither is present.
-     *
-     * @dataProvider providerScanEnabledResolution
-     */
-    public function testIsXssScanOutputEnabled_ResolvesNewThenLegacyThenDefault(
-        $newValue,
-        $legacyValue,
-        bool $expected,
-        string $description
-    ): void {
-        $config = $this->grav['config'];
-        $originalNew = $config->get('security.content.xss_scan_output');
-        $originalLegacy = $config->get('security.twig_content.xss_scan_output');
-
-        try {
-            $config->set('security.content.xss_scan_output', $newValue);
-            $config->set('security.twig_content.xss_scan_output', $legacyValue);
-
-            self::assertSame($expected, Security::isXssScanOutputEnabled(), $description);
-        } finally {
-            $config->set('security.content.xss_scan_output', $originalNew);
-            $config->set('security.twig_content.xss_scan_output', $originalLegacy);
-        }
-    }
-
-    public static function providerScanEnabledResolution(): array
-    {
-        return [
-            'new key wins over legacy'        => [true, false, true, 'new true overrides legacy false'],
-            'new false wins over legacy true' => [false, true, false, 'new false overrides legacy true'],
-            'legacy used when new unset'      => [null, false, false, 'falls back to legacy false'],
-            'legacy true when new unset'      => [null, true, true, 'falls back to legacy true'],
-            'default enabled when both unset' => [null, null, true, 'defaults to enabled'],
         ];
     }
 }

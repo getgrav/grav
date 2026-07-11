@@ -42,22 +42,6 @@ xss_dangerous_tags:
   # of the admin select-template context.
   - option
   - select
-# Hostnames whose `<iframe src>` is exempt from the content XSS scan
-# (`content.xss_scan_output`). Lets trusted provider embeds — YouTube,
-# Vimeo, maps, etc. injected by plugins — survive the scan that otherwise
-# blanks any page containing an iframe. A registered host also matches its
-# subdomains (e.g. `youtube.com` covers `www.youtube.com`). Only iframes whose
-# every src/data-src is a listed host AND that carry no inline event handlers
-# are exempt, so an editor still can't smuggle in `<iframe src="evil">`.
-# Plugins/themes add hosts at runtime via the `onXssAllowedIframeHosts` event.
-#
-# This is the declarative shortcut for the common embed case. For anything else
-# a plugin legitimately renders that the scan flags (an `<object>`/`<embed>`, a
-# JSON-LD `<script type="application/ld+json">`, a custom element, …) the plugin
-# excises its OWN markup from the rendered output via the general
-# `onXssTrustedMarkup` event — the scan still runs on everything it leaves, so
-# editor-authored content is never exempted. See Grav\Common\Security.
-xss_allowed_iframe_hosts: []
 uploads_dangerous_extensions:
   - php
   - php2
@@ -82,27 +66,17 @@ uploads_dangerous_extensions:
   - twig
   - ini
 sanitize_svg: true
-# Content security — applies to editor-authored page content whether or not
-# Twig-in-content is enabled.
+# Content security for editor-authored page content.
 #
-# content.xss_scan_output (default: true): re-run the XSS detector on
-# editor-authored page content AFTER its own in-page Twig is resolved but
-# BEFORE the trusted theme / modular template wraps it. The blueprint-time XSS
-# validator only sees the raw source, so a payload assembled at render time —
-# e.g. `{{ "on" ~ "error" }}` or `<s{{ "c"~"r"~"i"~"p"~"t" }}>` — passes
-# validation but resolves to a live `onerror=`/`<script>`. This scan closes
-# that gap; on a hit the offending content is blanked and the event logged to
-# logs/security.log. It never inspects the theme/modular template output, so
-# legitimate template markup (provider embeds, form/reCAPTCHA scripts, theme
-# JS/CSS) can never trip it. (GHSA-2c4f-86xc-cr74)
-#
-# Relocated here from `security.twig_content.xss_scan_output` (it is a
-# content concern, not a Twig-in-content one). The old location is still
-# honored as a fallback and is auto-migrated to here on upgrade, so leaving
-# this commented keeps any legacy override in effect. Uncomment to set the
-# value explicitly at the new location.
-#content:
-#  xss_scan_output: true
+# Editor Twig can assemble markup the raw-source validator can't see — a payload
+# built at render time from string concatenation, e.g. `{{ "on" ~ "error" }}` or
+# `<s{{ "c"~"r"~"i"~"p"~"t" }}>`, passes the blueprint XSS validator (it inspects
+# the source) and would resolve to a live `onerror=`/`<script>`. Grav closes that
+# gap at SAVE time: Security::detectXssInEditorContent renders the sandboxed
+# content-Twig pass in isolation and rejects the save if it produces flagged
+# markup. Because that check runs before any shortcode/plugin/theme markup is
+# assembled, it only ever inspects the editor's own output — trusted plugin
+# markup can never trip it, and there is no render-time cost. (GHSA-2c4f-86xc-cr74)
 
 # Twig in Content — gate for editor-authored Twig inside page content.
 # Applies to Twig::processPage() and Twig::processString(). Theme templates
@@ -221,7 +195,11 @@ twig_sandbox:
     - merge
     - nl2br
     - number_format
-    - raw
+    # `raw` is intentionally NOT allow-listed: it is the one filter that defeats
+    # Twig autoescape, so `{{ x|raw }}` on render-time-only data (request params,
+    # another page's mutable frontmatter) is the sole XSS vector the save-time
+    # content scan can't see. Dropping it keeps that scan complete. Trusted theme
+    # templates (.html.twig) are unsandboxed and can still use `raw`.
     - reduce
     - replace
     - reverse

@@ -379,7 +379,7 @@ class Twig
      *
      * @return string          The rendered output
      */
-    public function processPage(PageInterface $item, $content = null, bool $scanXss = false)
+    public function processPage(PageInterface $item, $content = null)
     {
         $content ??= $item->content();
         $filtered = false;
@@ -438,22 +438,11 @@ class Twig
                 }
             }
 
-            // Render-time XSS backstop. Runs on the resolved editor-authored
-            // content — after its own in-page Twig above, but BEFORE the
-            // trusted theme/modular template below wraps it. Scanning here (not
-            // the final output) means legitimate template markup — provider
-            // embeds, form/reCAPTCHA scripts, theme JS/CSS — is never inspected,
-            // while an assembled `on*=`/`<script>`/`javascript:` payload in the
-            // content itself is still caught. On a hit the content is blanked
-            // and the event logged; a modular page keeps its (now empty) theme
-            // wrapper. Gated by security.content.xss_scan_output. (GHSA-2c4f-86xc-cr74)
-            if ($scanXss && is_string($content) && $content !== '' && Security::isXssScanOutputEnabled()) {
-                $found = Security::detectXssInRenderedOutput($content);
-                if ($found !== null) {
-                    Security::logTwigContentXssBlocked((string) ($item->route() ?? $item->filePath() ?? 'unknown'), $found);
-                    $output = $content = '';
-                }
-            }
+            // Editor-authored content Twig can assemble markup the raw-source
+            // validator can't see (`{{ "on" ~ "error" }}`, `<s{{ "cript" }}>`).
+            // That is caught at SAVE time now — Security::detectXssInEditorContent
+            // renders this same sandboxed pass in isolation and rejects the save —
+            // so there is no render-time output scan here. (GHSA-2c4f-86xc-cr74)
 
             // Modular theme template render (loaded from disk) — trusted, not
             // sandboxed by our SourcePolicy. The already-resolved content is
