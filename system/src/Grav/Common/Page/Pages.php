@@ -967,11 +967,27 @@ class Pages
     }
 
     /**
+     * Check whether a page path has already been hydrated into memory, without
+     * triggering hydration.
+     *
+     * Collection flag filters use this to prefer a page's live flags (which a
+     * plugin may have changed at runtime, e.g. the Login plugin's dynamic page
+     * visibility) over the flags frozen in the children index, while still
+     * avoiding a load for pages that are only lazily indexed. See getgrav/grav#4201.
+     *
+     * @param string $path
+     * @return bool
+     */
+    public function isInstantiated($path): bool
+    {
+        return array_key_exists((string)$path, $this->instances);
+    }
+
+    /**
      * Get a page instance.
      *
      * @param  string $path The filesystem full path of the page
      * @return PageInterface|null
-     * @throws RuntimeException
      */
     public function get($path)
     {
