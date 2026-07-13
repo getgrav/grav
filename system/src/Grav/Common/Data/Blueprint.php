@@ -492,11 +492,69 @@ class Blueprint extends BlueprintForm
      */
     public static function isSafeDynamicCall($function, array $params): bool
     {
-        if (is_string($function) && !str_contains($function, '::') && Utils::isDangerousFunction($function)) {
+        if (is_string($function) && str_contains($function, '::')) {
+            // `Class::method` providers skip the bare-function denylist below
+            // (Utils::isDangerousFunction already rejects any string containing
+            // `:` or `\`). Without a positive gate that carve-out let a page-edit
+            // account name ANY public static method as a dynamic-field provider
+            // and reach file-disclosure / file-write / secret-read gadgets
+            // (Utils::download, Folder::copy/delete, Security::getNonceKey, ...).
+            // Permit only the known-safe option providers on the allowlist.
+            // (GHSA-7pgq-cr25-xvc8, GHSA-cxv3-5jj3-cpgr)
+            if (!isset(self::$allowedDynamicCallables[strtolower(ltrim($function, '\\'))])) {
+                return false;
+            }
+
+            return !self::paramsContainDangerousCallable($params);
+        }
+
+        if (is_string($function) && Utils::isDangerousFunction($function)) {
             return false;
         }
 
         return !self::paramsContainDangerousCallable($params);
+    }
+
+    /**
+     * Allowlist of `Class::method` dynamic-data providers a `data-*@` directive
+     * may invoke. Seeded from the providers first-party blueprints actually use;
+     * plugins that ship their own raw `Class::method` provider register it once
+     * via {@see self::addAllowedDynamicCallable()}. Any `Class::method` not listed
+     * is refused, which is what closes the arbitrary-static-method bypass.
+     * Keys are lowercased and stripped of a leading `\` so both `\Grav\...` and
+     * `Grav\...` spellings match (PHP class/method names are case-insensitive).
+     *
+     * @var array<string,bool>
+     */
+    private static $allowedDynamicCallables = [
+        'grav\\common\\page\\pages::pagetypes' => true,
+        'grav\\common\\page\\pages::types' => true,
+        'grav\\common\\security::pageprocessdefaults' => true,
+        'grav\\common\\security::pageprocessoptions' => true,
+        'grav\\common\\user\\group::groupnames' => true,
+        'grav\\common\\utils::dateformats' => true,
+        'grav\\common\\utils::timezones' => true,
+        'grav\\common\\flex\\types\\usergroups\\usergroupobject::groupnames' => true,
+        'grav\\plugin\\admin\\admin::adminlanguages' => true,
+        'grav\\plugin\\admin\\admin::contenteditor' => true,
+        'grav\\plugin\\admin\\admin::getlastpagename' => true,
+        'grav\\plugin\\adminplugin::pagesmodulartypes' => true,
+        'grav\\plugin\\adminplugin::pagestypes' => true,
+        'grav\\plugin\\adminplugin::themeoptions' => true,
+        'grav\\plugin\\flexobjectsplugin::directoryoptions' => true,
+    ];
+
+    /**
+     * Register an additional `Class::method` dynamic-data provider as safe. Call
+     * once at plugin init (e.g. `onPluginsInitialized`) for any blueprint that
+     * uses a raw `data-options@: 'My\Plugin::provider'` directive.
+     *
+     * @param string $callable  A `Class::method` string.
+     * @return void
+     */
+    public static function addAllowedDynamicCallable(string $callable): void
+    {
+        self::$allowedDynamicCallables[strtolower(ltrim($callable, '\\'))] = true;
     }
 
     /**
