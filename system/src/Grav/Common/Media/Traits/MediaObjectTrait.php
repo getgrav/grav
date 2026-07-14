@@ -109,6 +109,31 @@ trait MediaObjectTrait
     }
 
     /**
+     * Whether this medium has a `.meta.yaml` sidecar contributing metadata.
+     *
+     * Lets templates and collection queries tell curated media apart from bare
+     * files: `{% if image.hasMeta %}…{% endif %}`.
+     *
+     * @return bool
+     */
+    public function hasMeta()
+    {
+        return !empty($this->metadata);
+    }
+
+    /**
+     * The keys defined in this medium's `.meta.yaml` sidecar.
+     *
+     * Example: `{{ image.metaKeys|join(', ') }}`.
+     *
+     * @return string[]
+     */
+    public function metaKeys()
+    {
+        return array_keys($this->metadata);
+    }
+
+    /**
      * Add meta file for the medium.
      *
      * @param string $filepath

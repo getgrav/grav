@@ -1,6 +1,8 @@
 # v2.0.11
-## 07/10/2026
+## 07/13/2026
 
+1. [](#new)
+    * You can now filter, sort, and group a page's media by the values in their `.meta.yaml` metafiles directly in Twig, with new `filterBy`, `where`, `findBy`, `sortBy`, `groupBy`, and `withMeta` methods on `page.media`. Fixes [getgrav/grav#4200](https://github.com/getgrav/grav/issues/4200).
 1. [](#bugfix)
     * A page is no longer blanked when viewed just because a trusted plugin or shortcode on it outputs markup the content security scan flags, such as an embed, form, or icon; the check that guards against dangerous editor content now runs once when the page is saved rather than every time it is rendered ([GHSA-2c4f-86xc-cr74](https://github.com/getgrav/grav/security/advisories/GHSA-2c4f-86xc-cr74)).
 1. [](#improved)
