@@ -386,7 +386,14 @@ class Collection extends Iterator implements PageCollectionInterface
     {
         $filtered = [];
         foreach ($this->items as $path => $info) {
-            if (is_array($info) && array_key_exists($flag, $info)) {
+            // Trust the stored index flag only while the page is still lazy — that
+            // is the point of the index, letting navigation prune a folder without
+            // loading every sibling. Once a page is hydrated its live flags are
+            // authoritative: a plugin may have changed them at runtime (e.g. the
+            // Login plugin's dynamic page visibility toggles visible() per request
+            // based on the current user's access), and the frozen index flag would
+            // otherwise mask that. See getgrav/grav#4201.
+            if (is_array($info) && array_key_exists($flag, $info) && !$this->pages->isInstantiated($path)) {
                 $value = (bool)$info[$flag];
             } else {
                 $page = $this->pages->get($path);

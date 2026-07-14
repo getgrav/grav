@@ -14,6 +14,28 @@ use Grav\Framework\Flex\FlexDirectory;
  */
 class DynamicDataCallGuardTest extends \PHPUnit\Framework\TestCase
 {
+    /** @var array<string,bool> Baseline allowlist, restored after each test. */
+    private $allowlistSnapshot = [];
+
+    /**
+     * The allowlist is private static and persists across tests, so a test that
+     * registers a provider must not leak it into the next test's expectations.
+     * Snapshot before, restore after.
+     */
+    protected function setUp(): void
+    {
+        $prop = new ReflectionProperty(Blueprint::class, 'allowedDynamicCallables');
+        $prop->setAccessible(true);
+        $this->allowlistSnapshot = $prop->getValue();
+    }
+
+    protected function tearDown(): void
+    {
+        $prop = new ReflectionProperty(Blueprint::class, 'allowedDynamicCallables');
+        $prop->setAccessible(true);
+        $prop->setValue(null, $this->allowlistSnapshot);
+    }
+
     /** A legitimate provider: a static method returning an option array. */
     public static function provideOptions(): array
     {
@@ -42,14 +64,36 @@ class DynamicDataCallGuardTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testGuardAllowsLegitimateStaticProvider(): void
+    public function testGuardAllowsAllowlistedStaticProvider(): void
     {
-        self::assertTrue(
-            Blueprint::isSafeDynamicCall(self::class . '::provideOptions', [])
-        );
+        // Only `Class::method` providers on the allowlist are permitted
+        // (GHSA-7pgq-cr25-xvc8, GHSA-cxv3-5jj3-cpgr).
         self::assertTrue(
             Blueprint::isSafeDynamicCall('\Grav\Common\Page\Pages::pageTypes', ['standard'])
         );
+    }
+
+    public function testGuardRejectsArbitraryUnlistedStaticProvider(): void
+    {
+        // An arbitrary public static method not on the allowlist is refused,
+        // even though it is a perfectly valid callable — this is the bypass the
+        // fix closes (GHSA-7pgq-cr25-xvc8, GHSA-cxv3-5jj3-cpgr).
+        self::assertFalse(
+            Blueprint::isSafeDynamicCall(self::class . '::provideOptions', [])
+        );
+        self::assertFalse(
+            Blueprint::isSafeDynamicCall('\Grav\Common\Utils::download', ['user/config/security.yaml'])
+        );
+    }
+
+    public function testAllowlistRegistrationPermitsPluginProvider(): void
+    {
+        $provider = self::class . '::provideOptions';
+        self::assertFalse(Blueprint::isSafeDynamicCall($provider, []));
+
+        // Plugins opt their own raw `Class::method` provider in once at init.
+        Blueprint::addAllowedDynamicCallable($provider);
+        self::assertTrue(Blueprint::isSafeDynamicCall($provider, []));
     }
 
     /**
@@ -83,6 +127,9 @@ class DynamicDataCallGuardTest extends \PHPUnit\Framework\TestCase
      */
     public function testFlexDirectoryDataFieldAllowsLegitimateProvider(): void
     {
+        // An allowlisted provider still resolves through the Flex dispatch path.
+        Blueprint::addAllowedDynamicCallable(self::class . '::provideOptions');
+
         $field = ['myfield' => ['type' => 'select']];
         $call = [
             'action' => 'data',

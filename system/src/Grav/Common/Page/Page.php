@@ -937,11 +937,10 @@ class Page implements PageInterface
             if ($content_twig_requested && !$content_twig_allowed && !$this->modularTwig()) {
                 Security::logTwigContentGateBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), 'content');
             }
-            // Editor-authored content Twig (gated by process_enabled) gets its
-            // rendered output re-scanned for XSS; trusted modular/theme Twig
-            // does not. (GHSA-2c4f-86xc-cr74)
-            $scan_twig_xss = $content_twig_requested && $content_twig_allowed;
-            $process_twig = $scan_twig_xss || $this->modularTwig();
+            // Editor-authored content Twig is gated by process_enabled; trusted
+            // modular/theme Twig renders unconditionally. XSS in assembled
+            // content Twig is caught at save time, not here. (GHSA-2c4f-86xc-cr74)
+            $process_twig = ($content_twig_requested && $content_twig_allowed) || $this->modularTwig();
 
             $cache_enable = $this->header->cache_enable ?? $config->get(
                 'system.cache.enabled',
@@ -977,7 +976,7 @@ class Page implements PageInterface
                 }
 
                 if ($process_twig) {
-                    $this->processTwig($scan_twig_xss);
+                    $this->processTwig();
                 }
             } else {
                 if ($this->content === false || $cache_enable === false) {
@@ -986,7 +985,7 @@ class Page implements PageInterface
 
                     if ($twig_first) {
                         if ($process_twig) {
-                            $this->processTwig($scan_twig_xss);
+                            $this->processTwig();
                         }
                         if ($process_markdown) {
                             $this->processMarkdown();
@@ -1003,7 +1002,7 @@ class Page implements PageInterface
                         Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
 
                         if ($process_twig) {
-                            $this->processTwig($scan_twig_xss);
+                            $this->processTwig();
                         }
                     }
 
@@ -1156,22 +1155,13 @@ class Page implements PageInterface
     /**
      * Process the Twig page content.
      *
-     * @param bool $scanXss When true, re-run the XSS detector on the resolved
-     *                      editor-authored content, before the trusted
-     *                      theme/modular template wraps it. Set only for content
-     *                      whose in-page Twig was processed — the blueprint
-     *                      validator sees the raw source, so a payload assembled
-     *                      at render time (e.g. `{{ "on" ~ "error" }}`) passes
-     *                      validation but resolves to live markup. The scan runs
-     *                      inside Twig::processPage() so it never inspects the
-     *                      theme/modular template output. (GHSA-2c4f-86xc-cr74)
      * @return void
      */
-    private function processTwig(bool $scanXss = false)
+    private function processTwig()
     {
         /** @var Twig $twig */
         $twig = Grav::instance()['twig'];
-        $this->content = $twig->processPage($this, $this->content, $scanXss);
+        $this->content = $twig->processPage($this, $this->content);
     }
 
     /**
@@ -1362,6 +1352,18 @@ class Page implements PageInterface
      */
     public function save($reorder = true)
     {
+        // Render-time XSS backstop for assembled content Twig, mirroring the Flex
+        // save path (PageObject::onBeforeSave). Belt-and-suspenders for the legacy
+        // save path — reject before writing if the editor's content resolves to
+        // flagged markup once its Twig is processed. (GHSA-2c4f-86xc-cr74)
+        $found = Security::detectXssInEditorContent($this->rawMarkdown(), $this);
+        if ($found !== null) {
+            throw new RuntimeException(
+                sprintf('Page content resolves to disallowed markup (%s) after Twig processing. Remove the render-time-assembled tag or attribute.', $found),
+                400
+            );
+        }
+
         // Perform move, copy [or reordering] if needed.
         $this->doRelocation();
 

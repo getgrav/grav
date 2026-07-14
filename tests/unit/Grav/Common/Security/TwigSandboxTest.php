@@ -447,9 +447,11 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     public function testGhsaJ274_RenderViaSandboxConfigStripsPluginSecrets(): void
     {
         // Full advisory PoC: editor saves a page body of
-        //   {{ config.toArray()|json_encode|raw }}
+        //   {{ config.toArray()|json_encode }}
         // With the SandboxConfig facade injected as `config`, the rendered
-        // output must NOT contain plugin secrets.
+        // output must NOT contain plugin secrets. (`raw` is no longer
+        // allow-listed; the escaped JSON still contains the substrings asserted
+        // below, so the stripping guarantee is unaffected.)
         $real = new \Grav\Common\Config\Config([
             'site' => ['title' => 'Public Title'],
             'plugins' => [
@@ -463,7 +465,7 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
             ['plugins', 'streams']
         );
 
-        $env = $this->sandboxEnv(['poc' => '{{ config.toArray()|json_encode|raw }}']);
+        $env = $this->sandboxEnv(['poc' => '{{ config.toArray()|json_encode }}']);
         $output = $env->render('poc', ['config' => $facade]);
 
         self::assertStringContainsString('Public Title', $output, 'site.* must remain readable');
@@ -480,7 +482,9 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
         $real = new \Grav\Common\Config\Config([
             'plugins' => ['email' => ['smtp' => ['password' => 'PLUGIN_SECRET_42']]],
         ]);
-        $env = $this->sandboxEnv(['poc' => '{{ config.toArray()|json_encode|raw }}']);
+        // `raw` is no longer allow-listed, so keep the PoC to the method under
+        // test — toArray() must be rejected on its own.
+        $env = $this->sandboxEnv(['poc' => '{{ config.toArray()|json_encode }}']);
         $this->expectException(SecurityNotAllowedMethodError::class);
         $env->render('poc', ['config' => $real]);
     }

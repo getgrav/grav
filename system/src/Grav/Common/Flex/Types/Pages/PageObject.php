@@ -22,6 +22,7 @@ use Grav\Common\Flex\Types\Pages\Traits\PageTranslateTrait;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
+use Grav\Common\Security;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
@@ -182,6 +183,21 @@ class PageObject extends FlexPageObject
     protected function onBeforeSave(array $variables)
     {
         $reorder = $variables[0] ?? true;
+
+        // Render-time XSS backstop, enforced at save. Editor-authored Twig in
+        // page content can assemble markup the raw-source validator can't see
+        // (`{{ "on" ~ "error" }}`, `<s{{ "cript" }}>`); render the sandboxed
+        // content-Twig in isolation and reject the save if it resolves to flagged
+        // markup. Only editor content is in scope here — no shortcodes/plugins
+        // have run — so trusted plugin/theme output can never trip it. Superadmins
+        // are exempt (mirrors the raw-source checkSafety). (GHSA-2c4f-86xc-cr74)
+        $found = Security::detectXssInEditorContent($this->getRawContent(), $this);
+        if ($found !== null) {
+            throw new RuntimeException(
+                sprintf('Page content resolves to disallowed markup (%s) after Twig processing. Remove the render-time-assembled tag or attribute.', $found),
+                400
+            );
+        }
 
         $meta = $this->getMetaData();
         if (($meta['copy'] ?? false) === true) {
