@@ -3,6 +3,7 @@
 
 1. [](#new)
     * You can now filter, sort, and group a page's media by the values in their `.meta.yaml` metafiles directly in Twig, with new `filterBy`, `where`, `findBy`, `sortBy`, `groupBy`, and `withMeta` methods on `page.media`. Fixes [getgrav/grav#4200](https://github.com/getgrav/grav/issues/4200).
+    * Added per-language fallbacks for unsupported browser languages during `HTTP_ACCEPT_LANGUAGE` negotiation, allowing them to resolve to supported languages without exposing additional language routes.
 1. [](#bugfix)
     * [security] A page editor can no longer read arbitrary files from the server by pointing an image watermark at a traversal path such as `carrier.png?watermark=../secret.png`; an editor-supplied watermark path is now confined to the site's media, while operator-configured watermarks and stream URIs are unaffected ([GHSA-w3f4-8pj2-599w](https://github.com/getgrav/grav/security/advisories/GHSA-w3f4-8pj2-599w)).
     * [security] A page-edit account can no longer reach file-disclosure or secret-read functions by naming an arbitrary `Class::method` as a dynamic field's data provider; qualified providers are now limited to a known-safe allowlist, closing a bypass of the guard added in 2.0.7 and 2.0.9 ([GHSA-7pgq-cr25-xvc8](https://github.com/getgrav/grav/security/advisories/GHSA-7pgq-cr25-xvc8), [GHSA-cxv3-5jj3-cpgr](https://github.com/getgrav/grav/security/advisories/GHSA-cxv3-5jj3-cpgr)).

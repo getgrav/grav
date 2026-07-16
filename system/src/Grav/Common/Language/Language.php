@@ -15,6 +15,7 @@ use Grav\Common\Config\Config;
 use Negotiation\AcceptLanguage;
 use Negotiation\LanguageNegotiator;
 use function array_key_exists;
+use function array_keys;
 use function count;
 use function in_array;
 use function is_array;
@@ -293,10 +294,18 @@ class Language
                     $this->config->get('system.languages.http_accept_language') &&
                     $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? false) {
                     $negotiator = new LanguageNegotiator();
-                    $best_language = $negotiator->getBest($accept, $this->languages);
+                    $fallbacks = $this->getHttpLanguageFallbacks();
+                    $languages = $this->languages;
+
+                    foreach (array_keys($fallbacks) as $language) {
+                        $languages[] = $language;
+                    }
+
+                    $best_language = $negotiator->getBest($accept, $languages);
 
                     if ($best_language instanceof AcceptLanguage) {
-                        $this->setActive($best_language->getType());
+                        $language = $best_language->getType();
+                        $this->setActive($fallbacks[$language] ?? $language);
                     } else {
                         $this->setActive($this->getDefault());
                     }
@@ -688,5 +697,46 @@ class Language
         $languages[] = 'en';
 
         return array_values(array_unique($languages));
+    }
+
+    /**
+     * Get valid browser language fallbacks.
+     *
+     * @return array<string, string>
+     */
+    protected function getHttpLanguageFallbacks(): array
+    {
+        $fallbacks = $this->config->get('system.languages.http_accept_language_fallback', []);
+        if (!is_array($fallbacks)) {
+            return [];
+        }
+
+        $languages = [];
+
+        foreach ($fallbacks as $source => $targets) {
+            $source = (string) $source;
+
+            // Supported languages should always resolve directly.
+            if (!preg_match('/^[a-zA-Z]{2,3}(?:[-_][a-zA-Z0-9]{2,8})?$/', $source)
+                || in_array($source, $this->languages, true)
+            ) {
+                continue;
+            }
+
+            if (!is_array($targets)) {
+                $targets = [$targets];
+            }
+
+            foreach ($targets as $target) {
+                $target = (string) $target;
+
+                if (in_array($target, $this->languages, true)) {
+                    $languages[$source] = $target;
+                    break;
+                }
+            }
+        }
+
+        return $languages;
     }
 }
