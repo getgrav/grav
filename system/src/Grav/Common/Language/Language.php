@@ -714,7 +714,8 @@ class Language
         $languages = [];
 
         foreach ($fallbacks as $source => $targets) {
-            $source = (string) $source;
+            // Lowercase to match the negotiator, which normalizes matched types to lowercase.
+            $source = strtolower((string) $source);
 
             // Supported languages should always resolve directly.
             if (!preg_match('/^[a-zA-Z]{2,3}(?:[-_][a-zA-Z0-9]{2,8})?$/', $source)
