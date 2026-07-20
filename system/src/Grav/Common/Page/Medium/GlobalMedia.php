@@ -18,6 +18,15 @@ use function dirname;
 /**
  * Class GlobalMedia
  * @package Grav\Common\Page\Medium
+ *
+ * NOTE: GlobalMedia resolves media lazily, one stream at a time via
+ * {@see offsetGet()}/{@see addMedium()}; it never enumerates `user://media`
+ * into `$items`. Because of that, the collection-level query methods it inherits
+ * from {@see AbstractMedia} — filterBy()/where()/findBy()/sortBy()/groupBy()/
+ * withMeta() — all operate on an empty item set and silently return nothing.
+ * To filter or sort site media as a collection, build a concrete
+ * {@see \Grav\Common\Page\Media} over the folder instead, e.g.
+ * `media_directory('user://media')`, and query that.
  */
 class GlobalMedia extends AbstractMedia
 {
