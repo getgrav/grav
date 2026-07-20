@@ -1,3 +1,9 @@
+# v2.0.12
+## 07/20/2026
+
+1. [](#improved)
+    * The `read_file()` Twig function can now read `.css` files by default, so inline stylesheets can be embedded in a template without adjusting the security config ([#4215](https://github.com/getgrav/grav/issues/4215)).
+
 # v2.0.11
 ## 07/13/2026
 
