@@ -114,7 +114,7 @@ final class FileReader
         // (3) Extension allow-list. Default set is text/content formats only.
         $extension = strtolower((string) pathinfo($streamPath, PATHINFO_EXTENSION));
         $allowedExtensions = (array) $config->get('security.read_file.allowed_extensions', [
-            'md', 'markdown', 'txt', 'html', 'htm', 'json', 'csv', 'xml', 'svg'
+            'md', 'markdown', 'txt', 'html', 'htm', 'css', 'json', 'csv', 'xml', 'svg'
         ]);
         if ($extension === '' || !in_array($extension, $allowedExtensions, true)) {
             return false;
