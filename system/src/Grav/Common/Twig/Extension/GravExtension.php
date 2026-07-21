@@ -145,7 +145,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('wordcount', [$this, 'wordCountFilter']),
             new TwigFilter('json_decode', $this->jsonDecodeFilter(...)),
             new TwigFilter('array_unique', 'array_unique'),
-            new TwigFilter('array_group_by', $this->arrayGroupByFilter(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
+            new TwigFilter('array_group_by', $this->arrayGroupByFilter(...), ['needs_is_sandboxed' => true]),
             new TwigFilter('basename', 'basename'),
             new TwigFilter('dirname', 'dirname'),
             new TwigFilter('print_r', $this->printRGuarded(...), ['needs_environment' => true]),
@@ -198,7 +198,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('array_key_value', $this->arrayKeyValueFunc(...)),
             new TwigFunction('array_key_exists', 'array_key_exists'),
             new TwigFunction('array_unique', 'array_unique'),
-            new TwigFunction('array_group_by', $this->arrayGroupByFilter(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
+            new TwigFunction('array_group_by', $this->arrayGroupByFilter(...), ['needs_is_sandboxed' => true]),
             new TwigFunction('array_intersect', $this->arrayIntersectFunc(...)),
             new TwigFunction('array_diff', 'array_diff'),
             new TwigFunction('authorize', $this->authorize(...)),
@@ -1379,7 +1379,6 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * refused while sandboxed. Outside the sandbox both keep working exactly
      * as before.
      *
-     * @param Environment $env The Twig environment
      * @param bool $isSandboxed Whether the current render is sandboxed (injected by Twig)
      * @param array|\Traversable $array The array or collection to group
      * @param string|callable $callback Property name or callable to determine group key.
@@ -1387,7 +1386,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * @return array Grouped array with keys as group identifiers and values as arrays of items
      * @throws RuntimeError if $callback is not a Closure while sandboxed
      */
-    public function arrayGroupByFilter(Environment $env, bool $isSandboxed, $array, $callback): array
+    public function arrayGroupByFilter(bool $isSandboxed, $array, $callback): array
     {
         if ($isSandboxed && !$callback instanceof \Closure) {
             throw new RuntimeError('The callable passed to the "array_group_by" filter must be a Closure in sandbox mode.');
@@ -1432,7 +1431,8 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
                 // Execute the callback function. Only reachable outside the
                 // sandbox (see the check above). Real errors are allowed to
                 // propagate instead of being silently mapped to 'undefined'.
-                $groupKey = call_user_func($callback, $item, $key, $env);
+                // Signature matches the Closure branch: ($item, $key).
+                $groupKey = call_user_func($callback, $item, $key);
             }
 
             // A group key must be a valid PHP array offset (int|string).

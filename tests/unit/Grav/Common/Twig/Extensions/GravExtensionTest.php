@@ -3,9 +3,7 @@
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Extension\GravExtension;
-use Twig\Environment;
 use Twig\Error\RuntimeError;
-use Twig\Loader\ArrayLoader;
 
 /**
  * Class GravExtensionTest
@@ -18,15 +16,11 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
     /** @var  GravExtension $twig_ext */
     protected $twig_ext;
 
-    /** @var Environment $env */
-    protected $env;
-
     protected function setUp(): void
     {
         parent::setUp();
         $this->grav = Fixtures::get('grav');
         $this->twig_ext = new GravExtension();
-        $this->env = new Environment(new ArrayLoader());
     }
 
     public function testInflectorFilter(): void
@@ -216,7 +210,7 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
             ['type' => 'fruit', 'name' => 'banana'],
         ];
 
-        $result = $this->twig_ext->arrayGroupByFilter($this->env, false, $items, 'type');
+        $result = $this->twig_ext->arrayGroupByFilter(false, $items, 'type');
 
         self::assertCount(2, $result);
         self::assertCount(2, $result['fruit']);
@@ -236,7 +230,7 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
         $carrot->type = 'veg';
         $carrot->name = 'carrot';
 
-        $result = $this->twig_ext->arrayGroupByFilter($this->env, false, [$apple, $carrot], 'type');
+        $result = $this->twig_ext->arrayGroupByFilter(false, [$apple, $carrot], 'type');
 
         self::assertCount(1, $result['fruit']);
         self::assertSame('apple', $result['fruit'][0]->name);
@@ -248,17 +242,36 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
     {
         $items = [1, 2, 3, 4, 5];
 
-        $result = $this->twig_ext->arrayGroupByFilter($this->env, false, $items, fn($v) => $v % 2 === 0 ? 'even' : 'odd');
+        $result = $this->twig_ext->arrayGroupByFilter(false, $items, fn($v) => $v % 2 === 0 ? 'even' : 'odd');
 
         self::assertSame([1, 3, 5], $result['odd']);
         self::assertSame([2, 4], $result['even']);
+    }
+
+    public function testArrayGroupByFilterByCallable(): void
+    {
+        $items = [1, 2, 3, 4, 5];
+
+        // A non-string, non-Closure callable (array callable) exercises the
+        // call_user_func branch and locks in its ($item, $key) signature.
+        $grouper = new class {
+            public function bucket($value): string
+            {
+                return $value > 2 ? 'big' : 'small';
+            }
+        };
+
+        $result = $this->twig_ext->arrayGroupByFilter(false, $items, [$grouper, 'bucket']);
+
+        self::assertSame([1, 2], $result['small']);
+        self::assertSame([3, 4, 5], $result['big']);
     }
 
     public function testArrayGroupByFilterAcceptsClosureInSandbox(): void
     {
         $items = [1, 2, 3, 4];
 
-        $result = $this->twig_ext->arrayGroupByFilter($this->env, true, $items, fn($v) => $v % 2 === 0 ? 'even' : 'odd');
+        $result = $this->twig_ext->arrayGroupByFilter(true, $items, fn($v) => $v % 2 === 0 ? 'even' : 'odd');
 
         self::assertSame([1, 3], $result['odd']);
         self::assertSame([2, 4], $result['even']);
@@ -268,6 +281,6 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
     {
         $this->expectException(RuntimeError::class);
 
-        $this->twig_ext->arrayGroupByFilter($this->env, true, [1, 2, 3], 'strval');
+        $this->twig_ext->arrayGroupByFilter(true, [1, 2, 3], 'strval');
     }
 }
