@@ -3,6 +3,9 @@
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Extension\GravExtension;
+use Twig\Environment;
+use Twig\Error\RuntimeError;
+use Twig\Loader\ArrayLoader;
 
 /**
  * Class GravExtensionTest
@@ -15,11 +18,15 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
     /** @var  GravExtension $twig_ext */
     protected $twig_ext;
 
+    /** @var Environment $env */
+    protected $env;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->grav = Fixtures::get('grav');
         $this->twig_ext = new GravExtension();
+        $this->env = new Environment(new ArrayLoader());
     }
 
     public function testInflectorFilter(): void
@@ -199,5 +206,68 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
         // reversed range
         self::assertSame(array_reverse($hundred), $this->twig_ext->rangeFunc(100, 0));
         self::assertSame([4, 2, 0], $this->twig_ext->rangeFunc(4, 0, 2));
+    }
+
+    public function testArrayGroupByFilterByArrayKey(): void
+    {
+        $items = [
+            ['type' => 'fruit', 'name' => 'apple'],
+            ['type' => 'veg', 'name' => 'carrot'],
+            ['type' => 'fruit', 'name' => 'banana'],
+        ];
+
+        $result = $this->twig_ext->arrayGroupByFilter($this->env, false, $items, 'type');
+
+        self::assertCount(2, $result);
+        self::assertCount(2, $result['fruit']);
+        self::assertCount(1, $result['veg']);
+        self::assertSame('apple', $result['fruit'][0]['name']);
+        self::assertSame('banana', $result['fruit'][1]['name']);
+        self::assertSame('carrot', $result['veg'][0]['name']);
+    }
+
+    public function testArrayGroupByFilterByObjectProperty(): void
+    {
+        $apple = new \stdClass();
+        $apple->type = 'fruit';
+        $apple->name = 'apple';
+
+        $carrot = new \stdClass();
+        $carrot->type = 'veg';
+        $carrot->name = 'carrot';
+
+        $result = $this->twig_ext->arrayGroupByFilter($this->env, false, [$apple, $carrot], 'type');
+
+        self::assertCount(1, $result['fruit']);
+        self::assertSame('apple', $result['fruit'][0]->name);
+        self::assertCount(1, $result['veg']);
+        self::assertSame('carrot', $result['veg'][0]->name);
+    }
+
+    public function testArrayGroupByFilterByClosure(): void
+    {
+        $items = [1, 2, 3, 4, 5];
+
+        $result = $this->twig_ext->arrayGroupByFilter($this->env, false, $items, fn($v) => $v % 2 === 0 ? 'even' : 'odd');
+
+        self::assertSame([1, 3, 5], $result['odd']);
+        self::assertSame([2, 4], $result['even']);
+    }
+
+    public function testArrayGroupByFilterAcceptsClosureInSandbox(): void
+    {
+        $items = [1, 2, 3, 4];
+
+        $result = $this->twig_ext->arrayGroupByFilter($this->env, true, $items, fn($v) => $v % 2 === 0 ? 'even' : 'odd');
+
+        self::assertSame([1, 3], $result['odd']);
+        self::assertSame([2, 4], $result['even']);
+    }
+
+    public function testArrayGroupByFilterRejectsNonClosureInSandbox(): void
+    {
+        $this->expectException(RuntimeError::class);
+
+        $this->twig_ext->arrayGroupByFilter($this->env, true, [1, 2, 3], 'strval');
     }
 }
