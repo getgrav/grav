@@ -250,7 +250,15 @@ class Security
             // GHSA-w8cg-7jcj-4vv2). Detecting the attribute name + `=` is enough
             // for a tripwire; trade-off is occasional false positives when an
             // unrelated `on*=` substring appears inside another attribute's value.
-            'on_events' => '#<[^>]*?[\s\x00-\x20\"\'\/]on\s*[a-z]+\s*=#iu',
+            //
+            // The tag-body scan is quote-aware: instead of `[^>]*?` (which stops
+            // at the FIRST literal `>` and so never saw a handler hidden behind a
+            // `>` embedded in a quoted attribute value, e.g.
+            // `<img src=x title=">" onerror=alert(1)>` — GHSA-269c-h76q-8cxw), it
+            // consumes quoted strings as whole units so a `>` inside quotes is
+            // treated as data, exactly as the HTML parser treats it. Only a bare,
+            // unquoted `>` terminates the tag body.
+            'on_events' => '#<(?:"[^"]*"|\'[^\']*\'|[^>"\'])*?[\s\x00-\x20\"\'\/]on\s*[a-z]+\s*=#iu',
 
             // xmlns namespace declarations. Split out from on_events (which it
             // historically shared a regex with) so the render-time output scan
@@ -258,8 +266,8 @@ class Security
             // <svg xmlns=...> / <math xmlns=...> carries one, so leaving it on
             // for post-render HTML blanks pages that merely display an icon. It
             // stays on by default for raw-input sanitization (it follows the
-            // on_events toggle below).
-            'xmlns' => '#<[^>]*?[\s\x00-\x20\"\'\/]xmlns\s*=#iu',
+            // on_events toggle below). Same quote-aware tag-body scan as on_events.
+            'xmlns' => '#<(?:"[^"]*"|\'[^\']*\'|[^>"\'])*?[\s\x00-\x20\"\'\/]xmlns\s*=#iu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',

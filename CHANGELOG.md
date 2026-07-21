@@ -1,3 +1,9 @@
+# v2.0.13
+## 07/20/2026
+
+1. [](#bugfix)
+    * [security] A page editor without super-admin rights can no longer store an event-handler script that runs for site visitors by hiding it behind a `>` placed inside a quoted HTML attribute; the content security scan now reads quoted attribute values the same way a browser does ([GHSA-269c-h76q-8cxw](https://github.com/getgrav/grav/security/advisories/GHSA-269c-h76q-8cxw)).
+
 # v2.0.12
 ## 07/20/2026
 
