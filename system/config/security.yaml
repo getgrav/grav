@@ -474,6 +474,7 @@ read_file:
     - txt
     - html
     - htm
+    - css
     - json
     - csv
     - xml

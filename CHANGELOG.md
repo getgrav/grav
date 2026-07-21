@@ -1,3 +1,14 @@
+# v2.0.12
+## 07/20/2026
+
+1. [](#new)
+    * Added per-language fallbacks for unsupported browser languages during `HTTP_ACCEPT_LANGUAGE` negotiation, allowing them to resolve to supported languages without exposing additional language routes.
+1. [](#improved)
+    * The `read_file()` Twig function can now read `.css` files by default, so inline stylesheets can be embedded in a template without adjusting the security config ([#4215](https://github.com/getgrav/grav/issues/4215)).
+    * Documented that the site-wide media object resolves lazily, so its inherited collection query methods need `media_directory()` to filter or sort site media ([#4210](https://github.com/getgrav/grav/issues/4210)).
+1. [](#bugfix)
+    * Browser language codes are now matched case-insensitively during `HTTP_ACCEPT_LANGUAGE` fallback negotiation.
+
 # v2.0.11
 ## 07/13/2026
 

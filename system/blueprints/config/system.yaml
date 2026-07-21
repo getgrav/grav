@@ -454,6 +454,24 @@ form:
               validate:
                 type: bool
 
+            languages.http_accept_language_fallback:
+              type: list
+              label: PLUGIN_ADMIN.HTTP_ACCEPT_LANGUAGE_FALLBACK
+              help: PLUGIN_ADMIN.HTTP_ACCEPT_LANGUAGE_FALLBACK_HELP
+              fields:
+                key:
+                  type: key
+                  label: PLUGIN_ADMIN.LANGUAGE
+                  help: PLUGIN_ADMIN.HTTP_ACCEPT_LANGUAGE_FALLBACK_SOURCE_HELP
+                  placeholder: hr
+                value:
+                  type: selectize
+                  size: large
+                  placeholder: "bs, en"
+                  label: PLUGIN_ADMIN.HTTP_ACCEPT_LANGUAGE_FALLBACK_TARGETS
+                  help: PLUGIN_ADMIN.HTTP_ACCEPT_LANGUAGE_FALLBACK_TARGETS_HELP
+                  classes: fancy
+
             languages.override_locale:
               type: toggle
               label: PLUGIN_ADMIN.OVERRIDE_LOCALE
