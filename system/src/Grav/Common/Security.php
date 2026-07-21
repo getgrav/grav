@@ -258,7 +258,17 @@ class Security
             // consumes quoted strings as whole units so a `>` inside quotes is
             // treated as data, exactly as the HTML parser treats it. Only a bare,
             // unquoted `>` terminates the tag body.
-            'on_events' => '#<(?:"[^"]*"|\'[^\']*\'|[^>"\'])*?[\s\x00-\x20\"\'\/]on\s*[a-z]+\s*=#iu',
+            //
+            // The boundary before the handler name accepts either a real
+            // separator char (whitespace/NUL/quote/slash) OR a complete quoted
+            // attribute value, because a quoted value butted straight against the
+            // next attribute needs no separator: after a quoted value the HTML
+            // parser reconsumes any other char in the before-attribute-name state,
+            // so `<img title="y"onerror=alert(1)>` still fires (GHSA-269c-h76q-8cxw
+            // follow-up). Without the quoted-string alternative the `[...]` class
+            // could never land on that adjacency because the `*?` consumes the
+            // whole `"y"` unit and overshoots the closing quote.
+            'on_events' => '#<(?:"[^"]*"|\'[^\']*\'|[^>"\'])*?(?:[\s\x00-\x20\"\'\/]|"[^"]*"|\'[^\']*\')on\s*[a-z]+\s*=#iu',
 
             // xmlns namespace declarations. Split out from on_events (which it
             // historically shared a regex with) so the render-time output scan
@@ -267,7 +277,7 @@ class Security
             // for post-render HTML blanks pages that merely display an icon. It
             // stays on by default for raw-input sanitization (it follows the
             // on_events toggle below). Same quote-aware tag-body scan as on_events.
-            'xmlns' => '#<(?:"[^"]*"|\'[^\']*\'|[^>"\'])*?[\s\x00-\x20\"\'\/]xmlns\s*=#iu',
+            'xmlns' => '#<(?:"[^"]*"|\'[^\']*\'|[^>"\'])*?(?:[\s\x00-\x20\"\'\/]|"[^"]*"|\'[^\']*\')xmlns\s*=#iu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',

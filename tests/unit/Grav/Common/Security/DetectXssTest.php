@@ -124,6 +124,31 @@ class DetectXssTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * GHSA-269c-h76q-8cxw follow-up: a quoted attribute value butted directly
+     * against the handler needs no separator, because after a quoted value the
+     * HTML parser reconsumes the next char in the before-attribute-name state.
+     * The first fix still required a delimiter char before `on`, so
+     * `<img title="y"onerror=...>` slipped through even though it executes.
+     *
+     * @dataProvider providerGHSA269c_QuotedValueAdjacentToHandler
+     */
+    public function testDetectXss_GHSA269c_FlagsHandlerAdjacentToQuotedValue(string $payload, string $description): void
+    {
+        $result = Security::detectXss($payload);
+        self::assertSame('on_events', $result, "Should flag on_events for: $description");
+    }
+
+    public static function providerGHSA269c_QuotedValueAdjacentToHandler(): array
+    {
+        return [
+            ['<img title="y"onerror=alert(1)>', 'double-quoted value adjacent to onerror, no separator'],
+            ["<img title='y'onerror=alert(1)>", 'single-quoted value adjacent to onerror, no separator'],
+            ['<img title=""onerror=alert(1)>', 'empty double-quoted value adjacent to onerror'],
+            ['<img src=x alt=">"onmouseover=alert(1)>', 'quoted > then adjacent onmouseover'],
+        ];
+    }
+
+    /**
      * The xmlns rule shares the same quote-aware tag-body scan, so a quoted `>`
      * must not hide a later xmlns= declaration either.
      */
@@ -131,6 +156,15 @@ class DetectXssTest extends \PHPUnit\Framework\TestCase
     {
         $result = Security::detectXss('<svg title=">" xmlns="http://www.w3.org/2000/svg">');
         self::assertSame('xmlns', $result, 'quoted > must not blind the xmlns scan');
+    }
+
+    /**
+     * xmlns adjacency mirror: a quoted value butted straight against xmlns=.
+     */
+    public function testDetectXss_GHSA269c_FlagsXmlnsAdjacentToQuotedValue(): void
+    {
+        $result = Security::detectXss('<svg title="y"xmlns="http://www.w3.org/2000/svg">');
+        self::assertSame('xmlns', $result, 'quoted value adjacent to xmlns must be flagged');
     }
 
     /**
