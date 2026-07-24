@@ -1033,6 +1033,11 @@ abstract class Utils
             || trim($filename, '. ') !== $filename
             // Filename should not contain path traversal
             || str_replace('..', '', $filename) !== $filename
+            // Filename should not contain HTML metacharacters, so a stored filename
+            // cannot carry an XSS payload if it is later rendered into the DOM
+            // (GHSA-76qg-8r9h-pxxr). `'` is intentionally allowed — it is common in
+            // legitimate names and not needed to break out of an HTML tag.
+            || strtr($filename, '<>"', '___') !== $filename
             // File extension should not be part of configured dangerous extensions
             || in_array($extension, $dangerous_extensions)
         );
