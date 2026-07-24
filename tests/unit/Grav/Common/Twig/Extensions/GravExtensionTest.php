@@ -283,4 +283,38 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
 
         $this->twig_ext->arrayGroupByFilter(true, [1, 2, 3], 'strval');
     }
+
+    // GHSA-xx48-97m4-h7qm: find/sort must reject a dangerous string callable
+    // even outside the sandbox (Twig core only checks it when sandboxed), since
+    // editor-authorable strings can be rendered unsandboxed (Email plugin params).
+
+    public function testFindFuncRejectsDangerousStringCallable(): void
+    {
+        $this->expectException(RuntimeError::class);
+
+        $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
+        $this->twig_ext->findFunc($env, ['id;whoami'], 'system');
+    }
+
+    public function testFindFuncAllowsClosure(): void
+    {
+        $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
+
+        self::assertSame(3, $this->twig_ext->findFunc($env, [1, 2, 3, 4], static fn($v) => $v > 2));
+    }
+
+    public function testSortFuncRejectsDangerousStringCallable(): void
+    {
+        $this->expectException(RuntimeError::class);
+
+        $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
+        $this->twig_ext->sortFunc($env, [3, 1, 2], 'system');
+    }
+
+    public function testSortFuncPlainSortStillWorks(): void
+    {
+        $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
+
+        self::assertSame([1, 2, 3], array_values($this->twig_ext->sortFunc($env, [3, 1, 2])));
+    }
 }

@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * [security] A page editor without super-admin rights can no longer store an event-handler script that runs for site visitors by hiding it behind a `>` placed inside a quoted HTML attribute; the content security scan now reads quoted attribute values the same way a browser does ([GHSA-269c-h76q-8cxw](https://github.com/getgrav/grav/security/advisories/GHSA-269c-h76q-8cxw)).
+    * [security] The `find` and `sort` Twig filters now reject a dangerous function name given as their callback, matching the protection already applied to `map`, `filter`, and `reduce`, so template values cannot use them to run code ([GHSA-xx48-97m4-h7qm](https://github.com/getgrav/grav/security/advisories/GHSA-xx48-97m4-h7qm)).
 
 # v2.0.12
 ## 07/20/2026
