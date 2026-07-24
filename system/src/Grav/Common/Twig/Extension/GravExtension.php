@@ -45,6 +45,7 @@ use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
+use Twig\Extension\CoreExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\SandboxExtension;
 use Twig\Markup;
@@ -183,6 +184,8 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('filter', $this->filterFunc(...), ['needs_environment' => true]),
             new TwigFilter('map', $this->mapFunc(...), ['needs_environment' => true]),
             new TwigFilter('reduce', $this->reduceFunc(...), ['needs_environment' => true]),
+            new TwigFilter('find', $this->findFunc(...), ['needs_environment' => true]),
+            new TwigFilter('sort', $this->sortFunc(...), ['needs_environment' => true]),
         ];
     }
 
@@ -2078,5 +2081,49 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         }
 
         return twig_array_map($env, $array, $arrow);
+    }
+
+    /**
+     * Hardened `find` filter. Twig core only rejects a dangerous string callable
+     * (e.g. `find('system')`, invoked as `system($v, $k)`) when the template is
+     * sandboxed. Editor-authorable strings rendered OUTSIDE the sandbox — such as
+     * the Email plugin's form action params — reached that unguarded call and gave
+     * a page editor RCE (GHSA-xx48-97m4-h7qm). Apply the same dangerous-arrow guard
+     * used by filter/map/reduce, regardless of sandbox state; a real arrow closure
+     * still passes.
+     *
+     * @param Environment $env
+     * @param mixed $array
+     * @param callable|string $arrow
+     * @return mixed
+     * @throws RuntimeError
+     */
+    function findFunc(Environment $env, $array, $arrow)
+    {
+        if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
+            throw new RuntimeError('Twig |find("' . $arrow . '") is not allowed.');
+        }
+
+        return CoreExtension::find($env, false, $array ?? [], $arrow);
+    }
+
+    /**
+     * Hardened `sort` filter. Same rationale as findFunc(): a string comparator
+     * such as `sort('system')` would otherwise be called as `system($a, $b)` when
+     * rendered outside the sandbox. Plain sorts (no comparator) are unaffected.
+     *
+     * @param Environment $env
+     * @param mixed $array
+     * @param callable|string|null $arrow
+     * @return array
+     * @throws RuntimeError
+     */
+    function sortFunc(Environment $env, $array, $arrow = null)
+    {
+        if ($arrow !== null && (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow))) {
+            throw new RuntimeError('Twig |sort("' . $arrow . '") is not allowed.');
+        }
+
+        return CoreExtension::sort($env, false, $array ?? [], $arrow);
     }
 }
