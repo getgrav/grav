@@ -7,6 +7,7 @@
     * [security] Uploaded filenames may no longer contain the HTML characters `<`, `>`, or `"`, so a stored filename cannot carry markup that could run if it were later shown unescaped.
     * [security] The `find` and `sort` Twig filters now reject a dangerous function name given as their callback, matching the protection already applied to `map`, `filter`, and `reduce`, so template values cannot use them to run code ([GHSA-xx48-97m4-h7qm](https://github.com/getgrav/grav/security/advisories/GHSA-xx48-97m4-h7qm)).
     * The bundled `nginx.conf` security rules are now anchored to the start of the path like the `.htaccess` rules already are, so the admin's Tools → Logs viewer works on nginx instead of being blocked ([#4223](https://github.com/getgrav/grav/pull/4223)).
+    * On non-FastCGI setups Grav no longer sends an invalid `Content-Encoding: none` header, which some strict HTTP clients rejected outright; it now closes the connection cleanly without the bogus value ([#2619](https://github.com/getgrav/grav/issues/2619)).
 
 # v2.0.12
 ## 07/20/2026
