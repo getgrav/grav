@@ -492,6 +492,25 @@ class Blueprint extends BlueprintForm
      */
     public static function isSafeDynamicCall($function, array $params): bool
     {
+        // A `data-*@` callable may arrive as a `[Class, method]` pair, not only
+        // as a `Class::method` string. PHP honours the array form in is_callable()
+        // and call_user_func_array() (the sink in FlexDirectory::dynamicDataField),
+        // so without normalising it here an attacker-supplied pair slips past both
+        // the allowlist and the denylist below and reaches the sink unchecked — e.g.
+        // [GPM\Installer::class, 'unZip'] to unpack an uploaded PHP shell into the
+        // docroot. Fold a two-string pair into its `Class::method` string so it is
+        // vetted like any other provider, and refuse any other array shape (an
+        // instance/closure pair cannot come from a blueprint and is not a provider
+        // we can vet). (GHSA-r94f-hx44-8jqf)
+        if (is_array($function)) {
+            if (count($function) === 2 && isset($function[0], $function[1])
+                && is_string($function[0]) && is_string($function[1])) {
+                $function = $function[0] . '::' . $function[1];
+            } else {
+                return false;
+            }
+        }
+
         if (is_string($function) && str_contains($function, '::')) {
             // `Class::method` providers skip the bare-function denylist below
             // (Utils::isDangerousFunction already rejects any string containing
