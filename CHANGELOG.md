@@ -1,7 +1,8 @@
 # v2.0.13
-## 07/20/2026
+## 07/25/2026
 
 1. [](#bugfix)
+    * [security] A configuration admin can no longer run code on the server by pointing a dynamic field's data provider at a built-in routine named as a class-and-method pair, a form that slipped past the safety check because it only inspected the single-string spelling; both forms are now vetted the same way ([GHSA-r94f-hx44-8jqf](https://github.com/getgrav/grav/security/advisories/GHSA-r94f-hx44-8jqf)).
     * [security] A page editor without super-admin rights can no longer store an event-handler script that runs for site visitors by hiding it behind a `>` placed inside a quoted HTML attribute; the content security scan now reads quoted attribute values the same way a browser does ([GHSA-269c-h76q-8cxw](https://github.com/getgrav/grav/security/advisories/GHSA-269c-h76q-8cxw)).
     * [security] A backup profile's location is now confined to the site folder, so a profile pointing outside the Grav root can no longer pull external directories into the backup archive ([GHSA-fch7-cpv4-w7hg](https://github.com/getgrav/grav/security/advisories/GHSA-fch7-cpv4-w7hg)).
     * [security] Uploaded filenames may no longer contain the HTML characters `<`, `>`, or `"`, so a stored filename cannot carry markup that could run if it were later shown unescaped.
