@@ -1,6 +1,8 @@
 # v2.0.13
 ## 07/25/2026
 
+1. [](#new)
+    * Added an `array_group_by` Twig filter and function for grouping a list of items by one of their values ([#4218](https://github.com/getgrav/grav/pull/4218)).
 1. [](#bugfix)
     * [security] A configuration admin can no longer run code on the server by pointing a dynamic field's data provider at a built-in routine named as a class-and-method pair, a form that slipped past the safety check because it only inspected the single-string spelling; both forms are now vetted the same way ([GHSA-r94f-hx44-8jqf](https://github.com/getgrav/grav/security/advisories/GHSA-r94f-hx44-8jqf)).
     * [security] A page editor without super-admin rights can no longer store an event-handler script that runs for site visitors by hiding it behind a `>` placed inside a quoted HTML attribute; the content security scan now reads quoted attribute values the same way a browser does ([GHSA-269c-h76q-8cxw](https://github.com/getgrav/grav/security/advisories/GHSA-269c-h76q-8cxw)).
