@@ -567,5 +567,13 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertTrue(Utils::checkFilename('foo.xml'));
         self::assertTrue(Utils::checkFilename('foo.yaml'));
         self::assertTrue(Utils::checkFilename('foo.yml'));
+
+        // GHSA-76qg-8r9h-pxxr: HTML metacharacters in a filename are rejected so a
+        // stored filename cannot carry an XSS payload into the DOM.
+        self::assertFalse(Utils::checkFilename('<img src=x onerror=alert(1)>.png'));
+        self::assertFalse(Utils::checkFilename('foo">bar.png'));
+        self::assertFalse(Utils::checkFilename('a<b.png'));
+        // `'` stays allowed — common in legitimate names, not a tag-breakout char.
+        self::assertTrue(Utils::checkFilename("Bob's photo.png"));
     }
 }

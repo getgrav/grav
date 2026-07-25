@@ -3,6 +3,7 @@
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Extension\GravExtension;
+use Twig\Error\RuntimeError;
 
 /**
  * Class GravExtensionTest
@@ -199,5 +200,121 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
         // reversed range
         self::assertSame(array_reverse($hundred), $this->twig_ext->rangeFunc(100, 0));
         self::assertSame([4, 2, 0], $this->twig_ext->rangeFunc(4, 0, 2));
+    }
+
+    public function testArrayGroupByFilterByArrayKey(): void
+    {
+        $items = [
+            ['type' => 'fruit', 'name' => 'apple'],
+            ['type' => 'veg', 'name' => 'carrot'],
+            ['type' => 'fruit', 'name' => 'banana'],
+        ];
+
+        $result = $this->twig_ext->arrayGroupByFilter(false, $items, 'type');
+
+        self::assertCount(2, $result);
+        self::assertCount(2, $result['fruit']);
+        self::assertCount(1, $result['veg']);
+        self::assertSame('apple', $result['fruit'][0]['name']);
+        self::assertSame('banana', $result['fruit'][1]['name']);
+        self::assertSame('carrot', $result['veg'][0]['name']);
+    }
+
+    public function testArrayGroupByFilterByObjectProperty(): void
+    {
+        $apple = new \stdClass();
+        $apple->type = 'fruit';
+        $apple->name = 'apple';
+
+        $carrot = new \stdClass();
+        $carrot->type = 'veg';
+        $carrot->name = 'carrot';
+
+        $result = $this->twig_ext->arrayGroupByFilter(false, [$apple, $carrot], 'type');
+
+        self::assertCount(1, $result['fruit']);
+        self::assertSame('apple', $result['fruit'][0]->name);
+        self::assertCount(1, $result['veg']);
+        self::assertSame('carrot', $result['veg'][0]->name);
+    }
+
+    public function testArrayGroupByFilterByClosure(): void
+    {
+        $items = [1, 2, 3, 4, 5];
+
+        $result = $this->twig_ext->arrayGroupByFilter(false, $items, fn($v) => $v % 2 === 0 ? 'even' : 'odd');
+
+        self::assertSame([1, 3, 5], $result['odd']);
+        self::assertSame([2, 4], $result['even']);
+    }
+
+    public function testArrayGroupByFilterByCallable(): void
+    {
+        $items = [1, 2, 3, 4, 5];
+
+        // A non-string, non-Closure callable (array callable) exercises the
+        // call_user_func branch and locks in its ($item, $key) signature.
+        $grouper = new class {
+            public function bucket($value): string
+            {
+                return $value > 2 ? 'big' : 'small';
+            }
+        };
+
+        $result = $this->twig_ext->arrayGroupByFilter(false, $items, [$grouper, 'bucket']);
+
+        self::assertSame([1, 2], $result['small']);
+        self::assertSame([3, 4, 5], $result['big']);
+    }
+
+    public function testArrayGroupByFilterAcceptsClosureInSandbox(): void
+    {
+        $items = [1, 2, 3, 4];
+
+        $result = $this->twig_ext->arrayGroupByFilter(true, $items, fn($v) => $v % 2 === 0 ? 'even' : 'odd');
+
+        self::assertSame([1, 3], $result['odd']);
+        self::assertSame([2, 4], $result['even']);
+    }
+
+    public function testArrayGroupByFilterRejectsNonClosureInSandbox(): void
+    {
+        $this->expectException(RuntimeError::class);
+
+        $this->twig_ext->arrayGroupByFilter(true, [1, 2, 3], 'strval');
+    }
+
+    // GHSA-xx48-97m4-h7qm: find/sort must reject a dangerous string callable
+    // even outside the sandbox (Twig core only checks it when sandboxed), since
+    // editor-authorable strings can be rendered unsandboxed (Email plugin params).
+
+    public function testFindFuncRejectsDangerousStringCallable(): void
+    {
+        $this->expectException(RuntimeError::class);
+
+        $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
+        $this->twig_ext->findFunc($env, ['id;whoami'], 'system');
+    }
+
+    public function testFindFuncAllowsClosure(): void
+    {
+        $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
+
+        self::assertSame(3, $this->twig_ext->findFunc($env, [1, 2, 3, 4], static fn($v) => $v > 2));
+    }
+
+    public function testSortFuncRejectsDangerousStringCallable(): void
+    {
+        $this->expectException(RuntimeError::class);
+
+        $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
+        $this->twig_ext->sortFunc($env, [3, 1, 2], 'system');
+    }
+
+    public function testSortFuncPlainSortStillWorks(): void
+    {
+        $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
+
+        self::assertSame([1, 2, 3], array_values($this->twig_ext->sortFunc($env, [3, 1, 2])));
     }
 }

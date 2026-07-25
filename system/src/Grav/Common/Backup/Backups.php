@@ -264,18 +264,16 @@ class Backups
             throw new RuntimeException("Invalid backup location: {$backup_root}");
         }
 
-        // Check if backup root is within GRAV_ROOT
-        $isWithinGravRoot = strpos($realBackupRoot, $realGravRoot) === 0;
-
-        // Only apply blocklist to paths outside GRAV_ROOT to prevent backing up system directories
-        // This allows backups within Grav installations under /var/www while still blocking /var/log, etc.
+        // Positive containment (GHSA-fch7-cpv4-w7hg): the resolved backup root must
+        // BE GRAV_ROOT or a directory beneath it. The previous deny-list only rejected
+        // a fixed set of system paths, so a non-blocklisted external directory (e.g.
+        // /opt, /mnt, /srv) still fell through and had its contents archived. Comparing
+        // against GRAV_ROOT with a trailing separator also prevents a sibling directory
+        // (e.g. `/var/www/site-evil` next to `/var/www/site`) from matching by prefix.
+        $isWithinGravRoot = $realBackupRoot === $realGravRoot
+            || strpos($realBackupRoot, $realGravRoot . DIRECTORY_SEPARATOR) === 0;
         if (!$isWithinGravRoot) {
-            $blockedPaths = ['/etc', '/root', '/home', '/var', '/usr', '/bin', '/sbin', '/tmp', '/proc', '/sys', '/dev'];
-            foreach ($blockedPaths as $blocked) {
-                if (strpos($realBackupRoot, $blocked) === 0) {
-                    throw new RuntimeException("Backup location not allowed: {$backup_root}");
-                }
-            }
+            throw new RuntimeException("Backup location not allowed (outside site root): {$backup_root}");
         }
 
         $backup_root = $realBackupRoot;

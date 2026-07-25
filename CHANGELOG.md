@@ -1,3 +1,17 @@
+# v2.0.13
+## 07/25/2026
+
+1. [](#new)
+    * Added an `array_group_by` Twig filter and function for grouping a list of items by one of their values ([#4218](https://github.com/getgrav/grav/pull/4218)).
+1. [](#bugfix)
+    * [security] A configuration admin can no longer run code on the server by pointing a dynamic field's data provider at a built-in routine named as a class-and-method pair, a form that slipped past the safety check because it only inspected the single-string spelling; both forms are now vetted the same way ([GHSA-r94f-hx44-8jqf](https://github.com/getgrav/grav/security/advisories/GHSA-r94f-hx44-8jqf)).
+    * [security] A page editor without super-admin rights can no longer store an event-handler script that runs for site visitors by hiding it behind a `>` placed inside a quoted HTML attribute; the content security scan now reads quoted attribute values the same way a browser does ([GHSA-269c-h76q-8cxw](https://github.com/getgrav/grav/security/advisories/GHSA-269c-h76q-8cxw)).
+    * [security] A backup profile's location is now confined to the site folder, so a profile pointing outside the Grav root can no longer pull external directories into the backup archive ([GHSA-fch7-cpv4-w7hg](https://github.com/getgrav/grav/security/advisories/GHSA-fch7-cpv4-w7hg)).
+    * [security] Uploaded filenames may no longer contain the HTML characters `<`, `>`, or `"`, so a stored filename cannot carry markup that could run if it were later shown unescaped.
+    * [security] The `find` and `sort` Twig filters now reject a dangerous function name given as their callback, matching the protection already applied to `map`, `filter`, and `reduce`, so template values cannot use them to run code ([GHSA-xx48-97m4-h7qm](https://github.com/getgrav/grav/security/advisories/GHSA-xx48-97m4-h7qm)).
+    * The bundled `nginx.conf` security rules are now anchored to the start of the path like the `.htaccess` rules already are, so the admin's Tools → Logs viewer works on nginx instead of being blocked ([#4223](https://github.com/getgrav/grav/pull/4223)).
+    * On non-FastCGI setups Grav no longer sends an invalid `Content-Encoding: none` header, which some strict HTTP clients rejected outright; it now closes the connection cleanly without the bogus value ([#2619](https://github.com/getgrav/grav/issues/2619)).
+
 # v2.0.12
 ## 07/20/2026
 

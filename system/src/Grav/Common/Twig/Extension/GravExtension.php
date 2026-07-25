@@ -45,6 +45,7 @@ use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
+use Twig\Extension\CoreExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\SandboxExtension;
 use Twig\Markup;
@@ -145,6 +146,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('wordcount', [$this, 'wordCountFilter']),
             new TwigFilter('json_decode', $this->jsonDecodeFilter(...)),
             new TwigFilter('array_unique', 'array_unique'),
+            new TwigFilter('array_group_by', $this->arrayGroupByFilter(...), ['needs_is_sandboxed' => true]),
             new TwigFilter('basename', 'basename'),
             new TwigFilter('dirname', 'dirname'),
             new TwigFilter('print_r', $this->printRGuarded(...), ['needs_environment' => true]),
@@ -182,6 +184,8 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('filter', $this->filterFunc(...), ['needs_environment' => true]),
             new TwigFilter('map', $this->mapFunc(...), ['needs_environment' => true]),
             new TwigFilter('reduce', $this->reduceFunc(...), ['needs_environment' => true]),
+            new TwigFilter('find', $this->findFunc(...), ['needs_environment' => true]),
+            new TwigFilter('sort', $this->sortFunc(...), ['needs_environment' => true]),
         ];
     }
 
@@ -197,6 +201,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('array_key_value', $this->arrayKeyValueFunc(...)),
             new TwigFunction('array_key_exists', 'array_key_exists'),
             new TwigFunction('array_unique', 'array_unique'),
+            new TwigFunction('array_group_by', $this->arrayGroupByFilter(...), ['needs_is_sandboxed' => true]),
             new TwigFunction('array_intersect', $this->arrayIntersectFunc(...)),
             new TwigFunction('array_diff', 'array_diff'),
             new TwigFunction('authorize', $this->authorize(...)),
@@ -761,10 +766,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
 
         // Strip HTML tags and decode entities
         $cleanText = html_entity_decode(strip_tags($text), ENT_QUOTES, 'UTF-8');
-        
+
         // Remove extra whitespace and normalize
         $cleanText = trim(preg_replace('/\s+/', ' ', $cleanText));
-        
+
         if (empty($cleanText)) {
             return 0;
         }
@@ -777,27 +782,27 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             case 'chinese':
                 // Chinese: count characters (excluding spaces and punctuation)
                 return mb_strlen(preg_replace('/[\s\p{P}]/u', '', $cleanText), 'UTF-8');
-                
+
             case 'ja':
             case 'japanese':
                 // Japanese: count characters (excluding spaces)
                 return mb_strlen(preg_replace('/\s/', '', $cleanText), 'UTF-8');
-                
+
             case 'ko':
             case 'korean':
                 // Korean: count characters (excluding spaces)
                 return mb_strlen(preg_replace('/\s/', '', $cleanText), 'UTF-8');
-                
+
             default:
                 // Western languages: use improved word counting
                 // Handle contractions, hyphenated words, and numbers better
                 $words = preg_split('/\s+/', $cleanText, -1, PREG_SPLIT_NO_EMPTY);
-                
+
                 // Filter out pure punctuation
                 $words = array_filter($words, function($word) {
                     return preg_match('/\w/', $word);
                 });
-                
+
                 return count($words);
         }
     }
@@ -1357,6 +1362,99 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         }
 
         return array_intersect($array1, $array2);
+    }
+
+    /**
+     * Group items in an array by the results of a callback function
+     *
+     * Registered with 'needs_is_sandboxed' so this follows the same pattern
+     * Twig core uses for its own callback filters (sort/map/filter/column/
+     * reduce/find — see CoreExtension::checkArrow()). In sandbox mode only a
+     * real \Closure — i.e. an arrow function compiled from the sandboxed
+     * template itself — is accepted as $callback. A Closure's own attribute/
+     * property access is already routed through GravSecurityPolicy by Twig's
+     * normal attribute compilation, so nothing extra is needed for that case.
+     *
+     * A string $callback would let sandboxed content call an arbitrary
+     * method on each item by name ($item->$callback()), and any other PHP
+     * callable would let it invoke an arbitrary global function via
+     * call_user_func() — neither goes through the sandbox, so both are
+     * refused while sandboxed. Outside the sandbox both keep working exactly
+     * as before.
+     *
+     * @param bool $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param array|\Traversable $array The array or collection to group
+     * @param string|callable $callback Property name or callable to determine group key.
+     *                                  Must be a \Closure when $isSandboxed is true.
+     * @return array Grouped array with keys as group identifiers and values as arrays of items
+     * @throws RuntimeError if $callback is not a Closure while sandboxed
+     */
+    public function arrayGroupByFilter(bool $isSandboxed, $array, $callback): array
+    {
+        if ($isSandboxed && !$callback instanceof \Closure) {
+            throw new RuntimeError('The callable passed to the "array_group_by" filter must be a Closure in sandbox mode.');
+        }
+
+        $groups = [];
+
+        // Convert to array if it's a Traversable object (like Grav Collections)
+        if ($array instanceof \Traversable) {
+            $array = iterator_to_array($array);
+        }
+
+        if (!is_array($array)) {
+            return [];
+        }
+
+        foreach ($array as $key => $item) {
+            if ($callback instanceof \Closure) {
+                // Sandboxed arrow function: attribute access inside it is
+                // already checked by Twig's own attribute compilation.
+                $groupKey = $callback($item, $key);
+            } elseif (is_string($callback)) {
+                // If callback is a string, treat it as a property/method name.
+                // Only reachable outside the sandbox (see the check above).
+                // Try to get the value using different methods
+                if (is_array($item) && array_key_exists($callback, $item)) {
+                    $groupKey = $item[$callback];
+                } elseif (is_object($item)) {
+                    if (method_exists($item, $callback)) {
+                        $groupKey = $item->$callback();
+                    } elseif (property_exists($item, $callback)) {
+                        $groupKey = $item->$callback;
+                    } elseif (method_exists($item, '__get')) {
+                        $groupKey = $item->$callback;
+                    } else {
+                        $groupKey = 'undefined';
+                    }
+                } else {
+                    $groupKey = 'undefined';
+                }
+            } else {
+                // Execute the callback function. Only reachable outside the
+                // sandbox (see the check above). Real errors are allowed to
+                // propagate instead of being silently mapped to 'undefined'.
+                // Signature matches the Closure branch: ($item, $key).
+                $groupKey = call_user_func($callback, $item, $key);
+            }
+
+            // A group key must be a valid PHP array offset (int|string).
+            // Fall back to 'undefined' for null and for anything else (e.g.
+            // arrays/objects), instead of letting PHP throw "Illegal offset type".
+            if ($groupKey === null || (!is_int($groupKey) && !is_string($groupKey))) {
+                $groupKey = 'undefined';
+            }
+
+            // Initialize group array if it doesn't exist
+            if (!isset($groups[$groupKey])) {
+                $groups[$groupKey] = [];
+            }
+
+            // Add item to its group
+            $groups[$groupKey][] = $item;
+        }
+
+        return $groups;
     }
 
     /**
@@ -1983,5 +2081,49 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         }
 
         return twig_array_map($env, $array, $arrow);
+    }
+
+    /**
+     * Hardened `find` filter. Twig core only rejects a dangerous string callable
+     * (e.g. `find('system')`, invoked as `system($v, $k)`) when the template is
+     * sandboxed. Editor-authorable strings rendered OUTSIDE the sandbox — such as
+     * the Email plugin's form action params — reached that unguarded call and gave
+     * a page editor RCE (GHSA-xx48-97m4-h7qm). Apply the same dangerous-arrow guard
+     * used by filter/map/reduce, regardless of sandbox state; a real arrow closure
+     * still passes.
+     *
+     * @param Environment $env
+     * @param mixed $array
+     * @param callable|string $arrow
+     * @return mixed
+     * @throws RuntimeError
+     */
+    function findFunc(Environment $env, $array, $arrow)
+    {
+        if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
+            throw new RuntimeError('Twig |find("' . $arrow . '") is not allowed.');
+        }
+
+        return CoreExtension::find($env, false, $array ?? [], $arrow);
+    }
+
+    /**
+     * Hardened `sort` filter. Same rationale as findFunc(): a string comparator
+     * such as `sort('system')` would otherwise be called as `system($a, $b)` when
+     * rendered outside the sandbox. Plain sorts (no comparator) are unaffected.
+     *
+     * @param Environment $env
+     * @param mixed $array
+     * @param callable|string|null $arrow
+     * @return array
+     * @throws RuntimeError
+     */
+    function sortFunc(Environment $env, $array, $arrow = null)
+    {
+        if ($arrow !== null && (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow))) {
+            throw new RuntimeError('Twig |sort("' . $arrow . '") is not allowed.');
+        }
+
+        return CoreExtension::sort($env, false, $array ?? [], $arrow);
     }
 }

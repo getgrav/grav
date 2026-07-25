@@ -713,6 +713,11 @@ class Grav extends Container
 
                 // Check if external compression is active (e.g., zlib.output_compression in php.ini).
                 if (!ini_get('zlib.output_compression')) {
+                    // We can only send an accurate Content-Length (and thus let the client
+                    // close the connection early) when we are sure the webserver will not
+                    // recompress the body underneath us.
+                    $canSetContentLength = true;
+
                     if ($config->get('system.cache.gzip') || $config->get('system.cache.allow_webserver_gzip')) {
                         // Let web server handle compression.
                         header('Content-Encoding: identity');
@@ -721,12 +726,19 @@ class Grav extends Container
                         // This action turns off mod_deflate which would prevent us from closing the connection.
                         @apache_setenv('no-gzip', '1');
                     } else {
-                        // Fall back to unknown content encoding, it prevents most servers from deflating the content.
-                        header('Content-Encoding: none');
+                        // We cannot reliably stop the webserver from compressing here. Previously we emitted
+                        // `Content-Encoding: none` to trick most servers into skipping compression, but `none`
+                        // is not a valid content-coding and stricter HTTP clients (e.g. Java's
+                        // HttpsURLConnection) reject the whole response. Rather than send a spec-violating
+                        // header, skip the Content-Length/early-close optimization for this fallback and let
+                        // the response close cleanly via `Connection: close` instead (#2619).
+                        $canSetContentLength = false;
                     }
 
-                    // Get length and close the connection (only when not using compression).
-                    header('Content-Length: ' . ob_get_length());
+                    if ($canSetContentLength) {
+                        // Get length and close the connection (only when not using compression).
+                        header('Content-Length: ' . ob_get_length());
+                    }
                 }
 
                 header('Connection: close');
