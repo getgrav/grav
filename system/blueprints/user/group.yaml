@@ -46,6 +46,14 @@ form:
         type: bool
 
     access:
+      # A group's access map is granted to every member, so writing it is a
+      # super-only capability — same as the account form's groups/access fields.
+      # `check_authorize` below only drives how the classic admin renders the
+      # permission rows; `security@` is what actually strips the field from a
+      # non-super's submitted data via Blueprint::dynamicSecurity(), so without
+      # it an `admin.users` operator could save `admin.super: true` onto a group
+      # they belong to and escalate. (GHSA-xhfv-7758-r9hx)
+      security@: admin.super
       type: permissions
       check_authorize: false
       label: PLUGIN_ADMIN.PERMISSIONS
