@@ -1,3 +1,9 @@
+# v2.0.14
+## 07/26/2026
+
+1. [](#bugfix)
+    * [security] An administrator with account-management rights can no longer grant themselves super-admin access by saving it into a user group's permissions, a protection the account form already had ([GHSA-xhfv-7758-r9hx](https://github.com/getgrav/grav/security/advisories/GHSA-xhfv-7758-r9hx)).
+
 # v2.0.13
 ## 07/25/2026
 
