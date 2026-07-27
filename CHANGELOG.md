@@ -1,8 +1,9 @@
 # v2.0.14
-## 07/26/2026
+## 07/27/2026
 
 1. [](#bugfix)
     * [security] An administrator with account-management rights can no longer grant themselves super-admin access by saving it into a user group's permissions, a protection the account form already had ([GHSA-xhfv-7758-r9hx](https://github.com/getgrav/grav/security/advisories/GHSA-xhfv-7758-r9hx)).
+    * [security] The content security scan no longer reports a page as clean when it was unable to examine it, closing two ways a page editor could hide a script from it: a single invalid character anywhere in the content, and padding a tag out to several thousand characters ([GHSA-q2j8-x8hf-63ch](https://github.com/getgrav/grav/security/advisories/GHSA-q2j8-x8hf-63ch)).
 
 # v2.0.13
 ## 07/25/2026
