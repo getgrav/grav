@@ -220,6 +220,25 @@ class Security
             return null;
         }
 
+        // Every pattern below carries the /u modifier, and PCRE refuses to run a
+        // /u pattern against a subject that is not valid UTF-8: preg_match()
+        // returns false (not 0) with PREG_BAD_UTF8_ERROR. The loop at the bottom
+        // only tested truthiness, so a single stray byte anywhere in the value
+        // turned every rule into "clean" and the payload saved unflagged
+        // (GHSA-q2j8-x8hf-63ch). The preg_replace() cleanup just below fails the
+        // same way, silently blanking the string it returns.
+        //
+        // Substituting the invalid sequences with U+FFFD is exactly what a browser
+        // does when it decodes the same bytes, so the detector goes on to inspect
+        // the markup the parser will actually build, and no new false positives
+        // appear for legitimately mis-encoded content.
+        if (!preg_match('//u', $string)) {
+            $previous = mb_substitute_character();
+            mb_substitute_character(0xFFFD);
+            $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+            mb_substitute_character($previous);
+        }
+
         // Keep a copy of the original string before cleaning up
         $orig = $string;
 
@@ -299,11 +318,11 @@ class Security
                 // positives with tags like <caption>, <button>, <section> that end with 'on'
                 // or contain 'on'
                 if ($name === 'on_events' || $name === 'xmlns') {
-                    if (preg_match($regex, (string) $string) || preg_match($regex, $orig)) {
+                    if (static::patternMatches($regex, (string) $string) || static::patternMatches($regex, $orig)) {
                         return $name;
                     }
                 } else {
-                    if (preg_match($regex, (string) $string) || preg_match($regex, (string) $stripped) || preg_match($regex, $orig)) {
+                    if (static::patternMatches($regex, (string) $string) || static::patternMatches($regex, (string) $stripped) || static::patternMatches($regex, $orig)) {
                         return $name;
                     }
                 }
@@ -311,6 +330,49 @@ class Security
         }
 
         return null;
+    }
+
+    /**
+     * Run one detector pattern, failing closed.
+     *
+     * preg_match() has two falsy returns that a truthiness test cannot tell
+     * apart: 0 ("no match") and false ("could not evaluate"). Reading the second
+     * as the first is how the detector was made to pass a live payload, so every
+     * pattern goes through here rather than being called inline.
+     *
+     * The failure left after detectXss() normalizes encoding is
+     * PREG_JIT_STACKLIMIT_ERROR: the quote-aware tag-body scan added for
+     * GHSA-269c-h76q-8cxw exhausts the JIT stack on a single tag body of roughly
+     * 10KB or more, so `<img aaa...aaa onerror=alert(1)>` came back false and
+     * read as "no XSS found" — with no invalid byte involved, so the JSON API's
+     * incidental UTF-8 rejection does not catch it either. The interpreter
+     * handles the same subject correctly, so retry once with the JIT off. PCRE
+     * caches compiled patterns by their full string, hence the inert `(?:)`
+     * prefix to force a recompile under the new setting (it must not contain the
+     * delimiter).
+     *
+     * Anything still unanswerable (backtrack or recursion limits) counts as a
+     * hit. This detector is a tripwire and is allowed false positives; it is not
+     * allowed to report "clean" for a string it never actually examined.
+     */
+    private static function patternMatches(string $regex, string $subject): bool
+    {
+        $result = preg_match($regex, $subject);
+        if ($result !== false) {
+            return (bool) $result;
+        }
+
+        if (preg_last_error() === PREG_JIT_STACKLIMIT_ERROR) {
+            $jit = ini_get('pcre.jit');
+            ini_set('pcre.jit', '0');
+            $result = preg_match($regex[0] . '(?:)' . substr($regex, 1), $subject);
+            ini_set('pcre.jit', (string) $jit);
+            if ($result !== false) {
+                return (bool) $result;
+            }
+        }
+
+        return true;
     }
 
     /**
