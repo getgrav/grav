@@ -1,3 +1,9 @@
+# v2.0.15
+## 07/30/2026
+
+1. [](#bugfix)
+    * [security] The bundled `Caddyfile` protections did nothing. They were written as nginx-style regexes, which Caddy reads as literal paths that never match, and the `respond` they redirected to ran after the catch-all rewrite had already claimed the request. A site served with this config handed out `user/accounts/`, `user/config/`, `logs/`, `composer.lock`, page files, and the `system/` and `vendor/` folders to anyone who asked. The rules are now named `path_regexp` matchers answering `403` directly, inside a `route` block so they run before the rewrite, and they were checked request by request against the `.htaccess` behaviour.
+
 # v2.0.14
 ## 07/30/2026
 
