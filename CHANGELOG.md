@@ -1,5 +1,5 @@
 # v2.0.14
-## 07/27/2026
+## 07/30/2026
 
 1. [](#improved)
     * Removed old JQuery `2.1.4`. However `2.2.4` and `3.7.1` remain for legacy support
