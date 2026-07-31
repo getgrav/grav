@@ -287,7 +287,17 @@ class Security
             // follow-up). Without the quoted-string alternative the `[...]` class
             // could never land on that adjacency because the `*?` consumes the
             // whole `"y"` unit and overshoots the closing quote.
-            'on_events' => '#<(?:"[^"]*"|\'[^\']*\'|[^>"\'])*?(?:[\s\x00-\x20\"\'\/]|"[^"]*"|\'[^\']*\')on\s*[a-z]+\s*=#iu',
+            //
+            // A quote opens a quoted-value state ONLY when it directly follows
+            // `=`, exactly as the HTML tokenizer does. The GHSA-269c pattern
+            // treated ANY quote as a delimiter, so a lone unpaired quote inside
+            // an UNQUOTED value (`<img src=x" onerror=alert(1)>`) — a plain value
+            // char to the browser — became an unterminated string the tag-body
+            // scan could not advance past, hiding the following ` on...=` handler
+            // and returning null. Anchoring the quoted-value alternatives to
+            // `=\s*"..."` consumes such a quote as an ordinary char instead, so
+            // the scan still reaches the handler. (GHSA-vfmf-q6x9-cw96)
+            'on_events' => '#<(?:=\s*"[^"]*"|=\s*\'[^\']*\'|[^>])*?(?:[\s\x00-\x20\"\'\/]|=\s*"[^"]*"|=\s*\'[^\']*\')on\s*[a-z]+\s*=#iu',
 
             // xmlns namespace declarations. Split out from on_events (which it
             // historically shared a regex with) so the render-time output scan
@@ -296,7 +306,7 @@ class Security
             // for post-render HTML blanks pages that merely display an icon. It
             // stays on by default for raw-input sanitization (it follows the
             // on_events toggle below). Same quote-aware tag-body scan as on_events.
-            'xmlns' => '#<(?:"[^"]*"|\'[^\']*\'|[^>"\'])*?(?:[\s\x00-\x20\"\'\/]|"[^"]*"|\'[^\']*\')xmlns\s*=#iu',
+            'xmlns' => '#<(?:=\s*"[^"]*"|=\s*\'[^\']*\'|[^>])*?(?:[\s\x00-\x20\"\'\/]|=\s*"[^"]*"|=\s*\'[^\']*\')xmlns\s*=#iu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',
