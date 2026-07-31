@@ -527,7 +527,17 @@ class Blueprint extends BlueprintForm
             return !self::paramsContainDangerousCallable($params);
         }
 
-        if (is_string($function) && Utils::isDangerousFunction($function)) {
+        // Symmetric with the `Class::method` branch above: a bare function is
+        // gated on the same positive allowlist, not a denylist. A denylist can
+        // never be complete — `error_log` is an arbitrary-file-append primitive,
+        // `stream_socket_client` an SSRF one, and neither is in
+        // Utils::isDangerousFunction() — so any function the denylist forgot ran.
+        // No first-party blueprint uses a bare-function provider (every provider
+        // is a `Class::method` on the allowlist), so refuse the branch unless a
+        // plugin registered the function via addAllowedDynamicCallable().
+        // (GHSA-f8wv-xp27-6gq7, follow-up to GHSA-7pgq-cr25-xvc8)
+        if (!is_string($function)
+            || !isset(self::$allowedDynamicCallables[strtolower(ltrim($function, '\\'))])) {
             return false;
         }
 
