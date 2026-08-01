@@ -1,7 +1,8 @@
 # v2.0.15
-## 07/30/2026
+## 08/01/2026
 
 1. [](#bugfix)
+    * JSON responses no longer fail outright when the data contains invalid UTF-8. `json_encode()` returns `false` on malformed bytes, and the PSR-7 response body is type-hinted `string|resource|StreamInterface`, so that `false` came back out as an unhandled `TypeError` from inside the vendor stream rather than as a response. Affected `createJsonResponse()` and both JSON error responses in `ControllerResponseTrait`, where an exception message carrying a bad byte would take out the error handler itself, plus the Clockwork data endpoint in `Debugger`. Bad bytes are now substituted, and the remaining structural failures (recursion depth, `INF`/`NAN`) raise a catchable `JsonException` instead of a silent `false`. Output for valid data is unchanged.
     * [security] The bundled `Caddyfile` protections did nothing. They were written as nginx-style regexes, which Caddy reads as literal paths that never match, and the `respond` they redirected to ran after the catch-all rewrite had already claimed the request. A site served with this config handed out `user/accounts/`, `user/config/`, `logs/`, `composer.lock`, page files, and the `system/` and `vendor/` folders to anyone who asked. The rules are now named `path_regexp` matchers answering `403` directly, inside a `route` block so they run before the rewrite, and they were checked request by request against the `.htaccess` behaviour.
 
 # v2.0.14

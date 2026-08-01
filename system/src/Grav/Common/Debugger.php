@@ -347,7 +347,7 @@ class Debugger
         if (preg_match($clockworkDataUri, $path, $matches) === false) {
             $response = ['message' => 'Bad Input'];
 
-            return new Response(400, $headers, json_encode($response));
+            return new Response(400, $headers, json_encode($response, JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR));
         }
 
         $id = $matches['id'] ?? null;
@@ -373,12 +373,12 @@ class Debugger
         if (!$data) {
             $response = ['message' => 'Not Found'];
 
-            return new Response(404, $headers, json_encode($response));
+            return new Response(404, $headers, json_encode($response, JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR));
         }
 
         $data = is_array($data) ? array_map(static fn($item) => $item->toArray(), $data) : $data->toArray();
 
-        return new Response(200, $headers, json_encode($data));
+        return new Response(200, $headers, json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR));
     }
 
     /**

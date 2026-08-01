@@ -77,7 +77,14 @@ trait ControllerResponseTrait
             'Cache-Control' => 'no-store, max-age=0'
         ];
 
-        return new Response($code, $headers, json_encode($content));
+        // json_encode() returns false on malformed UTF-8, and the PSR-7 body
+        // type-hints string|resource|StreamInterface, so an unflagged encode
+        // surfaced as an unhandled TypeError deep inside the vendor Stream
+        // rather than as a response. SUBSTITUTE handles the case that actually
+        // occurs (bad bytes in user content) by swapping in U+FFFD; THROW_ON_ERROR
+        // turns the remaining structural failures (recursion depth, INF/NAN)
+        // into a catchable JsonException Grav can render, instead of a false.
+        return new Response($code, $headers, json_encode($content, JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -183,7 +190,7 @@ trait ControllerResponseTrait
             return $this->createHtmlResponse($response['message'], $code);
         }
 
-        return new Response($code, ['Content-Type' => 'application/json'], json_encode($response), '1.1', $reason);
+        return new Response($code, ['Content-Type' => 'application/json'], json_encode($response, JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR), '1.1', $reason);
     }
 
     /**
@@ -195,7 +202,7 @@ trait ControllerResponseTrait
         $response = $this->getErrorJson($e);
         $reason = $e instanceof RequestException ? $e->getHttpReason() : null;
 
-        return new Response($response['code'], ['Content-Type' => 'application/json'], json_encode($response), '1.1', $reason);
+        return new Response($response['code'], ['Content-Type' => 'application/json'], json_encode($response, JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR), '1.1', $reason);
     }
 
     /**
