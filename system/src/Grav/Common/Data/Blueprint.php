@@ -51,6 +51,58 @@ class Blueprint extends BlueprintForm
     protected $handlers = [];
 
     /**
+     * Whether this blueprint's own field definitions came from a source the site
+     * author controls — a blueprint file on disk, or PHP that declared itself
+     * trusted. Both are the author speaking: a plugin shipping a `blueprints.yaml`
+     * also ships code Grav autoloads, so honouring its `data-*@` directives grants
+     * no capability it did not already have.
+     *
+     * @var bool
+     */
+    protected $trusted = true;
+
+    /**
+     * Per-field-path trust for directives contributed by {@see self::extend()},
+     * keyed exactly like {@see BlueprintForm::$dynamic}. Lets a blueprint that is
+     * mostly file-defined but has page-authored fields spliced into it keep its own
+     * providers working while refusing the spliced ones, instead of the whole
+     * object having to be demoted.
+     *
+     * @var array<string,bool>
+     */
+    protected $dynamicTrust = [];
+
+    /**
+     * @param string|string[]|null $filename
+     * @param array $items
+     * @param bool|null $trusted  Declare the provenance of `$items`. Null infers it:
+     *                            a blueprint loaded from files is trusted, items
+     *                            injected as data are not. Pass true from code that
+     *                            builds a blueprint out of its own PHP array.
+     */
+    public function __construct($filename = null, array $items = [], ?bool $trusted = null)
+    {
+        parent::__construct($filename, $items);
+
+        // BlueprintForm::load() skips file loading entirely when $items is non-empty,
+        // so a blueprint is either file-derived or data-derived, never both. Injected
+        // items with no declaration are the page-frontmatter shape (the form plugin's
+        // Form::getBlueprint(), FlexForm, FlexDirectoryForm) — infer untrusted so a
+        // path nobody enumerated fails safe rather than open.
+        $this->trusted = $trusted ?? ($items === []);
+    }
+
+    /**
+     * Whether this blueprint's own definitions are author-controlled.
+     *
+     * @return bool
+     */
+    public function isTrusted(): bool
+    {
+        return $this->trusted;
+    }
+
+    /**
      * Clone blueprint.
      */
     public function __clone()
@@ -171,6 +223,10 @@ class Blueprint extends BlueprintForm
                 $action = $call['action'];
                 $method = 'dynamic' . ucfirst((string) $action);
                 $call['object'] = $this->object;
+                // Carry provenance to the sink. Reaches both dynamicData() below and
+                // every handler registered via addDynamicHandler() — notably Flex's,
+                // which routes `data` through FlexDirectory::dynamicDataField().
+                $call['trusted'] = $this->dynamicTrust[$key] ?? $this->trusted;
 
                 if (isset($this->handlers[$action])) {
                     $callable = $this->handlers[$action];
@@ -189,15 +245,71 @@ class Blueprint extends BlueprintForm
      *
      * @param BlueprintForm|array $extends
      * @param bool $append
+     * @param bool|null $trusted  Declare the provenance of `$extends`. Null infers it:
+     *                            another blueprint contributes its own trust, a bare
+     *                            array contributes none. Pass true from a plugin that
+     *                            builds the array in its own PHP.
      * @return $this
      */
-    public function extend($extends, $append = false)
+    public function extend($extends, $append = false, ?bool $trusted = null)
     {
+        // Attribute the incoming directives before merging, while we can still tell
+        // which fields this source contributes. Afterwards deepInit() re-walks the
+        // merged tree and can no longer distinguish one source from another.
+        if ($extends instanceof BlueprintForm) {
+            // A blueprint loaded from files carries file provenance even though it
+            // arrives through a PHP call — which is what every first-party plugin's
+            // onBlueprintCreated handler does.
+            $incomingTrust = $trusted ?? (!$extends instanceof self || $extends->isTrusted());
+            $incoming = $extends->toArray();
+        } else {
+            $incomingTrust = $trusted ?? false;
+            $incoming = (array) $extends;
+        }
+
+        $paths = $this->dynamicPathsOf($incoming);
+
+        if (null === $paths) {
+            // Could not attribute the incoming fields. Fall back to demoting the whole
+            // blueprint rather than letting unattributed directives inherit trust.
+            $this->trusted = $this->trusted && $incomingTrust;
+        } else {
+            foreach ($paths as $path) {
+                $this->dynamicTrust[$path] = $incomingTrust;
+            }
+        }
+
         parent::extend($extends, $append);
 
         $this->deepInit($this->items);
 
         return $this;
+    }
+
+    /**
+     * Field paths in `$items` that carry a dynamic directive, keyed as
+     * {@see BlueprintForm::$dynamic} keys them.
+     *
+     * Parses a throwaway blueprint rather than reimplementing the walk, so the paths
+     * are guaranteed to line up with the ones init() dispatches on.
+     *
+     * @param array $items
+     * @return string[]|null  Null when the source could not be parsed.
+     */
+    private function dynamicPathsOf(array $items): ?array
+    {
+        if (!$items) {
+            return [];
+        }
+
+        try {
+            $probe = new self(null, $items, true);
+            $probe->deepInit($probe->items);
+
+            return array_keys($probe->dynamic);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /**
@@ -445,7 +557,7 @@ class Blueprint extends BlueprintForm
         // e.g. Utils::arrayFilterRecursive($cmd, 'system'). Legitimate providers
         // are static methods returning option arrays and never take a callable
         // argument, so real blueprints are unaffected. (GHSA-fj2p-qj2f-74v5)
-        if (!self::isSafeDynamicCall($function, $params)) {
+        if (!self::isSafeDynamicCall($function, $params, (bool)($call['trusted'] ?? false))) {
             return;
         }
 
@@ -486,11 +598,19 @@ class Blueprint extends BlueprintForm
      * the same `data-*@` directive through separate dispatch paths and must
      * enforce the same guard. (GHSA-fj2p-qj2f-74v5, GHSA-c4wf-2xxc-68qm)
      *
+     * `$trusted` says the directive came from a blueprint file on disk, or from PHP
+     * that declared itself as the author. Those callers skip the allowlist: the
+     * allowlist exists to stop a *page-authored* form from naming an arbitrary static
+     * method, and a plugin that can ship a blueprint can already ship code. It
+     * defaults to false so any caller that has not been taught to pass provenance —
+     * including third-party ones — keeps the strict behaviour.
+     *
      * @param mixed $function
      * @param array $params
+     * @param bool $trusted
      * @return bool
      */
-    public static function isSafeDynamicCall($function, array $params): bool
+    public static function isSafeDynamicCall($function, array $params, bool $trusted = false): bool
     {
         // A `data-*@` callable may arrive as a `[Class, method]` pair, not only
         // as a `Class::method` string. PHP honours the array form in is_callable()
@@ -518,9 +638,11 @@ class Blueprint extends BlueprintForm
             // account name ANY public static method as a dynamic-field provider
             // and reach file-disclosure / file-write / secret-read gadgets
             // (Utils::download, Folder::copy/delete, Security::getNonceKey, ...).
-            // Permit only the known-safe option providers on the allowlist.
+            // Permit only the known-safe option providers on the allowlist — unless
+            // the directive is author-controlled, in which case the allowlist is not
+            // the boundary and only the trampoline guard below still applies.
             // (GHSA-7pgq-cr25-xvc8, GHSA-cxv3-5jj3-cpgr)
-            if (!isset(self::$allowedDynamicCallables[strtolower(ltrim($function, '\\'))])) {
+            if (!$trusted && !isset(self::$allowedDynamicCallables[strtolower(ltrim($function, '\\'))])) {
                 return false;
             }
 
@@ -535,6 +657,10 @@ class Blueprint extends BlueprintForm
         // No first-party blueprint uses a bare-function provider (every provider
         // is a `Class::method` on the allowlist), so refuse the branch unless a
         // plugin registered the function via addAllowedDynamicCallable().
+        // Provenance deliberately does NOT lift this: nothing legitimate needs a
+        // bare function, and the gadgets reachable through one (error_log as a
+        // file-append primitive, stream_socket_client as an SSRF one) are worth
+        // keeping behind an explicit registration even for trusted callers.
         // (GHSA-f8wv-xp27-6gq7, follow-up to GHSA-7pgq-cr25-xvc8)
         if (!is_string($function)
             || !isset(self::$allowedDynamicCallables[strtolower(ltrim($function, '\\'))])) {

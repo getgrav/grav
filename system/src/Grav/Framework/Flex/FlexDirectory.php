@@ -928,7 +928,7 @@ class FlexDirectory implements FlexDirectoryInterface
         // fix: is_callable() alone happily accepts exec/system/... and a
         // trampoline callable smuggled in as a parameter. Reuse the exact check
         // both paths share. (GHSA-fj2p-qj2f-74v5, GHSA-c4wf-2xxc-68qm)
-        if (!Blueprint::isSafeDynamicCall($function, $params)) {
+        if (!Blueprint::isSafeDynamicCall($function, $params, (bool)($call['trusted'] ?? false))) {
             return;
         }
 
