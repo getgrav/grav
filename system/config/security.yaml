@@ -65,6 +65,20 @@ uploads_dangerous_extensions:
   - json
   - twig
   - ini
+  # GHSA-66xf-ggf4-6hmc: the browser renders these and runs the script in
+  # them exactly as it does for the html/htm/shtml entries above, so an
+  # upload under one of these names is stored XSS. `.svgz` is an SVG the
+  # sanitizer cannot read, being gzipped, so it is denied outright.
+  - xhtml
+  - xht
+  - svgz
+  # Same reasoning as the php/php2-5 entries: a server whose PHP handler is
+  # mapped over these suffixes executes them.
+  - php7
+  - php8
+  - pht
+  - phtm
+  - phps
 sanitize_svg: true
 # Content security for editor-authored page content.
 #
