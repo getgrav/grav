@@ -1,3 +1,16 @@
+# v2.0.15
+## 08/03/2026
+
+1. [](#bugfix)
+    * A plugin's blueprints can use the data providers that plugin ships again, instead of having every one of them refused by a check that only recognised the providers core itself registers ([getgrav/grav-plugin-email#193](https://github.com/getgrav/grav-plugin-email/issues/193)). Fields defined in page frontmatter are held to the stricter rule instead, which is where the risk actually was.
+    * [security] A configuration admin can no longer reach an unvetted built-in routine by writing a blueprint field's data provider as a plain function name, a spelling that was still being checked against a list of known-bad names rather than the list of approved ones ([GHSA-f8wv-xp27-6gq7](https://github.com/getgrav/grav/security/advisories/GHSA-f8wv-xp27-6gq7)).
+    * [security] The content security scan now reads an unpaired quote inside an unquoted attribute value the way a browser does, closing another way a page editor could hide a script from it ([GHSA-vfmf-q6x9-cw96](https://github.com/getgrav/grav/security/advisories/GHSA-vfmf-q6x9-cw96)).
+    * [security] The media URL in an audio or video tag is now escaped, so a filename carrying markup can no longer add its own attributes to the player ([GHSA-6qw9-4vv5-jr97](https://github.com/getgrav/grav/security/advisories/GHSA-6qw9-4vv5-jr97)).
+    * JSON responses no longer fail outright when the data contains invalid UTF-8. `json_encode()` returns `false` on malformed bytes, and the PSR-7 response body is type-hinted `string|resource|StreamInterface`, so that `false` came back out as an unhandled `TypeError` from inside the vendor stream rather than as a response. Affected `createJsonResponse()` and both JSON error responses in `ControllerResponseTrait`, where an exception message carrying a bad byte would take out the error handler itself, plus the Clockwork data endpoint in `Debugger`. Bad bytes are now substituted, and the remaining structural failures (recursion depth, `INF`/`NAN`) raise a catchable `JsonException` instead of a silent `false`. Output for valid data is unchanged.
+    * [security] The fast static asset server now keeps a request inside the directory the site published, instead of also allowing any neighbouring directory whose name starts with the same letters ([GHSA-4v9q-p283-qc2m](https://github.com/getgrav/grav/security/advisories/GHSA-4v9q-p283-qc2m)).
+    * [security] File uploads now reject a few more extensions that browsers run script from, or that a server may hand to PHP: `xhtml`, `xht`, `svgz`, `php7`, `php8`, `pht`, `phtm` and `phps` ([GHSA-66xf-ggf4-6hmc](https://github.com/getgrav/grav/security/advisories/GHSA-66xf-ggf4-6hmc)).
+    * [security] The bundled `Caddyfile` protections did nothing. They were written as nginx-style regexes, which Caddy reads as literal paths that never match, and the `respond` they redirected to ran after the catch-all rewrite had already claimed the request. A site served with this config handed out `user/accounts/`, `user/config/`, `logs/`, `composer.lock`, page files, and the `system/` and `vendor/` folders to anyone who asked. The rules are now named `path_regexp` matchers answering `403` directly, inside a `route` block so they run before the rewrite, and they were checked request by request against the `.htaccess` behaviour.
+
 # v2.0.14
 ## 07/30/2026
 

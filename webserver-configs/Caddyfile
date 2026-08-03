@@ -1,57 +1,78 @@
 # To use this file simply install caddy and run the command below from the root of your Grav site
 # Once running it will redirect http://localhost to https://localhost (new default for Caddy2)
-# More infromation here: https://caddyserver.com/docs/
+# More information here: https://caddyserver.com/docs/
 #
 # $ caddy run --config webserver-configs/Caddyfile
 
 localhost
 encode gzip
 root * .
-file_server
-
-php_fastcgi 127.0.0.1:9000
 
 # Begin - Security
+#
+# Two things to know before editing this block:
+#
+# 1. Caddy's `path` matcher is literal — it only understands `*` wildcards, it
+#    is NOT a regex. Any rule needing alternation, character classes or anchors
+#    has to use a named `path_regexp` matcher. A bare
+#    `rewrite /(cache|logs)/.* /403` matches nothing at all, which silently
+#    turns the rule off.
+#
+# 2. Outside a `route` block Caddy applies its own directive order rather than
+#    the order written in this file, and the global `try_files` rewrite runs
+#    before `respond`. That silently disables every rule below for any path
+#    Caddy can't resolve to a file on disk. Everything is therefore wrapped in
+#    a `route` block, which executes top to bottom as written.
+
 # deny all direct access for these folders
-rewrite /(\.git|cache|bin|logs|backups|tests)/.* /403
+@denied_dirs path_regexp (?i)^/(\.git|cache|bin|logs|backups?|tests)/
 
 # deny all direct access to these sensitive user folders, whatever the file type
-rewrite /user/(config|env)/.* /403
+@denied_user_config path_regexp (?i)^/user/(config|env)/
 
 # block user/accounts too, but allow avatar images to be served directly, whether
 # stored at user/accounts/avatars/<file> (flatfile accounts) or user/accounts/
 # <username>/<file> (Flex folder storage). SVG is excluded as a stored-XSS vector.
 # (Go's RE2 has no lookbehind, so this uses a negated matcher.)
-@user_accounts_nonavatar {
-	path_regexp /user/accounts/.*
-	not path_regexp (?i)/user/accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$
+@denied_user_accounts {
+	path_regexp (?i)^/user/accounts/
+	not path_regexp (?i)^/user/accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$
 }
-rewrite @user_accounts_nonavatar /403
 
 # block user/data too, but allow public media uploads (e.g. Flex Object images)
 # to be served directly. SVG is intentionally excluded as a stored-XSS vector.
 # (Go's RE2 has no lookbehind, so this uses a negated matcher.)
-@user_data_nonmedia {
-	path_regexp /user/data/.*
+@denied_user_data {
+	path_regexp (?i)^/user/data/
 	not path_regexp (?i)\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf)$
 }
-rewrite @user_data_nonmedia /403
 
 # deny running scripts inside core system folders
-rewrite /(system|vendor)/.*\.(txt|xml|md|html|htm|shtml|shtm|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ /403
+@denied_system path_regexp (?i)^/(system|vendor)/.*\.(txt|xml|md|html|htm|shtml|shtm|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
 
 # deny running scripts inside user folder
-rewrite /user/.*\.(txt|md|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ /403
+@denied_user_scripts path_regexp (?i)^/user/.*\.(txt|md|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
 
 # deny access to specific files in the root folder
-rewrite /(LICENSE\.txt|composer\.lock|composer\.json|nginx\.conf|web\.config|htaccess\.txt|\.htaccess) /403
+@denied_root_files path_regexp (?i)^/(LICENSE\.txt|composer\.lock|composer\.json|nginx\.conf|web\.config|htaccess\.txt)$
 
-# deny access to .env environment files
-@dotenv path_regexp \.env(\..+)?$
-respond @dotenv 403
-
-respond /403 403
+# deny access to dotfiles anywhere: .htaccess, .env, .env.local, .migrating, ...
+@denied_dotfiles path_regexp (?i)(^|/)\.[^/]+$
 ## End - Security
 
-# global rewrite should come last.
-try_files {path} {path}/ /index.php?_url={uri}&{query}
+route {
+	respond @denied_dirs 403
+	respond @denied_user_config 403
+	respond @denied_user_accounts 403
+	respond @denied_user_data 403
+	respond @denied_system 403
+	respond @denied_user_scripts 403
+	respond @denied_root_files 403
+	respond @denied_dotfiles 403
+
+	# global rewrite should come last.
+	try_files {path} {path}/ /index.php?_url={uri}&{query}
+
+	php_fastcgi 127.0.0.1:9000
+	file_server
+}

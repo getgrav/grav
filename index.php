@@ -64,7 +64,14 @@ if (PHP_SAPI !== 'cli') {
                 $filePath = __DIR__ . '/' . ltrim($diskPath, '/') . $relPath;
                 $realFile = realpath($filePath);
                 $realBase = realpath(__DIR__ . '/' . ltrim($diskPath, '/'));
-                if ($realFile && $realBase && str_starts_with($realFile, $realBase) && is_file($realFile)) {
+                // Containment has to end on a directory boundary. A bare
+                // prefix test also accepts any sibling whose name merely
+                // extends the base one — `assets` would match `assets-secret`
+                // or `assets.bak` — so a `..` in the request path could reach
+                // a file that was never published (GHSA-4v9q-p283-qc2m).
+                $inBase = $realFile && $realBase
+                    && str_starts_with($realFile, rtrim($realBase, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR);
+                if ($inBase && is_file($realFile)) {
                     $ext = strtolower(pathinfo($realFile, PATHINFO_EXTENSION));
                     $mimeMap = [
                         'js' => 'text/javascript', 'mjs' => 'text/javascript',
