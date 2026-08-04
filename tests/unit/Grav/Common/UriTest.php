@@ -1090,6 +1090,42 @@ class UriTest extends \PHPUnit\Framework\TestCase
         self::assertSame('/foo/bar', $this->uri->referrer());
     }
 
+    public function testReferrerOnlyAcceptsOurOwnOrigin(): void
+    {
+        $previous = $_SERVER['HTTP_REFERER'] ?? null;
+        $this->uri->initializeWithURL('http://localhost/foo/page:test')->init();
+
+        try {
+            // Our own origin is accepted, with or without a path.
+            $_SERVER['HTTP_REFERER'] = 'http://localhost/some/page';
+            self::assertSame('/some/page', $this->uri->referrer('/default'));
+            $_SERVER['HTTP_REFERER'] = 'http://localhost';
+            self::assertSame('', $this->uri->referrer('/default'));
+
+            // A host that merely starts with our own is not ours.
+            foreach (['http://localhost.attacker.tld/phish', 'http://localhost-attacker.tld/phish'] as $referrer) {
+                $_SERVER['HTTP_REFERER'] = $referrer;
+                self::assertSame('/default', $this->uri->referrer('/default'), $referrer);
+            }
+
+            // Unrelated origins are rejected, as are non-string referrers.
+            $_SERVER['HTTP_REFERER'] = 'http://attacker.tld/phish';
+            self::assertSame('/default', $this->uri->referrer('/default'));
+            unset($_SERVER['HTTP_REFERER']);
+            self::assertSame('/default', $this->uri->referrer('/default'));
+
+            // A `//host` path must not come back as a protocol relative URL.
+            $_SERVER['HTTP_REFERER'] = 'http://localhost//attacker.tld/phish';
+            self::assertSame('/attacker.tld/phish', $this->uri->referrer('/default'));
+        } finally {
+            if ($previous === null) {
+                unset($_SERVER['HTTP_REFERER']);
+            } else {
+                $_SERVER['HTTP_REFERER'] = $previous;
+            }
+        }
+    }
+
     public function testIp(): void
     {
         $this->uri->initializeWithURL('http://localhost/foo/page:test')->init();

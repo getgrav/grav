@@ -229,9 +229,10 @@ class Pages
     {
         $referrer = $_SERVER['HTTP_REFERER'] ?? null;
 
-        // Start by checking that referrer came from our site.
-        $root = $this->grav['base_url_absolute'];
-        if (!is_string($referrer) || !str_starts_with($referrer, (string) $root)) {
+        // Start by checking that referrer came from our site. The root carries no trailing slash, so the prefix has
+        // to be anchored on a path separator, or a host that merely starts with the same characters passes as ours.
+        $root = (string) $this->grav['base_url_absolute'];
+        if (!is_string($referrer) || !($referrer === $root || str_starts_with($referrer, $root . '/'))) {
             return null;
         }
 
