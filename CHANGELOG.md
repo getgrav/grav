@@ -1,3 +1,9 @@
+# v2.0.16
+## 08/04/2026
+
+1. [](#bugfix)
+    * [security] Twig written into a form's email settings now runs under the same restrictions as Twig written into page content, closing a route that let someone with only page-editing rights run commands on the server ([GHSA-gh8j-q67c-j53f](https://github.com/getgrav/grav/security/advisories/GHSA-gh8j-q67c-j53f)).
+
 # v2.0.15
 ## 08/03/2026
 
