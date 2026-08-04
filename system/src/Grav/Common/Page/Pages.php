@@ -244,17 +244,18 @@ class Pages
             $languages = $language->enabled() ? $language->getLanguages() : [];
             $languages[] = '';
         } else {
-            $languages[] = $langCode;
+            $languages = [$langCode];
         }
 
         $path_base = rtrim($this->base(), '/');
         $path_route = rtrim($route, '/');
 
-        // Try to figure out the language code.
+        // Try to figure out the language code. $referrer is absolute, so the candidates need the site root on them
+        // as well, or nothing ever matches and the method always returns null.
         foreach ($languages as $code) {
             $path_lang = $code ? "/{$code}" : '';
 
-            $base = $path_base . $path_lang . $path_route;
+            $base = $root . $path_base . $path_lang . $path_route;
             if ($referrer === $base || str_starts_with($referrer, "{$base}/")) {
                 if (null === $langCode) {
                     $langCode = $code;
