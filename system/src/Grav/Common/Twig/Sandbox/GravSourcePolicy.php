@@ -40,6 +40,12 @@ final class GravSourcePolicy implements SourcePolicyInterface
         }
 
         // Editor-authored string templates registered via Twig::setTemplate().
-        return str_starts_with($name, '@Page:') || str_starts_with($name, '@Var:');
+        // `@EmailVar:` is the Email plugin's form-action parameters (subject,
+        // body, recipients). Those come from a page's `form.process.email.*`
+        // front matter, so they are editor-authored too and must be sandboxed
+        // like any other content Twig. (GHSA-gh8j-q67c-j53f)
+        return str_starts_with($name, '@Page:')
+            || str_starts_with($name, '@Var:')
+            || str_starts_with($name, '@EmailVar:');
     }
 }

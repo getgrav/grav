@@ -601,4 +601,44 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
         }
         $this->addToAssertionCount(1);
     }
+
+    // =========================================================================
+    // GHSA-gh8j-q67c-j53f: which template sources the sandbox applies to
+    // =========================================================================
+
+    /**
+     * The Email plugin renders a form's `process.email.*` parameters as
+     * `@EmailVar:` templates. Those parameters are page front matter, so they
+     * are editor-authored and must be sandboxed like any other content Twig.
+     */
+    public function testSourcePolicy_SandboxesEmailVarSources(): void
+    {
+        $policy = new \Grav\Common\Twig\Sandbox\GravSourcePolicy();
+
+        self::assertTrue($policy->enableSandbox(new \Twig\Source('', '@EmailVar:abc123')));
+    }
+
+    /**
+     * The editor-authored sources, for completeness alongside the above.
+     */
+    public function testSourcePolicy_SandboxesPageAndVarSources(): void
+    {
+        $policy = new \Grav\Common\Twig\Sandbox\GravSourcePolicy();
+
+        self::assertTrue($policy->enableSandbox(new \Twig\Source('', '@Page:/home')));
+        self::assertTrue($policy->enableSandbox(new \Twig\Source('', '@Var:{{ x }}')));
+    }
+
+    /**
+     * Trusted templates on disk are never '@'-prefixed and stay unsandboxed,
+     * which is what lets editor content `{% include %}` a theme partial.
+     */
+    public function testSourcePolicy_LeavesDiskTemplatesUnsandboxed(): void
+    {
+        $policy = new \Grav\Common\Twig\Sandbox\GravSourcePolicy();
+
+        self::assertFalse($policy->enableSandbox(new \Twig\Source('', 'partials/base.html.twig')));
+        self::assertFalse($policy->enableSandbox(new \Twig\Source('', '')));
+        self::assertFalse($policy->enableSandbox(new \Twig\Source('', '@Other:thing')));
+    }
 }
