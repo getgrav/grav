@@ -1516,13 +1516,17 @@ abstract class Utils
             $nonce = array_shift($nonce);
         }
 
+        if (!is_string($nonce)) {
+            return false;
+        }
+
         //Nonce generated 0-12 hours ago
-        if ($nonce === self::getNonce($action)) {
+        if (hash_equals(self::getNonce($action), $nonce)) {
             return true;
         }
 
         //Nonce generated 12-24 hours ago
-        return $nonce === self::getNonce($action, true);
+        return hash_equals(self::getNonce($action, true), $nonce);
     }
 
     /**
