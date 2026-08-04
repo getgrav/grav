@@ -612,13 +612,22 @@ class Uri implements \Stringable
             $base = $this->rootUrl(true);
         }
 
-        // Referrer should always have host set and it should come from the same base address.
-        if (!is_string($referrer) || !str_starts_with($referrer, $base)) {
-            $referrer = $default ?: $this->route(true, true);
+        // Referrer should always have host set and it should come from the same base address. The base carries no
+        // trailing slash, so the prefix has to be anchored on a path separator, or a host that merely starts with
+        // the same characters (`https://example.com.attacker.tld`) passes as our own.
+        if (is_string($referrer) && ($referrer === $base || str_starts_with($referrer, $base . '/'))) {
+            // Relative path from grav root.
+            $referrer = substr($referrer, strlen($base));
+
+            // Collapse leading slashes. `//host/path` is an absolute URL to anything that redirects to this value.
+            if (str_starts_with($referrer, '//')) {
+                $referrer = '/' . ltrim($referrer, '/');
+            }
+        } else {
+            // A given default is already a relative route, only the current route has the base to strip off it.
+            $referrer = $default ?: substr($this->route(true, true), strlen($base));
         }
 
-        // Relative path from grav root.
-        $referrer = substr($referrer, strlen($base));
         if ($attributes) {
             $referrer .= $attributes;
         }
