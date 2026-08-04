@@ -1,3 +1,9 @@
+# v1.7.53.3
+## 08/04/2026
+
+1. [](#bugfix)
+    * [security] Form security tokens are now compared with a routine that takes the same amount of time whichever characters differ, so the check can no longer hint at how much of a guess was right ([GHSA-38p6-h87p-r4cg](https://github.com/getgrav/grav/security/advisories/GHSA-38p6-h87p-r4cg)).
+
 # v1.7.53.2
 ## 06/30/2026
 
