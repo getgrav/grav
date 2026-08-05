@@ -507,6 +507,65 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     }
 
     // =========================================================================
+    //  GHSA-p597-crqc-m349 — the `system`/`site`/`theme` Twig variables are
+    //  plain arrays, so the sandbox policy cannot gate them at all: Twig
+    //  arbitrates method calls and property reads on objects, never key
+    //  access on an array. Twig::buildSandboxVars() therefore runs the three
+    //  through the same `config_denied_paths` filter as the `config` facade.
+    // =========================================================================
+
+    public function testGhsaP597_RawArrayVarIsNotGatedByThePolicy(): void
+    {
+        // Documents the mechanism the fix exists for: with the strictest
+        // possible policy, an unfiltered array still renders its secrets.
+        $env = $this->sandboxEnv(['poc' => '{{ system.cache.redis.password }}']);
+        $output = $env->render('poc', [
+            'system' => ['cache' => ['redis' => ['password' => 'REDIS_SECRET_7']]],
+        ]);
+        self::assertSame('REDIS_SECRET_7', $output);
+    }
+
+    public function testGhsaP597_FilteredSystemVarStripsSecretsAndKeepsTheRest(): void
+    {
+        $real = new \Grav\Common\Config\Config([
+            'system' => [
+                'absolute_urls' => false,
+                'cache' => ['driver' => 'redis', 'redis' => ['password' => 'REDIS_SECRET_7']],
+            ],
+            'site' => ['title' => 'Public Title', 'integrations' => ['api_key' => 'SITE_SECRET_9']],
+            'theme' => ['name' => 'quark'],
+        ]);
+        $filter = new \Grav\Common\Twig\Sandbox\SandboxConfig(
+            $real,
+            ['plugins', 'streams', 'security', 'system.cache.redis.password', 'site.integrations']
+        );
+
+        $env = $this->sandboxEnv([
+            'poc' => '{{ system.cache.redis.password }}|{{ system.cache.driver }}'
+                . '|{{ site.integrations.api_key }}|{{ site.title }}|{{ theme.name }}',
+        ]);
+        $output = $env->render('poc', [
+            'system' => $filter->get('system', []),
+            'site' => $filter->get('site', []),
+            'theme' => $filter->get('theme', []),
+        ]);
+
+        self::assertSame('|redis||Public Title|quark', $output);
+    }
+
+    public function testGhsaP597_DeniedTopLevelBlanksTheWholeVar(): void
+    {
+        // An operator who denies `system` outright gets an empty array in the
+        // sandboxed render rather than a partially filtered tree.
+        $real = new \Grav\Common\Config\Config([
+            'system' => ['cache' => ['redis' => ['password' => 'REDIS_SECRET_7']]],
+        ]);
+        $filter = new \Grav\Common\Twig\Sandbox\SandboxConfig($real, ['system']);
+
+        self::assertSame([], $filter->get('system', []));
+    }
+
+    // =========================================================================
     // Per-page process defaults wired through Security::pageProcessDefaults():
     // when system.pages.process.twig is unset, the per-page twig flag inherits
     // the security.twig_content.process_enabled gate so the admin UI and the
