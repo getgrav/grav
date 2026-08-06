@@ -6,6 +6,7 @@
     * [security] Twig written into a form's email settings now runs under the same restrictions as Twig written into page content, closing a route that let someone with only page-editing rights run commands on the server ([GHSA-gh8j-q67c-j53f](https://github.com/getgrav/grav/security/advisories/GHSA-gh8j-q67c-j53f)).
     * [security] Form security tokens are now compared with a routine that takes the same amount of time whichever characters differ, so the check can no longer hint at how much of a guess was right ([GHSA-38p6-h87p-r4cg](https://github.com/getgrav/grav/security/advisories/GHSA-38p6-h87p-r4cg)).
     * [security] The check for whether a visitor arrived from your own site now requires a full address match, so another site whose domain merely begins with yours no longer counts as your own ([GHSA-9ccq-2jfg-qw33](https://github.com/getgrav/grav/security/advisories/GHSA-9ccq-2jfg-qw33)).
+    * Deleting a media file no longer also removes the retina copies and metadata belonging to a different file whose name merely ends with the same text, so deleting `banner.jpg` leaves `my-banner@2x.jpg` alone.
     * A fallback page handed to `Uri::referrer()` is now returned as given, instead of being trimmed away to nothing whenever the visitor did not arrive from your site.
     * `Pages::referrerRoute()` was comparing a full web address against a site path, so it never recognised a match and always reported that the visitor came from somewhere else.
 

@@ -557,12 +557,17 @@ trait MediaUploadTrait
         $basename = $filesystem->basename($filename);
         $fileParts = (array)$filesystem->pathinfo($filename);
 
-        foreach ($dir as $file) {
-            $preg_name = preg_quote((string) $fileParts['filename'], '`');
-            $preg_ext = preg_quote($fileParts['extension'] ?? '.', '`');
-            $preg_filename = preg_quote($basename, '`');
+        $preg_name = preg_quote((string) $fileParts['filename'], '`');
+        $preg_ext = preg_quote($fileParts['extension'] ?? '.', '`');
+        $preg_filename = preg_quote($basename, '`');
 
-            if (preg_match("`({$preg_name}@\d+x\.{$preg_ext}(?:\.meta\.yaml)?$|{$preg_filename}\.meta\.yaml)$`", $file)) {
+        // Anchor both ends. Without a leading `^` the name matches as a suffix of
+        // a longer one, so deleting `banner.jpg` also swept `my-banner@2x.jpg` and
+        // `other-banner.jpg.meta.yaml`, which belong to a different media item.
+        $pattern = "`^(?:{$preg_name}@\d+x\.{$preg_ext}(?:\.meta\.yaml)?|{$preg_filename}\.meta\.yaml)$`";
+
+        foreach ($dir as $file) {
+            if (preg_match($pattern, $file)) {
                 $testPath = $targetPath . '/' . $file;
                 if ($locator->isStream($testPath)) {
                     $testPath = (string)$locator->findResource($testPath, true, true);
