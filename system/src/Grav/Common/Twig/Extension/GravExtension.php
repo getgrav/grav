@@ -1738,6 +1738,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function mediaDirFunc($media_dir)
     {
+        if (!is_string($media_dir) || $media_dir === '') {
+            return null;
+        }
+
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
@@ -1745,8 +1749,39 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             $media_dir = $locator->findResource($media_dir);
         }
 
-        if ($media_dir && file_exists($media_dir)) {
-            return new Media($media_dir);
+        if (!$media_dir) {
+            return null;
+        }
+
+        // Resolve and verify canonical containment, the same way FileReader::read()
+        // does for read_file(). A plain path was previously handed straight to
+        // Media, so page content could point this anywhere the web server can read
+        // and enumerate it, or republish images from it through the image cache.
+        // media_directory is on the Twig sandbox allow-list and modular pages
+        // render their content Twig unconditionally, so editor-authored content
+        // reaches this without any page-Twig permission. (GHSA-47ch-6w46-6xm7)
+        $realDir = realpath($media_dir);
+        // is_readable() also keeps Media::init()'s FilesystemIterator from throwing
+        // out of a page render on a directory that exists but cannot be read.
+        if ($realDir === false || !is_dir($realDir) || !is_readable($realDir)) {
+            return null;
+        }
+        $realDir = rtrim($realDir, DIRECTORY_SEPARATOR);
+
+        // USER_DIR is listed separately from GRAV_WEBROOT on purpose: a user folder
+        // symlinked outside the install is a supported layout, and resolving it here
+        // keeps those sites working.
+        foreach ([GRAV_ROOT, GRAV_WEBROOT, USER_DIR] as $root) {
+            $realRoot = realpath($root);
+            if ($realRoot === false) {
+                continue;
+            }
+            // The trailing separator is essential. Without it `/var/grav` would
+            // prefix-match `/var/grav-evil`.
+            $realRoot = rtrim($realRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+            if (strncmp($realDir . DIRECTORY_SEPARATOR, $realRoot, strlen($realRoot)) === 0) {
+                return new Media($realDir);
+            }
         }
 
         return null;
