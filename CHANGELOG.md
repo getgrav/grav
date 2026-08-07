@@ -1,8 +1,9 @@
 # v2.0.16
-## 08/05/2026
+## 08/07/2026
 
 1. [](#improved)
     * Updated vendor libs to latest versions
+    * The list of groups on the account form is now read through the current user groups system, retiring a routine deprecated since Grav 1.7.
 1. [](#bugfix)
     * [security] The site, system and theme settings offered to Twig written inside page content are now filtered by the same denied-paths list that already covered `config`, so a page editor can no longer read secrets such as a Redis password straight out of them ([GHSA-p597-crqc-m349](https://github.com/getgrav/grav/security/advisories/GHSA-p597-crqc-m349)).
     * [security] Twig written into a form's email settings now runs under the same restrictions as Twig written into page content, closing a route that let someone with only page-editing rights run commands on the server ([GHSA-gh8j-q67c-j53f](https://github.com/getgrav/grav/security/advisories/GHSA-gh8j-q67c-j53f)).

@@ -81,7 +81,7 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
         $user_groups = Grav::instance()['user_groups'] ?? [];
 
         foreach ($user_groups as $key => $group) {
-            $groups[$key] = $group->readableName;
+            $groups[$key] = $group->readableName ?? $key;
         }
 
         return $groups;
