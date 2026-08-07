@@ -1,3 +1,22 @@
+# v2.0.16
+## 08/07/2026
+
+1. [](#improved)
+    * Updated vendor libs to latest versions
+    * The list of groups on the account form is now read through the current user groups system, retiring a routine deprecated since Grav 1.7.
+1. [](#bugfix)
+    * [security] The site, system and theme settings offered to Twig written inside page content are now filtered by the same denied-paths list that already covered `config`, so a page editor can no longer read secrets such as a Redis password straight out of them ([GHSA-p597-crqc-m349](https://github.com/getgrav/grav/security/advisories/GHSA-p597-crqc-m349)).
+    * [security] Twig written into a form's email settings now runs under the same restrictions as Twig written into page content, closing a route that let someone with only page-editing rights run commands on the server ([GHSA-gh8j-q67c-j53f](https://github.com/getgrav/grav/security/advisories/GHSA-gh8j-q67c-j53f)).
+    * [security] Form security tokens are now compared with a routine that takes the same amount of time whichever characters differ, so the check can no longer hint at how much of a guess was right ([GHSA-38p6-h87p-r4cg](https://github.com/getgrav/grav/security/advisories/GHSA-38p6-h87p-r4cg)).
+    * [security] The check for whether a visitor arrived from your own site now requires a full address match, so another site whose domain merely begins with yours no longer counts as your own ([GHSA-9ccq-2jfg-qw33](https://github.com/getgrav/grav/security/advisories/GHSA-9ccq-2jfg-qw33)).
+    * [security] Scheduler job locks are now kept inside your site rather than in the shared system temp folder, so another account on the same server can no longer redirect a lock write to a file of its choosing ([GHSA-q8w8-6cq5-j4h2](https://github.com/getgrav/grav/security/advisories/GHSA-q8w8-6cq5-j4h2)).
+    * A scheduled job set to run only one at a time now refuses to start when its lock cannot be written, instead of running unprotected. Note that `bin/grav clear` removes these locks along with the rest of the temporary folder.
+    * [security] Deleting, renaming and copying a media file now check the whole path rather than just the file's own name, so a plugin calling those routines directly cannot reach a file outside the media folder ([GHSA-jq29-c7v8-rg55](https://github.com/getgrav/grav/security/advisories/GHSA-jq29-c7v8-rg55)).
+    * [security] The `media_directory()` Twig function now only accepts folders inside your site, so Twig written into page content can no longer list files or republish images from elsewhere on the server ([GHSA-47ch-6w46-6xm7](https://github.com/getgrav/grav/security/advisories/GHSA-47ch-6w46-6xm7)).
+    * Deleting a media file no longer also removes the retina copies and metadata belonging to a different file whose name merely ends with the same text, so deleting `banner.jpg` leaves `my-banner@2x.jpg` alone.
+    * A fallback page handed to `Uri::referrer()` is now returned as given, instead of being trimmed away to nothing whenever the visitor did not arrive from your site.
+    * `Pages::referrerRoute()` was comparing a full web address against a site path, so it never recognised a match and always reported that the visitor came from somewhere else.
+
 # v2.0.15
 ## 08/03/2026
 
@@ -106,7 +125,7 @@
     * New experimental opt-in page index (`pages.lazy_index: true`): pages, routes, children lists, sort orders and the taxonomy map load on demand from a per-page index instead of one large cache blob that has to be fully unserialized on every request, making per-request cost flat as sites grow: a 2,000 page test site renders as fast as a 2 page one and uses a quarter of the memory; SQLite powers the index when available with a pure PHP fallback, and the default behavior is completely unchanged until the flag is enabled.
     * Page collection filters (`visible`, `routable`, `published`, module) now use menu flags recorded in the page index, so building a navigation menu that filters a folder to its visible pages no longer loads every hidden sibling first. On a 500 post blog under the Quark theme this cut the pages built for a page view from all 507 to 7 and roughly halved memory; it helps every site, most of all large ones with the experimental page index enabled.
     * Sorting a page collection by date, title, or another common field now reads that value from the page index instead of loading every page in the collection just to read one field, and on single language sites the automatic translated filter that every collection applies no longer loads any pages at all. With the experimental page index enabled, a blog post showing a related posts grid dropped from loading every post on the site to only the handful it displays.
-    * The setting that scans page content for XSS moved to `security.content.xss_scan_output`, since it applies to all page content rather than only Twig in content; the previous `security.twig_content.xss_scan_output` location keeps working and is moved to the new one automatically on upgrade.
+    * The setting that scanned rendered page content for XSS is retired, as the gap it covered is now closed when the page is saved rather than every time it is viewed; the old toggle is removed from your security configuration automatically on upgrade.
 
 # v2.0.6
 ## 06/30/2026

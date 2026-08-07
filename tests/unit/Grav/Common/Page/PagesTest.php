@@ -45,6 +45,47 @@ class PagesTest extends \PHPUnit\Framework\TestCase
         self::assertSame($this->pages->base(), '');
     }
 
+    public function testReferrerRoute(): void
+    {
+        $previous = $_SERVER['HTTP_REFERER'] ?? null;
+        $root = (string) $this->grav['base_url_absolute'];
+
+        try {
+            // A referrer within the given route comes back relative to it.
+            $langCode = null;
+            $_SERVER['HTTP_REFERER'] = "{$root}/admin/pages/home";
+            self::assertSame('/pages/home', $this->pages->referrerRoute($langCode, '/admin'));
+
+            // Landing on the route itself is still within it.
+            $langCode = null;
+            $_SERVER['HTTP_REFERER'] = "{$root}/admin";
+            self::assertSame('', $this->pages->referrerRoute($langCode, '/admin'));
+
+            // Outside the given route.
+            $langCode = null;
+            $_SERVER['HTTP_REFERER'] = "{$root}/blog/post";
+            self::assertNull($this->pages->referrerRoute($langCode, '/admin'));
+
+            // Off site, including a host that merely starts with ours.
+            foreach (["{$root}.attacker.tld/admin", 'https://attacker.tld/admin'] as $referrer) {
+                $langCode = null;
+                $_SERVER['HTTP_REFERER'] = $referrer;
+                self::assertNull($this->pages->referrerRoute($langCode, '/admin'), $referrer);
+            }
+
+            // No referrer at all.
+            $langCode = null;
+            unset($_SERVER['HTTP_REFERER']);
+            self::assertNull($this->pages->referrerRoute($langCode, '/admin'));
+        } finally {
+            if ($previous === null) {
+                unset($_SERVER['HTTP_REFERER']);
+            } else {
+                $_SERVER['HTTP_REFERER'] = $previous;
+            }
+        }
+    }
+
     public function testLastModified(): void
     {
         self::assertNull($this->pages->lastModified());

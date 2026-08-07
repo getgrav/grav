@@ -229,9 +229,10 @@ class Pages
     {
         $referrer = $_SERVER['HTTP_REFERER'] ?? null;
 
-        // Start by checking that referrer came from our site.
-        $root = $this->grav['base_url_absolute'];
-        if (!is_string($referrer) || !str_starts_with($referrer, (string) $root)) {
+        // Start by checking that referrer came from our site. The root carries no trailing slash, so the prefix has
+        // to be anchored on a path separator, or a host that merely starts with the same characters passes as ours.
+        $root = (string) $this->grav['base_url_absolute'];
+        if (!is_string($referrer) || !($referrer === $root || str_starts_with($referrer, $root . '/'))) {
             return null;
         }
 
@@ -243,17 +244,18 @@ class Pages
             $languages = $language->enabled() ? $language->getLanguages() : [];
             $languages[] = '';
         } else {
-            $languages[] = $langCode;
+            $languages = [$langCode];
         }
 
         $path_base = rtrim($this->base(), '/');
         $path_route = rtrim($route, '/');
 
-        // Try to figure out the language code.
+        // Try to figure out the language code. $referrer is absolute, so the candidates need the site root on them
+        // as well, or nothing ever matches and the method always returns null.
         foreach ($languages as $code) {
             $path_lang = $code ? "/{$code}" : '';
 
-            $base = $path_base . $path_lang . $path_route;
+            $base = $root . $path_base . $path_lang . $path_route;
             if ($referrer === $base || str_starts_with($referrer, "{$base}/")) {
                 if (null === $langCode) {
                     $langCode = $code;

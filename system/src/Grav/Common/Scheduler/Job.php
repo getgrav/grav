@@ -12,6 +12,7 @@ namespace Grav\Common\Scheduler;
 use Closure;
 use Cron\CronExpression;
 use DateTime;
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use InvalidArgumentException;
 use RuntimeException;
@@ -131,7 +132,7 @@ class Job
         }
         $this->creationTime = new DateTime('now');
         // initialize the directory path for lock files
-        $this->tempDir = sys_get_temp_dir();
+        $this->tempDir = static::getDefaultTempDir();
         $this->command = $command;
         // Set enabled state
         $status = Grav::instance()['config']->get('scheduler.status');
@@ -348,6 +349,9 @@ class Job
         if ($tempDir === null || !is_dir($tempDir)) {
             $tempDir = $this->tempDir;
         }
+        if (!is_dir($tempDir)) {
+            Folder::create($tempDir);
+        }
         $this->lockFile = implode('/', [
             trim($tempDir),
             trim($this->id) . '.lock',
@@ -414,8 +418,14 @@ class Job
             return false;
         }
 
-        // Write lock file if necessary
-        $this->createLockFile();
+        // Write lock file if necessary. Refuse to run rather than run unprotected
+        // when the lock cannot be taken.
+        if (!$this->createLockFile()) {
+            $this->output = 'Unable to create lock file';
+            $this->successful = false;
+
+            return false;
+        }
 
         // Call before if required
         if (is_callable($this->before)) {
@@ -502,18 +512,53 @@ class Job
     }
 
     /**
+     * Resolve the default directory used for job lock files.
+     *
+     * Locks live inside the Grav install (`tmp://scheduler`) rather than in the
+     * system temp directory. On a shared host the system temp directory is
+     * world-writable, so any other local account could pre-place a symlink at the
+     * predictable `<tempDir>/<job-id>.lock` path and redirect the lock write to a
+     * file of its choosing. (GHSA-q8w8-6cq5-j4h2)
+     *
+     * @return string
+     */
+    private static function getDefaultTempDir(): string
+    {
+        $locator = Grav::instance()['locator'] ?? null;
+        if ($locator) {
+            $path = $locator->findResource('tmp://scheduler', true, true);
+            if ($path) {
+                return $path;
+            }
+        }
+
+        return sys_get_temp_dir();
+    }
+
+    /**
      * Create the job lock file.
      *
-     * @return void
+     * @return bool True if the lock was taken, or if no lock is configured.
      */
     private function createLockFile(mixed $content = null)
     {
-        if ($this->lockFile) {
-            if ($content === null || !is_string($content)) {
-                $content = $this->getId();
-            }
-            file_put_contents($this->lockFile, $content);
+        if (!$this->lockFile) {
+            return true;
         }
+
+        if ($content === null || !is_string($content)) {
+            $content = $this->getId();
+        }
+
+        // Never write through a symlink: a link pre-placed at the lock path would
+        // send the write to whatever it points at. Note that fopen() with 'x' is
+        // not a portable substitute here, because on Darwin O_CREAT|O_EXCL against
+        // a dangling symlink still creates the target.
+        if (is_link($this->lockFile)) {
+            return false;
+        }
+
+        return file_put_contents($this->lockFile, $content) !== false;
     }
 
     /**
@@ -523,7 +568,10 @@ class Job
      */
     private function removeLockFile()
     {
-        if ($this->lockFile && file_exists($this->lockFile)) {
+        // is_link() also matches a dangling symlink, which file_exists() reports as
+        // absent. Without it a stale link would sit there and permanently convince
+        // isOverlapping() that the job is already running.
+        if ($this->lockFile && (is_link($this->lockFile) || file_exists($this->lockFile))) {
             unlink($this->lockFile);
         }
     }
