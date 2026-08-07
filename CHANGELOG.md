@@ -1,3 +1,9 @@
+# v2.0.17
+## 08/07/2026
+
+1. [](#bugfix)
+    * [security] Updated the bundled DOM sanitizer to 1.0.13, which stops CSS comments from hiding dangerous values and covers image loading through `image-set()`, so untrusted SVG or HTML can no longer reference external resources those ways ([GHSA-ww22-4mqv-x5w3](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-ww22-4mqv-x5w3)).
+
 # v2.0.16
 ## 08/07/2026
 
