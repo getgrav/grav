@@ -1,3 +1,9 @@
+# v2.0.18
+## 08/10/2026
+
+1. [](#bugfix)
+    * [security] The Twig `sort` and `find` filters no longer run a plain function name as a callable inside the content sandbox, closing a way for a page editor to execute arbitrary PHP ([GHSA-p6qj-p5m7-f62h](https://github.com/getgrav/grav/security/advisories/GHSA-p6qj-p5m7-f62h)).
+
 # v2.0.17
 ## 08/07/2026
 
