@@ -1,3 +1,14 @@
+# v2.0.18
+## 08/10/2026
+
+1. [](#bugfix)
+    * The Scheduler no longer fails outright on hosts that disable PHP's `proc_open`, so scheduled jobs can still be viewed and edited there [getgrav/grav-admin-next#16](https://github.com/getgrav/grav-admin-next/issues/16)
+    * A scheduled job that cannot be started on such a host is now reported as failed with an explanation, instead of stopping the whole scheduler run
+    * Grav now works out who the site runs as without starting a shell, so that detail still appears when external commands are unavailable
+    * The record of when the scheduler last ran is now written to a fixed location rather than one relative to wherever the trigger happened to run from
+1. [](#improved)
+    * Grav now decides whether the scheduler is being triggered by checking that each job has run when its own schedule says it should have, instead of requiring a run in the last two minutes, so a sparse crontab, a webhook or a scheduled task on Windows all count
+
 # v2.0.17
 ## 08/07/2026
 
