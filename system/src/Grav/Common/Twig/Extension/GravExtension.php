@@ -184,8 +184,8 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('filter', $this->filterFunc(...), ['needs_environment' => true]),
             new TwigFilter('map', $this->mapFunc(...), ['needs_environment' => true]),
             new TwigFilter('reduce', $this->reduceFunc(...), ['needs_environment' => true]),
-            new TwigFilter('find', $this->findFunc(...), ['needs_environment' => true]),
-            new TwigFilter('sort', $this->sortFunc(...), ['needs_environment' => true]),
+            new TwigFilter('find', $this->findFunc(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
+            new TwigFilter('sort', $this->sortFunc(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
         ];
     }
 
@@ -2127,19 +2127,24 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * used by filter/map/reduce, regardless of sandbox state; a real arrow closure
      * still passes.
      *
+     * The resolved sandbox state is passed through to Twig, so a string callable is
+     * also refused whenever the render is sandboxed (GHSA-p6qj-p5m7-f62h). The
+     * denylist above is defense-in-depth, not the only guard.
+     *
      * @param Environment $env
+     * @param bool $isSandboxed
      * @param mixed $array
      * @param callable|string $arrow
      * @return mixed
      * @throws RuntimeError
      */
-    function findFunc(Environment $env, $array, $arrow)
+    function findFunc(Environment $env, bool $isSandboxed, $array, $arrow)
     {
         if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
             throw new RuntimeError('Twig |find("' . $arrow . '") is not allowed.');
         }
 
-        return CoreExtension::find($env, false, $array ?? [], $arrow);
+        return CoreExtension::find($env, $isSandboxed, $array ?? [], $arrow);
     }
 
     /**
@@ -2147,18 +2152,23 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * such as `sort('system')` would otherwise be called as `system($a, $b)` when
      * rendered outside the sandbox. Plain sorts (no comparator) are unaffected.
      *
+     * The resolved sandbox state is passed through so a string comparator is refused
+     * in sandbox mode (GHSA-p6qj-p5m7-f62h); hardcoding it off left the denylist as
+     * the only guard, and the denylist does not list every two-argument callable.
+     *
      * @param Environment $env
+     * @param bool $isSandboxed
      * @param mixed $array
      * @param callable|string|null $arrow
      * @return array
      * @throws RuntimeError
      */
-    function sortFunc(Environment $env, $array, $arrow = null)
+    function sortFunc(Environment $env, bool $isSandboxed, $array, $arrow = null)
     {
         if ($arrow !== null && (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow))) {
             throw new RuntimeError('Twig |sort("' . $arrow . '") is not allowed.');
         }
 
-        return CoreExtension::sort($env, false, $array ?? [], $arrow);
+        return CoreExtension::sort($env, $isSandboxed, $array ?? [], $arrow);
     }
 }
