@@ -1,7 +1,8 @@
 # v2.0.18
-## 08/10/2026
+## 08/11/2026
 
 1. [](#bugfix)
+    * [security] Updated the bundled DOM sanitizer to 1.0.14, which closes two further ways a crafted stylesheet could hide an external image reference from the checks added in the previous release ([GHSA-ww22-4mqv-x5w3](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-ww22-4mqv-x5w3)).
     * [security] Modular pages are now checked for cross-site scripting when they are saved, closing a way for a page editor to store a script that ran for every visitor ([GHSA-fg8g-663r-f366](https://github.com/getgrav/grav/security/advisories/GHSA-fg8g-663r-f366)).
     * [security] The Twig `sort` and `find` filters no longer run a plain function name as a callable inside the content sandbox, closing a way for a page editor to execute arbitrary PHP ([GHSA-p6qj-p5m7-f62h](https://github.com/getgrav/grav/security/advisories/GHSA-p6qj-p5m7-f62h)).
     * A blueprint that builds on another one can again fill dropdowns from its own PHP, which mostly affected themes because their page blueprints nearly always extend the default one ([getgrav/grav-plugin-email#193](https://github.com/getgrav/grav-plugin-email/issues/193)).

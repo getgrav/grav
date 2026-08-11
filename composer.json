@@ -47,7 +47,7 @@
         "composer/semver": "^3.4",
         "dragonmantank/cron-expression": "^3.3",
         "willdurand/negotiation": "^3.1",
-        "rhukster/dom-sanitizer": "^1.0.13",
+        "rhukster/dom-sanitizer": "^1.0.14",
         "tubalmartin/cssmin": "^4.1",
         "tedivm/jshrink": "^1.7",
         "donatj/phpuseragentparser": "~1.9",
