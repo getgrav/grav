@@ -2,6 +2,7 @@
 ## 08/10/2026
 
 1. [](#bugfix)
+    * [security] Modular pages are now checked for cross-site scripting when they are saved, closing a way for a page editor to store a script that ran for every visitor ([GHSA-fg8g-663r-f366](https://github.com/getgrav/grav/security/advisories/GHSA-fg8g-663r-f366)).
     * [security] The Twig `sort` and `find` filters no longer run a plain function name as a callable inside the content sandbox, closing a way for a page editor to execute arbitrary PHP ([GHSA-p6qj-p5m7-f62h](https://github.com/getgrav/grav/security/advisories/GHSA-p6qj-p5m7-f62h)).
     * The Scheduler no longer fails outright on hosts that disable PHP's `proc_open`, so scheduled jobs can still be viewed and edited there [getgrav/grav-admin-next#16](https://github.com/getgrav/grav-admin-next/issues/16)
     * A scheduled job that cannot be started on such a host is now reported as failed with an explanation, instead of stopping the whole scheduler run
