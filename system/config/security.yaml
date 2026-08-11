@@ -1,3 +1,15 @@
+# XSS heuristics (Security::detectXss and friends).
+#
+# These settings tune a DENYLIST. It is advisory defense-in-depth for catching
+# careless content early and for auditing existing content with `bin/grav
+# security` — it is NOT the control that protects Grav against XSS, and it will
+# never be complete. Escaping at output is the real boundary: Twig autoescaping,
+# the Twig sandbox (twig_sandbox below), and the DOM sanitizer for SVG.
+#
+# Do not loosen these expecting output escaping to compensate, and do not treat a
+# clean scan as proof that content is safe to emit raw. If you found a payload
+# these patterns miss, see the note in Security.php before filing it as a
+# vulnerability — the fix belongs at whatever sink renders it unescaped.
 xss_whitelist:
   - admin.super
 xss_enabled:

@@ -31,6 +31,45 @@ use function is_string;
 /**
  * Class Security
  * @package Grav\Common
+ *
+ * ---------------------------------------------------------------------------
+ * ON detectXss() AND ITS RELATIVES: THESE ARE HEURISTICS, NOT A BOUNDARY
+ * ---------------------------------------------------------------------------
+ *
+ * `detectXss()` and everything built on it (`detectXssFromArray()`,
+ * `detectXssFromPages()`, `detectXssInEditorContent()`, `detectXssFromSvgFile()`)
+ * are a **denylist**: a list of patterns that have historically indicated an XSS
+ * attempt. They are deliberately noisy, they produce false positives, and — this
+ * is the important part — **they will never be complete.** A denylist over an
+ * unbounded input space cannot be. Browsers keep adding parsing quirks, and any
+ * sufficiently motivated payload will eventually find one the patterns miss.
+ *
+ * They are therefore **defense in depth, not a security boundary**:
+ *
+ *   - They exist to catch careless and opportunistic content early, and to give
+ *     operators a scanning tool (`bin/grav security`) for auditing existing
+ *     content. Both are genuinely useful and both stay.
+ *   - They are NOT what makes Grav safe against XSS. **Escaping at output is.**
+ *     Twig autoescaping, the Twig sandbox, and the DOM sanitizer for SVG are the
+ *     actual controls. Any code path that would be unsafe if `detectXss()`
+ *     returned null must be fixed at its output sink, not by adding a pattern
+ *     here.
+ *
+ * Consequences for anyone reading this because they found a bypass:
+ *
+ *   A new string that slips past these patterns is **not, on its own, a
+ *   vulnerability**, and the Grav project does not issue security advisories for
+ *   one. See the "What we do not publish an advisory for" section of SECURITY.md.
+ *   Bypasses are expected by design — that is what a denylist is.
+ *
+ *   What IS a vulnerability, and what we very much want reported, is content
+ *   that reaches an output sink **unescaped**. If you have a payload that renders
+ *   without escaping, report that with the rendered sink — the bug is at the
+ *   sink, and adding a pattern here would only have hidden it.
+ *
+ * Patches that tighten these patterns are still welcome and still get merged.
+ * They just ship as ordinary hardening in the normal release, credited in the
+ * CHANGELOG, rather than as an advisory.
  */
 class Security
 {
@@ -176,14 +215,23 @@ class Security
     }
 
     /**
-     * Determine if string potentially has a XSS attack. This simple function does not catch all XSS and it is likely to
+     * Heuristically flag a string that *looks like* an XSS attempt.
      *
-     * return false positives because of it tags all potentially dangerous HTML tags and attributes without looking into
-     * their content.
+     * This is a denylist and it is **advisory**. It does not catch all XSS, it
+     * will never catch all XSS, and it produces false positives because it flags
+     * potentially dangerous tags and attributes without understanding their
+     * context. Treat a null return as "nothing obvious matched", never as
+     * "this string is safe to emit unescaped".
+     *
+     * **Not a security boundary.** See the class docblock above before reporting
+     * a bypass: escaping at output is the control that actually protects Grav,
+     * and a payload that evades these patterns is not by itself a vulnerability.
+     * A payload that reaches an output sink unescaped is, and that is the bug we
+     * want to hear about.
      *
      * @param string|null $string The string to run XSS detection logic on
      * @param array|null $options
-     * @return string|null       Type of XSS vector if the given `$string` may contain XSS, false otherwise.
+     * @return string|null       Type of XSS vector if the given `$string` may contain XSS, null otherwise.
      *
      * Copies the code from: https://github.com/symphonycms/xssfilter/blob/master/extension.driver.php#L138
      */
