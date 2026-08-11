@@ -438,6 +438,19 @@ class Job
         } else {
             $args = is_string($this->args) ? explode(' ', $this->args) : $this->args;
             $command = array_merge([$this->command], $args);
+
+            // Command jobs need proc_open. Rather than letting Symfony's Process throw from
+            // its constructor -- which took down the whole scheduler run, and the admin
+            // Scheduler page with it, on hosts that disable it -- record this job as failed
+            // with an explanation and let the remaining jobs carry on.
+            if (!Scheduler::isProcessAvailable()) {
+                $this->output = 'Cannot run command jobs: this PHP installation has proc_open disabled.';
+                $this->successful = false;
+                $this->removeLockFile();
+
+                return false;
+            }
+
             $process = new Process($command);
             
             // Apply timeout if set (modern feature)

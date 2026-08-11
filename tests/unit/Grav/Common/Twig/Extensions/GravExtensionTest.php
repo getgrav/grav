@@ -293,14 +293,14 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
         $this->expectException(RuntimeError::class);
 
         $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
-        $this->twig_ext->findFunc($env, ['id;whoami'], 'system');
+        $this->twig_ext->findFunc($env, false, ['id;whoami'], 'system');
     }
 
     public function testFindFuncAllowsClosure(): void
     {
         $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
 
-        self::assertSame(3, $this->twig_ext->findFunc($env, [1, 2, 3, 4], static fn($v) => $v > 2));
+        self::assertSame(3, $this->twig_ext->findFunc($env, false, [1, 2, 3, 4], static fn($v) => $v > 2));
     }
 
     public function testSortFuncRejectsDangerousStringCallable(): void
@@ -308,13 +308,13 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
         $this->expectException(RuntimeError::class);
 
         $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
-        $this->twig_ext->sortFunc($env, [3, 1, 2], 'system');
+        $this->twig_ext->sortFunc($env, false, [3, 1, 2], 'system');
     }
 
     public function testSortFuncPlainSortStillWorks(): void
     {
         $env = new \Twig\Environment(new \Twig\Loader\ArrayLoader());
 
-        self::assertSame([1, 2, 3], array_values($this->twig_ext->sortFunc($env, [3, 1, 2])));
+        self::assertSame([1, 2, 3], array_values($this->twig_ext->sortFunc($env, false, [3, 1, 2])));
     }
 }

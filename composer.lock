@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6f26b843e2a1fa2d7870444baaa3f15f",
+    "content-hash": "1dd663bd521cb92772a23acb2f91b5f2",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -2033,16 +2033,16 @@
         },
         {
             "name": "rhukster/dom-sanitizer",
-            "version": "1.0.13",
+            "version": "1.0.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rhukster/dom-sanitizer.git",
-                "reference": "5a0b041c4666c0a5ffc0919b43f109fffa712d3d"
+                "reference": "4292aa3daa34e0aefb80db06d1811cf0fd14b3d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rhukster/dom-sanitizer/zipball/5a0b041c4666c0a5ffc0919b43f109fffa712d3d",
-                "reference": "5a0b041c4666c0a5ffc0919b43f109fffa712d3d",
+                "url": "https://api.github.com/repos/rhukster/dom-sanitizer/zipball/4292aa3daa34e0aefb80db06d1811cf0fd14b3d8",
+                "reference": "4292aa3daa34e0aefb80db06d1811cf0fd14b3d8",
                 "shasum": ""
             },
             "require": {
@@ -2072,9 +2072,9 @@
             "description": "A simple but effective DOM/SVG/MathML Sanitizer for PHP 7.4+",
             "support": {
                 "issues": "https://github.com/rhukster/dom-sanitizer/issues",
-                "source": "https://github.com/rhukster/dom-sanitizer/tree/1.0.13"
+                "source": "https://github.com/rhukster/dom-sanitizer/tree/1.0.14"
             },
-            "time": "2026-08-07T15:08:23+00:00"
+            "time": "2026-08-10T22:54:15+00:00"
         },
         {
             "name": "rockettheme/toolbox",

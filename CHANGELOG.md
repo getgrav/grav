@@ -1,3 +1,18 @@
+# v2.0.18
+## 08/11/2026
+
+1. [](#bugfix)
+    * [security] Updated the bundled DOM sanitizer to 1.0.14, which closes two further ways a crafted stylesheet could hide an external image reference from the checks added in the previous release ([GHSA-ww22-4mqv-x5w3](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-ww22-4mqv-x5w3)).
+    * [security] Modular pages are now checked for cross-site scripting when they are saved, closing a way for a page editor to store a script that ran for every visitor ([GHSA-fg8g-663r-f366](https://github.com/getgrav/grav/security/advisories/GHSA-fg8g-663r-f366)).
+    * [security] The Twig `sort` and `find` filters no longer run a plain function name as a callable inside the content sandbox, closing a way for a page editor to execute arbitrary PHP ([GHSA-p6qj-p5m7-f62h](https://github.com/getgrav/grav/security/advisories/GHSA-p6qj-p5m7-f62h)).
+    * A blueprint that builds on another one can again fill dropdowns from its own PHP, which mostly affected themes because their page blueprints nearly always extend the default one ([getgrav/grav-plugin-email#193](https://github.com/getgrav/grav-plugin-email/issues/193)).
+    * The Scheduler no longer fails outright on hosts that disable PHP's `proc_open`, so scheduled jobs can still be viewed and edited there [getgrav/grav-admin-next#16](https://github.com/getgrav/grav-admin-next/issues/16)
+    * A scheduled job that cannot be started on such a host is now reported as failed with an explanation, instead of stopping the whole scheduler run
+    * Grav now works out who the site runs as without starting a shell, so that detail still appears when external commands are unavailable
+    * The record of when the scheduler last ran is now written to a fixed location rather than one relative to wherever the trigger happened to run from
+1. [](#improved)
+    * Grav now decides whether the scheduler is being triggered by checking that each job has run when its own schedule says it should have, instead of requiring a run in the last two minutes, so a sparse crontab, a webhook or a scheduled task on Windows all count
+
 # v2.0.17
 ## 08/07/2026
 

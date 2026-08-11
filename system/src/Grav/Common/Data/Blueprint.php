@@ -73,6 +73,23 @@ class Blueprint extends BlueprintForm
     protected $dynamicTrust = [];
 
     /**
+     * Whether we are inside {@see self::load()}.
+     *
+     * Everything the loader merges through extend() is file content:
+     * BlueprintForm::load() makes the first file `$this->items` and hands every
+     * remaining one to extend() as a bare array — including the blueprint's OWN
+     * content whenever it resolved a parent, because doLoad() returns
+     * [...parents, ownContent] and the parent is what gets shifted off the
+     * front. Those arrays have exactly the provenance of the file that became
+     * `$this->items`, so they must not fall through to the page-frontmatter
+     * default. Without this, every blueprint using `extends@` had its own
+     * `data-*@` directives refused (getgrav/grav-plugin-email#193).
+     *
+     * @var bool
+     */
+    protected $loadingFiles = false;
+
+    /**
      * @param string|string[]|null $filename
      * @param array $items
      * @param bool|null $trusted  Declare the provenance of `$items`. Null infers it:
@@ -100,6 +117,29 @@ class Blueprint extends BlueprintForm
     public function isTrusted(): bool
     {
         return $this->trusted;
+    }
+
+    /**
+     * Load blueprint from its files.
+     *
+     * Marks the loader as active so extend() can tell a file-derived merge from
+     * a runtime one. A blueprint with `extends@`, `@parent`, or an explicit
+     * `$extends` argument is loaded parent-first, which means its own fields
+     * arrive through extend() rather than as `$this->items`.
+     *
+     * @param string|array|null $extends
+     * @return $this
+     */
+    public function load($extends = null)
+    {
+        $previous = $this->loadingFiles;
+        $this->loadingFiles = true;
+
+        try {
+            return parent::load($extends);
+        } finally {
+            $this->loadingFiles = $previous;
+        }
     }
 
     /**
@@ -263,7 +303,10 @@ class Blueprint extends BlueprintForm
             $incomingTrust = $trusted ?? (!$extends instanceof self || $extends->isTrusted());
             $incoming = $extends->toArray();
         } else {
-            $incomingTrust = $trusted ?? false;
+            // A bare array is page-authored by default, but not when the loader
+            // is the one handing it over: that array was read off disk a moment
+            // ago and shares this blueprint's provenance. (getgrav/grav-plugin-email#193)
+            $incomingTrust = $trusted ?? ($this->loadingFiles && $this->trusted);
             $incoming = (array) $extends;
         }
 

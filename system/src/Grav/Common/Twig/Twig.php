@@ -365,10 +365,15 @@ class Twig
      *
      * @param  PageInterface   $item    The page item to render
      * @param  string|null $content Optional content override
+     * @param  bool $moduleTemplate When false, a module's body Twig is resolved
+     *                      but its trusted modular template is not rendered
+     *                      around it. Used by the save-time content scan, which
+     *                      must only ever inspect editor-authored output.
+     *                      (GHSA-fg8g-663r-f366)
      *
      * @return string          The rendered output
      */
-    public function processPage(PageInterface $item, $content = null)
+    public function processPage(PageInterface $item, $content = null, bool $moduleTemplate = true)
     {
         $content ??= $item->content();
         $filtered = false;
@@ -438,7 +443,7 @@ class Twig
             // sandboxed by our SourcePolicy. The already-resolved content is
             // handed in as the `content` variable; Twig emits it as a string
             // and does not re-evaluate it.
-            if ($item->isModule()) {
+            if ($moduleTemplate && $item->isModule()) {
                 $twig_vars['content'] = $content;
                 $template = $this->getPageTwigTemplate($item);
                 $output = $local_twig->render($template, $twig_vars);

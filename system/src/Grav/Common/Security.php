@@ -416,9 +416,11 @@ class Security
         $config = Grav::instance()['config'];
 
         // Only content that Twig will actually process at render time can carry a
-        // render-time-assembled payload. If the content-Twig gate is off, or this
-        // page doesn't request Twig, the raw-source validator already covers it.
-        if (!$config->get('security.twig_content.process_enabled', false) || !$page->shouldProcess('twig')) {
+        // render-time-assembled payload; anything else the raw-source validator
+        // already covers. Mirrors the render-time decision exactly, including the
+        // modular branch, so this check can never end up stricter than the render
+        // it is meant to protect. (GHSA-fg8g-663r-f366)
+        if (!static::willProcessContentTwig($page)) {
             return null;
         }
 
@@ -439,12 +441,39 @@ class Security
             // A JSON API save may never have rendered a page, so the Twig
             // environment isn't built yet; init() is idempotent (no-op once set).
             $twig->init();
-            $rendered = $twig->processPage($page, $rawContent);
+            // Body only. A module's trusted modular template is theme-authored,
+            // not editor input, so rendering it here would let an inline event
+            // handler in a theme's own markup fail an otherwise clean save.
+            $rendered = $twig->processPage($page, $rawContent, false);
         } catch (\Throwable) {
             return null;
         }
 
         return is_string($rendered) ? static::detectXss($rendered) : null;
+    }
+
+    /**
+     * Will Grav process editor-authored Twig in this page's content at render time?
+     *
+     * Single source of truth for that decision, shared by the two render paths
+     * (Page::content(), PageContentTrait::processContent()) and by the save-time
+     * guard in detectXssInEditorContent(). Modules render their body Twig
+     * unconditionally — a modular template is theme-controlled and renders its
+     * children with Twig — so they ignore the security.twig_content.process_enabled
+     * gate. Keeping the boolean in one place stops the save-time check drifting
+     * stricter than the render, which is what let a module store an assembled
+     * payload unchecked while the gate was off. (GHSA-fg8g-663r-f366)
+     *
+     * @param PageInterface $page
+     * @return bool
+     */
+    public static function willProcessContentTwig(PageInterface $page): bool
+    {
+        /** @var Config $config */
+        $config = Grav::instance()['config'];
+        $gate = (bool) $config->get('security.twig_content.process_enabled', false);
+
+        return ($gate && $page->shouldProcess('twig')) || $page->isModule();
     }
 
     public static function getXssDefaults(): array

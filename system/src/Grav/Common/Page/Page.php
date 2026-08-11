@@ -939,8 +939,10 @@ class Page implements PageInterface
             }
             // Editor-authored content Twig is gated by process_enabled; trusted
             // modular/theme Twig renders unconditionally. XSS in assembled
-            // content Twig is caught at save time, not here. (GHSA-2c4f-86xc-cr74)
-            $process_twig = ($content_twig_requested && $content_twig_allowed) || $this->modularTwig();
+            // content Twig is caught at save time, not here (GHSA-2c4f-86xc-cr74),
+            // so both sides read the same boolean and cannot drift apart.
+            // (GHSA-fg8g-663r-f366)
+            $process_twig = Security::willProcessContentTwig($this);
 
             $cache_enable = $this->header->cache_enable ?? $config->get(
                 'system.cache.enabled',
