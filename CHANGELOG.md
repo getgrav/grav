@@ -1,3 +1,17 @@
+# v2.0.19
+## 08/12/2026
+
+1. [](#new)
+    * You can now tighten the Twig content sandbox below its built-in defaults with new `denied_*` settings in `security.yaml`.
+    * The "Twig in Content" report can show the effective sandbox policy, so you can see exactly what page content is allowed to do.
+1. [](#improved)
+    * Twig in page content now renders on new installs by default, instead of appearing as raw text until the setting was turned on.
+    * The long Twig sandbox allowlists now ship built into Grav, so `security.yaml` only records your own additions and future security updates to the defaults reach every site.
+    * Existing sites that had trimmed those allowlists to tighten them keep exactly that policy after upgrading, now recorded as explicit `denied_*` entries.
+    * Removed two rarely-used Twig sandbox switches (`logging` and `admin_hint`); both behaviours are now always on.
+1. [](#bugfix)
+    * The content cross-site scripting check no longer objects to harmless `<option>` and `<select>` markup, whose original issue is fixed in the form field that actually rendered it.
+
 # v2.0.18
 ## 08/11/2026
 

@@ -675,7 +675,7 @@ class Twig
             // Deny every top-level subtree → `config` is effectively empty.
             $denied = $this->sandboxDeniedConfigKeys ??= array_keys($config->toArray());
         } else {
-            $denied = (array) $config->get('security.twig_sandbox.config_denied_paths', []);
+            $denied = Security::effectiveConfigDeniedPaths($config);
         }
 
         return new SandboxConfig($config, $denied);
@@ -723,7 +723,7 @@ class Twig
 
             $filter ??= new SandboxConfig(
                 $config,
-                (array) $config->get('security.twig_sandbox.config_denied_paths', [])
+                Security::effectiveConfigDeniedPaths($config)
             );
 
             $vars[$key] = $filter->get($key, []);
@@ -768,17 +768,11 @@ class Twig
     /**
      * Append a one-line HTML comment to output when the Twig sandbox blocked
      * an expression and the current user is admin.super. Regular visitors see
-     * nothing. Honors `security.twig_sandbox.admin_hint` (default: true).
+     * nothing.
      */
     private function appendSandboxAdminHint(string $output): string
     {
         $grav = $this->grav;
-
-        /** @var Config $config */
-        $config = $grav['config'];
-        if (!$config->get('security.twig_sandbox.admin_hint', true)) {
-            return $output;
-        }
 
         if (!$grav->offsetExists('user')) {
             return $output;

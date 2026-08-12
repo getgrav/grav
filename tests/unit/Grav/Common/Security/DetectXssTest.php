@@ -205,7 +205,7 @@ class DetectXssTest extends \PHPUnit\Framework\TestCase
     }
 
     // =========================================================================
-    // GHSA-w8cg-7jcj-4vv2: svg/math + GHSA-c2q3 option/select added to defaults
+    // GHSA-w8cg-7jcj-4vv2: svg/math added to default dangerous_tags
     // =========================================================================
 
     /**
@@ -230,8 +230,46 @@ class DetectXssTest extends \PHPUnit\Framework\TestCase
             ['<svg><script>alert(1)</script></svg>', 'GHSA-w8cg svg with embedded script'],
             ['<svg></svg>', 'svg tag alone'],
             ['<math><mtext>x</mtext></math>', 'math tag (similar XML namespace risk)'],
-            ['</option></select>injected', 'GHSA-c2q3 option/select context break'],
+        ];
+    }
+
+    // =========================================================================
+    // GHSA-c2q3-p4jr-c55f: option/select were removed from default dangerous_tags
+    // (security-config audit 2026-08-12). The tags carry no script capability;
+    // the stored-XSS sink was fixed at source (grav-plugin-form select.html.twig
+    // dropped its |raw filters) and the real attack payload — a context break
+    // followed by an unquoted event handler — is still caught by on_events.
+    // These tests lock in that split: bare option/select no longer trips the
+    // heuristic, but the combined attack sequence still does.
+    // =========================================================================
+
+    /**
+     * @dataProvider providerC2q3_BareOptionSelectNotFlagged
+     */
+    public function testDetectXss_C2q3_BareOptionSelectNotFlagged(string $payload, string $description): void
+    {
+        self::assertNull(
+            Security::detectXss($payload),
+            "Bare option/select markup should no longer be flagged: $description"
+        );
+    }
+
+    public static function providerC2q3_BareOptionSelectNotFlagged(): array
+    {
+        return [
+            ['</option></select>injected', 'option/select context break, no handler'],
             ['<select><option>x</option></select>', 'option/select wrapping'],
         ];
+    }
+
+    public function testDetectXss_C2q3_CombinedAttackStillFlagged(): void
+    {
+        // The exact taxonomy escape sequence from the advisory: the select-context
+        // break is inert, but the unquoted onerror handler still trips on_events.
+        self::assertSame(
+            'on_events',
+            Security::detectXss('</option></select><img src=x onerror=alert(1)>'),
+            'GHSA-c2q3 real attack payload must still be flagged via on_events'
+        );
     }
 }
