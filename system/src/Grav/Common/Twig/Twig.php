@@ -199,6 +199,12 @@ class Twig
                 $params['autoescape'] = 'html';
             } elseif (!empty($this->autoescape)) {
                 $params['autoescape'] = $this->autoescape ? 'html' : false;
+            } elseif (isset($params['autoescape']) && !is_string($params['autoescape']) && !is_callable($params['autoescape'])) {
+                // Twig 3 only accepts a strategy name, false, or a callable. The
+                // stock config default is the legacy boolean `true`, which Twig
+                // would treat as a callable and fatal on the first template
+                // compile in twig2_compat mode (getgrav/grav#4235).
+                $params['autoescape'] = $params['autoescape'] ? 'html' : false;
             }
 
             if (empty($params['autoescape'])) {

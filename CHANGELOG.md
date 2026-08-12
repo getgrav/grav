@@ -11,6 +11,7 @@
     * Removed two rarely-used Twig sandbox switches (`logging` and `admin_hint`); both behaviours are now always on.
 1. [](#bugfix)
     * The content cross-site scripting check no longer objects to harmless `<option>` and `<select>` markup, whose original issue is fixed in the form field that actually rendered it.
+    * Sites running with the Twig 2 compatibility setting no longer crash with a server error on every page once an update clears the template cache [#4235](https://github.com/getgrav/grav/issues/4235)
 
 # v2.0.18
 ## 08/11/2026
