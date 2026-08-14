@@ -75,7 +75,17 @@ trait CompiledFile
                 }
 
                 $size = filesize($filename);
-                $cache = $file->exists() ? $file->content() : null;
+                try {
+                    $cache = $file->exists() ? $file->content() : null;
+                } catch (Throwable $e) {
+                    // A corrupt or partially written compiled cache file (e.g. from a
+                    // concurrent regeneration race) can throw while being read/included —
+                    // including ParseError, which is an Error and would otherwise escape
+                    // this method's outer `catch (Exception)` as a fatal. Treat it as a
+                    // cache miss and regenerate from the raw source below, mirroring the
+                    // fast-path `catch (Throwable)` above.
+                    $cache = null;
+                }
 
                 // Load real file if cache isn't up to date (or is invalid).
                 if (!isset($cache['@class'])
