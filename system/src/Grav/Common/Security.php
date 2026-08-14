@@ -17,6 +17,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Pages;
 use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
+use Grav\Common\Twig\Sandbox\SandboxDefaults;
 use Rhukster\DomSanitizer\DOMSanitizer;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\YamlFile;
@@ -31,6 +32,45 @@ use function is_string;
 /**
  * Class Security
  * @package Grav\Common
+ *
+ * ---------------------------------------------------------------------------
+ * ON detectXss() AND ITS RELATIVES: THESE ARE HEURISTICS, NOT A BOUNDARY
+ * ---------------------------------------------------------------------------
+ *
+ * `detectXss()` and everything built on it (`detectXssFromArray()`,
+ * `detectXssFromPages()`, `detectXssInEditorContent()`, `detectXssFromSvgFile()`)
+ * are a **denylist**: a list of patterns that have historically indicated an XSS
+ * attempt. They are deliberately noisy, they produce false positives, and — this
+ * is the important part — **they will never be complete.** A denylist over an
+ * unbounded input space cannot be. Browsers keep adding parsing quirks, and any
+ * sufficiently motivated payload will eventually find one the patterns miss.
+ *
+ * They are therefore **defense in depth, not a security boundary**:
+ *
+ *   - They exist to catch careless and opportunistic content early, and to give
+ *     operators a scanning tool (`bin/grav security`) for auditing existing
+ *     content. Both are genuinely useful and both stay.
+ *   - They are NOT what makes Grav safe against XSS. **Escaping at output is.**
+ *     Twig autoescaping, the Twig sandbox, and the DOM sanitizer for SVG are the
+ *     actual controls. Any code path that would be unsafe if `detectXss()`
+ *     returned null must be fixed at its output sink, not by adding a pattern
+ *     here.
+ *
+ * Consequences for anyone reading this because they found a bypass:
+ *
+ *   A new string that slips past these patterns is **not, on its own, a
+ *   vulnerability**, and the Grav project does not issue security advisories for
+ *   one. See the "What we do not publish an advisory for" section of SECURITY.md.
+ *   Bypasses are expected by design — that is what a denylist is.
+ *
+ *   What IS a vulnerability, and what we very much want reported, is content
+ *   that reaches an output sink **unescaped**. If you have a payload that renders
+ *   without escaping, report that with the rendered sink — the bug is at the
+ *   sink, and adding a pattern here would only have hidden it.
+ *
+ * Patches that tighten these patterns are still welcome and still get merged.
+ * They just ship as ordinary hardening in the normal release, credited in the
+ * CHANGELOG, rather than as an advisory.
  */
 class Security
 {
@@ -176,14 +216,23 @@ class Security
     }
 
     /**
-     * Determine if string potentially has a XSS attack. This simple function does not catch all XSS and it is likely to
+     * Heuristically flag a string that *looks like* an XSS attempt.
      *
-     * return false positives because of it tags all potentially dangerous HTML tags and attributes without looking into
-     * their content.
+     * This is a denylist and it is **advisory**. It does not catch all XSS, it
+     * will never catch all XSS, and it produces false positives because it flags
+     * potentially dangerous tags and attributes without understanding their
+     * context. Treat a null return as "nothing obvious matched", never as
+     * "this string is safe to emit unescaped".
+     *
+     * **Not a security boundary.** See the class docblock above before reporting
+     * a bypass: escaping at output is the control that actually protects Grav,
+     * and a payload that evades these patterns is not by itself a vulnerability.
+     * A payload that reaches an output sink unescaped is, and that is the bug we
+     * want to hear about.
      *
      * @param string|null $string The string to run XSS detection logic on
      * @param array|null $options
-     * @return string|null       Type of XSS vector if the given `$string` may contain XSS, false otherwise.
+     * @return string|null       Type of XSS vector if the given `$string` may contain XSS, null otherwise.
      *
      * Copies the code from: https://github.com/symphonycms/xssfilter/blob/master/extension.driver.php#L138
      */
@@ -514,19 +563,36 @@ class Security
         /** @var Config $config */
         $config = Grav::instance()['config'];
 
-        // Raw, as-authored allowlists from config (system + user merged). The
-        // friendly shapes here — flat lists for tags/filters/functions, the
+        // Effective allowlists = built-in defaults (SandboxDefaults, in code)
+        // UNION the user's additive `security.twig_sandbox.allowed_*` entries.
+        // The defaults live in code, not YAML, so a site's user config can only
+        // WIDEN the policy and can never silently freeze a core entry against a
+        // later security tightening (see SandboxDefaults). Tightening below the
+        // defaults is explicit via `denied_*`, applied after normalization below.
+        //
+        // The friendly shapes here — flat lists for tags/filters/functions, the
         // list-of-rows shape for methods/properties — are exactly what the
         // onBuildTwigSandboxPolicy event hands to plugins, so a plugin appends
         // entries the same way they're written in security.yaml.
-        $rawTags       = $config->get('security.twig_sandbox.allowed_tags', []);
-        $rawFilters    = $config->get('security.twig_sandbox.allowed_filters', []);
-        $rawFunctions  = $config->get('security.twig_sandbox.allowed_functions', []);
-        $rawMethods    = $config->get('security.twig_sandbox.allowed_methods', []);
-        $rawProperties = $config->get('security.twig_sandbox.allowed_properties', []);
+        $rawTags       = self::mergeSandboxAllow('tags', $config);
+        $rawFilters    = self::mergeSandboxAllow('filters', $config);
+        $rawFunctions  = self::mergeSandboxAllow('functions', $config);
+        $rawMethods    = self::mergeSandboxAllow('methods', $config);
+        $rawProperties = self::mergeSandboxAllow('properties', $config);
         $configAccess  = (bool) $config->get('security.twig_content.config_access', false);
 
-        $cacheKey = md5(serialize([$rawTags, $rawFilters, $rawFunctions, $rawMethods, $rawProperties, $configAccess]));
+        // denied_* entries win over defaults, user additions, AND plugin event
+        // additions, so they are captured for the cache key and applied last.
+        $deniedTags       = (array) ($config->get('security.twig_sandbox.denied_tags', []) ?? []);
+        $deniedFilters    = (array) ($config->get('security.twig_sandbox.denied_filters', []) ?? []);
+        $deniedFunctions  = (array) ($config->get('security.twig_sandbox.denied_functions', []) ?? []);
+        $deniedMethods    = (array) ($config->get('security.twig_sandbox.denied_methods', []) ?? []);
+        $deniedProperties = (array) ($config->get('security.twig_sandbox.denied_properties', []) ?? []);
+
+        $cacheKey = md5(serialize([
+            $rawTags, $rawFilters, $rawFunctions, $rawMethods, $rawProperties, $configAccess,
+            $deniedTags, $deniedFilters, $deniedFunctions, $deniedMethods, $deniedProperties,
+        ]));
         if (self::$twigSandboxPolicy !== null && self::$twigSandboxPolicyKey === $cacheKey) {
             return self::$twigSandboxPolicy;
         }
@@ -568,6 +634,17 @@ class Security
         $methods    = self::normalizeMethodsMap($event['methods'], true);
         $properties = self::normalizeMethodsMap($event['properties'], false);
 
+        // Explicit tightening: `denied_*` removes members regardless of where
+        // they came from (default, user addition, or plugin event). This is the
+        // supported way to tighten below the shipped defaults now that the
+        // defaults live in code — deleting a line from user config no longer
+        // works, because the default is re-supplied from SandboxDefaults.
+        $tags       = self::subtractStringList($tags, $deniedTags);
+        $filters    = self::subtractStringList($filters, $deniedFilters);
+        $functions  = self::subtractStringList($functions, $deniedFunctions);
+        $methods    = self::subtractMethodsMap($methods, $deniedMethods, true);
+        $properties = self::subtractMethodsMap($properties, $deniedProperties, false);
+
         // security.twig_content.config_access also closes the `grav.config`
         // back-door: with the toggle off, the injected `config` variable is a
         // deny-all SandboxConfig (handled in Twig::buildSandboxConfig), but
@@ -590,18 +667,281 @@ class Security
     }
 
     /**
+     * Merge the built-in default allowlist for a sandbox list `$type` with the
+     * user's additive `security.twig_sandbox.allowed_{$type}` entries. Returns
+     * the raw as-authored shape (flat list for tags/filters/functions, the
+     * list-of-rows shape for methods/properties) so the merged result can flow
+     * straight into the onBuildTwigSandboxPolicy event and the existing
+     * normalizers. Defaults come first so their comments/order are preserved;
+     * de-duplication happens later during normalization.
+     *
+     * @param string $type One of tags|filters|functions|methods|properties.
+     * @return array<int,mixed>
+     */
+    private static function mergeSandboxAllow(string $type, ?Config $config): array
+    {
+        $defaults = SandboxDefaults::all()[$type] ?? [];
+        $user = (array) ($config?->get("security.twig_sandbox.allowed_{$type}", []) ?? []);
+
+        return array_merge($defaults, $user);
+    }
+
+    /**
+     * Effective flat allowlist (tags|filters|functions) after defaults ∪ user
+     * additions − user denials. Plugin event additions are intentionally NOT
+     * included: this feeds the informational "Twig in Content" scan, which
+     * mirrors what an operator can see in config, and matches the pre-audit
+     * behaviour of reading the config lists directly.
+     *
+     * @return list<string>
+     */
+    public static function effectiveSandboxList(string $type, ?Config $config = null): array
+    {
+        if ($config === null) {
+            try {
+                $config = Grav::instance()['config'];
+            } catch (Exception) {
+                $config = null;
+            }
+        }
+
+        $union = self::mergeSandboxAllow($type, $config);
+        $denied = (array) ($config?->get("security.twig_sandbox.denied_{$type}", []) ?? []);
+
+        // Defaults and a subset user list overlap, so de-dup (case-insensitively,
+        // first spelling wins) to return a proper set.
+        $out = [];
+        $seen = [];
+        foreach (self::subtractStringList(self::normalizeStringList($union), $denied) as $member) {
+            $lc = strtolower($member);
+            if (!isset($seen[$lc])) {
+                $seen[$lc] = true;
+                $out[] = $member;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Effective config-redaction prefixes = built-in defaults ∪ the user's
+     * additive `security.twig_sandbox.config_denied_paths`. Like the allowlists,
+     * the defaults live in code so user config can only ADD paths to redact,
+     * never silently un-redact a shipped one by editing the list.
+     *
+     * @return list<string>
+     */
+    public static function effectiveConfigDeniedPaths(?Config $config = null): array
+    {
+        if ($config === null) {
+            try {
+                $config = Grav::instance()['config'];
+            } catch (Exception) {
+                $config = null;
+            }
+        }
+
+        $user = (array) ($config?->get('security.twig_sandbox.config_denied_paths', []) ?? []);
+        $out = [];
+        foreach (array_merge(SandboxDefaults::configDeniedPaths(), $user) as $path) {
+            if (is_string($path) && $path !== '' && !in_array($path, $out, true)) {
+                $out[] = $path;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Upgrade planner: given a site's existing `security.twig_sandbox` USER
+     * config (the subtree from user/config/security.yaml), compute the `denied_*`
+     * additions needed so the new additive-defaults model reproduces the site's
+     * EXACT pre-upgrade effective policy.
+     *
+     * Before the 2026-08-12 audit, the default allowlists lived inline in the
+     * shipped security.yaml and Grav merges leaf lists by REPLACEMENT, so a site
+     * that wrote its own `allowed_*` list replaced the defaults wholesale — its
+     * effective policy was exactly that list. Now the defaults live in code and
+     * `allowed_*` is additive, so on upgrade those defaults would silently come
+     * back. Denying precisely the defaults the site's list OMITTED restores the
+     * old effective set with zero behaviour change: anything that was blocked
+     * before stays blocked, anything allowed before stays allowed.
+     *
+     * Pure and side-effect free so the installer step stays thin and this is
+     * unit-testable. Returns only the `denied_*` keys that need entries; a site
+     * that never customised the allowlists yields an empty array (no-op).
+     *
+     * @param array<string,mixed> $userSandbox The user's `security.twig_sandbox` subtree.
+     * @return array<string, array<int,mixed>> denied_<type> => additions.
+     */
+    public static function planSandboxDefaultsMigration(array $userSandbox): array
+    {
+        $out = [];
+        $defaults = SandboxDefaults::all();
+
+        foreach (['tags', 'filters', 'functions'] as $type) {
+            if (!isset($userSandbox["allowed_{$type}"]) || !is_array($userSandbox["allowed_{$type}"])) {
+                continue; // list untouched → additive default already reproduces it
+            }
+            $userSet = self::lowerSet($userSandbox["allowed_{$type}"]);
+            $missing = [];
+            foreach ($defaults[$type] as $member) {
+                if (!isset($userSet[strtolower($member)])) {
+                    $missing[] = $member;
+                }
+            }
+            if ($missing) {
+                $out["denied_{$type}"] = $missing;
+            }
+        }
+
+        foreach (['methods' => true, 'properties' => false] as $type => $lowercase) {
+            if (!isset($userSandbox["allowed_{$type}"]) || !is_array($userSandbox["allowed_{$type}"])) {
+                continue;
+            }
+            $defMap = self::normalizeMethodsMap($defaults[$type], $lowercase);
+            $userMap = self::normalizeMethodsMap($userSandbox["allowed_{$type}"], $lowercase);
+            $rows = [];
+            foreach ($defMap as $class => $defMembers) {
+                $missing = array_values(array_diff($defMembers, $userMap[$class] ?? []));
+                if ($missing) {
+                    $rows[] = ['class' => $class, 'methods' => implode(', ', $missing)];
+                }
+            }
+            if ($rows) {
+                $out["denied_{$type}"] = $rows;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Describe the effective Twig-sandbox policy for a read-only admin view:
+     * for each list, the built-in defaults (from code), the user's additive
+     * `allowed_*` entries, the user's `denied_*` tightenings, and the resulting
+     * effective set. Config-derived only — it deliberately omits plugin
+     * `onBuildTwigSandboxPolicy` additions and the `config_access` strip, so it
+     * shows what an operator controls through configuration, matching the
+     * "Twig in Content" diagnostic. Not used to build the live policy.
+     *
+     * @return array<string,mixed>
+     */
+    public static function describeEffectiveSandbox(?Config $config = null): array
+    {
+        if ($config === null) {
+            try {
+                $config = Grav::instance()['config'];
+            } catch (Exception) {
+                $config = null;
+            }
+        }
+
+        $defaults = SandboxDefaults::all();
+        $out = [
+            'enabled' => (bool) ($config?->get('security.twig_sandbox.enabled', true) ?? true),
+            'config_access' => (bool) ($config?->get('security.twig_content.config_access', false) ?? false),
+            'lists' => [],
+        ];
+
+        foreach (['tags', 'filters', 'functions'] as $type) {
+            $out['lists'][$type] = [
+                'defaults' => $defaults[$type],
+                'added' => array_values(self::normalizeStringList((array) ($config?->get("security.twig_sandbox.allowed_{$type}", []) ?? []))),
+                'denied' => array_values(self::normalizeStringList((array) ($config?->get("security.twig_sandbox.denied_{$type}", []) ?? []))),
+                'effective' => self::effectiveSandboxList($type, $config),
+            ];
+        }
+
+        foreach (['methods' => true, 'properties' => false] as $type => $lowercase) {
+            $added = (array) ($config?->get("security.twig_sandbox.allowed_{$type}", []) ?? []);
+            $denied = (array) ($config?->get("security.twig_sandbox.denied_{$type}", []) ?? []);
+            $effective = self::subtractMethodsMap(
+                self::normalizeMethodsMap(array_merge($defaults[$type], $added), $lowercase),
+                $denied,
+                $lowercase
+            );
+            $out['lists'][$type] = [
+                'defaults' => self::normalizeMethodsMap($defaults[$type], $lowercase),
+                'added' => self::normalizeMethodsMap($added, $lowercase),
+                'denied' => self::normalizeMethodsMap($denied, $lowercase),
+                'effective' => $effective,
+            ];
+        }
+
+        $out['config_denied_paths'] = [
+            'defaults' => SandboxDefaults::configDeniedPaths(),
+            'added' => array_values(self::normalizeStringList((array) ($config?->get('security.twig_sandbox.config_denied_paths', []) ?? []))),
+            'effective' => self::effectiveConfigDeniedPaths($config),
+        ];
+
+        return $out;
+    }
+
+    /**
+     * Remove every member named in $denied (case-insensitively) from a flat
+     * normalized allowlist.
+     *
+     * @param list<string> $list
+     * @param array<int,mixed> $denied
+     * @return list<string>
+     */
+    private static function subtractStringList(array $list, array $denied): array
+    {
+        if (!$denied) {
+            return $list;
+        }
+        $deniedSet = self::lowerSet($denied);
+        $out = [];
+        foreach ($list as $v) {
+            if (!isset($deniedSet[strtolower($v)])) {
+                $out[] = $v;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Remove denied members from a normalized class => [members] allowlist map.
+     * A denied row of `'*'` (or containing `*`) removes the whole class. This
+     * runs after normalization so it also overrides plugin event additions.
+     *
+     * @param array<class-string, list<string>> $map
+     * @param array<int,mixed> $deniedRows
+     * @return array<class-string, list<string>>
+     */
+    private static function subtractMethodsMap(array $map, array $deniedRows, bool $lowercase): array
+    {
+        if (!$deniedRows) {
+            return $map;
+        }
+        $denied = self::normalizeMethodsMap($deniedRows, $lowercase);
+        foreach ($denied as $class => $members) {
+            if (!isset($map[$class])) {
+                continue;
+            }
+            if (in_array('*', $members, true)) {
+                unset($map[$class]);
+                continue;
+            }
+            $remove = $lowercase ? array_map('strtolower', $members) : $members;
+            $map[$class] = array_values(array_diff($map[$class], $remove));
+            if (!$map[$class]) {
+                unset($map[$class]);
+            }
+        }
+
+        return $map;
+    }
+
+    /**
      * Log a Twig sandbox violation via the security log channel. Called from the
      * SecurityError handler in Twig::processPage() / processString().
      */
     public static function logTwigSandboxViolation(string $rule, string $token, string $className = '', string $extra = ''): void
     {
         try {
-            /** @var Config $config */
-            $config = Grav::instance()['config'];
-            if (!$config->get('security.twig_sandbox.logging', true)) {
-                return;
-            }
-
             $grav = Grav::instance();
             if (!$grav->offsetExists('log.security')) {
                 return;
@@ -1384,9 +1724,12 @@ class Security
             // No config → treat every used token as not-allowed.
         }
 
-        $allowedTags = self::lowerSet((array) ($config?->get('security.twig_sandbox.allowed_tags', []) ?? []));
-        $allowedFilters = self::lowerSet((array) ($config?->get('security.twig_sandbox.allowed_filters', []) ?? []));
-        $allowedFunctions = self::lowerSet((array) ($config?->get('security.twig_sandbox.allowed_functions', []) ?? []));
+        // Effective lists = built-in defaults ∪ user additions − user denials.
+        // Reading the config keys alone would report every default-allowed token
+        // as "not allowed" now that the defaults live in code (SandboxDefaults).
+        $allowedTags = self::lowerSet(self::effectiveSandboxList('tags', $config));
+        $allowedFilters = self::lowerSet(self::effectiveSandboxList('filters', $config));
+        $allowedFunctions = self::lowerSet(self::effectiveSandboxList('functions', $config));
 
         // Tags Twig always provides that are never sandbox-checked / always safe.
         $structuralTags = ['endif', 'else', 'elseif', 'endfor', 'endblock', 'endset', 'endmacro', 'endapply', 'endautoescape', 'endembed', 'endfilter', 'endspaceless', 'endwith', 'endsandbox', 'endverbatim', 'endcache', 'in', 'as'];

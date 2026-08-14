@@ -1,3 +1,15 @@
+# XSS heuristics (Security::detectXss and friends).
+#
+# These settings tune a DENYLIST. It is advisory defense-in-depth for catching
+# careless content early and for auditing existing content with `bin/grav
+# security` — it is NOT the control that protects Grav against XSS, and it will
+# never be complete. Escaping at output is the real boundary: Twig autoescaping,
+# the Twig sandbox (twig_sandbox below), and the DOM sanitizer for SVG.
+#
+# Do not loosen these expecting output escaping to compensate, and do not treat a
+# clean scan as proof that content is safe to emit raw. If you found a payload
+# these patterns miss, see the note in Security.php before filing it as a
+# vulnerability — the fix belongs at whatever sink renders it unescaped.
 xss_whitelist:
   - admin.super
 xss_enabled:
@@ -38,10 +50,6 @@ xss_dangerous_tags:
   # belt-and-suspenders coverage.
   - svg
   - math
-  # GHSA-c2q3-p4jr-c55f: option/select are used by attackers to break out
-  # of the admin select-template context.
-  - option
-  - select
 uploads_dangerous_extensions:
   - php
   - php2
@@ -124,352 +132,46 @@ sanitize_svg: true
 # variable is empty inside sandboxed renders. When true, `config` is the
 # SandboxConfig facade with config_denied_paths redaction applied.
 twig_content:
-  process_enabled: false
+  process_enabled: true
   editor_enabled: false
   config_access: false
 
 twig_sandbox:
   enabled: true
-  logging: true
-  admin_hint: true
-  # Dot-notation prefixes redacted from sandboxed renders. Replaces the raw
-  # Config object with a SandboxConfig facade that returns null/default for
-  # these subtrees and strips them from `config.toArray()` output, and
-  # filters the same subtrees out of the `system`, `site` and `theme` Twig
-  # variables, which are plain arrays the sandbox policy cannot gate on its
-  # own. Trusted theme/plugin templates are not sandboxed and continue to
-  # receive the unfiltered Config.
+  # Twig sandbox allowlists & config redaction now ship as code defaults in
+  # Grav\Common\Twig\Sandbox\SandboxDefaults (security-config audit 2026-08-12).
+  # Keeping the ~300-line security baseline out of this user-editable file fixes
+  # a real hazard: Grav merges leaf lists by REPLACEMENT, so a site that copied a
+  # list here to tweak it used to freeze that list against every later core
+  # change, including security tightenings. The keys below are now purely
+  # ADDITIVE over the defaults: a site can only widen the policy, never silently
+  # drop a shipped entry. To TIGHTEN below the defaults, name the members under
+  # the matching `denied_*` key. View the effective policy in the Admin "Twig in
+  # Content" report.
   #
-  # Defaults block the categories that typically hold credentials,
-  # filesystem layout, or other operator-only state. Add more as needed —
-  # e.g. a custom plugin that stores secrets under `site.integrations.*`.
+  # Additive widenings use the same shapes as the defaults: flat lists for
+  # tags/filters/functions; list-of-rows (`- class:` / `methods:`) for
+  # methods/properties. Plugins may also append via onBuildTwigSandboxPolicy.
+  allowed_tags: []
+  allowed_filters: []
+  allowed_functions: []
+  allowed_methods: []
+  allowed_properties: []
+  # Explicit tightening below the shipped defaults. A denied_* entry wins over
+  # the defaults, over allowed_* additions, and over plugin event additions.
+  # tags/filters/functions: flat lists of member names. methods/properties:
+  # list-of-rows; a row whose `methods:` is '*' denies the whole class.
+  denied_tags: []
+  denied_filters: []
+  denied_functions: []
+  denied_methods: []
+  denied_properties: []
+  # Extra dot-notation config prefixes to redact from sandboxed renders, ADDED
+  # to the built-in defaults (plugins, streams, security, backups, scheduler,
+  # system.cache.redis.password — see SandboxDefaults::configDeniedPaths).
+  # e.g. a plugin that stores secrets under `site.integrations.*`.
   # (GHSA-j274-39qw-32c9, GHSA-p597-crqc-m349)
-  config_denied_paths:
-    - plugins
-    - streams
-    - security
-    - backups
-    - scheduler
-    - system.cache.redis.password
-  allowed_tags:
-    - apply
-    - autoescape
-    - block
-    - deprecated
-    - do
-    - embed
-    - extends
-    - for
-    - from
-    - if
-    - import
-    - include
-    - macro
-    - sandbox
-    - set
-    - spaceless
-    - types
-    - use
-    - verbatim
-    - with
-  allowed_filters:
-    # Twig core
-    - abs
-    - batch
-    - capitalize
-    - column
-    - convert_encoding
-    - country_name
-    - currency_name
-    - currency_symbol
-    - data_uri
-    - date
-    - date_modify
-    - default
-    - e
-    - escape
-    - filter
-    - first
-    - format
-    - format_currency
-    - format_date
-    - format_datetime
-    - format_number
-    - format_time
-    - html_to_markdown
-    - inline_css
-    - inky_to_html
-    - join
-    - json_encode
-    - keys
-    - language_name
-    - last
-    - length
-    - locale_name
-    - lower
-    - map
-    - markdown_to_html
-    - merge
-    - nl2br
-    - number_format
-    # `raw` is intentionally NOT allow-listed: it is the one filter that defeats
-    # Twig autoescape, so `{{ x|raw }}` on render-time-only data (request params,
-    # another page's mutable frontmatter) is the sole XSS vector the save-time
-    # content scan can't see. Dropping it keeps that scan complete. Trusted theme
-    # templates (.html.twig) are unsandboxed and can still use `raw`.
-    - reduce
-    - replace
-    - reverse
-    - round
-    - slice
-    - slug
-    - sort
-    - split
-    - striptags
-    - timezone_name
-    - title
-    - trim
-    - u
-    - upper
-    - url_encode
-    # Grav extras (safe)
-    - absolute_url
-    - array
-    - array_diff
-    - array_unique
-    - base32_decode
-    - base32_encode
-    - base64_decode
-    - base64_encode
-    - basename
-    - bool
-    - chunk_split
-    - contains
-    - count
-    - defined
-    - dirname
-    - ends_with
-    - fieldName
-    - float
-    - get_type
-    - int
-    - json_decode
-    - ksort
-    - ltrim
-    - markdown
-    - md5
-    - modulus
-    - nicecron
-    - nicefilesize
-    - nicenumber
-    - nicetime
-    - of_type
-    - pad
-    - parent_field
-    - print_r
-    - randomize
-    - regex_replace
-    - replace_last
-    - rtrim
-    - safe_email
-    - safe_truncate
-    - safe_truncate_html
-    - sort_by_key
-    - starts_with
-    - string
-    - t
-    - ta
-    - tl
-    - truncate
-    - truncate_html
-    - wordcount
-    - yaml
-    - yaml_decode
-    - yaml_encode
-  allowed_functions:
-    # Twig core (safe subset — NO `include`/`source`/`template_from_string`/`constant`)
-    - attribute
-    - block
-    - cycle
-    - date
-    - max
-    - min
-    - parent
-    - random
-    - range
-    # Grav extras (safe subset — NO evaluate/evaluate_twig/svg_image/read_file/redirect_me/http_response_code and no FilesystemExtension probes)
-    # `read_file` is hardened (stream-only, extension allow-list, canonical
-    # containment, size cap — see security.read_file.* below) but stays *off*
-    # this list by default so editor-authored page content can't pull arbitrary
-    # files. Theme templates (`.html.twig`) are unsandboxed and can call it
-    # directly. From page content, use the `[read-file]` shortcode (in the
-    # shortcode-core plugin) which goes through the same hardening.
-    # dump/debug are gated by $env->isDebug() and are no-ops in production; vardump is a common dev aid.
-    - array
-    - array_diff
-    - array_intersect
-    - array_key_exists
-    - array_key_value
-    - array_unique
-    - authorize
-    - body_class
-    - count
-    - cron
-    - debug
-    - dump
-    - get_cookie
-    - get_type
-    - gist
-    - header_var
-    - is_array
-    - is_countable
-    - is_iterable
-    - is_null
-    - is_numeric
-    - is_object
-    - is_string
-    - isajaxrequest
-    - json_decode
-    - md5
-    - media_directory
-    - nicefilesize
-    - nicenumber
-    - nicetime
-    - of_type
-    - random_string
-    - regex_filter
-    - regex_match
-    - regex_replace
-    - regex_split
-    - repeat
-    - string
-    - t
-    - ta
-    - theme_var
-    - tl
-    - unique_id
-    - url
-    - vardump
-    - xss
-  # Per-class method/property allowlists — list-of-rows shape so the admin UI's
-  # list field can round-trip without a shape translator. Method names must be
-  # lowercase (Twig compiler lowercases before the check). Property names are
-  # case-sensitive. Use '*' to mean "any member" (only for data-only classes
-  # like stdClass where member access carries no executable risk).
-  allowed_methods:
-    # `offsetget`/`__get` are intentionally NOT allow-listed: they return raw
-    # services straight from the container, including the real Config
-    # (`grav.offsetGet('config')`), which a dump/serialize filter could then
-    # exfiltrate past the SandboxConfig facade. Only the safe, value-returning
-    # members are exposed. (GHSA-mc5q-6hpj-rp7j)
-    - class: 'Grav\Common\Grav'
-      methods: 'offsetexists, getversion, theme'
-    # `toarray` is intentionally NOT allow-listed on the raw Config or Data
-    # classes. The sandboxed `config` Twig variable is replaced with a
-    # SandboxConfig facade in Twig::processPage()/processString(), and that
-    # facade has its own toarray entry below — bulk-dump always flows through
-    # the path filter. Editors who reach a real Config via grav['config']
-    # therefore cannot exfiltrate the full tree in one call (GHSA-j274-39qw-32c9).
-    - class: 'Grav\Common\Config\Config'
-      methods: 'get, value, default, offsetget, offsetexists'
-    - class: 'Grav\Common\Twig\Sandbox\SandboxConfig'
-      methods: 'get, toarray, value, offsetget, offsetexists'
-    - class: 'Grav\Common\Page\Interfaces\PageInterface'
-      methods: 'content, header, title, menu, slug, route, rawroute, url, path, permalink, template, templateformat, filepath, date, dateformat, modified, media, parent, children, collection, find, findmedia, value, summary, taxonomy, visible, published, publishdate, unpublishdate, routable, language, modular, modulartwig, ismodule, ispage, isfirst, islast, adjacentsibling, prevsibling, nextsibling, metadata, id, order, breadcrumbs, home, tostring, __tostring'
-    - class: 'Grav\Common\Page\Pages'
-      methods: 'root, base, dispatch, home, all, children, instances, routes, sort'
-    - class: 'Grav\Common\Uri'
-      methods: 'path, url, params, param, query, host, port, scheme, route, base, extension, method, referrer, ip, addr, toarray, __tostring'
-    - class: 'Grav\Common\Page\Media'
-      methods: 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'
-    - class: 'Grav\Common\Media\Interfaces\MediaCollectionInterface'
-      methods: 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'
-    # Every media type (ImageMedium, VideoMedium, AudioMedium,
-    # StaticImageMedium) extends this base class; url() / html() / metadata()
-    # / srcset() / parsedownElement() resolve on it via traits. Keyed on the
-    # concrete base rather than an interface: the old `MediumInterface` key was
-    # removed in the media overhaul and never existed here, so it matched no
-    # object and page-content Twig could not read any media member under the
-    # sandbox (e.g. `{{ page.media['x.png'].url }}`). __tostring lives here too
-    # so printing a medium keeps working when config_access is off (which
-    # strips the Data fallback below).
-    #
-    # Only the read/render ACCESSORS are listed by name here. The chainable
-    # action methods come from the `@media_actions` sentinel, which the policy
-    # builder expands to Medium::ALLOWED_ACTIONS (resize, cropResize, lightbox,
-    # link, format, thumbnail, the player attributes, …) — the same list Grav
-    # already trusts from editor-authored image URLs. That is the single source
-    # of truth: a new documented action added to ALLOWED_ACTIONS becomes
-    # callable under the sandbox automatically, so the two allowlists can never
-    # drift and no one has to add media methods here one at a time. The
-    # dangerous surface (save, set, copy, deleteFile, toArray, …) is absent from
-    # ALLOWED_ACTIONS and stays blocked. Note that filepath below is listed
-    # deliberately as a read accessor, not by oversight: it is not part of
-    # ALLOWED_ACTIONS, and PageInterface.filepath is allow-listed on the same
-    # terms, so an absolute path is already information sandboxed content can
-    # obtain.
-    - class: 'Grav\Common\Page\Medium\Medium'
-      methods: 'url, html, filepath, filename, metadata, srcset, parsedownelement, __tostring, @media_actions'
-    # lightbox() and link() do not return a Medium — they return a Link wrapper
-    # (Medium::createLink() -> new Link), a standalone class that does NOT extend
-    # Medium. So every action chained AFTER .lightbox()/.link() — the common
-    # `{{ page.media['x.jpg'].lightbox(1024,768).cropResize(176,176).html() }}`
-    # idiom — is invoked on the Link, not the Medium, and the sandbox blocks it
-    # (token=cropresize / token=html) unless the wrapper is allowlisted too.
-    # Keyed on MediaLinkInterface so Link and any subclass are covered. Link
-    # forwards action calls to its source medium via __call (re-entering the same
-    # vetted surface); html/url/parsedownelement are its own render accessors.
-    # Shares the `@media_actions` sentinel so it tracks ALLOWED_ACTIONS too.
-    - class: 'Grav\Common\Media\Interfaces\MediaLinkInterface'
-      methods: 'html, url, __tostring, parsedownelement, srcset, @media_actions'
-    - class: 'Grav\Common\User\Interfaces\UserInterface'
-      methods: 'authorize, authorized, authenticated, username, fullname, email, language, offsetget, offsetexists'
-    - class: 'Grav\Common\Taxonomy'
-      methods: 'taxonomy'
-    - class: 'Grav\Common\Language\Language'
-      methods: 'getactive, getdefault, getlanguages, getlanguage, enabled'
-    - class: 'Grav\Common\Assets'
-      methods: '__tostring, addcss, addjs'
-    # stdClass wildcard: Page::header() returns a stdClass built from YAML
-    # frontmatter, so the property set is fully dynamic. stdClass has no methods
-    # so wildcard member access carries no executable risk.
-    - class: 'stdClass'
-      methods: '*'
-    # Array-like data wrappers Grav uses for config/header/data access.
-    # `toarray` is omitted: bulk-dump must go through SandboxConfig (the
-    # injected `config` var) so denied paths are honored. Per-key reads
-    # (get/value/offsetget) remain available — editors who already know a
-    # path can still read it; the filter blocks enumeration, not targeted
-    # access. (GHSA-j274-39qw-32c9)
-    - class: 'Grav\Common\Data\Data'
-      methods: 'get, value, items, offsetget, offsetexists, __tostring'
-  allowed_properties:
-    - class: 'Grav\Common\Page\Interfaces\PageInterface'
-      methods: 'header, media, taxonomy'
-    - class: 'Grav\Common\Grav'
-      methods: 'theme'
-    # Media collections are ArrayAccess and are read by dynamic filename key,
-    # e.g. {{ page.media['photo.jpg'].url }}. Twig's sandbox treats a subscript
-    # on any ArrayAccess object that isn't a built-in (ArrayObject, SplStack,
-    # ...) as a PROPERTY read, using the key as the property name — so it calls
-    # checkPropertyAllowed(Media, 'photo.jpg') before it ever reaches offsetGet.
-    # A filename can't be enumerated in an allowlist, so wildcard the property
-    # gate for the collection classes; the value still comes back through
-    # offsetGet (a Medium), whose own methods (url, html, ...) stay restricted
-    # by allowed_methods. Without this, page-content media access soft-fails
-    # under the sandbox and the raw `{{ ... }}` leaks into output. Fixes #4114.
-    - class: 'Grav\Common\Media\Interfaces\MediaCollectionInterface'
-      methods: '*'
-    - class: 'Grav\Common\Page\Media'
-      methods: '*'
-    # Individual media items are Data-backed and also ArrayAccess, so a chained
-    # subscript like {{ page.media['photo.jpg']['meta_key'] }} hits the same
-    # property gate. Reading a medium's own metadata carries no executable risk.
-    - class: 'Grav\Common\Page\Medium\Medium'
-      methods: '*'
-    # Wildcard on stdClass for {{ page.header.<any_yaml_key> }}
-    - class: 'stdClass'
-      methods: '*'
+  config_denied_paths: []
 # Constraints applied to the Twig `read_file()` function. The function is
 # enforced to operate only on Grav stream URIs (e.g. `theme://foo.md`); raw
 # filesystem paths are always rejected. After the stream is resolved the

@@ -1,0 +1,35 @@
+# Deny direct web access to code and data files anywhere under user/.
+# This is a defense-in-depth backup for the rules in the site root .htaccess.
+#
+# Why it exists: mod_rewrite rules are not inherited by subdirectories. Any
+# .htaccess in a theme or plugin folder that turns on RewriteEngine replaces the
+# root ruleset for that folder and everything beneath it, so a package shipping
+# its own .htaccess (to block a Makefile, say) can silently expose its .yaml,
+# .md, .twig and .php files (getgrav/grav#4236). Access control written with
+# Require / FilesMatch is merged into subdirectories rather than replaced, so
+# these rules keep applying no matter what a subfolder does with rewriting.
+#
+# Keep the extension list in sync with the `^(user)/(.*)\.(...)` rule in the
+# site root .htaccess.
+<FilesMatch "(?i)\.(txt|md|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Dot-files: .env, git and CI metadata, editor state. Files *inside* a
+# dot-folder cannot be matched here, because <DirectoryMatch> is not allowed in
+# .htaccess; those still rely on the root rewrite rules.
+<FilesMatch "^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

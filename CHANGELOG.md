@@ -1,3 +1,19 @@
+# v2.0.19
+## 08/14/2026
+
+1. [](#new)
+    * You can now tighten the Twig content sandbox below its built-in defaults with new `denied_*` settings in `security.yaml`.
+    * The "Twig in Content" report can show the effective sandbox policy, so you can see exactly what page content is allowed to do.
+1. [](#improved)
+    * A theme or plugin that ships its own `.htaccess` can no longer switch off the protection on its own folder, which used to leave its configuration and template files downloadable [#4236](https://github.com/getgrav/grav/issues/4236)
+    * Twig in page content now renders on new installs by default, instead of appearing as raw text until the setting was turned on.
+    * The long Twig sandbox allowlists now ship built into Grav, so `security.yaml` only records your own additions and future security updates to the defaults reach every site.
+    * Existing sites that had trimmed those allowlists to tighten them keep exactly that policy after upgrading, now recorded as explicit `denied_*` entries.
+    * Removed two rarely-used Twig sandbox switches (`logging` and `admin_hint`); both behaviours are now always on.
+1. [](#bugfix)
+    * The content cross-site scripting check no longer objects to harmless `<option>` and `<select>` markup, whose original issue is fixed in the form field that actually rendered it.
+    * Sites running with the Twig 2 compatibility setting no longer crash with a server error on every page once an update clears the template cache [#4235](https://github.com/getgrav/grav/issues/4235)
+
 # v2.0.18
 ## 08/11/2026
 
