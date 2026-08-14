@@ -1,5 +1,5 @@
 # v2.0.19
-## 08/13/2026
+## 08/14/2026
 
 1. [](#new)
     * You can now tighten the Twig content sandbox below its built-in defaults with new `denied_*` settings in `security.yaml`.
