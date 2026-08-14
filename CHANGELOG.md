@@ -1,3 +1,10 @@
+# v2.0.20
+## 08/14/2026
+
+1. [](#improved)
+    * Grav now runs on Twig 3.28 and newer, which tightened the escaping method that Grav's compatibility shim replaces and would otherwise stop the site with a server error.
+    * The Twig content sandbox now accepts the list of tests a template uses, which newer Twig versions hand to it and will require from Twig 4.
+
 # v2.0.19
 ## 08/14/2026
 
