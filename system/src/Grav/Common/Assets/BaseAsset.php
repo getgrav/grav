@@ -149,14 +149,20 @@ abstract class BaseAsset extends PropertyObject
                 // instead of the global config/version-derived cache key, so
                 // editing one file invalidates only that file's URL.
                 //
-                // Scope: this only affects the query string built for a single,
-                // individually rendered asset (this class's own renderQueryString()).
-                // Pipelined/bundled assets never consult this per-asset timestamp:
-                // Pipeline builds its own uid from a hash of the bundled asset
-                // list and content (see Pipeline::renderCss()/renderJs()), so it
-                // already has its own, finer-grained invalidation and is left
-                // using the global cache key set in Assets::render().
-                if ($this->timestamp && $this->modified) {
+                // Gated on the enable_asset_timestamp config flag itself (not
+                // just on $this->timestamp being truthy), so an explicit,
+                // caller-supplied token set via the public Assets::setTimestamp()
+                // API is never silently discarded when the config flag is off.
+                //
+                // Note: the rendered <link>/<script> tag for a *pipelined* bundle
+                // still uses the global cache key (Pipeline::$timestamp, set from
+                // Assets::render()), so this has no effect on pipelined output
+                // URLs. It does still feed into the pipeline's internal bundle
+                // uid hash (Pipeline::renderCss()/renderJs() hash the serialized
+                // BaseAsset objects, which include $timestamp) — harmless, but
+                // it does mean upgrading can produce one new bundle file instead
+                // of reusing the previous one.
+                if ($this->timestamp && $this->modified && $config->get('system.assets.enable_asset_timestamp')) {
                     $this->timestamp = dechex($this->modified);
                 }
             }
