@@ -710,6 +710,73 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertSame('<script src="http://somesite.com/test.js?bar&foo"></script>' . PHP_EOL, $css);
     }
 
+    public function testPerFileTimestamps(): void
+    {
+        $fileA = GRAV_ROOT . '/tests/unit/data/assets/timestamp-a.css';
+        $fileB = GRAV_ROOT . '/tests/unit/data/assets/timestamp-b.css';
+
+        // Distinct, known mtimes for each fixture (not "now") so the assertions
+        // don't depend on filesystem timing/precision.
+        $mtimeA = time() - 3600;
+        $mtimeB = time() - 60;
+        touch($fileA, $mtimeA);
+        touch($fileB, $mtimeB);
+        clearstatcache(true, $fileA);
+        clearstatcache(true, $fileB);
+
+        // Local, non-pipelined assets: each gets its own filemtime-derived
+        // token, not the shared global cache key ('foo' here, via setTimestamp()
+        // which stands in for the value enable_asset_timestamp would compute).
+        $this->assets->reset();
+        $this->assets->setTimestamp('foo');
+        $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
+        $css = $this->assets->css();
+        self::assertSame(
+            '<link href="/tests/unit/data/assets/timestamp-a.css?' . dechex($mtimeA) . '" type="text/css" rel="stylesheet">' . PHP_EOL,
+            $css
+        );
+
+        $this->assets->reset();
+        $this->assets->setTimestamp('foo');
+        $this->assets->addCss('/tests/unit/data/assets/timestamp-b.css');
+        $css = $this->assets->css();
+        self::assertSame(
+            '<link href="/tests/unit/data/assets/timestamp-b.css?' . dechex($mtimeB) . '" type="text/css" rel="stylesheet">' . PHP_EOL,
+            $css
+        );
+
+        // Touching one file changes only its own token.
+        $mtimeANew = $mtimeA + 1800;
+        touch($fileA, $mtimeANew);
+        clearstatcache(true, $fileA);
+
+        $this->assets->reset();
+        $this->assets->setTimestamp('foo');
+        $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
+        $css = $this->assets->css();
+        self::assertSame(
+            '<link href="/tests/unit/data/assets/timestamp-a.css?' . dechex($mtimeANew) . '" type="text/css" rel="stylesheet">' . PHP_EOL,
+            $css
+        );
+
+        // Remote assets have no local file to stat, so they keep the global
+        // cache key untouched.
+        $this->assets->reset();
+        $this->assets->setTimestamp('foo');
+        $this->assets->addCss('http://somesite.com/test.css');
+        $css = $this->assets->css();
+        self::assertSame('<link href="http://somesite.com/test.css?foo" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
+
+        // Pipelined assets keep using the global cache key: Pipeline derives its
+        // bundle filename from a content hash and has its own invalidation.
+        $this->assets->reset();
+        $this->assets->setTimestamp('foo');
+        $this->assets->setCssPipeline(true);
+        $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
+        $css = $this->assets->css();
+        self::assertMatchesRegularExpression('#<link href="/assets/(.*)\.css\?foo" type="text/css" rel="stylesheet">#', $css);
+    }
+
     public function testAddInlineCss(): void
     {
         $this->assets->reset();

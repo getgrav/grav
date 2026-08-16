@@ -144,6 +144,21 @@ abstract class BaseAsset extends PropertyObject
                 $asset = $this->buildLocalLink($file->getPathname());
 
                 $this->modified = $file->isFile() ? $file->getMTime() : false;
+
+                // Rewrite the cache-busting token to this asset's own filemtime
+                // instead of the global config/version-derived cache key, so
+                // editing one file invalidates only that file's URL.
+                //
+                // Scope: this only affects the query string built for a single,
+                // individually rendered asset (this class's own renderQueryString()).
+                // Pipelined/bundled assets never consult this per-asset timestamp:
+                // Pipeline builds its own uid from a hash of the bundled asset
+                // list and content (see Pipeline::renderCss()/renderJs()), so it
+                // already has its own, finer-grained invalidation and is left
+                // using the global cache key set in Assets::render().
+                if ($this->timestamp && $this->modified) {
+                    $this->timestamp = dechex($this->modified);
+                }
             }
         }
 
