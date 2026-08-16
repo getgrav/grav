@@ -859,6 +859,17 @@ class Grav extends Container
         $supported_types = $config->get('media.types');
 
         $parsed_url = parse_url(rawurldecode($uri->basename()));
+        if (isset($parsed_url['scheme']) && !preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*$/', $parsed_url['scheme'])) {
+            // getgrav/grav#3933: parse_url() misreads a basename that merely
+            // contains a literal ':' (e.g. a timestamp such as
+            // "2025-06-29T13:36:56.png") as a scheme:path split, because
+            // unlike RFC 3986 it allows a "scheme" to start with a digit.
+            // A real scheme never does, so rebuild the original basename as
+            // a plain path in that case (see Excerpts::parseUrl() for the
+            // same fix applied to markdown image/link resolution).
+            $parsed_url['path'] = $parsed_url['scheme'] . ':' . ($parsed_url['host'] ?? '') . ($parsed_url['path'] ?? '');
+            unset($parsed_url['scheme'], $parsed_url['host'], $parsed_url['port'], $parsed_url['user'], $parsed_url['pass']);
+        }
         $media_file = isset($parsed_url['path']) ? $parsed_url['path'] : '';
 
         $event = new Event([
