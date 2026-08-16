@@ -5,6 +5,8 @@
     * Updated the bundled Twig fork to the current 3.x, picking up the correctness and sandbox improvements from the 3.27 and 3.28 releases.
     * Grav now runs on Twig 3.28 and newer, which tightened the escaping method that Grav's compatibility shim replaces and would otherwise stop the site with a server error.
     * The Twig content sandbox now accepts the list of tests a template uses, which newer Twig versions hand to it and will require from Twig 4.
+    * The bundled Nginx configuration now sets caching headers for images, fonts, stylesheets and scripts, so visitors stop re-downloading them on every page.
+    * Script and style files whose name already contains a version, such as those the Admin panel ships, are cached permanently in that same configuration, because a change always produces a new name.
 
 # v2.0.19
 ## 08/14/2026
