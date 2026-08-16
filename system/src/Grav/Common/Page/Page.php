@@ -2130,7 +2130,12 @@ class Page implements PageInterface
         }
 
         if ($canonical) {
-            $route .= $this->routeCanonical();
+            $routeCanonical = $this->routeCanonical();
+            if (Uri::isExternal($routeCanonical)) {
+                return $routeCanonical;
+            }
+
+            $route .= $routeCanonical;
         } elseif ($raw_route) {
             $route .= $this->rawRoute();
         } else {
