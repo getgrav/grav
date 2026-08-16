@@ -40,6 +40,37 @@ class PageUrlCanonicalTest extends \PHPUnit\Framework\TestCase
         self::assertSame('https://www.example.tld/about', $page->url(true, true));
     }
 
+    /**
+     * @dataProvider absoluteCanonicalProvider
+     */
+    public function testCanonicalUrlWithVariousAbsoluteShapesIsReturnedVerbatim(string $canonical): void
+    {
+        $page = $this->pages->find('/about');
+
+        $page->routeCanonical($canonical);
+
+        self::assertSame($canonical, $page->url(false, true));
+    }
+
+    public function absoluteCanonicalProvider(): array
+    {
+        return [
+            'https with path' => ['https://www.example.tld/about'],
+            'https origin only' => ['https://www.my-url.tld'],
+            'protocol relative' => ['//www.example.tld/about'],
+            'query and fragment preserved' => ['https://www.my-url.tld/a?b=c#frag'],
+        ];
+    }
+
+    public function testCanonicalUrlWithArrayRouteDoesNotCrash(): void
+    {
+        $page = $this->pages->find('/about');
+
+        $page->routeCanonical(['/some-route']);
+
+        self::assertIsString(@$page->url(false, true));
+    }
+
     public function testCanonicalUrlWithRelativeRouteIsStillPrefixedWithRootUrl(): void
     {
         $page = $this->pages->find('/about');

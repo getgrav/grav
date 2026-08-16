@@ -2131,7 +2131,7 @@ class Page implements PageInterface
 
         if ($canonical) {
             $routeCanonical = $this->routeCanonical();
-            if (Uri::isExternal($routeCanonical)) {
+            if (is_string($routeCanonical) && Uri::isExternal($routeCanonical)) {
                 return $routeCanonical;
             }
 
