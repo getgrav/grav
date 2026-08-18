@@ -13,6 +13,7 @@
     * A page that sets a full web address as its canonical route now uses that address on its own, instead of joining it onto the site's own address and breaking sitemaps and canonical links [#4023](https://github.com/getgrav/grav/issues/4023)
     * Turning on asset timestamps now gives each stylesheet and script its own marker taken from when that file last changed, so editing one file no longer waits on an unrelated change before visitors see it [#4049](https://github.com/getgrav/grav/issues/4049)
     * A canonical route set through the Flex pages API is now saved as written, instead of being stored in a form it could never be read back from.
+    * Flex directory blueprints no longer lose the fields the Flex Objects plugin adds when something reads the directory early in a request [#160](https://github.com/getgrav/grav-plugin-admin2/issues/160)
 
 # v2.0.19
 ## 08/14/2026
