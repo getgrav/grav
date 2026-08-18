@@ -7,6 +7,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Uri;
 use Grav\Common\Config\Config;
 use Grav\Common\Page\Pages;
+use Grav\Common\Page\Media;
 use Grav\Common\Language\Language;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -116,6 +117,66 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
         self::assertStringStartsWith(
             '<a href="https://meet.weikamp.biz/Support" rel="nofollow" target="_blank"',
             Excerpts::processLinkHtml('<a href="https://meet.weikamp.biz/Support?rel=nofollow&target=_blank">target and rel</a>')
+        );
+    }
+
+    public function testImageFilenameWithColonIsResolvedAsLocalMedia(): void
+    {
+        // getgrav/grav#3933: a bare relative filename containing a literal ':'
+        // (e.g. a timestamp) must still resolve to the page's own media, not be
+        // misread by parse_url() as a scheme:path split.
+        //
+        // The fixture is generated here at runtime rather than committed to
+        // git: ':' is a reserved character on NTFS, so a statically committed
+        // file with this name would make `git clone`/checkout of the whole
+        // repo fail on Windows. Page media loads lazily on first access, so
+        // it's enough for the file to exist before processImageHtml() runs.
+        $fixturePath = 'tests/fake/nested-site/user/pages/02.item2/02.item2-2/2025-06-29T13:36:56.png';
+        $image = imagecreatetruecolor(10, 10);
+        imagepng($image, $fixturePath);
+        imagedestroy($image);
+
+        // The page's media collection was already built (by Pages::init())
+        // before this fixture existed on disk, so force a fresh scan of the
+        // folder now that the file is there.
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        try {
+            self::assertMatchesRegularExpression(
+                '|<img alt="Timestamped" src="\/images\/.*-2025-06-29t133656\.png" data-src="2025-06-29T13:36:56\.png\?cropZoom=300,300" \/>|',
+                Excerpts::processImageHtml('<img src="2025-06-29T13:36:56.png?cropZoom=300,300" alt="Timestamped" />', $this->page)
+            );
+        } finally {
+            @unlink($fixturePath);
+        }
+    }
+
+    public function testMailtoAndTelLinksAreNotBrokenByColonFix(): void
+    {
+        // Non-regression: any scheme without "://" that still has valid,
+        // letter-led URI scheme grammar (RFC 3986) must pass through
+        // untouched, whether or not Grav has special-case handling for it.
+        self::assertStringStartsWith(
+            '<a href="mailto:bob@example.com"',
+            Excerpts::processLinkHtml('<a href="mailto:bob@example.com">email</a>')
+        );
+        self::assertStringStartsWith(
+            '<a href="tel:+123456789"',
+            Excerpts::processLinkHtml('<a href="tel:+123456789">call</a>')
+        );
+        self::assertStringStartsWith(
+            '<a href="xmpp:xyx@domain.com"',
+            Excerpts::processLinkHtml('<a href="xmpp:xyx@domain.com">xmpp</a>')
+        );
+    }
+
+    public function testStreamImageIsNotBrokenByColonFix(): void
+    {
+        // Non-regression: registered Grav streams (image://, user://, ...) must
+        // keep resolving via the locator exactly as before.
+        self::assertStringStartsWith(
+            '<img alt="Stream" src="/system/images/watermark.png"',
+            Excerpts::processImageHtml('<img src="image://watermark.png" alt="Stream" />', $this->page)
         );
     }
 }

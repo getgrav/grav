@@ -338,9 +338,24 @@ class Excerpts
         if (isset($url_parts['scheme'])) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
+            $is_registered_stream = $locator->schemeExists($url_parts['scheme']);
 
-            // Special handling for the streams.
-            if ($locator->schemeExists($url_parts['scheme'])) {
+            if (
+                !$is_registered_stream
+                && strpos($url, '://') === false
+                && !preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*$/', $url_parts['scheme'])
+            ) {
+                // parse_url() misreads a relative filename that merely contains a
+                // literal ':' (e.g. "2025-06-29T13:36:56.png") as a scheme:path
+                // split, because unlike RFC 3986 it allows a "scheme" to start
+                // with a digit. A real scheme never does (mailto:, tel:, xmpp:,
+                // ...), so only a scheme failing that grammar - and matching no
+                // registered stream - is untrusted and rebuilt as a plain path
+                // (getgrav/grav#3933).
+                $url_parts['path'] = $url_parts['scheme'] . ':' . ($url_parts['host'] ?? '') . ($url_parts['path'] ?? '');
+                unset($url_parts['scheme'], $url_parts['host'], $url_parts['port'], $url_parts['user'], $url_parts['pass']);
+            } elseif ($is_registered_stream) {
+                // Special handling for the streams.
                 if (isset($url_parts['host'])) {
                     // Merge host and path into a path.
                     $url_parts['path'] = $url_parts['host'] . (isset($url_parts['path']) ? '/' . $url_parts['path'] : '');
