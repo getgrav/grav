@@ -64,8 +64,9 @@ trait CompiledFile
 
                             return parent::content($var);
                         }
-                    } catch (Throwable) {
+                    } catch (Throwable $e) {
                         // If the compiled file is broken, we can safely ignore the error and continue.
+                        $this->logCorruptCache($cacheFilename, $filename, $e);
                     }
                 }
 
@@ -85,6 +86,7 @@ trait CompiledFile
                     // cache miss and regenerate from the raw source below, mirroring the
                     // fast-path `catch (Throwable)` above.
                     $cache = null;
+                    $this->logCorruptCache($cacheFilename, $filename, $e);
                 }
 
                 // Load real file if cache isn't up to date (or is invalid).
@@ -232,6 +234,37 @@ trait CompiledFile
 
         if (!isset(static::$instances[$this->filename])) {
             static::$instances[$this->filename] = $this;
+        }
+    }
+
+    /**
+     * Record that a compiled cache file could not be read and is being regenerated.
+     *
+     * Regenerating silently is the correct behaviour, but doing it without a trace
+     * makes a *recurring* corruption problem invisible to an operator — the compiled
+     * file is valid again by the time anyone looks at it. The logger is resolved
+     * defensively and the whole call is guarded, so logging a degraded cache can
+     * never itself become the fatal we are recovering from.
+     *
+     * @param string $cacheFilename Compiled file that could not be read.
+     * @param string $filename      Source file it was compiled from.
+     * @param Throwable $e          Failure encountered while reading it.
+     */
+    private function logCorruptCache(string $cacheFilename, string $filename, Throwable $e): void
+    {
+        try {
+            $log = Grav::instance()['log'] ?? null;
+            if ($log) {
+                $log->warning(sprintf(
+                    '%s(): Corrupt compiled cache %s for %s (%s); regenerating from source.',
+                    __METHOD__,
+                    $cacheFilename,
+                    $filename,
+                    $e->getMessage()
+                ));
+            }
+        } catch (Throwable) {
+            // Logging is best-effort: never let it mask the recovery it is reporting.
         }
     }
 }

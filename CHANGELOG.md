@@ -7,6 +7,12 @@
     * The Twig content sandbox now accepts the list of tests a template uses, which newer Twig versions hand to it and will require from Twig 4.
     * The bundled Nginx configuration now sets caching headers for images, fonts, stylesheets and scripts, so visitors stop re-downloading them on every page.
     * Script and style files whose name already contains a version, such as those the Admin panel ships, are cached permanently in that same configuration, because a change always produces a new name.
+1. [](#bugfix)
+    * A damaged page cache file is now rebuilt from the original page instead of stopping the site with a server error [#4239](https://github.com/getgrav/grav/issues/4239)
+    * Images and links in page content now work when the file name contains a colon, such as a screenshot named after a timestamp [#3933](https://github.com/getgrav/grav/issues/3933)
+    * A page that sets a full web address as its canonical route now uses that address on its own, instead of joining it onto the site's own address and breaking sitemaps and canonical links [#4023](https://github.com/getgrav/grav/issues/4023)
+    * Turning on asset timestamps now gives each stylesheet and script its own marker taken from when that file last changed, so editing one file no longer waits on an unrelated change before visitors see it [#4049](https://github.com/getgrav/grav/issues/4049)
+    * A canonical route set through the Flex pages API is now saved as written, instead of being stored in a form it could never be read back from.
 
 # v2.0.19
 ## 08/14/2026

@@ -160,7 +160,7 @@ assets:                                          # Configuration for Assets Mana
   js_module_pipeline_include_externals: true     # Include external URLs in the pipeline by default
   js_module_pipeline_before_excludes: true       # Render the pipeline before any excluded files
   js_minify: true                                # Minify the JS during pipelining
-  enable_asset_timestamp: false                  # Enable asset timestamps; non-pipelined local assets get their own filemtime-derived token, everything else (remote/pipelined) keeps the global cache key
+  enable_asset_timestamp: false                  # Enable asset timestamps (local non-pipelined assets use their own file mtime)
   enable_asset_sri: false                        # Enable asset SRI
   collections:
     jquery: system://assets/jquery/jquery-3.x.min.js

@@ -112,7 +112,10 @@ trait PageRoutableTrait
     /**
      * Gets the url for the Page.
      *
-     * @param bool $include_host Defaults false, but true would include http://yourhost.com
+     * @param bool $include_host Defaults false, but true would include http://yourhost.com.
+     *                            Ignored when $canonical is true and routes.canonical is an
+     *                            absolute URL: that names a different origin outright, so
+     *                            there is no meaningful host-less form of it to return.
      * @param bool $canonical true to return the canonical URL
      * @param bool $include_base
      * @param bool $raw_route
@@ -287,7 +290,10 @@ trait PageRoutableTrait
     public function routeCanonical($var = null): ?string
     {
         if (null !== $var) {
-            $this->setNestedProperty('header.routes.canonical', (array)$var);
+            // Stored as a plain string: the blueprint declares this as `type: text`
+            // and the getter below requires a string, so the previous (array) cast
+            // meant a value set through this setter could never be read back.
+            $this->setNestedProperty('header.routes.canonical', (string)$var);
         }
 
         $canonical = $this->getNestedProperty('header.routes.canonical');

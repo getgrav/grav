@@ -131,7 +131,11 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
         // file with this name would make `git clone`/checkout of the whole
         // repo fail on Windows. Page media loads lazily on first access, so
         // it's enough for the file to exist before processImageHtml() runs.
-        $fixturePath = 'tests/fake/nested-site/user/pages/02.item2/02.item2-2/2025-06-29T13:36:56.png';
+        if (DIRECTORY_SEPARATOR === '\\') {
+            self::markTestSkipped('A colon is not a legal filename character on Windows.');
+        }
+
+        $fixturePath = GRAV_ROOT . '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/2025-06-29T13:36:56.png';
         $image = imagecreatetruecolor(10, 10);
         imagepng($image, $fixturePath);
         imagedestroy($image);
@@ -178,5 +182,46 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
             '<img alt="Stream" src="/system/images/watermark.png"',
             Excerpts::processImageHtml('<img src="image://watermark.png" alt="Stream" />', $this->page)
         );
+    }
+
+    /**
+     * @dataProvider letterLedColonFilenameProvider
+     */
+    public function testLetterLedColonFilenameIsTreatedAsLocalMedia(string $filename): void
+    {
+        // RFC 3986 scheme grammar alone cannot separate "note:2025.png" from an
+        // unknown protocol - both are a letter-led token plus a colon - so these
+        // are recognised by carrying a media extension instead. Without that the
+        // fix would only cover colon filenames whose leading token happens to
+        // start with a digit (getgrav/grav#3933).
+        $result = Excerpts::processImageHtml('<img src="' . $filename . '" alt="Colon" />', $this->page);
+
+        // Resolved against the page's own route rather than passed through as a
+        // scheme, which is what happened before: the src was left verbatim.
+        self::assertStringContainsString('src="/item2/item2-2/' . $filename . '"', $result);
+    }
+
+    public function letterLedColonFilenameProvider(): array
+    {
+        return [
+            'word prefix' => ['note:2025.png'],
+            'uppercase prefix' => ['IMG:001.png'],
+            'multiple colons' => ['a:b:c.png'],
+            'no separator' => ['Screenshot2025at13:36:56.png'],
+        ];
+    }
+
+    public function testMediaExtensionArmDoesNotCaptureRealSchemes(): void
+    {
+        // The media-extension check must never reinterpret a genuine protocol as
+        // a local file, however the reference happens to end. Grav's own external
+        // scheme list plus data: are excluded outright.
+        foreach (['mailto:someone@example.com', 'tel:+123456789', 'git:example.com/repo.png'] as $href) {
+            self::assertStringStartsWith(
+                '<a href="' . $href . '"',
+                Excerpts::processLinkHtml('<a href="' . $href . '">link</a>'),
+                $href . ' must pass through untouched'
+            );
+        }
     }
 }

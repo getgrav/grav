@@ -64,12 +64,19 @@ class PageUrlCanonicalTest extends \PHPUnit\Framework\TestCase
 
     public function testCanonicalUrlWithArrayRouteDoesNotCrash(): void
     {
+        // A malformed `routes.canonical` header can hand back an array. The
+        // is_string() guard in url() is the one line stopping Uri::isExternal()
+        // from being handed an array and throwing a TypeError, so assert the
+        // concrete result rather than merely that nothing fatal happened —
+        // assertIsString() alone passes even when a warning is raised.
         $page = $this->pages->find('/about');
 
-        $page->routeCanonical(['/some-route']);
+        $page->header()->routes = ['canonical' => ['/some-route']];
 
-        self::assertIsString(@$page->url(false, true));
+        // Falls back to the page's own route rather than fataling.
+        self::assertSame($page->url(false, false), @$page->url(false, true));
     }
+
 
     public function testCanonicalUrlWithRelativeRouteIsStillPrefixedWithRootUrl(): void
     {

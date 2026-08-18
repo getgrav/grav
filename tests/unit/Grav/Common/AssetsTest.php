@@ -721,6 +721,11 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         $origMtimeJs = filemtime($fileJs);
 
         try {
+            // The token the enable_asset_timestamp flag produces on its own. Only
+            // this value is eligible to be replaced by a per-file mtime, so the
+            // assertions below use it rather than pinning one via setTimestamp().
+            $globalKey = $this->grav['cache']->getKey();
+
             // Distinct, known mtimes for each fixture (not "now") so the assertions
             // don't depend on filesystem timing/precision.
             $mtimeA = time() - 3600;
@@ -735,9 +740,6 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
             $this->assets->reset();
             $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
             $this->assets->config(['enable_asset_timestamp' => true]);
-            // Pin the resulting global key so remote/pipeline assertions below
-            // (which are unaffected by the per-file override) are deterministic.
-            $this->assets->setTimestamp('foo');
 
             // Local, non-pipelined assets: each gets its own filemtime-derived
             // token, not the shared global cache key.
@@ -751,7 +753,6 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
             $this->assets->reset();
             $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
             $this->assets->config(['enable_asset_timestamp' => true]);
-            $this->assets->setTimestamp('foo');
             $this->assets->addCss('/tests/unit/data/assets/timestamp-b.css');
             $css = $this->assets->css();
             self::assertSame(
@@ -767,7 +768,6 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
             $this->assets->reset();
             $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
             $this->assets->config(['enable_asset_timestamp' => true]);
-            $this->assets->setTimestamp('foo');
             $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
             $css = $this->assets->css();
             self::assertSame(
@@ -781,7 +781,6 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
             $this->assets->reset();
             $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
             $this->assets->config(['enable_asset_timestamp' => true]);
-            $this->assets->setTimestamp('foo');
             $this->assets->addCss('tests://unit/data/assets/timestamp-a.css');
             $css = $this->assets->css();
             self::assertSame(
@@ -798,7 +797,6 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
             $this->assets->reset();
             $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
             $this->assets->config(['enable_asset_timestamp' => true]);
-            $this->assets->setTimestamp('foo');
             $this->assets->addJs('/tests/unit/data/assets/timestamp-a.js');
             $js = $this->assets->js();
             self::assertSame(
@@ -811,10 +809,9 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
             $this->assets->reset();
             $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
             $this->assets->config(['enable_asset_timestamp' => true]);
-            $this->assets->setTimestamp('foo');
             $this->assets->addCss('http://somesite.com/test.css');
             $css = $this->assets->css();
-            self::assertSame('<link href="http://somesite.com/test.css?foo" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
+            self::assertSame('<link href="http://somesite.com/test.css?' . $globalKey . '" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
 
             // Pipelined assets: the *rendered* query string keeps using the
             // global cache key (Pipeline::$timestamp, set from Assets::render()),
@@ -822,11 +819,10 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
             $this->assets->reset();
             $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
             $this->assets->config(['enable_asset_timestamp' => true]);
-            $this->assets->setTimestamp('foo');
             $this->assets->setCssPipeline(true);
             $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
             $css = $this->assets->css();
-            self::assertMatchesRegularExpression('#<link href="/assets/(.*)\.css\?foo" type="text/css" rel="stylesheet">#', $css);
+            self::assertMatchesRegularExpression('#<link href="/assets/(.*)\.css\?' . preg_quote($globalKey, '#') . '" type="text/css" rel="stylesheet">#', $css);
         } finally {
             touch($fileA, $origMtimeA);
             touch($fileB, $origMtimeB);
@@ -844,6 +840,25 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         // overridden by the per-file mtime rewrite, since that rewrite is only
         // meant to fire for the enable_asset_timestamp config path.
         $this->assets->reset();
+        $this->assets->setTimestamp('v1.2.3');
+        $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
+        $css = $this->assets->css();
+        self::assertSame(
+            '<link href="/tests/unit/data/assets/timestamp-a.css?v1.2.3" type="text/css" rel="stylesheet">' . PHP_EOL,
+            $css
+        );
+    }
+
+    public function testManualTimestampWinsOverConfigFlag(): void
+    {
+        // With enable_asset_timestamp ON, a caller-supplied token still wins.
+        // setTimestamp() is how a CI/git deploy pins one release token across a
+        // fleet of servers; the per-file rewrite only ever replaces the token the
+        // flag generated for itself, so turning the flag on cannot silently strip
+        // an explicit choice with no way to opt back out.
+        $this->assets->reset();
+        $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
+        $this->assets->config(['enable_asset_timestamp' => true]);
         $this->assets->setTimestamp('v1.2.3');
         $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
         $css = $this->assets->css();
