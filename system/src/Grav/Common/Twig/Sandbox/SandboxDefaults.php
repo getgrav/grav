@@ -49,6 +49,14 @@ final class SandboxDefaults
             'backups',
             'scheduler',
             'system.cache.redis.password',
+            // Proxy URLs accept HTTP userinfo (http://user:pass@host:3128) and
+            // Symfony turns that into a Basic auth header, so both slots are
+            // credential-bearing even though neither is named like a secret —
+            // which is also why a leaf-key name heuristic would not catch them.
+            // system.gpm.proxy_url is the legacy fallback HTTP\Client still reads
+            // when the http.* key is unset.
+            'system.http.proxy_url',
+            'system.gpm.proxy_url',
         ];
     }
 
@@ -304,7 +312,12 @@ final class SandboxDefaults
             ['class' => 'Grav\Common\User\Interfaces\UserInterface', 'methods' => 'authorize, authorized, authenticated, username, fullname, email, language, offsetget, offsetexists'],
             ['class' => 'Grav\Common\Taxonomy', 'methods' => 'taxonomy'],
             ['class' => 'Grav\Common\Language\Language', 'methods' => 'getactive, getdefault, getlanguages, getlanguage, enabled'],
-            ['class' => 'Grav\Common\Assets', 'methods' => '__tostring, addcss, addjs'],
+            // addcss/addjs are deliberately NOT allowlisted: the sandbox arbitrates
+            // the call, not its downstream effect. Both mutate the shared Assets
+            // service and the theme then emits the registration as a <script src>/
+            // <link href> in the page head, which the save-time XSS scan cannot see.
+            // A site that truly needs them can re-add via allowed_methods.
+            ['class' => 'Grav\Common\Assets', 'methods' => '__tostring'],
             ['class' => 'stdClass', 'methods' => '*'],
             ['class' => 'Grav\Common\Data\Data', 'methods' => 'get, value, items, offsetget, offsetexists, __tostring'],
         ];

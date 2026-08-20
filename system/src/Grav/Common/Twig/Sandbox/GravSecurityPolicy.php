@@ -41,6 +41,8 @@ final class GravSecurityPolicy implements SecurityPolicyInterface
         private array $allowedProperties = [],
         private array $allowedFunctions = [],
         private ?array $allowedTests = null,
+        private array $deniedMethods = [],
+        private array $deniedProperties = [],
     ) {
     }
 
@@ -82,6 +84,22 @@ final class GravSecurityPolicy implements SecurityPolicyInterface
     public function checkMethodAllowed($obj, $method): void
     {
         $method = strtolower($method);
+
+        // Denials win, and are matched by type exactly as grants are, so a denial
+        // cannot be undone by a mis-cased class key or by an allowlisted parent
+        // class/interface the object also satisfies (e.g. denying Page\Media while
+        // MediaCollectionInterface stays allowed).
+        foreach ($this->deniedMethods as $class => $methods) {
+            if ($obj instanceof $class && (in_array('*', $methods, true) || in_array($method, $methods, true))) {
+                $denied = $obj::class;
+                throw new SecurityNotAllowedMethodError(
+                    sprintf('Calling "%s" method on a "%s" object is not allowed.', $method, $denied),
+                    $denied,
+                    $method
+                );
+            }
+        }
+
         foreach ($this->allowedMethods as $class => $methods) {
             if ($obj instanceof $class && (in_array('*', $methods, true) || in_array($method, $methods, true))) {
                 return;
@@ -119,6 +137,18 @@ final class GravSecurityPolicy implements SecurityPolicyInterface
 
     public function checkPropertyAllowed($obj, $property): void
     {
+        foreach ($this->deniedProperties as $class => $properties) {
+            $props = is_array($properties) ? $properties : [$properties];
+            if ($obj instanceof $class && (in_array('*', $props, true) || in_array($property, $props, true))) {
+                $denied = $obj::class;
+                throw new SecurityNotAllowedPropertyError(
+                    sprintf('Calling "%s" property on a "%s" object is not allowed.', $property, $denied),
+                    $denied,
+                    $property
+                );
+            }
+        }
+
         foreach ($this->allowedProperties as $class => $properties) {
             $props = is_array($properties) ? $properties : [$properties];
             if ($obj instanceof $class && (in_array('*', $props, true) || in_array($property, $props, true))) {

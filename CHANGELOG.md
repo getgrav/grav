@@ -8,6 +8,10 @@
     * The bundled Nginx configuration now sets caching headers for images, fonts, stylesheets and scripts, so visitors stop re-downloading them on every page.
     * Script and style files whose name already contains a version, such as those the Admin panel ships, are cached permanently in that same configuration, because a change always produces a new name.
 1. [](#bugfix)
+    * [security] Page content can no longer register a script or stylesheet through the Twig content sandbox, and asset URLs are now escaped where the tag is built, closing a way to inject markup into a rendered page.
+    * [security] The `read_file` capability no longer includes the user data folder by default, so page content can no longer be used to publish form submissions and other stored data.
+    * [security] A proxy address that carries a username and password is now hidden from sandboxed page content, matching the other credentials already redacted there.
+    * [security] Custom Twig sandbox denial rules now take effect regardless of how the class name is capitalised, and can no longer be silently bypassed through a parent class or interface.
     * A damaged page cache file is now rebuilt from the original page instead of stopping the site with a server error [#4239](https://github.com/getgrav/grav/issues/4239)
     * Images and links in page content now work when the file name contains a colon, such as a screenshot named after a timestamp [#3933](https://github.com/getgrav/grav/issues/3933)
     * A page that sets a full web address as its canonical route now uses that address on its own, instead of joining it onto the site's own address and breaking sitemaps and canonical links [#4023](https://github.com/getgrav/grav/issues/4023)

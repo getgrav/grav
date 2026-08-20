@@ -105,7 +105,7 @@ final class FileReader
         $config = $grav['config'];
 
         $allowedStreams = (array) $config->get('security.read_file.allowed_streams', [
-            'theme', 'themes', 'page', 'user-data'
+            'theme', 'themes', 'page'
         ]);
         if (!in_array($scheme, $allowedStreams, true)) {
             return false;

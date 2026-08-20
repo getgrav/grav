@@ -38,6 +38,6 @@ class Link extends BaseAsset
      */
     public function render()
     {
-        return '<link href="' . trim($this->asset) . $this->renderQueryString() . '"' . $this->renderAttributes() . $this->integrityHash($this->asset) . ">\n";
+        return '<link href="' . $this->escapeAssetUrl(trim($this->asset) . $this->renderQueryString()) . '"' . $this->renderAttributes() . $this->integrityHash($this->asset) . ">\n";
     }
 }

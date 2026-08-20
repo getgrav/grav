@@ -660,7 +660,20 @@ class Security
             );
         }
 
-        self::$twigSandboxPolicy = new GravSecurityPolicy($tags, $filters, $methods, $properties, $functions);
+        // The subtraction above keeps the effective allowlist honest for the admin
+        // diagnostic, but the policy also carries the denials so they are enforced
+        // by type at call time — a denial can then never be silently dropped by a
+        // mis-cased class name or re-granted through an allowed parent class or
+        // interface the object also satisfies.
+        self::$twigSandboxPolicy = new GravSecurityPolicy(
+            $tags,
+            $filters,
+            $methods,
+            $properties,
+            $functions,
+            deniedMethods: self::normalizeMethodsMap($deniedMethods, true),
+            deniedProperties: self::normalizeMethodsMap($deniedProperties, false)
+        );
         self::$twigSandboxPolicyKey = $cacheKey;
 
         return self::$twigSandboxPolicy;
@@ -917,8 +930,20 @@ class Security
             return $map;
         }
         $denied = self::normalizeMethodsMap($deniedRows, $lowercase);
+
+        // Class names are matched case-insensitively: PHP treats them that way,
+        // and so does the instanceof check in GravSecurityPolicy that enforces the
+        // result, so the denial side must not be stricter than either. Map a
+        // lowercased class name back to the real, correctly-cased map key so the
+        // key actually removed still resolves for reflection and the sentinels.
+        $realClass = [];
+        foreach (array_keys($map) as $key) {
+            $realClass[strtolower($key)] = $key;
+        }
+
         foreach ($denied as $class => $members) {
-            if (!isset($map[$class])) {
+            $class = $realClass[strtolower($class)] ?? null;
+            if ($class === null) {
                 continue;
             }
             if (in_array('*', $members, true)) {

@@ -183,11 +183,15 @@ read_file:
   # Streams that read_file may resolve. Defaults cover content-reading needs
   # (active theme, all themes, page tree, user data) without exposing
   # accounts, configs, logs, cache, vendor, system, etc. Add more carefully.
+  # `user-data` is deliberately absent: user://data is application state (form
+  # submissions, scheduler history, notifications), not content, and a page
+  # editor is not granted read access to it. A site that genuinely keeps
+  # includable content there can add it back, accepting that everything else
+  # under user://data becomes readable at the same time.
   allowed_streams:
     - theme
     - themes
     - page
-    - user-data
   # File extensions read_file will read. Restricted to text/content formats
   # by design — adding `php`, `yaml`, `env`, `htaccess`, etc. here is a
   # foot-gun and not recommended.

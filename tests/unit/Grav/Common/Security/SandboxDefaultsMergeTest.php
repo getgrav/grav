@@ -195,6 +195,36 @@ class SandboxDefaultsMergeTest extends \PHPUnit\Framework\TestCase
         $this->assertAllowed(fn() => $policy->checkMethodAllowed($pages, 'home'));
     }
 
+    public function testDenied_ClassNameMatchedCaseInsensitively(): void
+    {
+        // PHP class names are case-insensitive and enforcement uses instanceof,
+        // so a denial written in any casing must still take effect. (GHSA-3j7p)
+        $this->set('security.twig_sandbox.denied_methods', [
+            ['class' => 'grav\common\taxonomy', 'methods' => '*'],
+        ]);
+        $policy = Security::buildTwigSandboxPolicy();
+        $taxonomy = $this->stub('Grav\Common\Taxonomy');
+
+        $this->expectException(SecurityNotAllowedMethodError::class);
+        $policy->checkMethodAllowed($taxonomy, 'taxonomy');
+    }
+
+    public function testDenied_NotReGrantedByAllowedSupertype(): void
+    {
+        // Grav\Common\Page\Media and MediaCollectionInterface are both allowlisted
+        // with the same methods, and Media implements the interface. Denying the
+        // concrete class must actually block it, not leave the interface entry
+        // silently re-granting every method. (GHSA-3j7p)
+        $this->set('security.twig_sandbox.denied_methods', [
+            ['class' => 'Grav\Common\Page\Media', 'methods' => '*'],
+        ]);
+        $policy = Security::buildTwigSandboxPolicy();
+        $media = $this->stub('Grav\Common\Page\Media');
+
+        $this->expectException(SecurityNotAllowedMethodError::class);
+        $policy->checkMethodAllowed($media, 'images');
+    }
+
     // config_denied_paths additive ------------------------------------------
 
     public function testConfigDeniedPaths_DefaultsPlusUserAdditions(): void
