@@ -14,6 +14,7 @@
     * Turning on asset timestamps now gives each stylesheet and script its own marker taken from when that file last changed, so editing one file no longer waits on an unrelated change before visitors see it [#4049](https://github.com/getgrav/grav/issues/4049)
     * A canonical route set through the Flex pages API is now saved as written, instead of being stored in a form it could never be read back from.
     * Flex directory blueprints no longer lose the fields the Flex Objects plugin adds when something reads the directory early in a request [#160](https://github.com/getgrav/grav-plugin-admin2/issues/160)
+    * The scheduler's generated cron command now names the site's environment when that environment has its own configuration, and each run records which environment it used, so custom jobs defined in `user/env/<host>/` no longer fail silently from cron [#4248](https://github.com/getgrav/grav/issues/4248)
 
 # v2.0.19
 ## 08/14/2026

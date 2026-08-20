@@ -102,7 +102,7 @@ class Application extends \Symfony\Component\Console\Application
                 '--env',
                 '',
                 InputOption::VALUE_OPTIONAL,
-                'Use environment configuration (defaults to localhost)'
+                'Use environment configuration (defaults to cli)'
             )
         );
         $inputDefinition->addOption(

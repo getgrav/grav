@@ -10,10 +10,12 @@
 namespace Grav\Common\Scheduler;
 
 use DateTime;
+use Grav\Common\Config\Setup;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 use InvalidArgumentException;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use RocketTheme\Toolbox\File\YamlFile;
@@ -451,15 +453,62 @@ class Scheduler
 
     /**
      * @param string|null $php
+     * @param bool $withEnvironment Append --env=<name> when the current environment has its own overrides
      * @return string
      */
-    public function getSchedulerCommand($php = null)
+    public function getSchedulerCommand($php = null, bool $withEnvironment = true)
     {
         $phpBinaryFinder = new PhpExecutableFinder();
         $php ??= $phpBinaryFinder->find();
         $command = 'cd ' . str_replace(' ', '\ ', GRAV_ROOT) . ';' . $php . ' bin/grav scheduler';
 
+        // With nothing pinning the environment the CLI resolves to 'cli', so a cron line generated
+        // for a site whose environment carries its own overrides (user/env/<host>/config) has to
+        // name that environment, or everything defined only there silently never runs (#4248).
+        $environment = $withEnvironment ? $this->getOverrideEnvironment() : null;
+        if (null !== $environment) {
+            $command .= ' --env=' . $environment;
+        }
+
         return $command;
+    }
+
+    /**
+     * The environment this process booted with, but only when it has its own configuration
+     * overrides on disk. Null for the bare CLI ('cli'), for an unknown environment, and for
+     * hosts without a user/env/<host>/config folder.
+     *
+     * @return string|null
+     */
+    public function getOverrideEnvironment(): ?string
+    {
+        $environment = Setup::$environment;
+        if (!is_string($environment) || in_array($environment, ['', 'cli', 'unknown'], true)) {
+            return null;
+        }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        return $locator->findResource('environment://config', true) ? $environment : null;
+    }
+
+    /**
+     * Environment the scheduler last ran under: 'cli' for an unpinned crontab, the hostname for
+     * a webhook or admin-triggered run. Null until a run has happened on this version.
+     *
+     * @return string|null
+     */
+    public function getLastRunEnvironment(): ?string
+    {
+        $file = $this->status_path . '/last_run_environment.txt';
+        if (!is_file($file)) {
+            return null;
+        }
+
+        $environment = trim((string) file_get_contents($file));
+
+        return $environment !== '' ? $environment : null;
     }
 
     /**
@@ -491,7 +540,8 @@ class Scheduler
 
         if ($process->isSuccessful()) {
             $output = $process->getOutput();
-            $command = str_replace('/', '\/', $this->getSchedulerCommand('.*'));
+            // Match with or without a trailing --env, so an older crontab line still counts as installed.
+            $command = str_replace('/', '\/', $this->getSchedulerCommand('.*', false));
             $full_command = '/^(?!#).* .* .* .* .* ' . $command . '/m';
 
             return  preg_match($full_command, $output) ? 1 : 0;
@@ -1136,6 +1186,10 @@ class Scheduler
     {
         $lastRunFile = $this->status_path . '/last_run.txt';
         file_put_contents($lastRunFile, date('Y-m-d H:i:s'));
+
+        // Remember which environment this run loaded its configuration from, so the admin can
+        // tell when the cron runs under a different one than the site itself (#4248).
+        file_put_contents($this->status_path . '/last_run_environment.txt', (string) Setup::$environment);
     }
     
     /**
