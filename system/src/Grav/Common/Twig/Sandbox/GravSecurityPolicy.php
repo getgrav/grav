@@ -14,6 +14,7 @@ use Twig\Sandbox\SecurityNotAllowedFunctionError;
 use Twig\Sandbox\SecurityNotAllowedMethodError;
 use Twig\Sandbox\SecurityNotAllowedPropertyError;
 use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityNotAllowedTestError;
 use Twig\Sandbox\SecurityPolicyInterface;
 
 /**
@@ -31,6 +32,7 @@ final class GravSecurityPolicy implements SecurityPolicyInterface
      * @param array<class-string, list<string>>    $allowedMethods
      * @param array<class-string, list<string>>    $allowedProperties
      * @param list<string>                         $allowedFunctions
+     * @param list<string>|null                    $allowedTests     null leaves tests unrestricted
      */
     public function __construct(
         private array $allowedTags = [],
@@ -38,11 +40,28 @@ final class GravSecurityPolicy implements SecurityPolicyInterface
         private array $allowedMethods = [],
         private array $allowedProperties = [],
         private array $allowedFunctions = [],
+        private ?array $allowedTests = null,
+        private array $deniedMethods = [],
+        private array $deniedProperties = [],
     ) {
     }
 
-    public function checkSecurity($tags, $filters, $functions): void
+    /**
+     * Twig 3.28 added the `$tests` argument, required from Twig 4.0.
+     *
+     * Grav has no allowlist for tests yet, so the default is to leave them unrestricted, which is
+     * what the sandbox did before 3.28. Pass `$allowedTests` to the constructor to start enforcing.
+     */
+    public function checkSecurity($tags, $filters, $functions, array $tests = []): void
     {
+        if (null !== $this->allowedTests) {
+            foreach ($tests as $test) {
+                if (!in_array($test, $this->allowedTests, true)) {
+                    throw new SecurityNotAllowedTestError(sprintf('Test "%s" is not allowed.', $test), $test);
+                }
+            }
+        }
+
         foreach ($tags as $tag) {
             if (!in_array($tag, $this->allowedTags, true)) {
                 throw new SecurityNotAllowedTagError(sprintf('Tag "%s" is not allowed.', $tag), $tag);
@@ -65,6 +84,22 @@ final class GravSecurityPolicy implements SecurityPolicyInterface
     public function checkMethodAllowed($obj, $method): void
     {
         $method = strtolower($method);
+
+        // Denials win, and are matched by type exactly as grants are, so a denial
+        // cannot be undone by a mis-cased class key or by an allowlisted parent
+        // class/interface the object also satisfies (e.g. denying Page\Media while
+        // MediaCollectionInterface stays allowed).
+        foreach ($this->deniedMethods as $class => $methods) {
+            if ($obj instanceof $class && (in_array('*', $methods, true) || in_array($method, $methods, true))) {
+                $denied = $obj::class;
+                throw new SecurityNotAllowedMethodError(
+                    sprintf('Calling "%s" method on a "%s" object is not allowed.', $method, $denied),
+                    $denied,
+                    $method
+                );
+            }
+        }
+
         foreach ($this->allowedMethods as $class => $methods) {
             if ($obj instanceof $class && (in_array('*', $methods, true) || in_array($method, $methods, true))) {
                 return;
@@ -102,6 +137,18 @@ final class GravSecurityPolicy implements SecurityPolicyInterface
 
     public function checkPropertyAllowed($obj, $property): void
     {
+        foreach ($this->deniedProperties as $class => $properties) {
+            $props = is_array($properties) ? $properties : [$properties];
+            if ($obj instanceof $class && (in_array('*', $props, true) || in_array($property, $props, true))) {
+                $denied = $obj::class;
+                throw new SecurityNotAllowedPropertyError(
+                    sprintf('Calling "%s" property on a "%s" object is not allowed.', $property, $denied),
+                    $denied,
+                    $property
+                );
+            }
+        }
+
         foreach ($this->allowedProperties as $class => $properties) {
             $props = is_array($properties) ? $properties : [$properties];
             if ($obj instanceof $class && (in_array('*', $props, true) || in_array($property, $props, true))) {

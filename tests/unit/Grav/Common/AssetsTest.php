@@ -710,6 +710,164 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertSame('<script src="http://somesite.com/test.js?bar&foo"></script>' . PHP_EOL, $css);
     }
 
+    public function testPerFileTimestamps(): void
+    {
+        $fileA = GRAV_ROOT . '/tests/unit/data/assets/timestamp-a.css';
+        $fileB = GRAV_ROOT . '/tests/unit/data/assets/timestamp-b.css';
+        $fileJs = GRAV_ROOT . '/tests/unit/data/assets/timestamp-a.js';
+
+        $origMtimeA = filemtime($fileA);
+        $origMtimeB = filemtime($fileB);
+        $origMtimeJs = filemtime($fileJs);
+
+        try {
+            // The token the enable_asset_timestamp flag produces on its own. Only
+            // this value is eligible to be replaced by a per-file mtime, so the
+            // assertions below use it rather than pinning one via setTimestamp().
+            $globalKey = $this->grav['cache']->getKey();
+
+            // Distinct, known mtimes for each fixture (not "now") so the assertions
+            // don't depend on filesystem timing/precision.
+            $mtimeA = time() - 3600;
+            $mtimeB = time() - 60;
+            touch($fileA, $mtimeA);
+            touch($fileB, $mtimeB);
+            clearstatcache(true, $fileA);
+            clearstatcache(true, $fileB);
+
+            // Exercise the real enable_asset_timestamp config flag (the actual
+            // trigger for #4049), not just a manually set token.
+            $this->assets->reset();
+            $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
+            $this->assets->config(['enable_asset_timestamp' => true]);
+
+            // Local, non-pipelined assets: each gets its own filemtime-derived
+            // token, not the shared global cache key.
+            $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
+            $css = $this->assets->css();
+            self::assertSame(
+                '<link href="/tests/unit/data/assets/timestamp-a.css?' . dechex($mtimeA) . '" type="text/css" rel="stylesheet">' . PHP_EOL,
+                $css
+            );
+
+            $this->assets->reset();
+            $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
+            $this->assets->config(['enable_asset_timestamp' => true]);
+            $this->assets->addCss('/tests/unit/data/assets/timestamp-b.css');
+            $css = $this->assets->css();
+            self::assertSame(
+                '<link href="/tests/unit/data/assets/timestamp-b.css?' . dechex($mtimeB) . '" type="text/css" rel="stylesheet">' . PHP_EOL,
+                $css
+            );
+
+            // Touching one file changes only its own token.
+            $mtimeANew = $mtimeA + 1800;
+            touch($fileA, $mtimeANew);
+            clearstatcache(true, $fileA);
+
+            $this->assets->reset();
+            $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
+            $this->assets->config(['enable_asset_timestamp' => true]);
+            $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
+            $css = $this->assets->css();
+            self::assertSame(
+                '<link href="/tests/unit/data/assets/timestamp-a.css?' . dechex($mtimeANew) . '" type="text/css" rel="stylesheet">' . PHP_EOL,
+                $css
+            );
+
+            // Stream-based local asset (e.g. theme://): goes through
+            // $locator->findResource() rather than GRAV_WEBROOT concatenation,
+            // and must be rewritten to its own mtime too.
+            $this->assets->reset();
+            $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
+            $this->assets->config(['enable_asset_timestamp' => true]);
+            $this->assets->addCss('tests://unit/data/assets/timestamp-a.css');
+            $css = $this->assets->css();
+            self::assertSame(
+                '<link href="/tests/unit/data/assets/timestamp-a.css?' . dechex($mtimeANew) . '" type="text/css" rel="stylesheet">' . PHP_EOL,
+                $css
+            );
+
+            // Local JS asset: addJs() goes through a different concrete asset
+            // class than addCss(), but must be rewritten the same way.
+            $mtimeJs = time() - 120;
+            touch($fileJs, $mtimeJs);
+            clearstatcache(true, $fileJs);
+
+            $this->assets->reset();
+            $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
+            $this->assets->config(['enable_asset_timestamp' => true]);
+            $this->assets->addJs('/tests/unit/data/assets/timestamp-a.js');
+            $js = $this->assets->js();
+            self::assertSame(
+                '<script src="/tests/unit/data/assets/timestamp-a.js?' . dechex($mtimeJs) . '"></script>' . PHP_EOL,
+                $js
+            );
+
+            // Remote assets have no local file to stat, so they keep the global
+            // cache key untouched.
+            $this->assets->reset();
+            $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
+            $this->assets->config(['enable_asset_timestamp' => true]);
+            $this->assets->addCss('http://somesite.com/test.css');
+            $css = $this->assets->css();
+            self::assertSame('<link href="http://somesite.com/test.css?' . $globalKey . '" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
+
+            // Pipelined assets: the *rendered* query string keeps using the
+            // global cache key (Pipeline::$timestamp, set from Assets::render()),
+            // regardless of the per-asset mtime rewrite above.
+            $this->assets->reset();
+            $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
+            $this->assets->config(['enable_asset_timestamp' => true]);
+            $this->assets->setCssPipeline(true);
+            $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
+            $css = $this->assets->css();
+            self::assertMatchesRegularExpression('#<link href="/assets/(.*)\.css\?' . preg_quote($globalKey, '#') . '" type="text/css" rel="stylesheet">#', $css);
+        } finally {
+            touch($fileA, $origMtimeA);
+            touch($fileB, $origMtimeB);
+            touch($fileJs, $origMtimeJs);
+            clearstatcache(true, $fileA);
+            clearstatcache(true, $fileB);
+            clearstatcache(true, $fileJs);
+        }
+    }
+
+    public function testManualTimestampPreservedWithoutConfigFlag(): void
+    {
+        // enable_asset_timestamp defaults to off. A caller-supplied token set
+        // via the public Assets::setTimestamp() API must not be silently
+        // overridden by the per-file mtime rewrite, since that rewrite is only
+        // meant to fire for the enable_asset_timestamp config path.
+        $this->assets->reset();
+        $this->assets->setTimestamp('v1.2.3');
+        $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
+        $css = $this->assets->css();
+        self::assertSame(
+            '<link href="/tests/unit/data/assets/timestamp-a.css?v1.2.3" type="text/css" rel="stylesheet">' . PHP_EOL,
+            $css
+        );
+    }
+
+    public function testManualTimestampWinsOverConfigFlag(): void
+    {
+        // With enable_asset_timestamp ON, a caller-supplied token still wins.
+        // setTimestamp() is how a CI/git deploy pins one release token across a
+        // fleet of servers; the per-file rewrite only ever replaces the token the
+        // flag generated for itself, so turning the flag on cannot silently strip
+        // an explicit choice with no way to opt back out.
+        $this->assets->reset();
+        $this->grav['config']->set('system.assets.enable_asset_timestamp', true);
+        $this->assets->config(['enable_asset_timestamp' => true]);
+        $this->assets->setTimestamp('v1.2.3');
+        $this->assets->addCss('/tests/unit/data/assets/timestamp-a.css');
+        $css = $this->assets->css();
+        self::assertSame(
+            '<link href="/tests/unit/data/assets/timestamp-a.css?v1.2.3" type="text/css" rel="stylesheet">' . PHP_EOL,
+            $css
+        );
+    }
+
     public function testAddInlineCss(): void
     {
         $this->assets->reset();

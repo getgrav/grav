@@ -104,6 +104,29 @@ trait MediaPlayerTrait
     }
 
     /**
+     * Normalize attributes for HTML audio and video elements.
+     *
+     * The generic media pipeline always provides an alt attribute, but alt is
+     * not valid on audio or video. Preserve non-empty alternative text as an
+     * accessible name unless the caller already provided one explicitly.
+     *
+     * @param array $attributes
+     * @return array
+     */
+    protected function normalizePlayerAttributes(array $attributes)
+    {
+        if (isset($attributes['alt'])) {
+            if ($attributes['alt'] !== '' && empty($attributes['aria-label'])) {
+                $attributes['aria-label'] = $attributes['alt'];
+            }
+
+            unset($attributes['alt']);
+        }
+
+        return $attributes;
+    }
+
+    /**
      * Reset player.
      */
     public function resetPlayer()

@@ -25,7 +25,10 @@ jobs:
     steps:
       - name: Trigger docker-grav build
         run: |
-          curl -X POST \
+          # --fail-with-body so an expired GLOBAL_TOKEN stops this job instead of
+          # letting it report success: plain curl treats a 401 as a completed
+          # request, so the dispatch silently never reaches docker-grav.
+          curl -X POST --fail-with-body --silent --show-error \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.GLOBAL_TOKEN }}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \

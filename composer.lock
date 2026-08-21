@@ -4094,12 +4094,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Twig.git",
-                "reference": "24d7a0e821cf573496d99e05d6bd9d1a42f822c7"
+                "reference": "5404489a74ba08c212fae5caee50a5a263798914"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Twig/zipball/24d7a0e821cf573496d99e05d6bd9d1a42f822c7",
-                "reference": "24d7a0e821cf573496d99e05d6bd9d1a42f822c7",
+                "url": "https://api.github.com/repos/getgrav/Twig/zipball/5404489a74ba08c212fae5caee50a5a263798914",
+                "reference": "5404489a74ba08c212fae5caee50a5a263798914",
                 "shasum": ""
             },
             "require": {
@@ -4160,7 +4160,7 @@
             "support": {
                 "source": "https://github.com/getgrav/Twig/tree/3.x"
             },
-            "time": "2026-05-20T12:11:09+00:00"
+            "time": "2026-08-14T19:41:46+00:00"
         },
         {
             "name": "willdurand/negotiation",

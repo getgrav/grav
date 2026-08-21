@@ -262,6 +262,21 @@ class SchedulerCommand extends GravCommand
                 $io->note("To $verb, run the following command from your terminal:");
                 $io->newLine();
                 $io->text(trim($scheduler->getCronCommand()));
+
+                // From the CLI the environment is 'cli', so the line above only carries --env when
+                // this command was itself given one. Point at the overrides that exist so nobody
+                // installs a cron that silently skips them (#4248).
+                if (null === $scheduler->getOverrideEnvironment()) {
+                    $environments = $this->findEnvironmentOverrides();
+                    if ($environments) {
+                        $io->newLine();
+                        $io->note(sprintf(
+                            'This site has environment overrides in user/env/ (%s). Settings and custom jobs defined only there are NOT loaded by the line above. Re-run with --env=<name>, for example "bin/grav scheduler --env=%s --install", to get a cron line that loads them, or export GRAV_ENVIRONMENT=<name> in the crontab.',
+                            implode(', ', $environments),
+                            $environments[0]
+                        ));
+                    }
+                }
             } else {
                 $io->note("To $verb, create a scheduled task in Windows.");
                 $io->text('Learn more at https://learn.getgrav.org/advanced/scheduler');
@@ -277,5 +292,26 @@ class SchedulerCommand extends GravCommand
         }
 
         return $error;
+    }
+
+    /**
+     * Names of the environments that have their own config folder (user/env/<name>/config).
+     *
+     * @return string[]
+     */
+    private function findEnvironmentOverrides(): array
+    {
+        $root = Grav::instance()['locator']->findResource('user://env', true);
+        if (!$root || !is_dir($root)) {
+            return [];
+        }
+
+        $names = [];
+        foreach (glob($root . '/*/config', GLOB_ONLYDIR) ?: [] as $dir) {
+            $names[] = basename(dirname($dir));
+        }
+        sort($names);
+
+        return $names;
     }
 }

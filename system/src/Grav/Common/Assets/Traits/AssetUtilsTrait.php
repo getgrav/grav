@@ -186,6 +186,27 @@ trait AssetUtilsTrait
     }
 
     /**
+     * Neutralise the attribute-breakout characters in an asset URL.
+     *
+     * The URL reaches the tag verbatim from init() for any remote asset, so a
+     * quote in it would close src="/href=" early and turn everything after into
+     * attributes on our own tag. Only the characters that can break out of, or
+     * inject into, a double-quoted attribute are escaped — the query-string `&`
+     * is deliberately left alone so a normal `?a=1&b=2` URL renders unchanged.
+     *
+     * @param string $url
+     * @return string
+     */
+    protected function escapeAssetUrl($url)
+    {
+        return str_replace(
+            ['"', "'", '<', '>'],
+            ['&quot;', '&#39;', '&lt;', '&gt;'],
+            (string) $url
+        );
+    }
+
+    /**
      * Render Querystring
      *
      * @param string|null $asset

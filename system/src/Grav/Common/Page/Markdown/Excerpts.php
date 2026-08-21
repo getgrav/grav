@@ -338,9 +338,38 @@ class Excerpts
         if (isset($url_parts['scheme'])) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
+            $is_registered_stream = $locator->schemeExists($url_parts['scheme']);
 
-            // Special handling for the streams.
-            if ($locator->schemeExists($url_parts['scheme'])) {
+            $rebuilt = $url_parts['scheme'] . ':' . ($url_parts['host'] ?? '') . ($url_parts['path'] ?? '');
+
+            if (
+                !$is_registered_stream
+                && strpos($url, '://') === false
+                && (
+                    !preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*$/', $url_parts['scheme'])
+                    || static::isLocalMediaFilename($rebuilt)
+                )
+            ) {
+                // parse_url() misreads a relative filename that merely contains a
+                // literal ':' (e.g. "2025-06-29T13:36:56.png") as a scheme:path
+                // split, because unlike RFC 3986 it allows a "scheme" to start
+                // with a digit. Two things mark such a "scheme" as untrusted, and
+                // either is enough (getgrav/grav#3933):
+                //
+                //   1. It fails RFC 3986 scheme grammar - a real scheme always
+                //      starts with a letter, so "2025-06-29T13" cannot be one.
+                //   2. The whole reference names a file we serve as media, e.g.
+                //      "note:2025.png" or "IMG:001.png". Grammar alone cannot
+                //      separate those from an unknown protocol, but no real
+                //      scheme carries a media extension on its path, whereas an
+                //      editor pasting a colon-named attachment is routine.
+                //
+                // Either way the reference matches no registered stream, so it is
+                // rebuilt as a plain path and resolved against the page's media.
+                $url_parts['path'] = $rebuilt;
+                unset($url_parts['scheme'], $url_parts['host'], $url_parts['port'], $url_parts['user'], $url_parts['pass']);
+            } elseif ($is_registered_stream) {
+                // Special handling for the streams.
                 if (isset($url_parts['host'])) {
                     // Merge host and path into a path.
                     $url_parts['path'] = $url_parts['host'] . (isset($url_parts['path']) ? '/' . $url_parts['path'] : '');
@@ -352,5 +381,34 @@ class Excerpts
         }
 
         return $url_parts;
+    }
+
+    /**
+     * Whether a colon-bearing reference names a file Grav serves as media.
+     *
+     * Used to recognise a filename such as `note:2025.png` that RFC 3986 scheme
+     * grammar cannot distinguish from an unknown protocol, since both are a
+     * letter-led token followed by a colon. Real schemes never carry a media
+     * extension on their path, so the extension is the disambiguator.
+     *
+     * The protocols Grav itself treats as external are excluded outright, so a
+     * `mailto:`/`tel:`/`git:` reference is never reinterpreted as a local file
+     * whatever it happens to end with.
+     *
+     * @param string $candidate Reference rebuilt as a plain path.
+     * @return bool
+     */
+    protected static function isLocalMediaFilename(string $candidate): bool
+    {
+        if (Uri::isExternal($candidate) || str_starts_with($candidate, 'data:')) {
+            return false;
+        }
+
+        $extension = strtolower(Utils::pathinfo($candidate, PATHINFO_EXTENSION) ?: '');
+        if ($extension === '') {
+            return false;
+        }
+
+        return (bool) Grav::instance()['config']->get('media.types.' . $extension);
     }
 }

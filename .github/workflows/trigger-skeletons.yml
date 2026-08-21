@@ -25,24 +25,47 @@ jobs:
       - uses: actions/checkout@v7
       - name: Make it rain ☔️
         run: |
-          SKELETONS=`curl -s "${{secrets.SKELETONS_JSON_LIST}}"`
-          echo "$SKELETONS" | jq -cr '.[]' | while read SKELETON; do
+          SKELETONS=$(curl --fail-with-body --silent --show-error "${{secrets.SKELETONS_JSON_LIST}}")
+          if ! echo "$SKELETONS" | jq -e 'type == "array" and length > 0' > /dev/null; then
+            echo "::error::Skeleton list is empty or is not a JSON array — dispatching nothing"
+            exit 1
+          fi
+
+          failed=0
+
+          # Fed by process substitution rather than a pipe: a `while` loop on the
+          # right-hand side of a pipe runs in a subshell, so the failure count
+          # would be discarded when the loop ends.
+          while read -r SKELETON; do
             KEY=$(echo "$SKELETON" | jq -cr 'keys[0]')
             VERSION=$(echo "$SKELETON" | jq -cr '.[]')
             URL="https://api.github.com/repos/${KEY}/actions/workflows/${WORKFLOW}/dispatches"
 
-            curl -X POST \
-            -u "${AUTH}" \
-            -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Content-Type: application/json" \
-            -sS \
-            ${URL} \
-            --data '{ "ref": "develop", 
-                      "inputs": { 
-                        "tag": "'"$VERSION"'", 
-                        "version": "'"$INPUT_VERSION"'", 
-                        "admin": "'"$INPUT_ADMIN"'" 
-                      } 
-                    }' > /dev/null
-            echo "Dispatched Worfklow for ${KEY}@$VERSION"
-          done
+            # One rejected repo must not hide the two dozen that follow it, so a
+            # failure is recorded and the loop carries on; the step fails at the
+            # end with a count. --fail-with-body is what makes a rejection visible
+            # at all: plain curl treats a 401 as a completed request, so a dead
+            # GLOBAL_TOKEN used to report every skeleton as dispatched.
+            if curl -X POST --fail-with-body --silent --show-error \
+              -u "${AUTH}" \
+              -H "Accept: application/vnd.github.everest-preview+json" \
+              -H "Content-Type: application/json" \
+              "${URL}" \
+              --data '{ "ref": "develop",
+                        "inputs": {
+                          "tag": "'"$VERSION"'",
+                          "version": "'"$INPUT_VERSION"'",
+                          "admin": "'"$INPUT_ADMIN"'"
+                        }
+                      }'; then
+              echo "Dispatched workflow for ${KEY}@${VERSION}"
+            else
+              echo "::error::Dispatch failed for ${KEY}@${VERSION}"
+              failed=$((failed + 1))
+            fi
+          done < <(echo "$SKELETONS" | jq -cr '.[]')
+
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::${failed} skeleton dispatch(es) failed"
+            exit 1
+          fi

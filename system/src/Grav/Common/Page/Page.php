@@ -2100,7 +2100,10 @@ class Page implements PageInterface
     /**
      * Gets the url for the Page.
      *
-     * @param bool $include_host Defaults false, but true would include http://yourhost.com
+     * @param bool $include_host Defaults false, but true would include http://yourhost.com.
+     *                            Ignored when $canonical is true and routes.canonical is an
+     *                            absolute URL: that names a different origin outright, so
+     *                            there is no meaningful host-less form of it to return.
      * @param bool $canonical    True to return the canonical URL
      * @param bool $include_base Include base url on multisite as well as language code
      * @param bool $raw_route
@@ -2130,7 +2133,12 @@ class Page implements PageInterface
         }
 
         if ($canonical) {
-            $route .= $this->routeCanonical();
+            $routeCanonical = $this->routeCanonical();
+            if (is_string($routeCanonical) && Uri::isExternal($routeCanonical)) {
+                return $routeCanonical;
+            }
+
+            $route .= $routeCanonical;
         } elseif ($raw_route) {
             $route .= $this->rawRoute();
         } else {

@@ -44,6 +44,6 @@ class JsModule extends BaseAsset
             return '<script' . $this->renderAttributes() . ">\n" . trim($buffer) . "\n</script>\n";
         }
 
-        return '<script src="' . trim($this->asset) . $this->renderQueryString() . '"' . $this->renderAttributes() . $this->integrityHash($this->asset) . "></script>\n";
+        return '<script src="' . $this->escapeAssetUrl(trim($this->asset) . $this->renderQueryString()) . '"' . $this->renderAttributes() . $this->integrityHash($this->asset) . "></script>\n";
     }
 }

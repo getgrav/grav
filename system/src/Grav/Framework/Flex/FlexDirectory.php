@@ -865,7 +865,17 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     protected function getBlueprintInternal(string $type_view = '', string $context = '')
     {
-        if (!isset($this->blueprints[$type_view])) {
+        // The flex-objects plugin contributes its own fields only in admin scope,
+        // and during an API request the admin proxy is not registered until
+        // routing. Anything that reaches a directory before that -- permission
+        // registration does, by way of getConfig() -- would otherwise freeze the
+        // un-merged blueprint here for the rest of the request, silently dropping
+        // every field the plugin adds. Cache the two scopes separately.
+        // (getgrav/grav-plugin-admin2#160)
+        $isAdmin = isset(Grav::instance()['admin']);
+        $cacheKey = $isAdmin ? $type_view . "\0admin" : $type_view;
+
+        if (!isset($this->blueprints[$cacheKey])) {
             if (!file_exists($this->blueprint_file)) {
                 throw new RuntimeException(sprintf('Flex: Blueprint file for %s is missing', $this->type));
             }
@@ -890,15 +900,15 @@ class FlexDirectory implements FlexDirectoryInterface
             }
 
             $blueprint->load($type ?: null);
-            if ($blueprint->get('type') === 'flex-objects' && isset(Grav::instance()['admin'])) {
+            if ($isAdmin && $blueprint->get('type') === 'flex-objects') {
                 $blueprintBase = (new Blueprint('plugin://flex-objects/blueprints/flex-objects.yaml'))->load();
                 $blueprint->extend($blueprintBase, true);
             }
 
-            $this->blueprints[$type_view] = $blueprint;
+            $this->blueprints[$cacheKey] = $blueprint;
         }
 
-        return $this->blueprints[$type_view];
+        return $this->blueprints[$cacheKey];
     }
 
     /**

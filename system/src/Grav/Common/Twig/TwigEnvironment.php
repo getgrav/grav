@@ -49,7 +49,7 @@ class TwigEnvironment extends Environment
                         $this->env = $env;
                     }
 
-                    public function setEscaper($strategy, $callable)
+                    public function setEscaper($strategy, callable $callable): void
                     {
                         $this->env->getRuntime(EscaperRuntime::class)->setEscaper($strategy, $callable);
                     }
