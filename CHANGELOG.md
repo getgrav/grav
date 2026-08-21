@@ -1,5 +1,5 @@
 # v2.0.20
-## 08/15/2026
+## 08/21/2026
 
 1. [](#improved)
     * Updated the bundled Twig fork to the current 3.x, picking up the correctness and sandbox improvements from the 3.27 and 3.28 releases.
