@@ -43,6 +43,7 @@ trait AudioMediaTrait
     protected function sourceParsedownElement(array $attributes, $reset = true)
     {
         $location = $this->url($reset);
+        $attributes = $this->normalizePlayerAttributes($attributes);
 
         return [
             'name' => 'audio',
