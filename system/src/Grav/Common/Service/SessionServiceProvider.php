@@ -11,6 +11,7 @@ namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
+use Grav\Common\Inflector;
 use Grav\Common\Security;
 use Grav\Common\Session;
 use Grav\Common\Uri;
@@ -86,7 +87,7 @@ class SessionServiceProvider implements ServiceProviderInterface
                 $cookie_lifetime = 9999999999;
             }
 
-            $session_prefix = $c['inflector']->hyphenize($config->get('system.session.name', 'grav-site'));
+            $session_prefix = static::resolveSessionPrefix($c['inflector'], (string) $config->get('system.session.name', 'grav-site'));
             $session_uniqueness = $config->get('system.session.uniqueness', 'path') === 'path' ?  substr(md5(GRAV_ROOT), 0, 7) :  md5(Security::getNonceKey());
 
             $session_name = $session_prefix . '-' . $session_uniqueness;
@@ -131,5 +132,31 @@ class SessionServiceProvider implements ServiceProviderInterface
 
             return $session->messages;
         };
+    }
+
+    /**
+     * Resolves the configured session name into a session cookie name prefix.
+     *
+     * If the configured name is already a valid cookie name (RFC 6265 / RFC 2616 token), it is
+     * used as-is. This preserves cookie name prefixes such as `__Secure-` and `__Host-`, which
+     * browsers only honor on exact, case-sensitive, unmodified cookie names. Otherwise the name
+     * is hyphenized to strip out invalid characters.
+     *
+     * @param Inflector $inflector
+     * @param string $name
+     * @return string
+     */
+    public static function resolveSessionPrefix(Inflector $inflector, string $name): string
+    {
+        return static::isValidCookieName($name) ? $name : $inflector->hyphenize($name);
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    private static function isValidCookieName(string $name): bool
+    {
+        return $name !== '' && (bool) preg_match('/^[!#$%&\'*+\-.^_`|~0-9A-Za-z]+$/', $name);
     }
 }
