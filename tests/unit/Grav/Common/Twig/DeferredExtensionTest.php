@@ -125,9 +125,11 @@ class DeferredExtensionTest extends \PHPUnit\Framework\TestCase
 
     public function testDeferredBlockInsideConditionalChildOverrideRenders(): void
     {
-        // Exercises the Grav-specific Parser::filterBodyNodes() patch that
-        // treats IfNode as "transparent" for block-definition nesting,
-        // so that a child can re-declare a parent's block from inside {% if %}.
+        // Exercises the Grav-specific Parser::cleanupTransparentBodyNodes()
+        // patch that treats IfNode as "transparent" for block-definition
+        // nesting, so that a child can re-declare a parent's block from
+        // inside {% if %}. Here the `if` is one node among others at the root
+        // of the child; see the sibling test for the whole-body shape.
         $parent = <<<'TWIG'
         <head>{% block head deferred %}default{% endblock %}</head>
         <body>{{ assets.add('/x.css') }}{% block body %}b{% endblock %}</body>
@@ -147,6 +149,43 @@ class DeferredExtensionTest extends \PHPUnit\Framework\TestCase
         $out = $env->render('child.twig');
 
         self::assertStringContainsString('<links><link rel="stylesheet" href="/x.css"></links>', $out);
+        // The definition must not ALSO render where it was declared.
+        self::assertSame(1, substr_count($out, '<links>'));
+    }
+
+    /**
+     * Regression coverage for getgrav/grav#4256.
+     *
+     * The child wraps its whole body — the `extends` tag included — in a
+     * single `{% if %}`, the shape the form plugin's field template uses. The
+     * body cleanup used to miss that case, so the deferred definition was
+     * rendered where it was declared as well as in the parent's slot, ahead of
+     * even the `<head>` the parent opens with.
+     */
+    public function testDeferredBlockUnderAnIfWrappingTheWholeChildBody(): void
+    {
+        $parent = <<<'TWIG'
+        <head>{% block head deferred %}DEFAULT{% endblock %}</head><body>{{ assets.add('/x.css') }}{% block body %}b{% endblock %}</body>
+        TWIG;
+
+        $child = <<<'TWIG'
+        {% if true %}
+        {% extends 'parent.twig' %}
+        {% block head deferred %}<links>{{ assets.render() }}</links>{% endblock %}
+        {% endif %}
+        TWIG;
+
+        $env = $this->env(
+            ['parent.twig' => $parent, 'child.twig' => $child],
+            ['assets' => $this->assets()]
+        );
+        $out = $env->render('child.twig');
+
+        self::assertSame(
+            '<head><links><link rel="stylesheet" href="/x.css"></links></head><body>b</body>',
+            trim($out)
+        );
+        self::assertStringNotContainsString('DEFAULT', $out);
     }
 
     public function testChildOverridesDeferredParentBlock(): void

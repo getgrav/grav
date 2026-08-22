@@ -1,3 +1,10 @@
+# v2.0.21
+## 08/22/2026
+
+1. [](#bugfix)
+    * Form fields no longer print their HTML attributes as text above the field, a problem the Twig update in 2.0.20 introduced on every form [#4256](https://github.com/getgrav/grav/issues/4256)
+    * A custom text escaper registered by a plugin now works again, instead of stopping the page with an error the first time a template used it
+
 # v2.0.20
 ## 08/21/2026
 

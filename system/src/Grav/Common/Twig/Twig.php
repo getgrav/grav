@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Twig;
 
+use Closure;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Config\Config;
@@ -28,6 +29,8 @@ use Grav\Common\Twig\Extension\GravExtension;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
+use ReflectionException;
+use ReflectionFunction;
 use RuntimeException;
 use Twig\Cache\FilesystemCache;
 use Twig\DeferredExtension\DeferredExtension;
@@ -891,14 +894,26 @@ class Twig
      * - Twig 2.x/3.x (< 3.9): Uses EscaperExtension::setEscaper()
      * - Twig 3.9+: Uses EscaperRuntime::setEscaper()
      *
+     * The callable may take either the historic Grav signature,
+     * function($twig, $string, $charset), or the Twig 3.9+ runtime signature,
+     * function($string, $charset). Both keep working wherever this runs.
+     *
      * @param string $strategy The escaper strategy name (e.g., 'yaml', 'json')
-     * @param callable $callable The escaper callable: function($twig, $string, $charset)
+     * @param callable $callable The escaper callable
      * @return void
      */
     public function setEscaper(string $strategy, callable $callable): void
     {
-        // Twig 3.9+ moved setEscaper to EscaperRuntime
+        // Twig 3.9+ moved setEscaper to EscaperRuntime, which calls the escaper
+        // with ($string, $charset) and not the ($twig, $string, $charset) this
+        // method has always documented. Adapt rather than break the callers.
         if (class_exists(EscaperRuntime::class)) {
+            $twig = $this->twig;
+            if ($this->escaperExpectsEnvironment($callable)) {
+                $original = $callable;
+                $callable = static fn ($string, $charset) => $original($twig, $string, $charset);
+            }
+
             $this->twig->getRuntime(EscaperRuntime::class)->setEscaper($strategy, $callable);
             return;
         }
@@ -911,6 +926,25 @@ class Twig
 
         // Twig 1.x fallback (uses CoreExtension)
         $this->twig->getExtension(CoreExtension::class)->setEscaper($strategy, $callable);
+    }
+
+    /**
+     * Whether an escaper callable takes the Twig environment as its first
+     * argument. Anything declaring three or more parameters does; two-parameter
+     * and variadic callables are passed straight through.
+     *
+     * @param callable $callable
+     * @return bool
+     */
+    protected function escaperExpectsEnvironment(callable $callable): bool
+    {
+        try {
+            $reflection = new ReflectionFunction(Closure::fromCallable($callable));
+        } catch (ReflectionException $e) {
+            return false;
+        }
+
+        return $reflection->getNumberOfParameters() >= 3;
     }
 
 }
