@@ -270,6 +270,36 @@ class PagesTest extends \PHPUnit\Framework\TestCase
         }
     }
 
+    public function testOfTypeAndNotOfType(): void
+    {
+        $all = $this->pages->all();
+        $templates = [];
+        foreach ($all as $page) {
+            $templates[$page->template()] = true;
+        }
+        self::assertArrayHasKey('blog', $templates);
+
+        $blogOnly = $this->pages->all()->ofType('blog');
+        foreach ($blogOnly as $page) {
+            self::assertSame('blog', $page->template());
+        }
+        self::assertGreaterThan(0, count($blogOnly->toArray()));
+
+        $withoutBlog = $this->pages->all()->notOfType('blog');
+        foreach ($withoutBlog as $page) {
+            self::assertNotSame('blog', $page->template());
+        }
+        self::assertSame(
+            count($all->toArray()),
+            count($blogOnly->toArray()) + count($withoutBlog->toArray())
+        );
+
+        $withoutBlogOrDefault = $this->pages->all()->notOfType(['blog', 'default']);
+        foreach ($withoutBlogOrDefault as $page) {
+            self::assertNotContains($page->template(), ['blog', 'default']);
+        }
+    }
+
     public function testGetList(): void
     {
         $list = $this->pages->getList();

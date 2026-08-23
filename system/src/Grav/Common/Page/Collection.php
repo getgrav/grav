@@ -634,6 +634,29 @@ class Collection extends Iterator implements PageCollectionInterface
     }
 
     /**
+     * Creates new collection excluding pages of the specified type(s)
+     *
+     * @param string|string[] $type
+     * @return Collection The collection
+     */
+    public function notOfType($type)
+    {
+        $items = [];
+        $types = (array) $type;
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page !== null && !in_array($page->template(), $types, true)) {
+                $items[$path] = $slug;
+            }
+        }
+
+        $this->items = $items;
+
+        return $this;
+    }
+
+    /**
      * Creates new collection with only pages of one of the specified access levels
      *
      * @param array $accessLevels
