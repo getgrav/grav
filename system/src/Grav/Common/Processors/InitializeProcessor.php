@@ -424,6 +424,15 @@ class InitializeProcessor extends ProcessorBase
         $path = $uri->getPath() ?: '/';
         $root = $this->container['uri']->rootUrl();
 
+        // When system.custom_base_url is set behind a proxy that strips the custom
+        // path segment before it reaches PHP, the raw request path won't include it,
+        // even though external URLs (and the redirect target) must. Restore it so the
+        // redirect doesn't drop the custom base path.
+        if ($root !== '' && $root !== '/' && !Utils::startsWith($path, $root)) {
+            $path = $root . $path;
+            $uri = $uri->withPath($path);
+        }
+
         if ($path !== $root && $path !== $root . '/' && Utils::endsWith($path, '/')) {
             // Use permanent redirect for SEO reasons.
             return $this->container->getRedirectResponse((string)$uri->withPath(rtrim($path, '/')), $code);
