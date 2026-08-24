@@ -435,12 +435,52 @@ class InitializeProcessor extends ProcessorBase
         $path = $uri->getPath() ?: '/';
         $root = $this->container['uri']->rootUrl();
 
+        // The raw PSR-7 path is the path PHP was reached at, which is not necessarily
+        // the URL the visitor typed. With `system.custom_base_url` the public base can
+        // differ from the physical one, and behind a proxy that strips the base before
+        // forwarding, the request carries no base at all -- so building the redirect
+        // target from the raw path drops it and sends visitors outside the site (#3822).
+        //
+        // Uri has already resolved this: `init()` maps the physical base onto the public
+        // one, so `uri(true)` is the public path. Prefer it, and only prepend the base
+        // when it genuinely is not there -- prepending onto an already-remapped path
+        // would double it up.
+        if ($root !== '' && $root !== '/' && str_starts_with($root, '/')) {
+            $publicPath = explode('?', $this->container['uri']->uri(true), 2)[0] ?: '/';
+
+            if (!static::pathHasBase($publicPath, $root)) {
+                $publicPath = rtrim($root, '/') . $publicPath;
+            }
+
+            $path = $publicPath;
+            $uri = $uri->withPath($path);
+        }
+
         if ($path !== $root && $path !== $root . '/' && Utils::endsWith($path, '/')) {
             // Use permanent redirect for SEO reasons.
             return $this->container->getRedirectResponse((string)$uri->withPath(rtrim($path, '/')), $code);
         }
 
         return null;
+    }
+
+    /**
+     * Does `$path` lie at, or under, the base path `$base`?
+     *
+     * Compares whole path segments rather than raw text. A plain prefix test would
+     * report `/subscribe` as already being under a base of `/sub`, which silently
+     * skips restoring the base for every page whose first segment merely starts with
+     * the same letters -- the original bug, still present but only on those routes.
+     *
+     * @param string $path
+     * @param string $base
+     * @return bool
+     */
+    protected static function pathHasBase(string $path, string $base): bool
+    {
+        $base = rtrim($base, '/');
+
+        return $path === $base || str_starts_with($path, $base . '/');
     }
 
     /**
