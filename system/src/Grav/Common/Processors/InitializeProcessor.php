@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Processors;
 
+use Grav\Common\Config\CompiledBase;
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Errors\Errors;
@@ -29,6 +30,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Throwable;
 use function defined;
 use function in_array;
 
@@ -188,8 +190,17 @@ class InitializeProcessor extends ProcessorBase
                 ];
                 $config->set('versions', $versions);
 
-                $file = new YamlFile($filename, new YamlFormatter(['inline' => 4]));
-                $file->save($versions);
+                // Non-fatal: the value is already set in memory for this request
+                // and the write is retried on the next one. A read-only
+                // user/config must not be able to take the site down here, before
+                // the logger, the error handler and the Problems plugin exist to
+                // report it. (#3688, same window as #4260)
+                try {
+                    $file = new YamlFile($filename, new YamlFormatter(['inline' => 4]));
+                    $file->save($versions);
+                } catch (Throwable $e) {
+                    CompiledBase::logCacheWriteFailure($filename, $e->getMessage());
+                }
             }
         }
 

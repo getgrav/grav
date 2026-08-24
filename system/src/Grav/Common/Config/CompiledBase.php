@@ -11,8 +11,10 @@ namespace Grav\Common\Config;
 
 use BadMethodCallException;
 use Exception;
+use Grav\Common\Grav;
 use RocketTheme\Toolbox\File\PhpFile;
 use RuntimeException;
+use Throwable;
 use function filter_var;
 use function function_exists;
 use function get_class;
@@ -228,7 +230,6 @@ abstract class CompiledBase
      *
      * @param  string  $filename
      * @return void
-     * @throws RuntimeException
      * @internal
      */
     protected function saveCompiledFile($filename)
@@ -255,14 +256,73 @@ abstract class CompiledBase
             'data' => $this->getState()
         ];
 
-        $file->save($cache);
-        $file->unlock();
+        // The compiled file is a cache and can always be rebuilt from the source
+        // YAML. If it cannot be written we serve the request from the freshly
+        // parsed files instead of taking the whole site down: this runs during
+        // config init, before the logger, the error handler and the Problems
+        // plugin exist, so an exception here 500s every route including /admin
+        // and leaves no in-browser way back. (#4260)
+        try {
+            $file->save($cache);
+            $file->unlock();
 
-        $this->preloadOpcodeCache($file);
+            $this->preloadOpcodeCache($file);
 
-        $file->free();
+            $file->free();
 
-        $this->modified();
+            $this->modified();
+        } catch (Throwable $e) {
+            static::logCacheWriteFailure($filename, $e->getMessage());
+
+            $file->unlock();
+            $file->free();
+        }
+    }
+
+    /**
+     * Record that a compiled cache file could not be written and that the request
+     * is being served uncached.
+     *
+     * Degrading is the right behaviour, but doing it silently hides what is
+     * almost always a directory permission problem, so name the directory and say
+     * what is wrong with it. The logger is resolved defensively and the whole
+     * call is guarded, so reporting a degraded cache can never itself become the
+     * fatal we are recovering from.
+     *
+     * @param string $filename Cache file that could not be written.
+     * @param string $reason   Failure reported by the writer.
+     * @return void
+     */
+    public static function logCacheWriteFailure(string $filename, string $reason): void
+    {
+        $dir = dirname($filename);
+        if (!is_dir($dir)) {
+            $hint = sprintf('the directory %s does not exist', $dir);
+        } elseif (!is_writable($dir)) {
+            $hint = sprintf('the directory %s is not writable by the web server user', $dir);
+        } else {
+            $hint = sprintf('the directory %s is writable, so the file itself may be owned by another user', $dir);
+        }
+
+        $message = sprintf(
+            'Could not write compiled cache %s (%s) - %s. Serving this request uncached.',
+            $filename,
+            $reason,
+            $hint
+        );
+
+        try {
+            $log = Grav::instance()['log'] ?? null;
+            if ($log) {
+                $log->warning($message);
+
+                return;
+            }
+        } catch (Throwable) {
+            // Logging is best-effort: never let it mask the recovery it reports.
+        }
+
+        error_log('Grav: ' . $message);
     }
 
     /**
