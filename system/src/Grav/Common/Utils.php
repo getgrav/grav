@@ -37,7 +37,11 @@ use function in_array;
 use function is_array;
 use function is_callable;
 use function is_string;
+use function str_contains;
+use function str_starts_with;
+use function strcspn;
 use function strlen;
+use function substr;
 
 /**
  * Class Utils
@@ -56,11 +60,14 @@ abstract class Utils
      * Simple helper method to make getting a Grav URL easier
      *
      * @param string|object $input
-     * @param bool $domain
-     * @param bool $fail_gracefully
+     * @param bool $domain Include the hostname in the returned URL.
+     * @param bool $fail_gracefully Return a best-effort URL instead of `false` when the target cannot be resolved.
+     * @param string|bool|null $lang Language prefix for path input. `null`/`false` keeps the URL language-neutral,
+     *                               which is what asset URLs need; `true` uses the active language; a language code
+     *                               such as `'de'` uses that language. Streams and external URLs are never prefixed.
      * @return string|false
      */
-    public static function url($input, $domain = false, $fail_gracefully = false)
+    public static function url($input, $domain = false, $fail_gracefully = false, $lang = null)
     {
         if ((!is_string($input) && !is_callable([$input, '__toString'])) || !trim($input)) {
             if ($fail_gracefully) {
@@ -82,7 +89,8 @@ abstract class Utils
         $uri = $grav['uri'];
 
         $resource = false;
-        if (static::contains((string)$input, '://')) {
+        $prefix = '';
+        if (str_contains($input, '://')) {
             // Url contains a scheme (https:// , user:// etc).
             /** @var UniformResourceLocator $locator */
             $locator = $grav['locator'];
@@ -136,22 +144,39 @@ abstract class Utils
             }
         } else {
             // Just a path.
-            /** @var Pages $pages */
-            $pages = $grav['pages'];
-
-            // Is this a page?
-            $page = $pages->find($input, true);
-            if ($page && $page->routable()) {
-                return $page->url($domain);
+            //
+            // Strip the Grav root before anything else. Routes never carry it, so doing this first is both what
+            // lets `/subdir/blog` resolve to the `blog` page on a subfolder install, and cheaper than the old
+            // preg_quote()/preg_match() pair that ran on every call.
+            $root = $uri->rootUrl();
+            if ($root !== '' && str_starts_with($input, $root)) {
+                $rest = substr($input, strlen($root));
+                // Only strip on a segment boundary, otherwise `/subdir2/sub` loses its `/subdir` prefix. The old
+                // pattern was unanchored, so `/images/subdir/foo.png` had its middle segment cut out instead.
+                if ($rest === '' || $rest[0] === '/') {
+                    $input = $rest;
+                }
             }
 
-            $root = preg_quote($uri->rootUrl(), '#');
-            $pattern = '#(' . $root . '$|' . $root . '/)#';
-            if (!empty($root) && preg_match($pattern, $input, $matches)) {
-                $input = static::replaceFirstOccurrence($matches[0], '', $input);
+            // Only an absolute path can be a page route: routes are always stored with a leading slash, so the
+            // lookup could never match for a relative path, which is resolved from the Grav root instead. Asset
+            // URLs dominate a render and are mostly relative, so skipping the miss is worth the check.
+            if ($input !== '' && $input[0] === '/') {
+                // Split off any query string or fragment so `/blog?page=2` and `/blog#intro` still resolve to the
+                // `blog` page instead of silently falling through to a raw, language-less path.
+                $split = strcspn($input, '?#');
+                $route = substr($input, 0, $split);
+
+                /** @var Pages $pages */
+                $pages = $grav['pages'];
+
+                $page = $pages->find($route, true);
+                if ($page && $page->routable()) {
+                    return static::pageUrl($page, $domain, $lang) . substr($input, $split);
+                }
             }
 
-            $input = ltrim($input, '/');
+            $prefix = static::languagePrefix($lang);
             $resource = $input;
         }
 
@@ -161,7 +186,70 @@ abstract class Utils
 
         $domain = $domain ?: $grav['config']->get('system.absolute_urls', false);
 
-        return rtrim($uri->rootUrl($domain), '/') . '/' . ($resource ?: '');
+        return rtrim($uri->rootUrl($domain), '/') . $prefix . '/' . ltrim((string)($resource ?: ''), '/');
+    }
+
+    /**
+     * Build the URL for a resolved page, honouring an explicitly requested language.
+     *
+     * `Page::url()` always uses the active language, so it can answer everything except a caller that asked for a
+     * specific one. Note that only the language *prefix* is switched here: the route itself is still the active
+     * language's slug, same as `Pages::url($route, $lang)`.
+     *
+     * @param PageInterface $page
+     * @param bool $domain
+     * @param string|bool|null $lang
+     * @return string
+     */
+    protected static function pageUrl($page, $domain, $lang)
+    {
+        if (!is_string($lang)) {
+            // No specific language asked for: Page::url() already uses the active one.
+            return $page->url($domain);
+        }
+
+        // `external_url` overrides site routing entirely, exactly as Page::url() does. Read it from the header
+        // rather than testing the built URL, which would also match a site URL under `system.absolute_urls`.
+        $header = $page->header();
+        $external = is_object($header) ? ($header->external_url ?? null) : null;
+        if ($external) {
+            return trim((string)$external);
+        }
+
+        $grav = Grav::instance();
+
+        /** @var Pages $pages */
+        $pages = $grav['pages'];
+
+        /** @var Uri $uri */
+        $uri = $grav['uri'];
+
+        $domain = $domain ?: $grav['config']->get('system.absolute_urls', false);
+        $route = $pages->baseRoute($lang) . $page->route();
+
+        return Uri::filterPath($uri->rootUrl($domain) . '/' . trim((string)$route, '/') . $page->urlExtension());
+    }
+
+    /**
+     * Resolve the language prefix to prepend to a non-page path.
+     *
+     * Defaults to no prefix, because the plain-path branch of `url()` is what asset URLs go through and those must
+     * stay language-neutral. Callers linking to a language-sensitive route that isn't a page (a plugin route such
+     * as `/search`, a form action) opt in with `$lang`.
+     *
+     * @param string|bool|null $lang
+     * @return string
+     */
+    protected static function languagePrefix($lang)
+    {
+        if ($lang === null || $lang === false) {
+            return '';
+        }
+
+        /** @var Pages $pages */
+        $pages = Grav::instance()['pages'];
+
+        return $pages->baseRoute(is_string($lang) ? $lang : null);
     }
 
     /**

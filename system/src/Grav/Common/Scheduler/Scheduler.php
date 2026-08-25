@@ -540,11 +540,23 @@ class Scheduler
 
         if ($process->isSuccessful()) {
             $output = $process->getOutput();
-            // Match with or without a trailing --env, so an older crontab line still counts as installed.
-            $command = str_replace('/', '\/', $this->getSchedulerCommand('.*', false));
-            $full_command = '/^(?!#).* .* .* .* .* ' . $command . '/m';
 
-            return  preg_match($full_command, $output) ? 1 : 0;
+            // Recognise any crontab line that actually runs the scheduler, not only the
+            // exact string getCronCommand() emits. A hand-written entry -- or one written
+            // by a Docker image or a control panel -- is commonly spelled `&&` rather than
+            // `;`, spaced differently, or given an absolute path to bin/grav with no `cd`
+            // at all, and every one of those works fine while the old exact match reported
+            // "cron is not set up". Anchored on the repository root plus `bin/grav
+            // scheduler` so another site's entry in the same crontab still does not count.
+            $root = preg_quote(rtrim(GRAV_ROOT, '/'), '/');
+            $full_command = '/^(?!#).*\s' . $root . '(?:\/|\\\\ |;|\s|&).*bin\/grav\s+scheduler\b/m';
+
+            if (preg_match($full_command, $output)) {
+                return 1;
+            }
+
+            // Also accept an absolute `<root>/bin/grav scheduler` with no `cd` prefix.
+            return preg_match('/^(?!#).*\s' . $root . '\/bin\/grav\s+scheduler\b/m', $output) ? 1 : 0;
         }
 
         $error = $process->getErrorOutput();

@@ -1,0 +1,319 @@
+<?php
+
+use Codeception\Util\Fixtures;
+use Grav\Common\Config\Config;
+use Grav\Common\Grav;
+use Grav\Common\Processors\InitializeProcessor;
+use Grav\Common\Uri;
+use Nyholm\Psr7\ServerRequest;
+
+/**
+ * Class InitializeProcessorTest
+ *
+ * Covers the trailing-slash redirect, and specifically what it does to the redirect
+ * target when `system.custom_base_url` is configured (#3822).
+ *
+ * The overwhelming majority of sites set no custom base at all, so the first thing
+ * every scenario here establishes is what that case does -- a change to this code path
+ * that altered ordinary installs would be far worse than the bug it fixes.
+ */
+class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
+{
+    /** @var Grav */
+    protected $grav;
+    /** @var Config */
+    protected $config;
+    /** @var Uri */
+    protected $uri;
+    /** @var string|null */
+    protected $originalCustomBaseUrl;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $grav = Fixtures::get('grav');
+        /** @var Grav $grav */
+        $this->grav = $grav();
+        $this->config = $this->grav['config'];
+        $this->uri = $this->grav['uri'];
+
+        $this->originalCustomBaseUrl = $this->config->get('system.custom_base_url');
+    }
+
+    protected function tearDown(): void
+    {
+        // These tests mutate shared singletons (config + the Uri instance), so put the
+        // configured base back whatever happens, including on a failed assertion.
+        $this->config->set('system.custom_base_url', $this->originalCustomBaseUrl);
+        $this->uri->initializeWithUrl('http://localhost/')->init();
+
+        parent::tearDown();
+    }
+
+    /**
+     * Drive the real `handleRedirectRequest()`.
+     *
+     * @param string|null $customBaseUrl What `system.custom_base_url` is set to.
+     * @param string      $physicalUrl   The URL as it actually reaches PHP.
+     * @param string|null $rootPath      Physical root path, when it differs from the public one.
+     * @return string|null               The Location header, or null when no redirect is issued.
+     */
+    protected function redirectLocation(?string $customBaseUrl, string $physicalUrl, ?string $rootPath = null): ?string
+    {
+        $this->config->set('system.custom_base_url', $customBaseUrl);
+
+        if ($rootPath !== null) {
+            $this->uri->initializeWithUrlAndRootPath($physicalUrl, $rootPath)->init();
+        } else {
+            $this->uri->initializeWithUrl($physicalUrl)->init();
+        }
+
+        $processor = new InitializeProcessor($this->grav);
+        $method = new ReflectionMethod($processor, 'handleRedirectRequest');
+        $method->setAccessible(true);
+
+        $response = $method->invoke($processor, new ServerRequest('GET', $physicalUrl), 302);
+
+        return $response ? $response->getHeaderLine('Location') : null;
+    }
+
+    /* ------------------------------------------------------------------ *
+     * No custom base: the ordinary install. Nothing here may change.
+     * ------------------------------------------------------------------ */
+
+    public function testDocrootInstallStripsTrailingSlash(): void
+    {
+        self::assertSame(
+            'http://localhost/page1',
+            $this->redirectLocation(null, 'http://localhost/page1/')
+        );
+    }
+
+    public function testDocrootInstallLeavesAPathWithoutTrailingSlashAlone(): void
+    {
+        self::assertNull($this->redirectLocation(null, 'http://localhost/page1'));
+    }
+
+    public function testDocrootInstallDoesNotRedirectTheHomepage(): void
+    {
+        self::assertNull($this->redirectLocation(null, 'http://localhost/'));
+    }
+
+    public function testDocrootInstallHandlesNestedPaths(): void
+    {
+        self::assertSame(
+            'http://localhost/blog/2026/some-post',
+            $this->redirectLocation(null, 'http://localhost/blog/2026/some-post/')
+        );
+    }
+
+    /**
+     * A path that would trip a naive prefix test if a base were involved. With no base
+     * configured the new block is skipped entirely, so this must behave like any other.
+     */
+    public function testDocrootInstallIsUnaffectedByPrefixLookalikePaths(): void
+    {
+        self::assertSame(
+            'http://localhost/subscribe',
+            $this->redirectLocation(null, 'http://localhost/subscribe/')
+        );
+    }
+
+    public function testSubfolderInstallWithoutCustomBaseIsUnchanged(): void
+    {
+        self::assertSame(
+            'http://localhost/grav/page1',
+            $this->redirectLocation(null, 'http://localhost/grav/page1/', '/grav')
+        );
+    }
+
+    /* ------------------------------------------------------------------ *
+     * The reported bug: base stripped by a proxy before it reaches PHP.
+     * ------------------------------------------------------------------ */
+
+    public function testCustomBaseIsRestoredWhenTheProxyStrippedIt(): void
+    {
+        self::assertSame(
+            'http://localhost/custombaseurl/page1',
+            $this->redirectLocation('http://localhost/custombaseurl', 'http://localhost/page1/')
+        );
+    }
+
+    public function testCustomBaseIsNotDoubledWhenThePathAlreadyCarriesIt(): void
+    {
+        self::assertSame(
+            'http://localhost/custombaseurl/page1',
+            $this->redirectLocation('http://localhost/custombaseurl', 'http://localhost/custombaseurl/page1/', '/custombaseurl')
+        );
+    }
+
+    public function testCustomBaseWithATrailingSlashDoesNotProduceADoubleSlash(): void
+    {
+        self::assertSame(
+            'http://localhost/custombaseurl/page1',
+            $this->redirectLocation('http://localhost/custombaseurl/', 'http://localhost/page1/')
+        );
+    }
+
+    public function testCustomBaseAppliesToNestedPathsToo(): void
+    {
+        self::assertSame(
+            'http://localhost/custombaseurl/blog/2026/some-post',
+            $this->redirectLocation('http://localhost/custombaseurl', 'http://localhost/blog/2026/some-post/')
+        );
+    }
+
+    /* ------------------------------------------------------------------ *
+     * The segment-awareness bug in the first attempt at this fix.
+     * ------------------------------------------------------------------ */
+
+    /**
+     * `/subscribe` starts with the text `/sub` but is not under it. A raw prefix test
+     * concludes the base is already present and skips restoring it, leaving #3822
+     * unfixed for every route whose first segment merely shares those letters.
+     *
+     * @dataProvider prefixLookalikePaths
+     */
+    public function testBaseIsRestoredForPathsThatOnlyLookLikeTheyCarryIt(string $path, string $expected): void
+    {
+        self::assertSame(
+            $expected,
+            $this->redirectLocation('http://localhost/sub', 'http://localhost' . $path)
+        );
+    }
+
+    /** @return array<string, array{string, string}> */
+    public function prefixLookalikePaths(): array
+    {
+        return [
+            'longer word'       => ['/subscribe/',  'http://localhost/sub/subscribe'],
+            'hyphenated'        => ['/sub-zero/',   'http://localhost/sub/sub-zero'],
+            'underscored'       => ['/sub_menu/',   'http://localhost/sub/sub_menu'],
+            'no separator'      => ['/submarine/',  'http://localhost/sub/submarine'],
+        ];
+    }
+
+    /**
+     * The genuine "already under the base" case must still short-circuit, including
+     * when the segment after the base repeats the base's own name.
+     */
+    public function testAPathGenuinelyUnderTheBaseIsNotPrefixedAgain(): void
+    {
+        self::assertSame(
+            'http://localhost/sub/subscribe',
+            $this->redirectLocation('http://localhost/sub', 'http://localhost/sub/subscribe/', '/sub')
+        );
+    }
+
+    public function testTheBasePathItselfCountsAsBeingUnderTheBase(): void
+    {
+        self::assertNull(
+            $this->redirectLocation('http://localhost/sub', 'http://localhost/sub/', '/sub')
+        );
+    }
+
+    /* ------------------------------------------------------------------ *
+     * Full-URL custom bases, including the malformed one.
+     * ------------------------------------------------------------------ */
+
+    /**
+     * `rootUrl(false)` strips scheme and host, so a full URL yields just the path and
+     * no `https://` can leak into the redirect target.
+     */
+    public function testCustomBaseGivenAsAFullUrlContributesOnlyItsPath(): void
+    {
+        self::assertSame(
+            'http://localhost/sub/page1',
+            $this->redirectLocation('https://example.com/sub', 'http://localhost/page1/')
+        );
+    }
+
+    /**
+     * A host-only custom base has no path to restore, so this must behave exactly like
+     * an ordinary install rather than prepending an empty string.
+     */
+    public function testCustomBaseWithNoPathBehavesLikeNoCustomBase(): void
+    {
+        self::assertSame(
+            'http://localhost/page1',
+            $this->redirectLocation('https://example.com', 'http://localhost/page1/')
+        );
+    }
+
+    /* ------------------------------------------------------------------ *
+     * Homepage, encoding, query strings and non-idempotent methods.
+     * ------------------------------------------------------------------ */
+
+    /**
+     * On develop this redirected to the bare host with an empty path. Restoring the base
+     * makes the path equal the root, so the homepage correctly issues no redirect.
+     */
+    public function testStrippedHomepageOfACustomBaseSiteDoesNotRedirectToTheBareHost(): void
+    {
+        self::assertNull(
+            $this->redirectLocation('http://localhost/sub', 'http://localhost/')
+        );
+    }
+
+    public function testPercentEncodingIsPreserved(): void
+    {
+        self::assertSame(
+            'http://localhost/sub/caf%C3%A9',
+            $this->redirectLocation('http://localhost/sub', 'http://localhost/caf%C3%A9/')
+        );
+    }
+
+    public function testQueryStringSurvivesTheRedirect(): void
+    {
+        self::assertSame(
+            'http://localhost/sub/page1?a=1&b=2',
+            $this->redirectLocation('http://localhost/sub', 'http://localhost/page1/?a=1&b=2')
+        );
+    }
+
+    public function testNonGetRequestsAreNeverRedirected(): void
+    {
+        $this->config->set('system.custom_base_url', 'http://localhost/sub');
+        $this->uri->initializeWithUrl('http://localhost/page1/')->init();
+
+        $processor = new InitializeProcessor($this->grav);
+        $method = new ReflectionMethod($processor, 'handleRedirectRequest');
+        $method->setAccessible(true);
+
+        self::assertNull($method->invoke($processor, new ServerRequest('POST', 'http://localhost/page1/'), 302));
+    }
+
+    /* ------------------------------------------------------------------ *
+     * The segment comparison itself.
+     * ------------------------------------------------------------------ */
+
+    /**
+     * @dataProvider baseComparisons
+     */
+    public function testPathHasBase(string $path, string $base, bool $expected): void
+    {
+        $method = new ReflectionMethod(InitializeProcessor::class, 'pathHasBase');
+        $method->setAccessible(true);
+
+        self::assertSame($expected, $method->invoke(null, $path, $base));
+    }
+
+    /** @return array<string, array{string, string, bool}> */
+    public function baseComparisons(): array
+    {
+        return [
+            'exact match'                => ['/sub', '/sub', true],
+            'exact match, base slashed'  => ['/sub', '/sub/', true],
+            'child path'                 => ['/sub/page', '/sub', true],
+            'deep child'                 => ['/sub/a/b/c', '/sub', true],
+            'lookalike longer word'      => ['/subscribe', '/sub', false],
+            'lookalike hyphen'           => ['/sub-zero', '/sub', false],
+            'unrelated'                  => ['/other', '/sub', false],
+            'root path'                  => ['/', '/sub', false],
+            'base repeated below itself' => ['/sub/sub', '/sub', true],
+            'multi-segment base'         => ['/a/b/page', '/a/b', true],
+            'multi-segment lookalike'    => ['/a/bc/page', '/a/b', false],
+        ];
+    }
+}

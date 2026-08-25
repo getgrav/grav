@@ -1,3 +1,22 @@
+# v2.0.22
+## 08/23/2026
+
+1. [](#new)
+    * The `url()` Twig function now takes a language, so a link to a route that isn't a page - a search page, a form action - can carry the site's language prefix: `{{ url('/search', lang=true) }}`
+1. [](#improved)
+    * Building a URL is now faster, which adds up over the hundreds of asset and link URLs a single page render produces
+1. [](#bugfix)
+    * A site installed in a subfolder no longer mangles URLs whose path repeats the install folder's name, such as an image at `/images/subdir/photo.jpg` on a site installed at `/subdir`
+    * A link to a page that carries a query string or an anchor, such as `/blog?page=2`, now resolves to the page and keeps its language prefix, instead of being passed through as a plain path
+    * On a site installed in a subfolder, links written with the full path now resolve to the page, so they pick up the site's language and page extension
+    * A cache folder that the web server cannot write to no longer takes the whole site down. Grav now logs a warning naming the folder and serves the request without the cache, so the front end and the admin both stay reachable and the Problems plugin can report what is wrong [#4260](https://github.com/getgrav/grav/issues/4260)
+    * The same failure writing `user/config/versions.yaml` no longer stops the site either [#3688](https://github.com/getgrav/grav/issues/3688)
+    * Errors about a file that cannot be written now name the folder and say whether it is missing or not writable, instead of only reporting the file
+    * A session cookie name starting with `__Secure-` or `__Host-` now keeps that prefix and is sent with the settings browsers require for it, so the extra protection those prefixes give actually applies. Thanks to @wakqasahmed for the fix [#3773](https://github.com/getgrav/grav/issues/3773)
+      Note: sites whose `system.session.name` contains capitals, underscores or a leading or trailing dash will get a slightly different cookie name after this update, which signs their users out once.
+    * The scheduler no longer reports that cron is not set up when the crontab entry is written in a valid but slightly different style, such as one using `&&` or an absolute path to `bin/grav`
+    * A site served from a subpath by a proxy no longer loses that subpath when a trailing slash is redirected, which previously sent visitors outside the site. The homepage of such a site also no longer redirects to the bare domain. Thanks to @wakqasahmed for the fix [#3822](https://github.com/getgrav/grav/issues/3822)
+
 # v2.0.21
 ## 08/22/2026
 

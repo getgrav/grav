@@ -1201,11 +1201,15 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * @param  string $input  Resource to be located.
      * @param  bool   $domain True to include domain name.
      * @param  bool   $failGracefully If true, return URL even if the file does not exist.
+     * @param  string|bool|null $lang Language prefix for path input. Omit (or `false`) to keep the URL
+     *                                language-neutral, which is what assets need; `true` uses the active language;
+     *                                a language code such as `'de'` uses that one. Use it when linking to a
+     *                                language-sensitive route that isn't a page, e.g. `{{ url('/search', lang=true) }}`.
      * @return string|false      Returns url to the resource or null if resource was not found.
      */
-    public function urlFunc($input, $domain = false, $failGracefully = false)
+    public function urlFunc($input, $domain = false, $failGracefully = false, $lang = null)
     {
-        return Utils::url($input, $domain, $failGracefully);
+        return Utils::url($input, $domain, $failGracefully, $lang);
     }
 
     /**

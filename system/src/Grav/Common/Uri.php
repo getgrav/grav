@@ -778,6 +778,16 @@ class Uri implements \Stringable
      */
     public static function isExternal($url)
     {
+        // Cheap rejects first: this runs on every Utils::url() call and the overwhelmingly common input is a
+        // site-relative path with no scheme at all, which the scheme list below would test sixteen times over.
+        $first = $url[0] ?? '';
+        if ($first === '/') {
+            return str_starts_with($url, '//');
+        }
+        if ($first === '' || !str_contains($url, ':')) {
+            return false;
+        }
+
         return (str_starts_with($url, 'http://') || str_starts_with($url, 'https://') || str_starts_with($url, '//') || str_starts_with($url, 'mailto:') || str_starts_with($url, 'tel:') || str_starts_with($url, 'ftp://') || str_starts_with($url, 'ftps://') || str_starts_with($url, 'news:') || str_starts_with($url, 'irc:') || str_starts_with($url, 'gopher:') || str_starts_with($url, 'nntp:') || str_starts_with($url, 'feed:') || str_starts_with($url, 'cvs:') || str_starts_with($url, 'ssh:') || str_starts_with($url, 'git:') || str_starts_with($url, 'svn:') || str_starts_with($url, 'hg:'));
     }
 
