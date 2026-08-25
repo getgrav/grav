@@ -3,6 +3,7 @@
 
 1. [](#new)
     * The `url()` Twig function now takes a language, so a link to a route that isn't a page - a search page, a form action - can carry the site's language prefix: `{{ url('/search', lang=true) }}`
+    * Page collections can now exclude one or more template types with `notOfType()`, the counterpart to the existing `ofType()` [#3910](https://github.com/getgrav/grav/issues/3910)
 1. [](#improved)
     * Building a URL is now faster, which adds up over the hundreds of asset and link URLs a single page render produces
 1. [](#bugfix)
