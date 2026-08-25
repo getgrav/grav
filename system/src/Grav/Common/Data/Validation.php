@@ -339,6 +339,63 @@ class Validation
     }
 
     /**
+     * Blueprint field: media
+     *
+     * A media pick is stored as a plain string — a page-media filename, a
+     * `media://` stream path, or an external URL. With `multiple: true` the
+     * field stores an ordered list of those strings instead. Without this
+     * filter the type falls through to filterText(), which stringifies the
+     * list and saves an empty value.
+     *
+     * @param  mixed  $value   Value to be filtered.
+     * @param  array  $params  Filter parameters.
+     * @param  array  $field   Blueprint for the field.
+     * @return array|string|null
+     */
+    protected static function filterMedia(mixed $value, array $params, array $field)
+    {
+        if (empty($field['multiple'])) {
+            return is_string($value) ? trim($value) : '';
+        }
+
+        // Tolerate a comma-joined string as well as a proper list — that is how
+        // the classic filepicker stored its multi values.
+        if (is_string($value)) {
+            $value = preg_split('/\s*,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        }
+
+        $values = [];
+        foreach ((array) $value as $item) {
+            if (!is_string($item)) {
+                continue;
+            }
+            $item = trim($item);
+            if ($item !== '') {
+                $values[] = $item;
+            }
+        }
+
+        return $values ?: null;
+    }
+
+    /**
+     * Blueprint field: media
+     *
+     * @param  mixed  $value   Value to be validated.
+     * @param  array  $params  Validation parameters.
+     * @param  array  $field   Blueprint for the field.
+     * @return bool   True if validation succeeded.
+     */
+    public static function typeMedia(mixed $value, array $params, array $field)
+    {
+        if (!empty($field['multiple'])) {
+            return is_array($value) || is_string($value);
+        }
+
+        return self::typeText($value, $params, $field);
+    }
+
+    /**
      * @param array $params
      * @param array $field
      * @return array|array[]|false|string[]
