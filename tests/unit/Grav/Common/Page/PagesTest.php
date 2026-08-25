@@ -298,6 +298,7 @@ class PagesTest extends \PHPUnit\Framework\TestCase
         foreach ($withoutBlogOrDefault as $page) {
             self::assertNotContains($page->template(), ['blog', 'default']);
         }
+        self::assertGreaterThan(0, count($withoutBlogOrDefault->toArray()));
     }
 
     public function testGetList(): void
