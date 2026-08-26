@@ -10,6 +10,7 @@
 namespace Grav\Common\Page\Markdown;
 
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Medium\Link;
 use Grav\Common\Page\Pages;
@@ -295,7 +296,15 @@ class Excerpts
 
         $defaults = $this->config['images']['defaults'] ?? [];
         if (count($defaults)) {
+            $isImage = $medium instanceof ImageMediaInterface;
             foreach ($defaults as $method => $params) {
+                // loading/decoding/fetchpriority are image-only HTML attributes
+                // (backed by traits only ImageMedium/StaticImageMedium use); skip
+                // them for non-image media such as audio/video/documents.
+                if (!$isImage && in_array($method, ['loading', 'decoding', 'fetchpriority'], true)) {
+                    continue;
+                }
+
                 if (array_search($method, array_column($actions, 'method')) === false) {
                     $actions[] = [
                         'method' => $method,
