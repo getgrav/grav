@@ -18,6 +18,7 @@
       Note: sites whose `system.session.name` contains capitals, underscores or a leading or trailing dash will get a slightly different cookie name after this update, which signs their users out once.
     * The scheduler no longer reports that cron is not set up when the crontab entry is written in a valid but slightly different style, such as one using `&&` or an absolute path to `bin/grav`
     * A site served from a subpath by a proxy no longer loses that subpath when a trailing slash is redirected, which previously sent visitors outside the site. The homepage of such a site also no longer redirects to the bare domain. Thanks to @wakqasahmed for the fix [#3822](https://github.com/getgrav/grav/issues/3822)
+    * Image settings are no longer applied to audio, video, SVG or document media. An embedded MP3 kept its player instead of being turned into a linked thumbnail, and media URLs no longer pick up stray `loading`, `decoding` and `fetchpriority` values, which happened on every site whether or not those settings had been changed. Thanks to @wakqasahmed for the fix [#4264](https://github.com/getgrav/grav/issues/4264)
 
 # v2.0.21
 ## 08/22/2026

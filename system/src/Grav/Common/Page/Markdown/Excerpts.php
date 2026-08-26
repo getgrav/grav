@@ -294,14 +294,18 @@ class Excerpts
                 || Medium::isAllowedAction((string) $action['method'])
         ));
 
+        // `system.images.defaults` is image configuration, so it must only be
+        // applied to image media. Applying it to audio, video or a document
+        // replaced the player or download with a linked thumbnail (`link`) and
+        // pushed the HTML attributes through the medium's `__call()` URL
+        // passthrough, which appended them to the querystring instead.
+        // Individual defaults are also checked against the medium: an SVG or an
+        // animated GIF is an image but has no decoding()/fetchpriority(), and
+        // would leak those the same way. getgrav/grav#4264.
         $defaults = $this->config['images']['defaults'] ?? [];
-        if (count($defaults)) {
-            $isImage = $medium instanceof ImageMediaInterface;
+        if (count($defaults) && $medium instanceof ImageMediaInterface) {
             foreach ($defaults as $method => $params) {
-                // loading/decoding/fetchpriority are image-only HTML attributes
-                // (backed by traits only ImageMedium/StaticImageMedium use); skip
-                // them for non-image media such as audio/video/documents.
-                if (!$isImage && in_array($method, ['loading', 'decoding', 'fetchpriority'], true)) {
+                if (!method_exists($medium, (string) $method)) {
                     continue;
                 }
 

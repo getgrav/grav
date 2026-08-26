@@ -213,9 +213,13 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
 
     public function testImageDefaultsAreNotAppliedToNonImageMedia(): void
     {
-        // getgrav/grav#4264: system.images.defaults (loading/decoding/fetchpriority)
-        // must only apply to actual image media, not every medium type embedded
-        // via markdown image syntax (audio, video, documents, ...).
+        // getgrav/grav#4264: `system.images.defaults` is image configuration, so
+        // none of it may reach audio, video or a document. `link` replaced the
+        // audio player with a linked thumbnail, and loading/decoding/fetchpriority
+        // fell through the medium's __call() URL passthrough and were appended to
+        // the querystring. The `link` default is what makes the querystring
+        // visible here at all, since the rendered <audio> element hides its
+        // <source> child from this helper.
         $this->config->set('system.images.defaults', [
             'loading' => 'lazy',
             'decoding' => 'async',
@@ -223,6 +227,8 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
             'link' => true,
         ]);
 
+        // Generated at runtime so the repo carries no binary media fixture; the
+        // file only has to exist before the media folder is rescanned below.
         $fixturePath = GRAV_ROOT . '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-audio.mp3';
         file_put_contents($fixturePath, '');
 
@@ -231,11 +237,40 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
         try {
             $result = Excerpts::processImageHtml('<img src="sample-audio.mp3" alt="Sample Audio" />', $this->page);
 
+            self::assertStringStartsWith('<audio', $result, 'the audio player must survive `link: true`');
+            self::assertStringNotContainsString('<a ', $result);
             self::assertStringNotContainsString('loading=', $result);
             self::assertStringNotContainsString('decoding=', $result);
             self::assertStringNotContainsString('fetchpriority=', $result);
-            // 'link' is a universal action and should still be honoured.
-            self::assertStringContainsString('<a ', $result);
+        } finally {
+            @unlink($fixturePath);
+        }
+    }
+
+    public function testImageDefaultsAreNotAppliedToImagesThatCannotTakeThem(): void
+    {
+        // An SVG is image media, but it is served as-is: StaticImageMedium has
+        // loading() and no decoding()/fetchpriority(). Those two must not be
+        // pushed onto its URL either, so a plain ImageMediaInterface check is
+        // not enough on its own.
+        $this->config->set('system.images.defaults', [
+            'loading' => 'lazy',
+            'decoding' => 'async',
+            'fetchpriority' => 'high',
+        ]);
+
+        $fixturePath = GRAV_ROOT . '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-vector.svg';
+        file_put_contents($fixturePath, '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"></svg>');
+
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        try {
+            $result = Excerpts::processImageHtml('<img src="sample-vector.svg" alt="Sample Vector" />', $this->page);
+
+            self::assertStringContainsString('loading="lazy"', $result);
+            self::assertStringNotContainsString('sample-vector.svg?', $result);
+            self::assertStringNotContainsString('decoding=', $result);
+            self::assertStringNotContainsString('fetchpriority=', $result);
         } finally {
             @unlink($fixturePath);
         }
@@ -247,10 +282,12 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
         // image defaults.
         $this->config->set('system.images.defaults', [
             'loading' => 'lazy',
+            'decoding' => 'async',
+            'fetchpriority' => 'high',
         ]);
 
-        self::assertMatchesRegularExpression(
-            '/loading="lazy"/',
+        self::assertStringStartsWith(
+            '<img loading="lazy" decoding="async" fetchpriority="high"',
             Excerpts::processImageHtml('<img src="sample-image.jpg" alt="Sample Image" />', $this->page)
         );
     }
