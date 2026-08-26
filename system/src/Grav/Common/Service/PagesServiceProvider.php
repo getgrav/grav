@@ -60,19 +60,19 @@ class PagesServiceProvider implements ServiceProviderInterface
             $path = $uri->path() ? urldecode($uri->path()) : '/'; // Don't trim to support trailing slash default routes
             $page = $pages->dispatch($path);
 
+            if ($config->get('system.force_ssl')) {
+                $scheme = $uri->scheme(true);
+                if ($scheme !== 'https') {
+                    $url = 'https://' . $uri->host() . $uri->uri();
+                    $grav->redirect($url);
+                }
+            }
+
             // Redirection tests
             if ($page) {
                 // some debugger override logic
                 if ($page->debugger() === false) {
                     $grav['debugger']->enabled(false);
-                }
-
-                if ($config->get('system.force_ssl')) {
-                    $scheme = $uri->scheme(true);
-                    if ($scheme !== 'https') {
-                        $url = 'https://' . $uri->host() . $uri->uri();
-                        $grav->redirect($url);
-                    }
                 }
 
                 $route = $page->route();
