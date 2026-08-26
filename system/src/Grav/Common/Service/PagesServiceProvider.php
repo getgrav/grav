@@ -60,10 +60,14 @@ class PagesServiceProvider implements ServiceProviderInterface
             $path = $uri->path() ? urldecode($uri->path()) : '/'; // Don't trim to support trailing slash default routes
             $page = $pages->dispatch($path);
 
+            // Runs before the found/not-found branch below so it covers the 404
+            // fallback and media fallback requests too (#3703). The host guard
+            // keeps an undetermined hostname from building `https:///path` (#3702).
             if ($config->get('system.force_ssl')) {
                 $scheme = $uri->scheme(true);
-                if ($scheme !== 'https') {
-                    $url = 'https://' . $uri->host() . $uri->uri();
+                $host = $uri->host();
+                if ($scheme !== 'https' && $host) {
+                    $url = 'https://' . $host . $uri->uri();
                     $grav->redirect($url);
                 }
             }
