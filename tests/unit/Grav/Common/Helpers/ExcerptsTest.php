@@ -211,6 +211,50 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
+    public function testImageDefaultsAreNotAppliedToNonImageMedia(): void
+    {
+        // getgrav/grav#4264: system.images.defaults (loading/decoding/fetchpriority)
+        // must only apply to actual image media, not every medium type embedded
+        // via markdown image syntax (audio, video, documents, ...).
+        $this->config->set('system.images.defaults', [
+            'loading' => 'lazy',
+            'decoding' => 'async',
+            'fetchpriority' => 'high',
+            'link' => true,
+        ]);
+
+        $fixturePath = GRAV_ROOT . '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-audio.mp3';
+        file_put_contents($fixturePath, '');
+
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        try {
+            $result = Excerpts::processImageHtml('<img src="sample-audio.mp3" alt="Sample Audio" />', $this->page);
+
+            self::assertStringNotContainsString('loading=', $result);
+            self::assertStringNotContainsString('decoding=', $result);
+            self::assertStringNotContainsString('fetchpriority=', $result);
+            // 'link' is a universal action and should still be honoured.
+            self::assertStringContainsString('<a ', $result);
+        } finally {
+            @unlink($fixturePath);
+        }
+    }
+
+    public function testImageDefaultsAreStillAppliedToRealImages(): void
+    {
+        // Non-regression: normal images must keep receiving the configured
+        // image defaults.
+        $this->config->set('system.images.defaults', [
+            'loading' => 'lazy',
+        ]);
+
+        self::assertMatchesRegularExpression(
+            '/loading="lazy"/',
+            Excerpts::processImageHtml('<img src="sample-image.jpg" alt="Sample Image" />', $this->page)
+        );
+    }
+
     public function testMediaExtensionArmDoesNotCaptureRealSchemes(): void
     {
         // The media-extension check must never reinterpret a genuine protocol as
