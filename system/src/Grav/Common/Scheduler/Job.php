@@ -16,6 +16,8 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use InvalidArgumentException;
 use RuntimeException;
+use Throwable;
+use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use function call_user_func;
 use function call_user_func_array;
@@ -216,7 +218,9 @@ class Job
     public function getCronExpression()
     {
         try {
-            return CronExpression::factory($this->at);
+            // A job registered without a schedule runs every minute, which is what isDue()
+            // has always assumed. Passing the null straight through was a type error.
+            return CronExpression::factory($this->at ?: '* * * * *');
         } catch (\InvalidArgumentException $e) {
             // Invalid cron expression - return null to prevent DoS
             return null;
@@ -283,6 +287,103 @@ class Job
         $date ??= $this->creationTime;
 
         return $this->executionTime->isDue($date);
+    }
+
+    /**
+     * The command as an argv array, with the PHP binary in front when it is one of Grav's own
+     * CLI scripts.
+     *
+     * Those scripts start with a `#!/usr/bin/env php` line. That works from a shell, and fails
+     * from the web server, where php is usually not on PATH -- so a job that ran perfectly from
+     * cron reported "env: php: No such file or directory" the moment it was run from the admin.
+     *
+     * @return array
+     */
+    private function resolveCommand(): array
+    {
+        $command = (string) $this->command;
+
+        // Process treats a single string as the name of the executable, so a job registered as a
+        // whole command line -- 'bin/plugin seo-magic queue' -- sent it looking for a file whose
+        // name contained spaces. That is an easy enough mistake to make that it is worth handling
+        // here, but only when nothing on disk actually goes by the whole string.
+        $argv = is_file($this->absolutePath($command)) ? [$command] : $this->splitCommandLine($command);
+
+        $script = $this->absolutePath($argv[0]);
+
+        // Anything that is not a PHP script shipped inside this install runs exactly as given.
+        if (!is_file($script) || !$this->hasPhpShebang($script)) {
+            return $argv;
+        }
+
+        $php = (new PhpExecutableFinder())->find();
+        if (!$php) {
+            return $argv;
+        }
+
+        $argv[0] = $script;
+        array_unshift($argv, $php);
+
+        return $argv;
+    }
+
+    /**
+     * Resolve a command against the Grav install, so a job can name `bin/grav` the way the
+     * documentation does.
+     *
+     * @param string $path
+     * @return string
+     */
+    private function absolutePath(string $path): string
+    {
+        if (str_starts_with($path, '/')) {
+            return $path;
+        }
+
+        if (str_starts_with($path, './')) {
+            $path = substr($path, 2);
+        }
+
+        return rtrim(GRAV_ROOT, '/') . '/' . $path;
+    }
+
+    /**
+     * Split a command line into its arguments, keeping quoted sections whole.
+     *
+     * @param string $command
+     * @return array
+     */
+    private function splitCommandLine(string $command): array
+    {
+        if (!preg_match_all('/"([^"]*)"|\'([^\']*)\'|(\S+)/', $command, $matches, PREG_SET_ORDER)) {
+            return [$command];
+        }
+
+        $argv = [];
+        foreach ($matches as $token) {
+            $argv[] = $token[3] ?? $token[2] ?? $token[1];
+        }
+
+        return $argv ?: [$command];
+    }
+
+    /**
+     * Whether a file starts with a shebang naming php.
+     *
+     * @param string $file
+     * @return bool
+     */
+    private function hasPhpShebang(string $file): bool
+    {
+        $handle = @fopen($file, 'rb');
+        if (!$handle) {
+            return false;
+        }
+
+        $line = (string) fgets($handle, 128);
+        fclose($handle);
+
+        return str_starts_with($line, '#!') && str_contains($line, 'php');
     }
 
     /**
@@ -437,7 +538,7 @@ class Job
             $this->output = $this->exec();
         } else {
             $args = is_string($this->args) ? explode(' ', $this->args) : $this->args;
-            $command = array_merge([$this->command], $args);
+            $command = array_merge($this->resolveCommand(), $args);
 
             // Command jobs need proc_open. Rather than letting Symfony's Process throw from
             // its constructor -- which took down the whole scheduler run, and the admin
@@ -504,24 +605,61 @@ class Job
      */
     private function postRun()
     {
+        // Everything from here on is bookkeeping around a job that has already run. None of it
+        // is allowed to throw: an unwritable output file, a mistyped notification address or a
+        // careless after() callback used to take down the entire scheduler run with it, losing
+        // the recorded state of every job that had already succeeded.
         if (count($this->outputTo) > 0) {
             foreach ($this->outputTo as $file) {
-                $output_mode = $this->outputMode === 'append' ? FILE_APPEND | LOCK_EX : LOCK_EX;
-                $timestamp = (new DateTime('now'))->format('c');
-                $output = $timestamp . "\n" . str_pad('', strlen($timestamp), '>') . "\n" . $this->output;
-                file_put_contents($file, $output, $output_mode);
+                try {
+                    $output_mode = $this->outputMode === 'append' ? FILE_APPEND | LOCK_EX : LOCK_EX;
+                    $timestamp = (new DateTime('now'))->format('c');
+                    $output = $timestamp . "\n" . str_pad('', strlen($timestamp), '>') . "\n" . $this->output;
+                    file_put_contents($file, $output, $output_mode);
+                } catch (Throwable $e) {
+                    $this->logPostRunFailure('write output to ' . $file, $e);
+                }
             }
         }
 
         // Send output to email
-        $this->emailOutput();
+        try {
+            $this->emailOutput();
+        } catch (Throwable $e) {
+            $this->logPostRunFailure('email the output', $e);
+        }
 
         // Call any callback defined
         if (is_callable($this->after)) {
-            call_user_func($this->after, $this->output, $this->returnCode);
+            try {
+                call_user_func($this->after, $this->output, $this->returnCode);
+            } catch (Throwable $e) {
+                $this->logPostRunFailure('run the after() callback', $e);
+            }
         }
 
         $this->removeLockFile();
+    }
+
+    /**
+     * Record a post-run step that failed, without letting it stop the run.
+     *
+     * @param string $what
+     * @param Throwable $e
+     * @return void
+     */
+    private function logPostRunFailure(string $what, Throwable $e): void
+    {
+        try {
+            Grav::instance()['log']->warning(sprintf(
+                'Scheduler job "%s" ran, but failed to %s: %s',
+                $this->getId(),
+                $what,
+                $e->getMessage()
+            ));
+        } catch (Throwable $ignored) {
+            // Logging is the last thing that should be able to break a run.
+        }
     }
 
     /**
@@ -671,8 +809,10 @@ class Job
         }
 
         if (is_callable('Grav\Plugin\Email\Utils::sendEmail')) {
+            $command = $this->getCommand();
+            $command = is_string($command) ? $command : 'Closure';
             $subject ='Grav Scheduled Job [' . $this->getId() . ']';
-            $content = "<h1>Output from Job ID: {$this->getId()}</h1>\n<h4>Command: {$this->getCommand()}</h4><br /><pre style=\"font-size: 12px; font-family: Monaco, Consolas, monospace\">\n".$this->getOutput()."\n</pre>";
+            $content = "<h1>Output from Job ID: {$this->getId()}</h1>\n<h4>Command: {$command}</h4><br /><pre style=\"font-size: 12px; font-family: Monaco, Consolas, monospace\">\n".$this->getOutput()."\n</pre>";
             $to = $this->emailTo;
 
             \Grav\Plugin\Email\Utils::sendEmail($subject, $content, $to);

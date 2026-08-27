@@ -14,7 +14,6 @@ use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Common\Scheduler\Scheduler;
 use Grav\Console\GravCommand;
-use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
 use function is_null;
@@ -63,8 +62,14 @@ class SchedulerCommand extends GravCommand
                 InputOption::VALUE_NONE,
                 'Force all due jobs to run regardless of their schedule'
             )
+            ->addOption(
+                'catch-up',
+                'c',
+                InputOption::VALUE_NONE,
+                'Also run jobs that missed the last slot their schedule gave them'
+            )
             ->setDescription('Run the Grav Scheduler.  Best when integrated with system cron')
-            ->setHelp("Running without any options will process the Scheduler jobs based on their cron schedule. Use --force to run all jobs immediately.");
+            ->setHelp("Running without any options will process the Scheduler jobs based on their cron schedule. Use --catch-up to also pick up jobs that missed their last slot, which is what you want on a site with no cron entry. Use --force to run every enabled job immediately.");
     }
 
     /**
@@ -81,7 +86,9 @@ class SchedulerCommand extends GravCommand
 
         /** @var Scheduler $scheduler */
         $scheduler = $grav['scheduler'];
-        $grav->fireEvent('onSchedulerInitialized', new Event(['scheduler' => $scheduler]));
+        // The scheduler fires onSchedulerInitialized itself, once. Firing it here as well
+        // would register every system and plugin job a second time.
+        $scheduler->initializeJobs();
 
         $input = $this->getInput();
         $io = $this->getIO();
@@ -91,36 +98,37 @@ class SchedulerCommand extends GravCommand
         $showDetails = $input->getOption('details');
         $showJobs = $input->getOption('jobs');
         $forceRun = $input->getOption('force');
+        $catchUp = $input->getOption('catch-up');
 
         // Handle running jobs first if -r flag is present
         if ($run !== false) {
             if ($run === null || $run === '') {
-                // Run all jobs when -r is provided without a specific job ID
+                // Run all jobs when -r is provided without a specific job ID. Routed through the
+                // scheduler rather than run job-by-job here so the run is recorded in status.yaml
+                // like any other, which is what --catch-up and the admin's Run button read.
                 $io->title('Force Run All Jobs');
-                
-                $jobs = $scheduler->getAllJobs();
+
+                $scheduler->setRunTrigger('manual')->run(null, false, Scheduler::RUN_ALL);
+
                 $hasOutput = false;
-                
-                foreach ($jobs as $job) {
-                    if ($job->getEnabled()) {
-                        $io->section('Running: ' . $job->getId());
-                        $job->inForeground()->run();
-                        
-                        if ($job->isSuccessful()) {
-                            $io->success('Job ' . $job->getId() . ' ran successfully');
-                        } else {
-                            $error = 1;
-                            $io->error('Job ' . $job->getId() . ' failed to run');
-                        }
-                        
-                        $output = $job->getOutput();
-                        if ($output) {
-                            $io->write($output);
-                            $hasOutput = true;
-                        }
+
+                foreach ($scheduler->getJobsRun() as $job) {
+                    $io->section('Running: ' . $job->getId());
+
+                    if ($job->isSuccessful()) {
+                        $io->success('Job ' . $job->getId() . ' ran successfully');
+                    } else {
+                        $error = 1;
+                        $io->error('Job ' . $job->getId() . ' failed to run');
+                    }
+
+                    $output = $job->getOutput();
+                    if ($output) {
+                        $io->write($output);
+                        $hasOutput = true;
                     }
                 }
-                
+
                 if (!$hasOutput) {
                     $io->note('All enabled jobs completed');
                 }
@@ -128,11 +136,9 @@ class SchedulerCommand extends GravCommand
                 // Run specific job
                 $io->title('Force Run Job: ' . $run);
 
-                $job = $scheduler->getJob($run);
+                $job = $scheduler->setRunTrigger('manual')->runJob($run);
 
                 if ($job) {
-                    $job->inForeground()->run();
-
                     if ($job->isSuccessful()) {
                         $io->success('Job ran successfully...');
                     } else {
@@ -175,9 +181,12 @@ class SchedulerCommand extends GravCommand
                 $last_run = $job_states[$job->getId()]['last-run'] ?? 0;
                 $status = $job_status === 'Failure' ? "<red>{$job_status}</red>" : "<green>{$job_status}</green>";
                 $state = $job->getEnabled() ? '<cyan>Enabled</cyan>' : '<red>Disabled</red>';
+                // Jobs registered by plugins are closures, which have no string form.
+                $command = $job->getCommand();
+                $command = is_string($command) ? $command : '(closure)';
                 $row = [
                     $job->getId(),
-                    "<white>{$job->getCommand()}</white>",
+                    "<white>{$command}</white>",
                     "<magenta>{$job->getAt()}</magenta>",
                     $status,
                     '<yellow>' . ($last_run === 0 ? 'Never' : date('Y-m-d H:i', $last_run)) . '</yellow>',
@@ -212,7 +221,8 @@ class SchedulerCommand extends GravCommand
             $rows = [];
 
             foreach ($jobs as $job) {
-                $job_state = $job_states[$job->getId()];
+                // A job that has never run has no state at all.
+                $job_state = $job_states[$job->getId()] ?? [];
                 $error = isset($job_state['error']) ? trim((string) $job_state['error']) : false;
 
                 /** @var CronExpression|null $expression */
@@ -220,7 +230,7 @@ class SchedulerCommand extends GravCommand
 
                 $row = [];
                 $row[] = $job->getId();
-                if (!is_null($job_state['last-run'])) {
+                if (!is_null($job_state['last-run'] ?? null)) {
                     $row[] = '<yellow>' . date('Y-m-d H:i', $job_state['last-run']) . '</yellow>';
                 } else {
                     $row[] = '<yellow>Never</yellow>';
@@ -283,7 +293,8 @@ class SchedulerCommand extends GravCommand
             }
         } elseif (!$showJobs && !$showDetails && $run === false) {
             // Run scheduler only if no other options were provided
-            $scheduler->run(null, $forceRun);
+            $mode = $catchUp ? Scheduler::RUN_OVERDUE : Scheduler::RUN_DUE;
+            $scheduler->run(null, $forceRun, $mode);
 
             if ($input->getOption('verbose')) {
                 $io->title('Running Scheduled Jobs');

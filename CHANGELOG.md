@@ -5,8 +5,11 @@
     * The `url()` Twig function now takes a language, so a link to a route that isn't a page - a search page, a form action - can carry the site's language prefix: `{{ url('/search', lang=true) }}`
     * Blueprints can use a `media` field type, which saves a picked file as its path and keeps a list of them when the field allows more than one
     * Page collections can now exclude one or more template types with `notOfType()`, the counterpart to the existing `ofType()` [#3910](https://github.com/getgrav/grav/issues/3910)
+    * The scheduler can now run the jobs that have missed their scheduled time, rather than only the ones due this very minute. Run it with `bin/grav scheduler --catch-up`, which is what you want on a site that has no cron entry set up
 1. [](#improved)
     * Building a URL is now faster, which adds up over the hundreds of asset and link URLs a single page render produces
+    * The scheduler now records whether a run was started by cron or by hand, and a run you started yourself no longer counts as evidence that cron is set up
+    * `bin/grav scheduler -r` now records the run against each job, the same as a scheduled run, so the next run knows what has already happened
 1. [](#bugfix)
     * A site installed in a subfolder no longer mangles URLs whose path repeats the install folder's name, such as an image at `/images/subdir/photo.jpg` on a site installed at `/subdir`
     * A link to a page that carries a query string or an anchor, such as `/blog?page=2`, now resolves to the page and keeps its language prefix, instead of being passed through as a plain path
@@ -17,6 +20,12 @@
     * A session cookie name starting with `__Secure-` or `__Host-` now keeps that prefix and is sent with the settings browsers require for it, so the extra protection those prefixes give actually applies. Thanks to @wakqasahmed for the fix [#3773](https://github.com/getgrav/grav/issues/3773)
       Note: sites whose `system.session.name` contains capitals, underscores or a leading or trailing dash will get a slightly different cookie name after this update, which signs their users out once.
     * The scheduler no longer reports that cron is not set up when the crontab entry is written in a valid but slightly different style, such as one using `&&` or an absolute path to `bin/grav`
+    * On a site with a custom scheduler job of its own, looking up a job by name no longer misses every job the system and its plugins register, so the backup and cache jobs can be found and run individually
+    * A scheduler job that finished its work but could not then write its output file, send its notification email or run its callback no longer aborts the whole run. The remaining jobs run, every result is still recorded, and the problem is written to the log
+    * A scheduler job registered without a schedule of its own no longer causes an error when its next run time is worked out
+    * `bin/grav scheduler -j` no longer fails on a site with jobs registered by a plugin, and `-d` no longer fails on a job that has never run
+    * A scheduler job that runs one of Grav's own command line scripts now works when the scheduler is triggered from the web rather than from cron. Those jobs used to fail with "env: php: No such file or directory", because the web server does not have php on its path
+    * A scheduler job registered as a whole command line, such as `bin/plugin myplugin sync`, now runs. Only the executable and its arguments given separately used to work, so a job written the other way looked for a file whose name contained spaces and failed every time it ran
     * A site served from a subpath by a proxy no longer loses that subpath when a trailing slash is redirected, which previously sent visitors outside the site. The homepage of such a site also no longer redirects to the bare domain. Thanks to @wakqasahmed for the fix [#3822](https://github.com/getgrav/grav/issues/3822)
     * With `force_ssl` turned on, a page that does not exist now redirects to HTTPS like every other page, instead of serving the 404 over plain HTTP. Thanks to @wakqasahmed for the fix [#3703](https://github.com/getgrav/grav/issues/3703)
     * Image settings are no longer applied to audio, video, SVG or document media. An embedded MP3 kept its player instead of being turned into a linked thumbnail, and media URLs no longer pick up stray `loading`, `decoding` and `fetchpriority` values, which happened on every site whether or not those settings had been changed. Thanks to @wakqasahmed for the fix [#4264](https://github.com/getgrav/grav/issues/4264)
