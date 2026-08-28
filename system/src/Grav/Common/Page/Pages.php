@@ -442,7 +442,13 @@ class Pages
             if ($instance === true && !array_key_exists($path, $this->instances)) {
                 $payloads ??= $this->index_store->readAll();
 
-                $page = isset($payloads[$path]) ? @unserialize($payloads[$path]) : null;
+                // Store rows only ever contain Page objects (plus plain stdClass
+                // data). Name them explicitly so a tampered store file cannot
+                // instantiate arbitrary classes — same posture as FileCache's
+                // HMAC gate on the blob cache.
+                $page = isset($payloads[$path])
+                    ? @unserialize($payloads[$path], ['allowed_classes' => [Page::class, \stdClass::class]])
+                    : null;
                 if ($page instanceof PageInterface) {
                     $this->instances[$path] = $page;
                 }
@@ -1058,7 +1064,9 @@ class Pages
     protected function loadIndexedPage(string $path): ?PageInterface
     {
         $payload = $this->index_store ? $this->index_store->read($path) : null;
-        $instance = is_string($payload) ? @unserialize($payload) : null;
+        $instance = is_string($payload)
+            ? @unserialize($payload, ['allowed_classes' => [Page::class, \stdClass::class]])
+            : null;
         if ($instance instanceof PageInterface) {
             return $instance;
         }

@@ -289,7 +289,11 @@ final class PageIndexStore
                 return null;
             }
 
-            $value = @unserialize($payload);
+            // Rows in this table are plain arrays by construction. Refuse object
+            // instantiation outright so a tampered store file cannot be turned into
+            // a gadget-chain entry point; every other store Grav unserializes is
+            // gated the same way (FileCache HMAC, session flash v2 envelope).
+            $value = @unserialize($payload, ['allowed_classes' => false]);
 
             return is_array($value) ? $value : null;
         } catch (Throwable $e) {
@@ -313,7 +317,7 @@ final class PageIndexStore
 
             $result = [];
             foreach ($stmt->fetchAll(\PDO::FETCH_NUM) as [$path, $payload]) {
-                $info = @unserialize((string)$payload);
+                $info = @unserialize((string)$payload, ['allowed_classes' => false]);
                 $result[$path] = is_array($info) ? $info : [];
             }
 
@@ -335,7 +339,7 @@ final class PageIndexStore
 
             $map = [];
             foreach ($rows as [$type, $value, $path, $payload]) {
-                $info = @unserialize((string)$payload);
+                $info = @unserialize((string)$payload, ['allowed_classes' => false]);
                 $map[$type][$value][$path] = is_array($info) ? $info : [];
             }
 
