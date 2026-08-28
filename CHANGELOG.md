@@ -7,10 +7,13 @@
     * Page collections can now exclude one or more template types with `notOfType()`, the counterpart to the existing `ofType()` [#3910](https://github.com/getgrav/grav/issues/3910)
     * The scheduler can now run the jobs that have missed their scheduled time, rather than only the ones due this very minute. Run it with `bin/grav scheduler --catch-up`, which is what you want on a site that has no cron entry set up
 1. [](#improved)
+    * The debugger's Clockwork data endpoint now answers only requests coming from the server itself, or requests presenting the secret set in the new `debugger.token` option. Cookies and API tokens are no longer recorded in profiler data whatever the `censored` option is set to
     * Building a URL is now faster, which adds up over the hundreds of asset and link URLs a single page render produces
     * The scheduler now records whether a run was started by cron or by hand, and a run you started yourself no longer counts as evidence that cron is set up
     * `bin/grav scheduler -r` now records the run against each job, the same as a scheduled run, so the next run knows what has already happened
 1. [](#bugfix)
+    * A form field's `minlength` and `maxlength` are now checked when the form is submitted, not only by the browser. They were being written into the page as HTML attributes but ignored on the server, so anything that skipped the browser's own check went straight through [#642](https://github.com/getgrav/grav-plugin-form/issues/642)
+    * A field with a `step` set now accepts the lengths and counts that land on a step, and rejects the ones that do not. The check was the wrong way round, so it rejected exactly the values it was meant to allow
     * A site installed in a subfolder no longer mangles URLs whose path repeats the install folder's name, such as an image at `/images/subdir/photo.jpg` on a site installed at `/subdir`
     * A link to a page that carries a query string or an anchor, such as `/blog?page=2`, now resolves to the page and keeps its language prefix, instead of being passed through as a plain path
     * On a site installed in a subfolder, links written with the full path now resolve to the page, so they pick up the site's language and page extension
