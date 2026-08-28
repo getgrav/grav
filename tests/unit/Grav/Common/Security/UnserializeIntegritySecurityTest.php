@@ -88,32 +88,30 @@ class UnserializeIntegritySecurityTest extends \PHPUnit\Framework\TestCase
         $queue = new JobQueue($this->queueDir);
 
         // Attacker constructs a Job with `command='system'` and signs it with
-        // their guessed key. With HMAC verification, the forged blob is
-        // rejected and we fall through to the structured-fields rebuild.
+        // their guessed key. With HMAC verification the forged blob is rejected,
+        // and the unsigned `command` field is no longer a rebuild source either,
+        // so nothing is reconstructed at all.
         $forgedJob = new Job('system', ['rm -rf /'], 'pwn');
         $forgedSerialized = serialize($forgedJob);
         $item = [
             'serialized_job' => base64_encode($forgedSerialized),
             'serialized_job_hmac' => hash_hmac('sha256', $forgedSerialized, 'attacker-key-guess'),
             'job_id' => 'job-2',
-            // Legitimate fallback fields the queue would normally have.
             'command' => 'echo',
             'arguments' => ['safe'],
         ];
 
-        $reconstructed = $this->reconstruct($queue, $item);
-        self::assertInstanceOf(Job::class, $reconstructed);
-        self::assertNotSame('system', $reconstructed->getCommand(), 'forged command must not survive');
-        self::assertSame('echo', $reconstructed->getCommand(), 'must rebuild from structured fallback fields');
+        self::assertNull($this->reconstruct($queue, $item), 'forged item must not reconstruct');
     }
 
     public function testReconstructJob_GHSAvj3m_RejectsItemMissingHmacField(): void
     {
         $queue = new JobQueue($this->queueDir);
 
-        // Pre-fix queue files only carried `serialized_job`; with the fix in
-        // place those entries can no longer trigger unserialize, but if a
-        // structured fallback exists they still execute via that path.
+        // Pre-fix queue files only carried `serialized_job`. Those entries can no
+        // longer trigger unserialize, and the plaintext `command` beside them is
+        // not trusted either — an unsigned queue file must not be able to name
+        // the callable that runs.
         $forgedJob = new Job('system', ['rm -rf /'], 'pwn');
         $item = [
             'serialized_job' => base64_encode(serialize($forgedJob)),
@@ -122,9 +120,26 @@ class UnserializeIntegritySecurityTest extends \PHPUnit\Framework\TestCase
             'arguments' => ['safe'],
         ];
 
-        $reconstructed = $this->reconstruct($queue, $item);
-        self::assertInstanceOf(Job::class, $reconstructed);
-        self::assertSame('echo', $reconstructed->getCommand());
+        self::assertNull($this->reconstruct($queue, $item));
+    }
+
+    /**
+     * A queue file with no signed payload at all, naming a dangerous PHP callable
+     * in `command`, used to be rebuilt verbatim into `new Job('system', [...])` and
+     * reach call_user_func_array() — the same gadget the HMAC was added to close.
+     */
+    public function testReconstructJob_GHSAfjcp_UnsignedDangerousCommandIsRefused(): void
+    {
+        $queue = new JobQueue($this->queueDir);
+
+        $item = [
+            'id' => 'x',
+            'job_id' => 'x',
+            'command' => 'system',
+            'arguments' => ['id > /tmp/pwned'],
+        ];
+
+        self::assertNull($this->reconstruct($queue, $item), 'unsigned command must never become a Job');
     }
 
     public function testReconstructJob_GHSAvj3m_ReturnsNullOnFullyTamperedItem(): void
