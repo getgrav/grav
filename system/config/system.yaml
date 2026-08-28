@@ -153,6 +153,7 @@ debugger:
   enabled: false                                 # Enable Grav debugger and following settings
   provider: clockwork                            # Debugger provider: debugbar | clockwork
   censored: false                                # Censor potentially sensitive information (POST parameters, cookies, files, configuration and most array/object data in log messages)
+  token: ''                                      # Shared secret a remote client must send as `X-Clockwork-Auth` to read `/__clockwork/` profiler data. Empty means loopback-only
   shutdown:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
 
