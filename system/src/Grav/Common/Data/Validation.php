@@ -257,20 +257,22 @@ class Validation
         $value = preg_replace("/\r\n|\r/um", "\n", $value);
         $len = mb_strlen((string) $value);
 
-        $min = (int)($params['min'] ?? 0);
+        // `minlength`/`maxlength` are the field-level spelling of validate.min/max, and are
+        // already emitted as the HTML attributes of the same name. Honour them server side too.
+        $min = (int)($params['min'] ?? $field['minlength'] ?? 0);
         if ($min && $len < $min) {
             return false;
         }
 
         $multiline = isset($params['multiline']) && $params['multiline'];
 
-        $max = (int)($params['max'] ?? ($multiline ? 65536 : 2048));
+        $max = (int)($params['max'] ?? $field['maxlength'] ?? ($multiline ? 65536 : 2048));
         if ($max && $len > $max) {
             return false;
         }
 
         $step = (int)($params['step'] ?? 0);
-        if ($step && ($len - $min) % $step === 0) {
+        if ($step && ($len - $min) % $step !== 0) {
             return false;
         }
 
@@ -858,7 +860,7 @@ class Validation
             }
 
             $min = $params['min'] ?? 0;
-            if (isset($params['step']) && (count($value) - $min) % $params['step'] === 0) {
+            if (isset($params['step']) && (count($value) - $min) % $params['step'] !== 0) {
                 return false;
             }
         }
