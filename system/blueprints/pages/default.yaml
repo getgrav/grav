@@ -34,6 +34,9 @@ form:
                 type: markdown
                 validate:
                   type: textarea
+                  # Page body has no length ceiling: `0` opts out of the default
+                  # multiline guard, which used to reject long pages (#3643).
+                  max: 0
 
             header.media_order:
               type: pagemedia

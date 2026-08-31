@@ -35,6 +35,16 @@ use function is_string;
 class Validation
 {
     /**
+     * Length rule that failed during the most recent type-validation call, as
+     * `['rule' => 'min'|'max', 'limit' => int, 'length' => int]`. Set by
+     * typeText() and consumed by validate() so a value that is merely too long
+     * says so, instead of reporting the same "Invalid input" as a malformed one.
+     *
+     * @var array|null
+     */
+    protected static $lengthFailure = null;
+
+    /**
      * Validate value against a blueprint field definition.
      *
      * @param mixed $value
@@ -78,8 +88,16 @@ class Validation
 
         $messages = [];
 
+        self::$lengthFailure = null;
         $success = method_exists(__CLASS__, $method) ? self::$method($value, $validate, $field) : true;
         if (!$success) {
+            // A value that is simply too long (or too short) is otherwise
+            // indistinguishable from a malformed one, which sent people
+            // bisecting their own content to find the limit (#3643).
+            if (self::$lengthFailure) {
+                $key = self::$lengthFailure['rule'] === 'min' ? 'GRAV.FORM.LENGTH_TOO_SHORT' : 'GRAV.FORM.LENGTH_TOO_LONG';
+                $message .= ' ' . $language->translate([$key, self::$lengthFailure['length'], self::$lengthFailure['limit']]);
+            }
             $messages[$field['name']][] = $message;
         }
 
@@ -245,13 +263,22 @@ class Validation
 
         $min = (int)($params['min'] ?? 0);
         if ($min && $len < $min) {
+            self::$lengthFailure = ['rule' => 'min', 'limit' => $min, 'length' => $len];
+
             return false;
         }
 
         $multiline = isset($params['multiline']) && $params['multiline'];
 
-        $max = (int)($params['max'] ?? ($multiline ? 65536 : 2048));
+        // The defaults are runaway guards, not storage limits: Grav writes this
+        // value to a flat file, so the only thing worth stopping is a payload no
+        // human typed. Real content must never hit them -- a multiline default of
+        // 65536 used to reject ordinary long pages (#3643). Set `max: 0` on a
+        // field to opt out of the check entirely.
+        $max = (int)($params['max'] ?? ($multiline ? 2000000 : 2048));
         if ($max && $len > $max) {
+            self::$lengthFailure = ['rule' => 'max', 'limit' => $max, 'length' => $len];
+
             return false;
         }
 
