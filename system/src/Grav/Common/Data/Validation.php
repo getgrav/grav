@@ -45,6 +45,16 @@ class Validation
     protected static array $unexpectedValues = [];
 
     /**
+     * Length rule that failed during the most recent type-validation call, as
+     * `['rule' => 'min'|'max', 'limit' => int, 'length' => int]`. Set by
+     * typeText() and consumed by validate() so a value that is merely too long
+     * says so, instead of reporting the same "Invalid input" as a malformed one.
+     *
+     * @var array{rule: string, limit: int, length: int}|null
+     */
+    protected static ?array $lengthFailure = null;
+
+    /**
      * Validate value against a blueprint field definition.
      *
      * @param array $field
@@ -88,6 +98,7 @@ class Validation
         $messages = [];
 
         self::$unexpectedValues = [];
+        self::$lengthFailure = null;
         $success = method_exists(self::class, $method) ? self::$method($value, $validate, $field) : true;
         if (!$success) {
             // When the failure is an option-membership rejection (checkboxes,
@@ -95,6 +106,13 @@ class Validation
             // debuggable rather than just "Invalid input in <field>".
             if (self::$unexpectedValues) {
                 $message .= ' ' . $language->translate(['GRAV.FORM.UNEXPECTED_VALUES', implode(', ', self::$unexpectedValues)]);
+            }
+            // A value that is simply too long (or too short) is otherwise
+            // indistinguishable from a malformed one, which sent people
+            // bisecting their own content to find the limit (#3643).
+            if (self::$lengthFailure) {
+                $key = self::$lengthFailure['rule'] === 'min' ? 'GRAV.FORM.LENGTH_TOO_SHORT' : 'GRAV.FORM.LENGTH_TOO_LONG';
+                $message .= ' ' . $language->translate([$key, self::$lengthFailure['length'], self::$lengthFailure['limit']]);
             }
             $messages[$field['name']][] = $message;
         }
@@ -261,13 +279,22 @@ class Validation
         // already emitted as the HTML attributes of the same name. Honour them server side too.
         $min = (int)($params['min'] ?? $field['minlength'] ?? 0);
         if ($min && $len < $min) {
+            self::$lengthFailure = ['rule' => 'min', 'limit' => $min, 'length' => $len];
+
             return false;
         }
 
         $multiline = isset($params['multiline']) && $params['multiline'];
 
-        $max = (int)($params['max'] ?? $field['maxlength'] ?? ($multiline ? 65536 : 2048));
+        // The defaults are runaway guards, not storage limits: Grav writes this
+        // value to a flat file, so the only thing worth stopping is a payload no
+        // human typed. Real content must never hit them -- a multiline default of
+        // 65536 used to reject ordinary long pages (#3643). Set `max: 0` on a
+        // field to opt out of the check entirely.
+        $max = (int)($params['max'] ?? $field['maxlength'] ?? ($multiline ? 2000000 : 2048));
         if ($max && $len > $max) {
+            self::$lengthFailure = ['rule' => 'max', 'limit' => $max, 'length' => $len];
+
             return false;
         }
 

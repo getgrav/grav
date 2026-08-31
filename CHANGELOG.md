@@ -1,5 +1,5 @@
 # v2.0.22
-## 08/28/2026
+## 08/31/2026
 
 1. [](#new)
     * The `url()` Twig function now takes a language, so a link to a route that isn't a page - a search page, a form action - can carry the site's language prefix: `{{ url('/search', lang=true) }}`
@@ -15,10 +15,13 @@
     * Building a URL is now faster, which adds up over the hundreds of asset and link URLs a single page render produces
     * The scheduler now records whether a run was started by cron or by hand, and a run you started yourself no longer counts as evidence that cron is set up
     * `bin/grav scheduler -r` now records the run against each job, the same as a scheduled run, so the next run knows what has already happened
+    * A field that is rejected only for being too long or too short now says so, and gives both the length submitted and the limit, instead of the same "Invalid input" any other bad value gets
+    * Multiline fields no longer carry a length limit low enough to affect real writing. Set `max: 0` on a field to remove the limit altogether
 1. [](#bugfix)
     * The `|reduce` Twig filter now actually reduces. It was running the `|map` code by mistake and throwing away the starting value, so `[1,2,3]|reduce((c, v) => c + v, 0)` gave back a list instead of `6`. Thanks to @DhiyaneshGeek
     * A form field's `minlength` and `maxlength` are now checked when the form is submitted, not only by the browser. They were being written into the page as HTML attributes but ignored on the server, so anything that skipped the browser's own check went straight through [#642](https://github.com/getgrav/grav-plugin-form/issues/642)
     * A field with a `step` set now accepts the lengths and counts that land on a step, and rejects the ones that do not. The check was the wrong way round, so it rejected exactly the values it was meant to allow
+    * A long page can be saved from the admin again. Page content was capped at 65,536 characters, so anything longer than roughly twenty pages of text was refused, and the only way to edit it was to write the file directly [#3643](https://github.com/getgrav/grav/issues/3643)
     * A site installed in a subfolder no longer mangles URLs whose path repeats the install folder's name, such as an image at `/images/subdir/photo.jpg` on a site installed at `/subdir`
     * A link to a page that carries a query string or an anchor, such as `/blog?page=2`, now resolves to the page and keeps its language prefix, instead of being passed through as a plain path
     * On a site installed in a subfolder, links written with the full path now resolve to the page, so they pick up the site's language and page extension
