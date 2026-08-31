@@ -10,6 +10,7 @@
 namespace Grav\Common\Page\Markdown;
 
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Medium\Link;
 use Grav\Common\Page\Pages;
@@ -293,9 +294,21 @@ class Excerpts
                 || Medium::isAllowedAction((string) $action['method'])
         ));
 
+        // `system.images.defaults` is image configuration, so it must only be
+        // applied to image media. Applying it to audio, video or a document
+        // replaced the player or download with a linked thumbnail (`link`) and
+        // pushed the HTML attributes through the medium's `__call()` URL
+        // passthrough, which appended them to the querystring instead.
+        // Individual defaults are also checked against the medium: an SVG or an
+        // animated GIF is an image but has no decoding()/fetchpriority(), and
+        // would leak those the same way. getgrav/grav#4264.
         $defaults = $this->config['images']['defaults'] ?? [];
-        if (count($defaults)) {
+        if (count($defaults) && $medium instanceof ImageMediaInterface) {
             foreach ($defaults as $method => $params) {
+                if (!method_exists($medium, (string) $method)) {
+                    continue;
+                }
+
                 if (array_search($method, array_column($actions, 'method')) === false) {
                     $actions[] = [
                         'method' => $method,

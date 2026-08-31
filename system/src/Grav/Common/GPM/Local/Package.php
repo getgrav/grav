@@ -34,7 +34,15 @@ class Package extends BasePackage
 
         $this->settings = $package->toArray();
 
-        $html_description = Parsedown::instance()->line($this->__get('description'));
+        // A package description is authored by whoever ships the package, and
+        // admin renders `description_html` raw. Parsedown's default mode passes
+        // inline HTML and `javascript:` hrefs straight through, so render it in
+        // safe mode: raw HTML is escaped and unsafe link protocols are neutered,
+        // matching what the API plugin's package serializer already does.
+        $parsedown = new Parsedown();
+        $parsedown->setSafeMode(true);
+        $parsedown->setBreaksEnabled(false);
+        $html_description = $parsedown->line((string) $this->__get('description'));
         $this->data->set('slug', $package->__get('slug'));
         $this->data->set('description_html', $html_description);
         $this->data->set('description_plain', strip_tags((string) $html_description));

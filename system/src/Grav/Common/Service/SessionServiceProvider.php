@@ -11,6 +11,7 @@ namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
+use Grav\Common\Inflector;
 use Grav\Common\Security;
 use Grav\Common\Session;
 use Grav\Common\Uri;
@@ -86,7 +87,24 @@ class SessionServiceProvider implements ServiceProviderInterface
                 $cookie_lifetime = 9999999999;
             }
 
-            $session_prefix = $c['inflector']->hyphenize($config->get('system.session.name', 'grav-site'));
+            $session_prefix = static::resolveSessionPrefix($c['inflector'], (string) $config->get('system.session.name', 'grav-site'));
+
+            // A browser applies the `__Secure-`/`__Host-` protections only when the cookie
+            // also carries the attributes the prefix promises, and *discards the cookie
+            // outright* when it does not. Preserving the name without lining the attributes
+            // up would hand the site owner a silent login loop rather than the protection
+            // they asked for -- and on Grav's shipped config it would, since `domain:` is
+            // empty, which resolves to the request host below and is exactly what `__Host-`
+            // forbids.
+            if (str_starts_with($session_prefix, '__Secure-') || str_starts_with($session_prefix, '__Host-')) {
+                $cookie_secure = true;
+            }
+            if (str_starts_with($session_prefix, '__Host-')) {
+                // `__Host-` additionally forbids a Domain attribute and demands Path=/.
+                $cookie_domain = '';
+                $cookie_path = '/';
+            }
+
             $session_uniqueness = $config->get('system.session.uniqueness', 'path') === 'path' ?  substr(md5(GRAV_ROOT), 0, 7) :  md5(Security::getNonceKey());
 
             $session_name = $session_prefix . '-' . $session_uniqueness;
@@ -131,5 +149,55 @@ class SessionServiceProvider implements ServiceProviderInterface
 
             return $session->messages;
         };
+    }
+
+    /**
+     * Resolves the configured session name into a session cookie name prefix.
+     *
+     * If the configured name is already a valid cookie name (RFC 6265 / RFC 2616 token), it is
+     * used as-is. This preserves cookie name prefixes such as `__Secure-` and `__Host-`, which
+     * browsers only honor on exact, case-sensitive, unmodified cookie names. Otherwise the name
+     * is hyphenized to strip out invalid characters.
+     *
+     * @param Inflector $inflector
+     * @param string $name
+     * @return string
+     */
+    public static function resolveSessionPrefix(Inflector $inflector, string $name): string
+    {
+        // Keep a recognised cookie-name prefix verbatim and resolve only the remainder.
+        // Treating the whole string as one token would drop the prefix entirely the
+        // moment the rest of the name needed cleaning up -- `__Secure-My Site` would
+        // come out as `secure-my-site`, losing the very thing this is here to preserve.
+        foreach (['__Secure-', '__Host-'] as $prefix) {
+            if (str_starts_with($name, $prefix)) {
+                $rest = substr($name, strlen($prefix));
+
+                return $prefix . (static::isValidCookieName($rest) ? $rest : $inflector->hyphenize($rest));
+            }
+        }
+
+        return static::isValidCookieName($name) ? $name : $inflector->hyphenize($name);
+    }
+
+    /**
+     * Is this already usable verbatim as a cookie name?
+     *
+     * An RFC 6265 / RFC 2616 token, minus `.`. The dot is excluded deliberately: PHP
+     * mangles dots in request-variable names, so a session cookie named `my.site`
+     * reaches PHP as `my_site` and `Session::start()` -- which resumes via
+     * `isset($_COOKIE[$sessionName])` -- would never find it again, handing out a
+     * fresh session on every single request. `system.yaml` has always warned against
+     * dots here for exactly that reason; hyphenizing them keeps that protection.
+     *
+     * `\A`/`\z` rather than `^`/`$`, because `$` also matches before a trailing
+     * newline and would let `"grav-site\n"` through to `session_name()`.
+     *
+     * @param string $name
+     * @return bool
+     */
+    private static function isValidCookieName(string $name): bool
+    {
+        return $name !== '' && (bool) preg_match('/\A[!#$%&\'*+\-^_`|~0-9A-Za-z]+\z/', $name);
     }
 }

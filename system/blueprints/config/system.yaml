@@ -1346,6 +1346,13 @@ form:
               validate:
                 type: bool
 
+            debugger.token:
+              type: text
+              size: medium
+              label: PLUGIN_ADMIN.DEBUGGER_TOKEN
+              help: PLUGIN_ADMIN.DEBUGGER_TOKEN_HELP
+              autocomplete: 'off'
+
             debugger.shutdown.close_connection:
               type: toggle
               label: PLUGIN_ADMIN.SHUTDOWN_CLOSE_CONNECTION

@@ -45,6 +45,16 @@ class Validation
     protected static array $unexpectedValues = [];
 
     /**
+     * Length rule that failed during the most recent type-validation call, as
+     * `['rule' => 'min'|'max', 'limit' => int, 'length' => int]`. Set by
+     * typeText() and consumed by validate() so a value that is merely too long
+     * says so, instead of reporting the same "Invalid input" as a malformed one.
+     *
+     * @var array{rule: string, limit: int, length: int}|null
+     */
+    protected static ?array $lengthFailure = null;
+
+    /**
      * Validate value against a blueprint field definition.
      *
      * @param array $field
@@ -88,6 +98,7 @@ class Validation
         $messages = [];
 
         self::$unexpectedValues = [];
+        self::$lengthFailure = null;
         $success = method_exists(self::class, $method) ? self::$method($value, $validate, $field) : true;
         if (!$success) {
             // When the failure is an option-membership rejection (checkboxes,
@@ -95,6 +106,13 @@ class Validation
             // debuggable rather than just "Invalid input in <field>".
             if (self::$unexpectedValues) {
                 $message .= ' ' . $language->translate(['GRAV.FORM.UNEXPECTED_VALUES', implode(', ', self::$unexpectedValues)]);
+            }
+            // A value that is simply too long (or too short) is otherwise
+            // indistinguishable from a malformed one, which sent people
+            // bisecting their own content to find the limit (#3643).
+            if (self::$lengthFailure) {
+                $key = self::$lengthFailure['rule'] === 'min' ? 'GRAV.FORM.LENGTH_TOO_SHORT' : 'GRAV.FORM.LENGTH_TOO_LONG';
+                $message .= ' ' . $language->translate([$key, self::$lengthFailure['length'], self::$lengthFailure['limit']]);
             }
             $messages[$field['name']][] = $message;
         }
@@ -257,20 +275,31 @@ class Validation
         $value = preg_replace("/\r\n|\r/um", "\n", $value);
         $len = mb_strlen((string) $value);
 
-        $min = (int)($params['min'] ?? 0);
+        // `minlength`/`maxlength` are the field-level spelling of validate.min/max, and are
+        // already emitted as the HTML attributes of the same name. Honour them server side too.
+        $min = (int)($params['min'] ?? $field['minlength'] ?? 0);
         if ($min && $len < $min) {
+            self::$lengthFailure = ['rule' => 'min', 'limit' => $min, 'length' => $len];
+
             return false;
         }
 
         $multiline = isset($params['multiline']) && $params['multiline'];
 
-        $max = (int)($params['max'] ?? ($multiline ? 65536 : 2048));
+        // The defaults are runaway guards, not storage limits: Grav writes this
+        // value to a flat file, so the only thing worth stopping is a payload no
+        // human typed. Real content must never hit them -- a multiline default of
+        // 65536 used to reject ordinary long pages (#3643). Set `max: 0` on a
+        // field to opt out of the check entirely.
+        $max = (int)($params['max'] ?? $field['maxlength'] ?? ($multiline ? 2000000 : 2048));
         if ($max && $len > $max) {
+            self::$lengthFailure = ['rule' => 'max', 'limit' => $max, 'length' => $len];
+
             return false;
         }
 
         $step = (int)($params['step'] ?? 0);
-        if ($step && ($len - $min) % $step === 0) {
+        if ($step && ($len - $min) % $step !== 0) {
             return false;
         }
 
@@ -336,6 +365,63 @@ class Validation
         }
 
         return is_array($value) ? true : self::typeText($value, $params, $field);
+    }
+
+    /**
+     * Blueprint field: media
+     *
+     * A media pick is stored as a plain string — a page-media filename, a
+     * `media://` stream path, or an external URL. With `multiple: true` the
+     * field stores an ordered list of those strings instead. Without this
+     * filter the type falls through to filterText(), which stringifies the
+     * list and saves an empty value.
+     *
+     * @param  mixed  $value   Value to be filtered.
+     * @param  array  $params  Filter parameters.
+     * @param  array  $field   Blueprint for the field.
+     * @return array|string|null
+     */
+    protected static function filterMedia(mixed $value, array $params, array $field)
+    {
+        if (empty($field['multiple'])) {
+            return is_string($value) ? trim($value) : '';
+        }
+
+        // Tolerate a comma-joined string as well as a proper list — that is how
+        // the classic filepicker stored its multi values.
+        if (is_string($value)) {
+            $value = preg_split('/\s*,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        }
+
+        $values = [];
+        foreach ((array) $value as $item) {
+            if (!is_string($item)) {
+                continue;
+            }
+            $item = trim($item);
+            if ($item !== '') {
+                $values[] = $item;
+            }
+        }
+
+        return $values ?: null;
+    }
+
+    /**
+     * Blueprint field: media
+     *
+     * @param  mixed  $value   Value to be validated.
+     * @param  array  $params  Validation parameters.
+     * @param  array  $field   Blueprint for the field.
+     * @return bool   True if validation succeeded.
+     */
+    public static function typeMedia(mixed $value, array $params, array $field)
+    {
+        if (!empty($field['multiple'])) {
+            return is_array($value) || is_string($value);
+        }
+
+        return self::typeText($value, $params, $field);
     }
 
     /**
@@ -801,7 +887,7 @@ class Validation
             }
 
             $min = $params['min'] ?? 0;
-            if (isset($params['step']) && (count($value) - $min) % $params['step'] === 0) {
+            if (isset($params['step']) && (count($value) - $min) % $params['step'] !== 0) {
                 return false;
             }
         }

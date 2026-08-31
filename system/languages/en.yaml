@@ -97,6 +97,8 @@ GRAV:
         VALIDATION_FAIL: '<b>Validation failed:</b>'
         INVALID_INPUT: 'Invalid input in'
         UNEXPECTED_VALUES: '(unexpected value(s): %s)'
+        LENGTH_TOO_LONG: '(%s characters, maximum is %s)'
+        LENGTH_TOO_SHORT: '(%s characters, minimum is %s)'
         MISSING_REQUIRED_FIELD: 'Missing required field:'
         XSS_ISSUES: "Potential XSS issues detected in '%s' field"
     MONTHS_OF_THE_YEAR: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']

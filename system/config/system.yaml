@@ -179,6 +179,7 @@ debugger:
   enabled: false                                 # Enable Grav debugger and following settings
   provider: clockwork                            # Debugger provider: debugbar | clockwork
   censored: false                                # Censor potentially sensitive information (POST parameters, cookies, files, configuration and most array/object data in log messages)
+  token: ''                                      # Shared secret a remote client must send as `X-Clockwork-Auth` to read `/__clockwork/` profiler data. Empty means loopback-only
   shutdown:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
 
@@ -218,7 +219,7 @@ session:
   initialize: true                               # Initialize session from Grav (if false, plugin needs to start the session)
   read_and_close: false                          # Release the session lock right after the initial read (read-only start); the first write re-acquires it. Lets requests sharing a session id run concurrently instead of serializing on PHP's per-session lock. Opt-in: read-modify-write across a request is no longer atomic.
   timeout: 1800                                  # Timeout in seconds
-  name: grav-site                                # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
+  name: grav-site                                # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name. A `__Secure-` prefix requires HTTPS; a `__Host-` prefix additionally forces no cookie domain and a site-wide path
   uniqueness: path                               # Should sessions be `path` based or `security.salt` based
   secure: false                                  # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS
   secure_https: true                             # Set session secure on HTTPS but not on HTTP. Has no effect if you have `session.secure: true`. Set to false if your site jumps between HTTP and HTTPS.

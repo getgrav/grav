@@ -289,7 +289,10 @@ final class PageIndexStore
                 return null;
             }
 
-            $value = @unserialize($payload);
+            // The index is a cache file on disk, so its rows carry no integrity
+            // guarantee. Refuse to instantiate classes while decoding — every row
+            // this store writes is a plain array anyway.
+            $value = @unserialize($payload, ['allowed_classes' => false]);
 
             return is_array($value) ? $value : null;
         } catch (Throwable $e) {
@@ -313,7 +316,7 @@ final class PageIndexStore
 
             $result = [];
             foreach ($stmt->fetchAll(\PDO::FETCH_NUM) as [$path, $payload]) {
-                $info = @unserialize((string)$payload);
+                $info = @unserialize((string)$payload, ['allowed_classes' => false]);
                 $result[$path] = is_array($info) ? $info : [];
             }
 
@@ -335,7 +338,7 @@ final class PageIndexStore
 
             $map = [];
             foreach ($rows as [$type, $value, $path, $payload]) {
-                $info = @unserialize((string)$payload);
+                $info = @unserialize((string)$payload, ['allowed_classes' => false]);
                 $map[$type][$value][$path] = is_array($info) ? $info : [];
             }
 

@@ -93,6 +93,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                 'nonRoutable' => true,
                 'ofType' => true,
                 'ofOneOfTheseTypes' => true,
+                'notOfType' => true,
                 'ofOneOfTheseAccessLevels' => true,
                 'withOrdered' => true,
                 'withModules' => true,
@@ -670,6 +671,26 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
         $entries = [];
         foreach ($this as $key => $object) {
             if ($object && in_array($object->template(), $types, true)) {
+                $entries[$key] = $object;
+            }
+        }
+
+        return $this->createFrom($entries);
+    }
+
+    /**
+     * Creates new collection excluding pages of the specified type(s)
+     *
+     * @param string|string[] $type
+     * @return static The collection
+     * @phpstan-return static<T>
+     */
+    public function notOfType($type)
+    {
+        $entries = [];
+        $types = (array) $type;
+        foreach ($this as $key => $object) {
+            if ($object && !in_array($object->template(), $types, true)) {
                 $entries[$key] = $object;
             }
         }

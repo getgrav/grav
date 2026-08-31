@@ -285,6 +285,15 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
     public function ofOneOfTheseTypes($types);
 
     /**
+     * Creates new collection excluding pages of the specified type(s)
+     *
+     * @param string|string[] $type
+     * @return PageCollectionInterface The collection
+     * @phpstan-return PageCollectionInterface<TKey,T>
+     */
+    public function notOfType($type);
+
+    /**
      * Creates new collection with only pages of one of the specified access levels
      *
      * @param array $accessLevels

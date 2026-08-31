@@ -651,6 +651,102 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
         return $env;
     }
 
+    /**
+     * Production wiring: Grav never enables the sandbox globally. It registers a
+     * SandboxExtension whose GravSourcePolicy decides per template, so anything
+     * under `@Page:` / `@Var:` is sandboxed and a theme file on disk is not.
+     *
+     * Building the environment the way sandboxEnv() does — sandboxed globally —
+     * is what let a dead dump guard ship: it asked
+     * SandboxExtension::isSandboxed() with no Source, which is only ever true
+     * under a global sandbox, so it passed in tests and never fired in
+     * production. Use this helper for anything that asserts a runtime guard.
+     *
+     * @param array $templates
+     * @return Environment
+     */
+    private function sourcePolicySandboxEnv(array $templates): Environment
+    {
+        $env = new Environment(new ArrayLoader($templates), ['cache' => false, 'strict_variables' => false]);
+        $env->addExtension(new StringLoaderExtension());
+        $env->addExtension(new SandboxExtension(
+            Security::buildTwigSandboxPolicy(),
+            false,
+            new \Grav\Common\Twig\Sandbox\GravSourcePolicy()
+        ));
+        $env->addExtension(new \Grav\Common\Twig\Extension\GravExtension());
+
+        return $env;
+    }
+
+    /**
+     * print_r reflects private state, so it walked straight through the redacting
+     * SandboxConfig facade and returned the whole config tree — the exact leak
+     * GHSA-mc5q-6hpj-rp7j was supposed to close, and did not. Assert it through the
+     * source policy, which is how Grav actually renders content.
+     */
+    public function testGhsaRfr9_ReflectiveDumpOfConfigFacadeIsBlockedUnderSourcePolicy(): void
+    {
+        $facade = new \Grav\Common\Twig\Sandbox\SandboxConfig(
+            new \Grav\Common\Config\Config(['plugins' => ['email' => ['smtp' => ['password' => 'PLUGIN_SECRET_42']]]]),
+            ['plugins']
+        );
+
+        $env = $this->sourcePolicySandboxEnv(['@Var:poc' => '{{ config|print_r }}']);
+
+        $this->expectException(SecurityNotAllowedFilterError::class);
+        $env->render('@Var:poc', ['config' => $facade]);
+    }
+
+    /**
+     * The serializing half of the same guard: a raw Config is not an allow-listed
+     * class, so json_encode / yaml_encode / string must refuse it under the
+     * source policy too.
+     *
+     * @dataProvider serializingDumpFilterProvider
+     * @param string $template
+     */
+    public function testGhsaRfr9_SerializingDumpOfRawConfigIsBlockedUnderSourcePolicy(string $template): void
+    {
+        $real = new \Grav\Common\Config\Config([
+            'plugins' => ['email' => ['smtp' => ['password' => 'PLUGIN_SECRET_42']]],
+        ]);
+
+        $env = $this->sourcePolicySandboxEnv(['@Var:poc' => $template]);
+
+        $this->expectException(SecurityNotAllowedFilterError::class);
+        $env->render('@Var:poc', ['config' => $real]);
+    }
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function serializingDumpFilterProvider(): array
+    {
+        return [
+            'json_encode' => ['{{ config|json_encode }}'],
+            'yaml_encode' => ['{{ config|yaml_encode }}'],
+            'string'      => ['{{ config|string }}'],
+        ];
+    }
+
+    /**
+     * The same guard must not fire on a trusted (unsandboxed) source, or every
+     * theme partial that dumps an object breaks — the regression behind #4175.
+     */
+    public function testGhsaRfr9_TrustedSourceStillDumpsObjects(): void
+    {
+        $real = new \Grav\Common\Config\Config([
+            'plugins' => ['email' => ['smtp' => ['password' => 'PLUGIN_SECRET_42']]],
+        ]);
+        $facade = new \Grav\Common\Twig\Sandbox\SandboxConfig($real, ['plugins']);
+
+        $env = $this->sourcePolicySandboxEnv(['partials/base.html.twig' => '{{ config|print_r }}']);
+        $output = $env->render('partials/base.html.twig', ['config' => $facade]);
+
+        self::assertStringContainsString('PLUGIN_SECRET_42', $output);
+    }
+
     private function assertDoesNotThrow(callable $fn): void
     {
         try {

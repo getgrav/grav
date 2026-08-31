@@ -1156,6 +1156,20 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     }
 
     /**
+     * Creates new collection excluding pages of the specified type(s)
+     *
+     * @param string|string[] $type
+     * @return static The collection
+     * @phpstan-return static<T,C>
+     */
+    public function notOfType($type)
+    {
+        $collection = $this->__call('notOfType', [$type]);
+
+        return $collection;
+    }
+
+    /**
      * Creates new collection with only pages of one of the specified access levels
      *
      * @param array $accessLevels

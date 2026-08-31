@@ -31,6 +31,15 @@ use function is_string;
  */
 class Scheduler
 {
+    /** Run only the jobs whose schedule matches the moment of the run. This is what cron does. */
+    public const RUN_DUE = 'due';
+
+    /** Run the due jobs plus any that have missed the last slot their schedule gave them. */
+    public const RUN_OVERDUE = 'overdue';
+
+    /** Run every enabled job, whatever its schedule says. */
+    public const RUN_ALL = 'all';
+
     /** @var Job[] The queued jobs. */
     private $jobs = [];
 
@@ -76,6 +85,12 @@ class Scheduler
     
     /** @var string */
     protected $queuePath;
+
+    /** @var string What started the current run: 'cron' for an automated trigger, 'manual' for a person. */
+    protected $runTrigger = 'cron';
+
+    /** @var bool Whether the system jobs have been registered. */
+    protected $initialized = false;
     
     /** @var string */
     protected $historyPath;
@@ -173,17 +188,25 @@ class Scheduler
      */
     public function initializeJobs(): void
     {
-        if (count($this->jobs) === 0) {
-            $grav = Grav::instance();
-
-            // Make sure the backups listener is registered before the event fires.
-            if (isset($grav['backups'])) {
-                $grav['backups']->init();
-            }
-
-            // Trigger event to load system jobs (cache-purge, cache-clear, backups, etc.)
-            $grav->fireEvent('onSchedulerInitialized', new \RocketTheme\Toolbox\Event\Event(['scheduler' => $this]));
+        // Tracked with its own flag rather than by asking whether any job is queued yet. A site
+        // with a custom job of its own already had one queued by loadSavedJobs() before this
+        // ran, so the old test concluded the system jobs were registered when none of them
+        // were, and getJob() could not find cache-purge, the backup, or anything a plugin adds.
+        if ($this->initialized) {
+            return;
         }
+
+        $this->initialized = true;
+
+        $grav = Grav::instance();
+
+        // Make sure the backups listener is registered before the event fires.
+        if (isset($grav['backups'])) {
+            $grav['backups']->init();
+        }
+
+        // Trigger event to load system jobs (cache-purge, cache-clear, backups, etc.)
+        $grav->fireEvent('onSchedulerInitialized', new \RocketTheme\Toolbox\Event\Event(['scheduler' => $this]));
     }
 
     /**
@@ -285,10 +308,16 @@ class Scheduler
      * Run the scheduler.
      *
      * @param DateTime|null $runTime Optional, run at specific moment
-     * @param bool $force force run even if not due
+     * @param bool $force Force every enabled job to run. Kept for backwards compatibility; same as $mode = self::RUN_ALL
+     * @param string $mode One of self::RUN_DUE, self::RUN_OVERDUE or self::RUN_ALL
      */
-    public function run(?DateTime $runTime = null, $force = false)
+    public function run(?DateTime $runTime = null, $force = false, string $mode = self::RUN_DUE)
     {
+        // run($time, true) has always meant "run everything", so keep honouring it.
+        if ($force) {
+            $mode = self::RUN_ALL;
+        }
+
         $this->initializeJobs();
 
 
@@ -301,10 +330,13 @@ class Scheduler
             $runTime = new DateTime('now');
         }
 
+        $this->jobs_run = [];
+        $states = (array) $this->getJobStates()->content();
+
         // Log scheduler run
         if ($this->logger) {
             $jobCount = count($alljobs);
-            $forceStr = $force ? ' (forced)' : '';
+            $forceStr = $mode === self::RUN_DUE ? '' : " ({$mode})";
             $this->logger->debug("Scheduler run started - {$jobCount} jobs available{$forceStr}", [
                 'time' => $runTime->format('Y-m-d H:i:s')
             ]);
@@ -315,7 +347,7 @@ class Scheduler
             // Queue jobs for processing
             $queuedCount = 0;
             foreach ($alljobs as $job) {
-                if ($job->isDue($runTime) || $force) {
+                if ($this->shouldRun($job, $runTime, $mode, $states)) {
                     // Add to queue for concurrent processing
                     $this->jobQueue->push($job);
                     $queuedCount++;
@@ -334,7 +366,7 @@ class Scheduler
         } else {
             // Legacy processing (one at a time)
             foreach ($alljobs as $job) {
-                if ($job->isDue($runTime) || $force) {
+                if ($this->shouldRun($job, $runTime, $mode, $states)) {
                     $job->run();
                     $this->jobs_run[] = $job;
                 }
@@ -387,11 +419,135 @@ class Scheduler
         // to be the generated crontab line (it prefixes `cd <GRAV_ROOT>;`). A webhook, an
         // API call or `bin/grav scheduler` started from elsewhere used to drop the marker
         // somewhere else, or not at all.
-        $lastCron = Grav::instance()['locator']->findResource('log://lastcron.run', true, true);
-        file_put_contents($lastCron, (new DateTime('now'))->format('Y-m-d H:i:s'), LOCK_EX);
+        //
+        // A run somebody started by hand is deliberately left out: it is not evidence that
+        // anything triggers the scheduler on its own, and counting it would make every site
+        // report a working cron the moment its owner pressed "Run now".
+        if ($this->runTrigger !== 'manual') {
+            $lastCron = Grav::instance()['locator']->findResource('log://lastcron.run', true, true);
+            file_put_contents($lastCron, (new DateTime('now'))->format('Y-m-d H:i:s'), LOCK_EX);
+        }
 
         // Update last run timestamp for health checks
         $this->updateLastRun();
+    }
+
+    /**
+     * Whether this job should run in the current pass.
+     *
+     * @param Job $job
+     * @param DateTime $runTime
+     * @param string $mode One of self::RUN_DUE, self::RUN_OVERDUE or self::RUN_ALL
+     * @param array $states Job states, as stored in status.yaml
+     * @return bool
+     */
+    private function shouldRun(Job $job, DateTime $runTime, string $mode, array $states): bool
+    {
+        if ($mode === self::RUN_ALL) {
+            return true;
+        }
+
+        if ($job->isDue($runTime)) {
+            return true;
+        }
+
+        return $mode === self::RUN_OVERDUE && $this->isOverdue($job, $runTime, $states);
+    }
+
+    /**
+     * Whether a job has missed the last slot its schedule gave it.
+     *
+     * A job is only "due" during the minute its cron expression names, which is fine when
+     * something runs the scheduler every minute and useless when nothing does. This asks the
+     * other question instead: has this job run since the last time it was supposed to? That is
+     * what a catch-up run needs to know, and it is the same test isTriggeredExternally() uses
+     * to decide whether the jobs are keeping up.
+     *
+     * @param Job $job
+     * @param DateTime|null $runTime
+     * @param array|null $states Job states, as stored in status.yaml. Loaded when not supplied
+     * @return bool
+     */
+    public function isOverdue(Job $job, ?DateTime $runTime = null, ?array $states = null): bool
+    {
+        $expression = $job->getCronExpression();
+        if (!$expression) {
+            return false;
+        }
+
+        $runTime ??= new DateTime('now');
+        $states ??= (array) $this->getJobStates()->content();
+
+        try {
+            // Include the current date so a job due this very minute still counts.
+            $due = $expression->getPreviousRunDate($runTime, 0, true)->getTimestamp();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        $lastRun = $states[$job->getId()]['last-run'] ?? null;
+
+        // Never run at all: every slot its schedule has had so far was missed.
+        return null === $lastRun || $lastRun < $due;
+    }
+
+    /**
+     * Run a single job by id, in the foreground, recording its state as a normal run would.
+     *
+     * @param string $jobId
+     * @return Job|null The job that ran, or null when nothing has that id
+     */
+    public function runJob(string $jobId): ?Job
+    {
+        $this->initializeJobs();
+        $this->loadSavedJobs();
+
+        $job = $this->getJob($jobId);
+        if (!$job) {
+            return null;
+        }
+
+        $this->jobs_run = [$job];
+
+        $job->inForeground()->run();
+
+        $this->saveJobStates();
+        $this->updateLastRun();
+
+        return $job;
+    }
+
+    /**
+     * The jobs executed by the last run, in the order they ran.
+     *
+     * @return Job[]
+     */
+    public function getJobsRun()
+    {
+        return $this->jobs_run;
+    }
+
+    /**
+     * What is starting the run: 'cron' for anything automated, 'manual' for a person pressing a
+     * button or typing a command. Manual runs are recorded separately so they cannot be mistaken
+     * for a working trigger.
+     *
+     * @param string $trigger
+     * @return $this
+     */
+    public function setRunTrigger(string $trigger)
+    {
+        $this->runTrigger = $trigger === 'manual' ? 'manual' : 'cron';
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRunTrigger(): string
+    {
+        return $this->runTrigger;
     }
 
     /**
@@ -406,6 +562,7 @@ class Scheduler
         // Reset collected data of last run
         $this->executed_jobs = [];
         $this->failed_jobs = [];
+        $this->jobs_run = [];
         $this->output_schedule = [];
 
         return $this;
@@ -435,6 +592,7 @@ class Scheduler
     public function clearJobs()
     {
         $this->jobs = [];
+        $this->initialized = false;
 
         return $this;
     }
@@ -540,11 +698,23 @@ class Scheduler
 
         if ($process->isSuccessful()) {
             $output = $process->getOutput();
-            // Match with or without a trailing --env, so an older crontab line still counts as installed.
-            $command = str_replace('/', '\/', $this->getSchedulerCommand('.*', false));
-            $full_command = '/^(?!#).* .* .* .* .* ' . $command . '/m';
 
-            return  preg_match($full_command, $output) ? 1 : 0;
+            // Recognise any crontab line that actually runs the scheduler, not only the
+            // exact string getCronCommand() emits. A hand-written entry -- or one written
+            // by a Docker image or a control panel -- is commonly spelled `&&` rather than
+            // `;`, spaced differently, or given an absolute path to bin/grav with no `cd`
+            // at all, and every one of those works fine while the old exact match reported
+            // "cron is not set up". Anchored on the repository root plus `bin/grav
+            // scheduler` so another site's entry in the same crontab still does not count.
+            $root = preg_quote(rtrim(GRAV_ROOT, '/'), '/');
+            $full_command = '/^(?!#).*\s' . $root . '(?:\/|\\\\ |;|\s|&).*bin\/grav\s+scheduler\b/m';
+
+            if (preg_match($full_command, $output)) {
+                return 1;
+            }
+
+            // Also accept an absolute `<root>/bin/grav scheduler` with no `cd` prefix.
+            return preg_match('/^(?!#).*\s' . $root . '\/bin\/grav\s+scheduler\b/m', $output) ? 1 : 0;
         }
 
         $error = $process->getErrorOutput();
@@ -574,10 +744,10 @@ class Scheduler
 
         foreach ($this->jobs_run as $job) {
             if ($job->isSuccessful()) {
-                $new_states[$job->getId()] = ['state' => 'success', 'last-run' => $now];
+                $new_states[$job->getId()] = ['state' => 'success', 'last-run' => $now, 'trigger' => $this->runTrigger];
                 $this->pushExecutedJob($job);
             } else {
-                $new_states[$job->getId()] = ['state' => 'failure', 'last-run' => $now, 'error' => $job->getOutput()];
+                $new_states[$job->getId()] = ['state' => 'failure', 'last-run' => $now, 'trigger' => $this->runTrigger, 'error' => $job->getOutput()];
                 $this->pushFailedJob($job);
             }
         }
@@ -661,7 +831,11 @@ class Scheduler
                 continue;
             }
 
-            $lastRun = $states[$job->getId()]['last-run'] ?? null;
+            $state = $states[$job->getId()] ?? [];
+
+            // A job somebody ran by hand proves nothing about whether the scheduler is being
+            // triggered on its own, so it counts as never having run here.
+            $lastRun = ($state['trigger'] ?? 'cron') === 'manual' ? null : ($state['last-run'] ?? null);
             if (null === $lastRun) {
                 return false;
             }
@@ -857,9 +1031,15 @@ class Scheduler
      */
     private function queueJob(Job $job)
     {
-        $this->jobs[] = $job;
+        // Registering the same id twice -- two callers firing onSchedulerInitialized, say --
+        // must not give the job two entries and two runs. First registration wins.
+        foreach ($this->jobs as $existing) {
+            if ($existing->getId() === $job->getId()) {
+                return;
+            }
+        }
 
-        // Store jobs
+        $this->jobs[] = $job;
     }
 
     /**
@@ -1133,6 +1313,7 @@ class Scheduler
         $status[$job->getId()] = [
             'state' => $job->isSuccessful() ? 'success' : 'failure',
             'last-run' => time(),
+            'trigger' => $this->runTrigger,
         ];
         
         // Add error if job failed
@@ -1184,12 +1365,39 @@ class Scheduler
      */
     protected function updateLastRun(): void
     {
+        // A run started by hand gets its own marker. It is worth showing -- "you last ran this
+        // yourself two minutes ago" is useful -- but it must not be mistaken for the scheduler
+        // being triggered automatically, and it must not overwrite the environment the real
+        // trigger last ran under.
+        if ($this->runTrigger === 'manual') {
+            file_put_contents($this->status_path . '/last_manual_run.txt', date('Y-m-d H:i:s'));
+
+            return;
+        }
+
         $lastRunFile = $this->status_path . '/last_run.txt';
         file_put_contents($lastRunFile, date('Y-m-d H:i:s'));
 
         // Remember which environment this run loaded its configuration from, so the admin can
         // tell when the cron runs under a different one than the site itself (#4248).
         file_put_contents($this->status_path . '/last_run_environment.txt', (string) Setup::$environment);
+    }
+
+    /**
+     * Timestamp of the last run somebody started by hand, from the admin or the command line.
+     *
+     * @return int|null
+     */
+    public function getLastManualRun(): ?int
+    {
+        $file = $this->status_path . '/last_manual_run.txt';
+        if (!is_file($file)) {
+            return null;
+        }
+
+        $stamp = strtotime(trim((string) file_get_contents($file)));
+
+        return $stamp ?: null;
     }
     
     /**
@@ -1295,13 +1503,8 @@ class Scheduler
 
         if ($jobId) {
             // Force run specific job
-            $job = $this->getJob($jobId);
+            $job = $this->runJob($jobId);
             if ($job) {
-                $job->inForeground()->run();
-                $this->jobs_run[] = $job;
-                $this->saveJobStates();
-                $this->updateLastRun();
-                
                 return [
                     'success' => $job->isSuccessful(),
                     'message' => $job->isSuccessful() ? 'Job force-executed successfully' : 'Job execution failed',
