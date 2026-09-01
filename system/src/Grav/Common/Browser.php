@@ -58,7 +58,7 @@ class Browser
      */
     public function getBrowser()
     {
-        return strtolower($this->useragent['browser']);
+        return strtolower($this->useragent['browser'] ?? '');
     }
 
     /**
@@ -96,7 +96,7 @@ class Browser
      */
     public function getPlatform()
     {
-        return strtolower($this->useragent['platform']);
+        return strtolower($this->useragent['platform'] ?? '');
     }
 
     /**
@@ -106,7 +106,7 @@ class Browser
      */
     public function getLongVersion()
     {
-        return $this->useragent['version'];
+        return $this->useragent['version'] ?? '';
     }
 
     /**
