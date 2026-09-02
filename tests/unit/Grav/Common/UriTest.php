@@ -1147,6 +1147,16 @@ class UriTest extends \PHPUnit\Framework\TestCase
             unset($_SERVER['HTTP_X_FORWARDED_FOR']);
             $_SERVER['REMOTE_ADDR'] = 'not-an-ip';
             self::assertSame('UNKNOWN', Uri::ip(), 'an invalid address is not reported');
+
+            // An empty $_SERVER entry must not shadow a working getenv() value:
+            // behaviour has to stay identical on hosts where getenv() answers.
+            $_SERVER['REMOTE_ADDR'] = '';
+            putenv('REMOTE_ADDR=203.0.113.11');
+            try {
+                self::assertSame('203.0.113.11', Uri::ip(), 'an empty $_SERVER entry falls back to getenv()');
+            } finally {
+                putenv('REMOTE_ADDR');
+            }
         } finally {
             unset($_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_X_FORWARDED_FOR']);
             $_SERVER += $previousServer;

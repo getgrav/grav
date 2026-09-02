@@ -699,12 +699,17 @@ class Uri implements \Stringable
         $forwarded = (array)Grav::instance()['config']->get('system.http_x_forwarded', []);
 
         // Request variables come from $_SERVER, which every SAPI populates.
-        // getenv() only sees them where the SAPI also exports them to the
-        // process environment (mod_php, most php-fpm setups); under CGI/FastCGI
-        // hosts and PHP's built-in server it is empty and every caller used to
-        // come back as UNKNOWN. getenv() stays as the fallback.
+        // getenv() answers only where the SAPI provides a hook for it: PHP's
+        // built-in server has none, and some CGI/FastCGI hosts do not answer
+        // either, so every caller used to come back as UNKNOWN there. getenv()
+        // stays as the fallback, including when $_SERVER carries the name with
+        // an empty or non-string value, so nothing changes on a host where
+        // getenv() already worked.
         $server = static function (string $name): string {
-            $value = $_SERVER[$name] ?? getenv($name);
+            $value = $_SERVER[$name] ?? null;
+            if (!is_string($value) || $value === '') {
+                $value = getenv($name);
+            }
 
             return is_string($value) ? $value : '';
         };
