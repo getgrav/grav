@@ -1134,6 +1134,7 @@ class UriTest extends \PHPUnit\Framework\TestCase
         // Request variables are read from $_SERVER, not only getenv(): CGI/FastCGI
         // hosts and PHP's built-in server never export them to the environment.
         $previous = $this->config->get('system.http_x_forwarded');
+        $previousServer = array_intersect_key($_SERVER, ['REMOTE_ADDR' => 1, 'HTTP_X_FORWARDED_FOR' => 1]);
         $_SERVER['REMOTE_ADDR'] = '203.0.113.7';
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.9, 203.0.113.7';
         try {
@@ -1148,6 +1149,7 @@ class UriTest extends \PHPUnit\Framework\TestCase
             self::assertSame('UNKNOWN', Uri::ip(), 'an invalid address is not reported');
         } finally {
             unset($_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_X_FORWARDED_FOR']);
+            $_SERVER += $previousServer;
             $this->config->set('system.http_x_forwarded', $previous);
         }
     }
