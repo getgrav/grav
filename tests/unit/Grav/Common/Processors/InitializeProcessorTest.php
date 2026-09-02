@@ -316,4 +316,43 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
             'multi-segment lookalike'    => ['/a/bc/page', '/a/b', false],
         ];
     }
+
+    /* ------------------------------------------------------------------ *
+     * GRAV_CONFIG__* environment overrides: boolean literals must not
+     * arrive as the strings "true"/"false" (#4277).
+     * ------------------------------------------------------------------ */
+
+    /**
+     * @dataProvider environmentValues
+     */
+    public function testCastEnvironmentValue(mixed $input, mixed $expected): void
+    {
+        $method = new ReflectionMethod(InitializeProcessor::class, 'castEnvironmentValue');
+        $method->setAccessible(true);
+
+        self::assertSame($expected, $method->invoke(null, $input));
+    }
+
+    /** @return array<string, array{mixed, mixed}> */
+    public function environmentValues(): array
+    {
+        return [
+            'false literal' => ['false', false],
+            'true literal' => ['true', true],
+            'uppercase FALSE' => ['FALSE', false],
+            'mixed-case True' => ['True', true],
+            '"0" kept as string' => ['0', '0'],
+            '"1" kept as string' => ['1', '1'],
+            'numeric string kept' => ['42', '42'],
+            'arbitrary string kept' => ['production', 'production'],
+            'literal as a substring is not matched' => ['falsey', 'falsey'],
+            'a padded literal is left as text' => [' true ', ' true '],
+            '"yes" is not coerced' => ['yes', 'yes'],
+            'empty string' => ['', ''],
+            'a real bool is returned as-is' => [true, true],
+            'a real false is returned as-is' => [false, false],
+            'null is returned as-is' => [null, null],
+            'an int is returned as-is' => [0, 0],
+        ];
+    }
 }
