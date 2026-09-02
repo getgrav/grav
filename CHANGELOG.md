@@ -5,6 +5,7 @@
     * `composer.json` now declares the `ctype` and `session` extensions it has always used, and suggests `fileinfo` and `simplexml`. Installing with `composer create-project` on a machine missing one of these no longer quietly walks back to a years-old release of Grav instead of failing [#4273](https://github.com/getgrav/grav/discussions/4273)
 1. [](#bugfix)
     * Reading the browser name, platform or version no longer raises a PHP deprecation notice when a request arrives with no user agent, which is every request from a bare script or a health check
+    * `Uri::ip()` reads the client address from `$_SERVER` (falling back to `getenv()`), so it no longer reports `UNKNOWN` on hosts whose PHP does not export request variables to the environment: CGI/FastCGI setups such as NearlyFreeSpeech, and PHP's built-in server. Everything keyed on it there, such as the Login plugin's failed-login lockout and per-IP rate limiting, had been sharing one `UNKNOWN` bucket [#2507](https://github.com/getgrav/grav/issues/2507)
 
 # v2.0.22
 ## 08/31/2026
