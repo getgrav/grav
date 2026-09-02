@@ -232,6 +232,7 @@ class InitializeProcessor extends ProcessorBase
                 foreach ($aliases as $alias => $real) {
                     $key = str_replace($alias, $real, $key);
                 }
+                $value = static::castEnvironmentValue($value);
                 $list[$key] = $value;
                 $config->set($key, $value);
             }
@@ -481,6 +482,33 @@ class InitializeProcessor extends ProcessorBase
         $base = rtrim($base, '/');
 
         return $path === $base || str_starts_with($path, $base . '/');
+    }
+
+    /**
+     * Coerce a `GRAV_CONFIG__*` environment override to the type it plainly means.
+     *
+     * Environment variables are always strings, so `GRAV_CONFIG__system__cache__enabled=false`
+     * would otherwise reach the config as the string `"false"` -- and the `(bool)` casts
+     * used throughout core (e.g. `Cache::init()`) treat any non-empty, non-`"0"` string
+     * as true, silently doing the opposite of what was asked. Only the two boolean
+     * literals are coerced, case-insensitively; numbers and every other string are
+     * passed through unchanged, matching the previous behaviour.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    protected static function castEnvironmentValue(mixed $value): mixed
+    {
+        if (is_string($value)) {
+            if (strcasecmp($value, 'true') === 0) {
+                return true;
+            }
+            if (strcasecmp($value, 'false') === 0) {
+                return false;
+            }
+        }
+
+        return $value;
     }
 
     /**
