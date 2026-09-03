@@ -352,6 +352,65 @@ $this->grav = Fixtures::get('grav');
     }
 
     /**
+     * A plugin supporting both generations that asks for `admin` means "the
+     * admin panel". On Grav 2 that is admin2, so the requirement is met there
+     * rather than being unsatisfiable, and the classic admin's version
+     * constraint is dropped because it describes a different version line.
+     */
+    public function testAdminDependencyResolvesToAdmin2OnGrav2(): void
+    {
+        if (((int)GRAV_VERSION) < 2) {
+            self::markTestSkipped('Behaviour is specific to Grav 2.');
+        }
+
+        $this->gpm->data = [
+            'dual-compat-plugin' => (object)[
+                'dependencies' => [
+                    ['name' => 'admin', 'version' => '>=1.10.49'],
+                ]
+            ],
+            'admin2' => (object)[],
+        ];
+
+        $dependencies = $this->gpm->getDependencies(['dual-compat-plugin']);
+
+        self::assertArrayNotHasKey('admin', $dependencies, 'the classic admin slug never survives on Grav 2');
+        // admin2 is not installed in the test environment, so it is offered.
+        self::assertSame('install', $dependencies['admin2'] ?? null, 'the requirement is carried over to admin2');
+    }
+
+    /**
+     * The same requirement is simply satisfied when admin2 is already there,
+     * which is every real Grav 2 site with an admin.
+     */
+    public function testAdminDependencySatisfiedWhenAdmin2Installed(): void
+    {
+        if (((int)GRAV_VERSION) < 2) {
+            self::markTestSkipped('Behaviour is specific to Grav 2.');
+        }
+
+        $gpm = new class extends GpmStub {
+            public function isPluginInstalled($slug): bool
+            {
+                return $slug === 'admin2';
+            }
+        };
+        $gpm->data = [
+            'dual-compat-plugin' => (object)[
+                'dependencies' => [
+                    ['name' => 'admin', 'version' => '>=1.10.49'],
+                ]
+            ],
+            'admin2' => (object)[],
+        ];
+
+        $dependencies = $gpm->getDependencies(['dual-compat-plugin']);
+
+        self::assertArrayNotHasKey('admin', $dependencies);
+        self::assertArrayNotHasKey('admin2', $dependencies, 'nothing to do when the admin panel is already installed');
+    }
+
+    /**
      * A dependency is uninstallable both when the repository does not serve it
      * and when it serves it declaring another generation.
      */

@@ -1083,6 +1083,43 @@ class GPM extends Iterator
      * @param  string $slug
      * @return bool
      */
+    /**
+     * Rewrite dependencies that name the admin panel under the slug the running
+     * generation of Grav actually ships.
+     *
+     * A plugin that supports both 1.7 and 2.0 and asks for `admin >= 1.10.x` is
+     * saying "I need the admin panel". On Grav 2 that is `admin2`, so the
+     * requirement is met by admin2 rather than being unsatisfiable. The version
+     * constraint is deliberately dropped: 1.10.x describes the classic admin's
+     * numbering and says nothing about admin2's, so carrying it over would
+     * compare two unrelated version lines. Without a constraint the requirement
+     * is simply "the admin panel is present", which is true on any Grav 2 site
+     * that has one — and installable when it is not
+     * (getgrav/grav-premium-issues#618).
+     *
+     * This mirrors the `replaced_by` record the compatibility registry already
+     * holds for `admin`; it is repeated here because dependency resolution must
+     * not depend on a network lookup.
+     *
+     * @param  array $dependencies slug => version-constraint
+     * @return array
+     */
+    protected function remapGenerationDependencies(array $dependencies): array
+    {
+        if (self::gravGeneration() !== '2.0' || !isset($dependencies['admin'])) {
+            return $dependencies;
+        }
+
+        unset($dependencies['admin']);
+
+        // Already required in its own right, or already there: nothing to add.
+        if (!isset($dependencies['admin2']) && !$this->isPluginInstalled('admin2')) {
+            $dependencies['admin2'] = '*';
+        }
+
+        return $dependencies;
+    }
+
     public function dependencyIsInstallable(string $slug): bool
     {
         $package = $this->findPackage($slug, true);
@@ -1112,6 +1149,7 @@ class GPM extends Iterator
     public function getDependencies($packages)
     {
         $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
+        $dependencies = $this->remapGenerationDependencies($dependencies);
         foreach ($dependencies as $dependency_slug => $dependencyVersionWithOperator) {
             $dependency_slug = (string)$dependency_slug;
             if (in_array($dependency_slug, $packages, true)) {
