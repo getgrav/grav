@@ -1339,6 +1339,79 @@ class GPM extends Iterator
      * @param array $dependencies The dependencies array
      * @return array
      */
+    /**
+     * Keep only the dependency entries that apply to the Grav running now.
+     *
+     * An entry may carry an optional `grav` key naming the generation(s) it is
+     * for, spelled the way `compatibility.grav` spells them:
+     *
+     *     dependencies:
+     *       - { name: grav, version: '>=2.0.25' }
+     *       - { name: form, version: '>=7.0.0', grav: '1.7' }
+     *       - { name: form, version: '>=9.1.0', grav: '2.0' }
+     *
+     * An entry with no `grav` key applies everywhere, so every blueprint
+     * written before this existed behaves exactly as it did.
+     *
+     * Where a package has both a qualified entry for this generation and an
+     * unqualified one, the qualified entry wins outright rather than being
+     * merged with it. Merging takes the higher of two versions, which would
+     * silently ignore a deliberately lower requirement for this generation.
+     *
+     * Note for anyone adding a qualified entry: a Grav older than the one that
+     * introduced this reads `name` and `version` and ignores `grav` entirely,
+     * so it would apply every entry unconditionally and merge them to the
+     * highest version. Declare a `grav` dependency naming a core new enough to
+     * understand this, and list it before any qualified entry, so such an
+     * install stops with "please update Grav" instead.
+     *
+     * @param  array $dependencies Raw blueprint `dependencies` entries.
+     * @return array
+     */
+    protected function filterDependenciesForGeneration($dependencies): array
+    {
+        $generation = self::gravGeneration();
+
+        $applies = [];
+        $qualified = [];
+        foreach ((array)$dependencies as $dependency) {
+            if (!is_array($dependency)) {
+                $applies[] = $dependency;
+                continue;
+            }
+
+            $for = $dependency['grav'] ?? null;
+            if ($for === null || $for === '' || $for === []) {
+                $applies[] = $dependency;
+                continue;
+            }
+
+            foreach ((array)$for as $named) {
+                if ((int)$named === (int)$generation) {
+                    $applies[] = $dependency;
+                    if (isset($dependency['name'])) {
+                        $qualified[$dependency['name']] = true;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (!$qualified) {
+            return $applies;
+        }
+
+        // Drop the unqualified entries for any package that also named this
+        // generation explicitly.
+        return array_values(array_filter($applies, static function ($dependency) use ($qualified) {
+            if (!is_array($dependency) || !isset($dependency['name'])) {
+                return true;
+            }
+
+            return !isset($qualified[$dependency['name']]) || isset($dependency['grav']);
+        }));
+    }
+
     private function calculateMergedDependenciesOfPackage($packageName, $dependencies)
     {
         $packageData = $this->findPackage($packageName);
@@ -1350,7 +1423,7 @@ class GPM extends Iterator
             return $dependencies;
         }
 
-        foreach ($packageData->dependencies as $dependency) {
+        foreach ($this->filterDependenciesForGeneration($packageData->dependencies) as $dependency) {
             $dependencyName = $dependency['name'] ?? null;
             if (!$dependencyName) {
                 continue;

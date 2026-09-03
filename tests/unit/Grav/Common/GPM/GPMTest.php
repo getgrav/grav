@@ -352,6 +352,67 @@ $this->grav = Fixtures::get('grav');
     }
 
     /**
+     * A dependency entry may name the Grav generation(s) it applies to. Entries
+     * for another generation are skipped; entries with no `grav` key apply
+     * everywhere, so existing blueprints are unaffected.
+     */
+    public function testDependenciesCanBeQualifiedByGravGeneration(): void
+    {
+        $isGrav2 = ((int)GRAV_VERSION) >= 2;
+        $mine  = $isGrav2 ? '2.0' : '1.7';
+        $other = $isGrav2 ? '1.7' : '2.0';
+
+        $this->gpm->data = [
+            'dual' => (object)[
+                'dependencies' => [
+                    ['name' => 'always', 'version' => '>=1.0.0'],
+                    ['name' => 'only-mine', 'version' => '>=2.0.0', 'grav' => $mine],
+                    ['name' => 'only-other', 'version' => '>=3.0.0', 'grav' => $other],
+                    ['name' => 'listed-both', 'version' => '>=4.0.0', 'grav' => ['1.7', '2.0']],
+                ]
+            ],
+        ];
+
+        $merged = $this->invokeMerge('dual');
+
+        self::assertSame('>=1.0.0', $merged['always'] ?? null, 'an unqualified entry always applies');
+        self::assertSame('>=2.0.0', $merged['only-mine'] ?? null, 'an entry for this generation applies');
+        self::assertArrayNotHasKey('only-other', $merged, 'an entry for another generation is skipped');
+        self::assertSame('>=4.0.0', $merged['listed-both'] ?? null, 'a list naming this generation applies');
+    }
+
+    /**
+     * A qualified entry beats an unqualified one for the same package instead
+     * of being merged with it — merging keeps the higher version, which would
+     * throw away a deliberately lower requirement for this generation.
+     */
+    public function testQualifiedDependencyBeatsUnqualifiedOne(): void
+    {
+        $isGrav2 = ((int)GRAV_VERSION) >= 2;
+        $mine = $isGrav2 ? '2.0' : '1.7';
+
+        $this->gpm->data = [
+            'pkg' => (object)[
+                'dependencies' => [
+                    ['name' => 'form', 'version' => '>=9.0.0'],
+                    ['name' => 'form', 'version' => '>=7.0.0', 'grav' => $mine],
+                ]
+            ],
+        ];
+
+        self::assertSame('>=7.0.0', $this->invokeMerge('pkg')['form'] ?? null);
+    }
+
+    /** Run the private merge for one package and return the resulting map. */
+    private function invokeMerge(string $package): array
+    {
+        $method = new ReflectionMethod(GPM::class, 'calculateMergedDependenciesOfPackage');
+        $method->setAccessible(true);
+
+        return $method->invoke($this->gpm, $package, []);
+    }
+
+    /**
      * A plugin supporting both generations that asks for `admin` means "the
      * admin panel". On Grav 2 that is admin2, so the requirement is met there
      * rather than being unsatisfiable, and the classic admin's version
