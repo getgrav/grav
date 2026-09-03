@@ -343,6 +343,16 @@ trait MediaObjectTrait
     }
 
     /**
+     * Get the HTML attributes set on this medium.
+     *
+     * @return array
+     */
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+
+    /**
      * Reset medium.
      *
      * @return $this
@@ -480,8 +490,13 @@ trait MediaObjectTrait
             $this->display('source');
         }
 
-        foreach ($this->attributes as $key => $value) {
-            empty($attributes['data-' . $key]) && $attributes['data-' . $key] = $value;
+        // The image's own HTML attributes stay on the image; Link re-applies them to
+        // the medium it wraps. Only the dimensions are also mirrored onto the anchor,
+        // which is what lightbox scripts read. getgrav/grav#4282.
+        foreach (['width', 'height'] as $key) {
+            if (isset($this->attributes[$key])) {
+                empty($attributes['data-' . $key]) && $attributes['data-' . $key] = $this->attributes[$key];
+            }
         }
 
         empty($attributes['href']) && $attributes['href'] = $this->url();

@@ -40,9 +40,18 @@ class Link implements RenderableInterface, MediaLinkInterface
     {
         $this->attributes = $attributes;
 
+        // Attributes set on the medium before it was linked (loading, decoding,
+        // class, id, ...) describe the image, not the anchor, so carry them over the
+        // reset below and onto the image we wrap. getgrav/grav#4282.
+        $inherited = $medium->getAttributes();
+
         $source = $medium->reset()->thumbnail('auto')->display('thumbnail');
         if (!$source instanceof MediaObjectInterface) {
             throw new RuntimeException('Media has no thumbnail set');
+        }
+
+        foreach ($inherited as $name => $value) {
+            $source->attribute($name, $value);
         }
 
         $source->set('linked', true);

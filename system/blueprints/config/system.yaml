@@ -1393,6 +1393,17 @@ form:
                 min: 1
                 max: 100
 
+            images.progressive_jpeg:
+              type: toggle
+              label: PLUGIN_ADMIN.IMAGES_PROGRESSIVE_JPEG
+              help: PLUGIN_ADMIN.IMAGES_PROGRESSIVE_JPEG_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             images.cache_all:
               type: toggle
               label: PLUGIN_ADMIN.CACHE_ALL

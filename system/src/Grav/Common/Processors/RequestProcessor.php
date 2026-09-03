@@ -39,7 +39,13 @@ class RequestProcessor extends ProcessorBase
         $header = $request->getHeaderLine('Content-Type');
         $type = trim(strstr($header, ';', true) ?: $header);
         if ($type === 'application/json') {
-            $request = $request->withParsedBody(json_decode($request->getBody()->getContents(), true));
+            // withParsedBody() accepts an array, an object or null. A JSON scalar
+            // ("a string", 12345, true) decodes to none of those, and handing it
+            // over threw an InvalidArgumentException that answered the request
+            // with a 500 before any route ran. A scalar is not a body a handler
+            // can read, so it is treated as no body at all.
+            $decoded = json_decode($request->getBody()->getContents(), true);
+            $request = $request->withParsedBody(is_array($decoded) ? $decoded : null);
         }
 
         $uri = $request->getUri();

@@ -1027,12 +1027,120 @@ class GPM extends Iterator
     }
 
     /**
+     * The Grav generation this install belongs to, as the `compatibility` field
+     * in a blueprint spells it: '1.7' for Grav 1.x, '2.0' for Grav 2.x.
+     *
+     * @return string
+     */
+    public static function gravGeneration(): string
+    {
+        return ((int)GRAV_VERSION) >= 2 ? '2.0' : '1.7';
+    }
+
+    /**
+     * Whether a package declares itself compatible with the Grav running now.
+     *
+     * A package that declares nothing is treated as compatible, because roughly
+     * two thirds of the repository declares nothing and refusing those would
+     * break far more than it fixed. Only an explicit list that leaves this
+     * generation out counts as incompatible.
+     *
+     * @param  mixed $compatibility The blueprint's `compatibility.grav` value.
+     * @return bool
+     */
+    public static function declaresGravCompatibility($compatibility): bool
+    {
+        $declared = is_array($compatibility) ? ($compatibility['grav'] ?? $compatibility) : $compatibility;
+        if (!$declared) {
+            return true;
+        }
+
+        $running = (int)GRAV_VERSION;
+        foreach ((array)$declared as $generation) {
+            if ((int)$generation === $running) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether a dependency could be installed on this Grav at all.
+     *
+     * False in two situations, and both mean the same thing to a caller: the
+     * repository does not serve the package to this install (the download feed
+     * filters on each blueprint's own `compatibility`, so a package built for
+     * another Grav generation is simply absent from the index), or it is in the
+     * index and names generations that do not include this one.
+     *
+     * The classic `admin` plugin is the case this exists for: it is Grav 1.7
+     * only, Grav 2 ships admin2 instead, and a plugin compatible with both
+     * generations has no way to say "admin, but only on 1.7". Such a
+     * requirement is unsatisfiable here rather than unmet, so it is dropped
+     * instead of failing the install (getgrav/grav-premium-issues#618).
+     *
+     * @param  string $slug
+     * @return bool
+     */
+    /**
+     * Rewrite dependencies that name the admin panel under the slug the running
+     * generation of Grav actually ships.
+     *
+     * A plugin that supports both 1.7 and 2.0 and asks for `admin >= 1.10.x` is
+     * saying "I need the admin panel". On Grav 2 that is `admin2`, so the
+     * requirement is met by admin2 rather than being unsatisfiable. The version
+     * constraint is deliberately dropped: 1.10.x describes the classic admin's
+     * numbering and says nothing about admin2's, so carrying it over would
+     * compare two unrelated version lines. Without a constraint the requirement
+     * is simply "the admin panel is present", which is true on any Grav 2 site
+     * that has one — and installable when it is not
+     * (getgrav/grav-premium-issues#618).
+     *
+     * This mirrors the `replaced_by` record the compatibility registry already
+     * holds for `admin`; it is repeated here because dependency resolution must
+     * not depend on a network lookup.
+     *
+     * @param  array $dependencies slug => version-constraint
+     * @return array
+     */
+    protected function remapGenerationDependencies(array $dependencies): array
+    {
+        if (self::gravGeneration() !== '2.0' || !isset($dependencies['admin'])) {
+            return $dependencies;
+        }
+
+        unset($dependencies['admin']);
+
+        // Already required in its own right, or already there: nothing to add.
+        if (!isset($dependencies['admin2']) && !$this->isPluginInstalled('admin2')) {
+            $dependencies['admin2'] = '*';
+        }
+
+        return $dependencies;
+    }
+
+    public function dependencyIsInstallable(string $slug): bool
+    {
+        $package = $this->findPackage($slug, true);
+        if (!$package) {
+            return false;
+        }
+
+        return self::declaresGravCompatibility($package->compatibility ?? null);
+    }
+
+    /**
      * Fetch the dependencies, check the installed packages and return an array with
      * the list of packages with associated an information on what to do: install, update or ignore.
      *
      * `ignore` means the package is already installed and can be safely left as-is.
      * `install` means the package is not installed and must be installed.
      * `update` means the package is already installed and must be updated as a dependency needs a higher version.
+     *
+     * A dependency that cannot be installed on this Grav generation at all is
+     * dropped from the result entirely, the same way `grav`, `php` and
+     * symlinked plugins are.
      *
      * @param array $packages
      * @return array
@@ -1041,6 +1149,7 @@ class GPM extends Iterator
     public function getDependencies($packages)
     {
         $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
+        $dependencies = $this->remapGenerationDependencies($dependencies);
         foreach ($dependencies as $dependency_slug => $dependencyVersionWithOperator) {
             $dependency_slug = (string)$dependency_slug;
             if (in_array($dependency_slug, $packages, true)) {
@@ -1159,6 +1268,15 @@ class GPM extends Iterator
                     $dependencies[$dependency_slug] = 'ignore';
                 }
             } else {
+                // Not installed, and not installable on this Grav generation:
+                // drop the requirement rather than trying and failing. The
+                // classic `admin` plugin on Grav 2 is the case that matters —
+                // see dependencyIsInstallable().
+                if (!$this->dependencyIsInstallable($dependency_slug)) {
+                    unset($dependencies[$dependency_slug]);
+                    continue;
+                }
+
                 $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator);
 
                 // if requirement is next significant release, check is compatible with latest available version, might not be
@@ -1221,15 +1339,91 @@ class GPM extends Iterator
      * @param array $dependencies The dependencies array
      * @return array
      */
+    /**
+     * Keep only the dependency entries that apply to the Grav running now.
+     *
+     * An entry may carry an optional `grav` key naming the generation(s) it is
+     * for, spelled the way `compatibility.grav` spells them:
+     *
+     *     dependencies:
+     *       - { name: grav, version: '>=2.0.25' }
+     *       - { name: form, version: '>=7.0.0', grav: '1.7' }
+     *       - { name: form, version: '>=9.1.0', grav: '2.0' }
+     *
+     * An entry with no `grav` key applies everywhere, so every blueprint
+     * written before this existed behaves exactly as it did.
+     *
+     * Where a package has both a qualified entry for this generation and an
+     * unqualified one, the qualified entry wins outright rather than being
+     * merged with it. Merging takes the higher of two versions, which would
+     * silently ignore a deliberately lower requirement for this generation.
+     *
+     * Note for anyone adding a qualified entry: a Grav older than the one that
+     * introduced this reads `name` and `version` and ignores `grav` entirely,
+     * so it would apply every entry unconditionally and merge them to the
+     * highest version. Declare a `grav` dependency naming a core new enough to
+     * understand this, and list it before any qualified entry, so such an
+     * install stops with "please update Grav" instead.
+     *
+     * @param  array $dependencies Raw blueprint `dependencies` entries.
+     * @return array
+     */
+    protected function filterDependenciesForGeneration($dependencies): array
+    {
+        $generation = self::gravGeneration();
+
+        $applies = [];
+        $qualified = [];
+        foreach ((array)$dependencies as $dependency) {
+            if (!is_array($dependency)) {
+                $applies[] = $dependency;
+                continue;
+            }
+
+            $for = $dependency['grav'] ?? null;
+            if ($for === null || $for === '' || $for === []) {
+                $applies[] = $dependency;
+                continue;
+            }
+
+            foreach ((array)$for as $named) {
+                if ((int)$named === (int)$generation) {
+                    $applies[] = $dependency;
+                    if (isset($dependency['name'])) {
+                        $qualified[$dependency['name']] = true;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (!$qualified) {
+            return $applies;
+        }
+
+        // Drop the unqualified entries for any package that also named this
+        // generation explicitly.
+        return array_values(array_filter($applies, static function ($dependency) use ($qualified) {
+            if (!is_array($dependency) || !isset($dependency['name'])) {
+                return true;
+            }
+
+            return !isset($qualified[$dependency['name']]) || isset($dependency['grav']);
+        }));
+    }
+
     private function calculateMergedDependenciesOfPackage($packageName, $dependencies)
     {
         $packageData = $this->findPackage($packageName);
 
-        if (empty($packageData->dependencies)) {
+        // findPackage() returns false when the index has no such package, and
+        // reading a property off that is a PHP 8 warning before empty() ever
+        // sees it.
+        if (!$packageData || empty($packageData->dependencies)) {
             return $dependencies;
         }
 
-        foreach ($packageData->dependencies as $dependency) {
+        foreach ($this->filterDependenciesForGeneration($packageData->dependencies) as $dependency) {
             $dependencyName = $dependency['name'] ?? null;
             if (!$dependencyName) {
                 continue;

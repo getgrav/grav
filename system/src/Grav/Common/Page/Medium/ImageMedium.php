@@ -96,7 +96,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     #[\ReturnTypeWillChange]
     public function __destruct()
     {
-        unset($this->image);
+        $this->image = null;
     }
 
     /**

@@ -318,6 +318,210 @@ $this->grav = Fixtures::get('grav');
         self::assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.10.2'));
     }
 
+    /**
+     * A blueprint that names Grav generations it does not include must not be
+     * treated as installable here. Two thirds of the repository declares
+     * nothing at all, so an absent declaration has to stay compatible
+     * (getgrav/grav-premium-issues#618).
+     */
+    public function testDeclaresGravCompatibility(): void
+    {
+        $isGrav2 = ((int)GRAV_VERSION) >= 2;
+
+        // No declaration is always compatible, whichever Grav is running.
+        self::assertTrue(GPM::declaresGravCompatibility(null));
+        self::assertTrue(GPM::declaresGravCompatibility([]));
+        self::assertTrue(GPM::declaresGravCompatibility(''));
+
+        // Naming both generations is compatible either way.
+        self::assertTrue(GPM::declaresGravCompatibility(['1.7', '2.0']));
+
+        // A single generation is compatible only with its own.
+        self::assertSame($isGrav2, GPM::declaresGravCompatibility(['2.0']));
+        self::assertSame(!$isGrav2, GPM::declaresGravCompatibility(['1.7']));
+
+        // The nested form the blueprint actually uses, and a bare string.
+        self::assertSame(!$isGrav2, GPM::declaresGravCompatibility(['grav' => ['1.7']]));
+        self::assertSame($isGrav2, GPM::declaresGravCompatibility(['grav' => ['2.0']]));
+        self::assertSame($isGrav2, GPM::declaresGravCompatibility('2.0'));
+
+        // A later minor still belongs to its generation.
+        self::assertSame($isGrav2, GPM::declaresGravCompatibility(['2.1']));
+
+        self::assertSame($isGrav2 ? '2.0' : '1.7', GPM::gravGeneration());
+    }
+
+    /**
+     * A dependency entry may name the Grav generation(s) it applies to. Entries
+     * for another generation are skipped; entries with no `grav` key apply
+     * everywhere, so existing blueprints are unaffected.
+     */
+    public function testDependenciesCanBeQualifiedByGravGeneration(): void
+    {
+        $isGrav2 = ((int)GRAV_VERSION) >= 2;
+        $mine  = $isGrav2 ? '2.0' : '1.7';
+        $other = $isGrav2 ? '1.7' : '2.0';
+
+        $this->gpm->data = [
+            'dual' => (object)[
+                'dependencies' => [
+                    ['name' => 'always', 'version' => '>=1.0.0'],
+                    ['name' => 'only-mine', 'version' => '>=2.0.0', 'grav' => $mine],
+                    ['name' => 'only-other', 'version' => '>=3.0.0', 'grav' => $other],
+                    ['name' => 'listed-both', 'version' => '>=4.0.0', 'grav' => ['1.7', '2.0']],
+                ]
+            ],
+        ];
+
+        $merged = $this->invokeMerge('dual');
+
+        self::assertSame('>=1.0.0', $merged['always'] ?? null, 'an unqualified entry always applies');
+        self::assertSame('>=2.0.0', $merged['only-mine'] ?? null, 'an entry for this generation applies');
+        self::assertArrayNotHasKey('only-other', $merged, 'an entry for another generation is skipped');
+        self::assertSame('>=4.0.0', $merged['listed-both'] ?? null, 'a list naming this generation applies');
+    }
+
+    /**
+     * A qualified entry beats an unqualified one for the same package instead
+     * of being merged with it — merging keeps the higher version, which would
+     * throw away a deliberately lower requirement for this generation.
+     */
+    public function testQualifiedDependencyBeatsUnqualifiedOne(): void
+    {
+        $isGrav2 = ((int)GRAV_VERSION) >= 2;
+        $mine = $isGrav2 ? '2.0' : '1.7';
+
+        $this->gpm->data = [
+            'pkg' => (object)[
+                'dependencies' => [
+                    ['name' => 'form', 'version' => '>=9.0.0'],
+                    ['name' => 'form', 'version' => '>=7.0.0', 'grav' => $mine],
+                ]
+            ],
+        ];
+
+        self::assertSame('>=7.0.0', $this->invokeMerge('pkg')['form'] ?? null);
+    }
+
+    /** Run the private merge for one package and return the resulting map. */
+    private function invokeMerge(string $package): array
+    {
+        $method = new ReflectionMethod(GPM::class, 'calculateMergedDependenciesOfPackage');
+        $method->setAccessible(true);
+
+        return $method->invoke($this->gpm, $package, []);
+    }
+
+    /**
+     * A plugin supporting both generations that asks for `admin` means "the
+     * admin panel". On Grav 2 that is admin2, so the requirement is met there
+     * rather than being unsatisfiable, and the classic admin's version
+     * constraint is dropped because it describes a different version line.
+     */
+    public function testAdminDependencyResolvesToAdmin2OnGrav2(): void
+    {
+        if (((int)GRAV_VERSION) < 2) {
+            self::markTestSkipped('Behaviour is specific to Grav 2.');
+        }
+
+        $this->gpm->data = [
+            'dual-compat-plugin' => (object)[
+                'dependencies' => [
+                    ['name' => 'admin', 'version' => '>=1.10.49'],
+                ]
+            ],
+            'admin2' => (object)[],
+        ];
+
+        $dependencies = $this->gpm->getDependencies(['dual-compat-plugin']);
+
+        self::assertArrayNotHasKey('admin', $dependencies, 'the classic admin slug never survives on Grav 2');
+        // admin2 is not installed in the test environment, so it is offered.
+        self::assertSame('install', $dependencies['admin2'] ?? null, 'the requirement is carried over to admin2');
+    }
+
+    /**
+     * The same requirement is simply satisfied when admin2 is already there,
+     * which is every real Grav 2 site with an admin.
+     */
+    public function testAdminDependencySatisfiedWhenAdmin2Installed(): void
+    {
+        if (((int)GRAV_VERSION) < 2) {
+            self::markTestSkipped('Behaviour is specific to Grav 2.');
+        }
+
+        $gpm = new class extends GpmStub {
+            public function isPluginInstalled($slug): bool
+            {
+                return $slug === 'admin2';
+            }
+        };
+        $gpm->data = [
+            'dual-compat-plugin' => (object)[
+                'dependencies' => [
+                    ['name' => 'admin', 'version' => '>=1.10.49'],
+                ]
+            ],
+            'admin2' => (object)[],
+        ];
+
+        $dependencies = $gpm->getDependencies(['dual-compat-plugin']);
+
+        self::assertArrayNotHasKey('admin', $dependencies);
+        self::assertArrayNotHasKey('admin2', $dependencies, 'nothing to do when the admin panel is already installed');
+    }
+
+    /**
+     * A dependency is uninstallable both when the repository does not serve it
+     * and when it serves it declaring another generation.
+     */
+    public function testDependencyIsInstallable(): void
+    {
+        $isGrav2 = ((int)GRAV_VERSION) >= 2;
+
+        $this->gpm->data = [
+            'declares-nothing' => (object)[],
+            'this-generation' => (object)['compatibility' => ['grav' => [$isGrav2 ? '2.0' : '1.7']]],
+            'other-generation' => (object)['compatibility' => ['grav' => [$isGrav2 ? '1.7' : '2.0']]],
+        ];
+
+        // Absent from the index entirely — what the download feed does to a
+        // package built for another generation, and the classic `admin` plugin
+        // on Grav 2 stable.
+        self::assertFalse($this->gpm->dependencyIsInstallable('not-in-the-index'));
+
+        self::assertTrue($this->gpm->dependencyIsInstallable('declares-nothing'));
+        self::assertTrue($this->gpm->dependencyIsInstallable('this-generation'));
+        self::assertFalse($this->gpm->dependencyIsInstallable('other-generation'));
+    }
+
+    /**
+     * An unsatisfiable dependency is dropped from the resolution rather than
+     * marked `install`, which is what used to make `bin/gpm install` fatal.
+     */
+    public function testGetDependenciesDropsUninstallableDependency(): void
+    {
+        $isGrav2 = ((int)GRAV_VERSION) >= 2;
+
+        $this->gpm->data = [
+            'test-plugin' => (object)[
+                'dependencies' => [
+                    ['name' => 'wrong-generation', 'version' => '>=1.0.0'],
+                    ['name' => 'not-in-the-index', 'version' => '>=1.0.0'],
+                    ['name' => 'fine', 'version' => '>=1.0.0'],
+                ]
+            ],
+            'wrong-generation' => (object)['compatibility' => ['grav' => [$isGrav2 ? '1.7' : '2.0']]],
+            'fine' => (object)[],
+        ];
+
+        $dependencies = $this->gpm->getDependencies(['test-plugin']);
+
+        self::assertArrayNotHasKey('wrong-generation', $dependencies, 'a dependency for another Grav generation is dropped');
+        self::assertArrayNotHasKey('not-in-the-index', $dependencies, 'a dependency the repository does not serve is dropped');
+        self::assertSame('install', $dependencies['fine'] ?? null, 'a satisfiable dependency is still reported');
+    }
+
     public function testCalculateVersionNumberFromDependencyVersion(): void
     {
         self::assertSame('2.0', $this->gpm->calculateVersionNumberFromDependencyVersion('>=2.0'));

@@ -334,7 +334,14 @@ class InstallCommand extends GpmCommand
 
             if ($answer) {
                 foreach ($packages as $dependencyName => $dependencyVersion) {
-                    $package = $this->gpm->findPackage($dependencyName);
+                    // findPackage() returns false, not null, when nothing in the
+                    // index matches — and processPackage() is typed ?Package, so
+                    // passing that straight through was a TypeError rather than
+                    // the "Package not found on the GPM!" message it already
+                    // knows how to print. A plugin asking for a dependency that
+                    // does not exist on this Grav version (the 1.7 `admin`
+                    // plugin, say) must report it, not fatal.
+                    $package = $this->gpm->findPackage($dependencyName) ?: null;
                     $this->processPackage($package, $type === 'update');
                 }
                 $io->newLine();

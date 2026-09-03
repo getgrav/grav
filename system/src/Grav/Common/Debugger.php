@@ -715,9 +715,21 @@ class Debugger
     public function render()
     {
         if ($this->enabled && $this->debugbar) {
-            // Only add assets if Page is HTML
+            // The bar is HTML injected into the response body, and the renderer that
+            // produces it only exists once addAssets() has run -- so there is nothing
+            // to inject on a response that never got that far. Test for that before
+            // asking for `page`: a request that returns early from InitializeProcessor
+            // (the trailing slash redirect, for one) never resolved a page, and
+            // resolving one here would build the pages index and run the
+            // onPageFallBackUrl hooks this late, against plugin services that
+            // onPluginsInitialized never got to register -- Login's `user` among them.
+            if (!$this->renderer || !$this->grav->initialized('page')) {
+                return $this;
+            }
+
+            // Only render the bar if the page is HTML.
             $page = $this->grav['page'];
-            if (!$this->renderer || $page->templateFormat() !== 'html') {
+            if ($page->templateFormat() !== 'html') {
                 return $this;
             }
 

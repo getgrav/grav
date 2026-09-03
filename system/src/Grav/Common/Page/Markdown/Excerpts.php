@@ -304,8 +304,14 @@ class Excerpts
         // would leak those the same way. getgrav/grav#4264.
         $defaults = $this->config['images']['defaults'] ?? [];
         if (count($defaults) && $medium instanceof ImageMediaInterface) {
+            // An image manipulation such as `resize` is not a real method, it is
+            // dispatched by ImageMediaTrait::__call() off its own allowlist, so ask
+            // for that too. Without it every processing default was silently dropped.
+            // getgrav/grav#4282.
+            $magic = property_exists($medium, 'magic_actions') ? (array) $medium::$magic_actions : [];
+
             foreach ($defaults as $method => $params) {
-                if (!method_exists($medium, (string) $method)) {
+                if (!method_exists($medium, (string) $method) && !in_array((string) $method, $magic, true)) {
                     continue;
                 }
 
