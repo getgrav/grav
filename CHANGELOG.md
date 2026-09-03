@@ -1,5 +1,5 @@
 # v2.0.23
-## 09/01/2026
+## 09/02/2026
 
 1. [](#improved)
     * `composer.json` now declares the `ctype` and `session` extensions it has always used, and suggests `fileinfo` and `simplexml`. Installing with `composer create-project` on a machine missing one of these no longer quietly walks back to a years-old release of Grav instead of failing [#4273](https://github.com/getgrav/grav/discussions/4273)
