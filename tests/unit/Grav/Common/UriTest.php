@@ -1130,6 +1130,38 @@ class UriTest extends \PHPUnit\Framework\TestCase
     {
         $this->uri->initializeWithURL('http://localhost/foo/page:test')->init();
         self::assertSame('UNKNOWN', Uri::ip());
+
+        // Request variables are read from $_SERVER, not only getenv(): CGI/FastCGI
+        // hosts and PHP's built-in server never export them to the environment.
+        $previous = $this->config->get('system.http_x_forwarded');
+        $previousServer = array_intersect_key($_SERVER, ['REMOTE_ADDR' => 1, 'HTTP_X_FORWARDED_FOR' => 1]);
+        $_SERVER['REMOTE_ADDR'] = '203.0.113.7';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.9, 203.0.113.7';
+        try {
+            $this->config->set('system.http_x_forwarded', ['ip' => false]);
+            self::assertSame('203.0.113.7', Uri::ip(), 'forwarded headers stay ignored until opted in');
+
+            $this->config->set('system.http_x_forwarded', ['ip' => true]);
+            self::assertSame('198.51.100.9', Uri::ip(), 'opted-in forwarded header wins over REMOTE_ADDR');
+
+            unset($_SERVER['HTTP_X_FORWARDED_FOR']);
+            $_SERVER['REMOTE_ADDR'] = 'not-an-ip';
+            self::assertSame('UNKNOWN', Uri::ip(), 'an invalid address is not reported');
+
+            // An empty $_SERVER entry must not shadow a working getenv() value:
+            // behaviour has to stay identical on hosts where getenv() answers.
+            $_SERVER['REMOTE_ADDR'] = '';
+            putenv('REMOTE_ADDR=203.0.113.11');
+            try {
+                self::assertSame('203.0.113.11', Uri::ip(), 'an empty $_SERVER entry falls back to getenv()');
+            } finally {
+                putenv('REMOTE_ADDR');
+            }
+        } finally {
+            unset($_SERVER['REMOTE_ADDR'], $_SERVER['HTTP_X_FORWARDED_FOR']);
+            $_SERVER += $previousServer;
+            $this->config->set('system.http_x_forwarded', $previous);
+        }
     }
 
     public function testIsExternal(): void

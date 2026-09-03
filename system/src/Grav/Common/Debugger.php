@@ -394,17 +394,28 @@ class Debugger
 
         $storage = $clockwork->getStorage();
 
-        if ($direction === 'previous') {
-            $data = $storage->previous($id, $count);
-        } elseif ($direction === 'next') {
-            $data = $storage->next($id, $count);
-        } elseif ($direction === 'latest' || $id === 'latest') {
-            $data = $storage->latest();
-        } else {
-            $data = $storage->find($id);
+        // Nothing profiled yet — a fresh install, or the first request after
+        // `bin/grav clear` — means `cache://clockwork/index` does not exist, and
+        // Clockwork's FileStorage fopen()s it unguarded. That warning becomes an
+        // ErrorException under the error handler, so a request that should just
+        // report "no data yet" came back as a 500 instead of the 404 below.
+        try {
+            if ($direction === 'previous') {
+                $data = $storage->previous($id, $count);
+            } elseif ($direction === 'next') {
+                $data = $storage->next($id, $count);
+            } elseif ($direction === 'latest' || $id === 'latest') {
+                $data = $storage->latest();
+            } else {
+                $data = $storage->find($id);
+            }
+        } catch (Throwable) {
+            $data = null;
         }
 
-        if (preg_match('#(?<id>[0-9-]+|latest)/extended#', $path)) {
+        // `latest()` returns false rather than null on empty storage, which
+        // extendRequest() would reject on its `?Request` parameter.
+        if ($data && preg_match('#(?<id>[0-9-]+|latest)/extended#', $path)) {
             $clockwork->extendRequest($data);
         }
 
