@@ -126,6 +126,13 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
     public function reset();
 
     /**
+     * Get the HTML attributes set on this medium.
+     *
+     * @return array
+     */
+    public function getAttributes();
+
+    /**
      * Add custom attribute to medium.
      *
      * @param string $attribute

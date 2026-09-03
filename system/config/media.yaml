@@ -1,12 +1,12 @@
+# Progressive JPEG is no longer set here: it applied to every image type, and GD's
+# interlace flag also makes PNGs Adam7-interlaced (bigger, slower). It is now
+# `system.images.progressive_jpeg`, applied to JPEG output only. The
+# `image.filters.default` hook below is still honoured for per-type filters.
 types:
   defaults:
     type: file
     thumb: media/thumb.png
     mime: application/octet-stream
-    image:
-      filters:
-        default:
-          - enableProgressive
 
   jpg:
     type: image

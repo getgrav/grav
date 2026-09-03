@@ -290,6 +290,14 @@ class Session implements SessionInterface
      * can persist for the rest of the request. No-op unless the session was
      * started read-only and its lock has since been released. Re-opens with the
      * same id and without re-sending the cookie (already set during start()).
+     *
+     * PHP has no API to take the lock back without also re-reading the session, so
+     * the session_start() below repopulates $_SESSION from storage. Whatever this
+     * request already put there is kept and the fresh read laid underneath it, so a
+     * write made before the reopen survives while a key a concurrent request added
+     * in the meantime still comes through. Two requests writing the same key is the
+     * one case the local value wins outright -- the read-modify-write tradeoff
+     * read_and_close already documents.
      */
     protected function reopen(): void
     {
@@ -305,8 +313,28 @@ class Session implements SessionInterface
 
         $options = $this->options;
         $options['use_cookies'] = '0';
-        $options['use_only_cookies'] = '0';
-        @session_start($options);
+
+        $current = $_SESSION;
+        $id = session_id();
+
+        $success = @session_start($options);
+
+        // The session can be gone by now: a concurrent request destroyed it, or gc
+        // collected it. With use_strict_mode on, PHP answers that by minting a new
+        // id, and because no cookie is sent the browser never learns about it, so
+        // every later write would land in a session nobody can read back. Give that
+        // one up and keep this request's data in memory instead.
+        if (!$success || session_id() !== $id) {
+            if (\PHP_SESSION_ACTIVE === session_status()) {
+                session_abort();
+            }
+            session_id($id);
+            $_SESSION = $current;
+
+            return;
+        }
+
+        $_SESSION = $current + $_SESSION;
     }
 
     /**
@@ -415,8 +443,12 @@ class Session implements SessionInterface
      */
     public function close()
     {
-        // After a read-only start the lock is already released and the session
-        // closed; only commit when it is genuinely active to avoid a warning.
+        // After a read-only start the lock is released and the session closed, but
+        // this request may still have changed something $_SESSION holds by reference
+        // -- a flash message added to the Messages object, a mutated user -- which no
+        // __set() ever announced. Take the lock back one last time so those land.
+        $this->reopen();
+
         if ($this->started && \PHP_SESSION_ACTIVE === session_status()) {
             session_write_close();
         }
