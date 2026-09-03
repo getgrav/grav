@@ -1027,12 +1027,83 @@ class GPM extends Iterator
     }
 
     /**
+     * The Grav generation this install belongs to, as the `compatibility` field
+     * in a blueprint spells it: '1.7' for Grav 1.x, '2.0' for Grav 2.x.
+     *
+     * @return string
+     */
+    public static function gravGeneration(): string
+    {
+        return ((int)GRAV_VERSION) >= 2 ? '2.0' : '1.7';
+    }
+
+    /**
+     * Whether a package declares itself compatible with the Grav running now.
+     *
+     * A package that declares nothing is treated as compatible, because roughly
+     * two thirds of the repository declares nothing and refusing those would
+     * break far more than it fixed. Only an explicit list that leaves this
+     * generation out counts as incompatible.
+     *
+     * @param  mixed $compatibility The blueprint's `compatibility.grav` value.
+     * @return bool
+     */
+    public static function declaresGravCompatibility($compatibility): bool
+    {
+        $declared = is_array($compatibility) ? ($compatibility['grav'] ?? $compatibility) : $compatibility;
+        if (!$declared) {
+            return true;
+        }
+
+        $running = (int)GRAV_VERSION;
+        foreach ((array)$declared as $generation) {
+            if ((int)$generation === $running) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether a dependency could be installed on this Grav at all.
+     *
+     * False in two situations, and both mean the same thing to a caller: the
+     * repository does not serve the package to this install (the download feed
+     * filters on each blueprint's own `compatibility`, so a package built for
+     * another Grav generation is simply absent from the index), or it is in the
+     * index and names generations that do not include this one.
+     *
+     * The classic `admin` plugin is the case this exists for: it is Grav 1.7
+     * only, Grav 2 ships admin2 instead, and a plugin compatible with both
+     * generations has no way to say "admin, but only on 1.7". Such a
+     * requirement is unsatisfiable here rather than unmet, so it is dropped
+     * instead of failing the install (getgrav/grav-premium-issues#618).
+     *
+     * @param  string $slug
+     * @return bool
+     */
+    public function dependencyIsInstallable(string $slug): bool
+    {
+        $package = $this->findPackage($slug, true);
+        if (!$package) {
+            return false;
+        }
+
+        return self::declaresGravCompatibility($package->compatibility ?? null);
+    }
+
+    /**
      * Fetch the dependencies, check the installed packages and return an array with
      * the list of packages with associated an information on what to do: install, update or ignore.
      *
      * `ignore` means the package is already installed and can be safely left as-is.
      * `install` means the package is not installed and must be installed.
      * `update` means the package is already installed and must be updated as a dependency needs a higher version.
+     *
+     * A dependency that cannot be installed on this Grav generation at all is
+     * dropped from the result entirely, the same way `grav`, `php` and
+     * symlinked plugins are.
      *
      * @param array $packages
      * @return array
@@ -1159,6 +1230,15 @@ class GPM extends Iterator
                     $dependencies[$dependency_slug] = 'ignore';
                 }
             } else {
+                // Not installed, and not installable on this Grav generation:
+                // drop the requirement rather than trying and failing. The
+                // classic `admin` plugin on Grav 2 is the case that matters —
+                // see dependencyIsInstallable().
+                if (!$this->dependencyIsInstallable($dependency_slug)) {
+                    unset($dependencies[$dependency_slug]);
+                    continue;
+                }
+
                 $dependencyVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator);
 
                 // if requirement is next significant release, check is compatible with latest available version, might not be

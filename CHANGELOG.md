@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Installing a package whose dependency is not in the GPM index now says so and carries on, instead of stopping the command with a PHP fatal error. A plugin that still asks for the Grav 1.7 admin plugin was enough to trigger it [getgrav/grav-premium-issues#618](https://github.com/getgrav/grav-premium-issues/issues/618)
+    * A dependency that cannot be installed on this generation of Grav is now ignored rather than attempted. A plugin that works on both 1.7 and 2.0 has no way to say "the admin plugin, but only on 1.7", so on Grav 2 that requirement is dropped instead of failing the install [getgrav/grav-premium-issues#618](https://github.com/getgrav/grav-premium-issues/issues/618)
 
 # v2.0.24
 ## 09/03/2026

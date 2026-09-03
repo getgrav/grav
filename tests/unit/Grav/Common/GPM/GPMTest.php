@@ -318,6 +318,90 @@ $this->grav = Fixtures::get('grav');
         self::assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.10.2'));
     }
 
+    /**
+     * A blueprint that names Grav generations it does not include must not be
+     * treated as installable here. Two thirds of the repository declares
+     * nothing at all, so an absent declaration has to stay compatible
+     * (getgrav/grav-premium-issues#618).
+     */
+    public function testDeclaresGravCompatibility(): void
+    {
+        $isGrav2 = ((int)GRAV_VERSION) >= 2;
+
+        // No declaration is always compatible, whichever Grav is running.
+        self::assertTrue(GPM::declaresGravCompatibility(null));
+        self::assertTrue(GPM::declaresGravCompatibility([]));
+        self::assertTrue(GPM::declaresGravCompatibility(''));
+
+        // Naming both generations is compatible either way.
+        self::assertTrue(GPM::declaresGravCompatibility(['1.7', '2.0']));
+
+        // A single generation is compatible only with its own.
+        self::assertSame($isGrav2, GPM::declaresGravCompatibility(['2.0']));
+        self::assertSame(!$isGrav2, GPM::declaresGravCompatibility(['1.7']));
+
+        // The nested form the blueprint actually uses, and a bare string.
+        self::assertSame(!$isGrav2, GPM::declaresGravCompatibility(['grav' => ['1.7']]));
+        self::assertSame($isGrav2, GPM::declaresGravCompatibility(['grav' => ['2.0']]));
+        self::assertSame($isGrav2, GPM::declaresGravCompatibility('2.0'));
+
+        // A later minor still belongs to its generation.
+        self::assertSame($isGrav2, GPM::declaresGravCompatibility(['2.1']));
+
+        self::assertSame($isGrav2 ? '2.0' : '1.7', GPM::gravGeneration());
+    }
+
+    /**
+     * A dependency is uninstallable both when the repository does not serve it
+     * and when it serves it declaring another generation.
+     */
+    public function testDependencyIsInstallable(): void
+    {
+        $isGrav2 = ((int)GRAV_VERSION) >= 2;
+
+        $this->gpm->data = [
+            'declares-nothing' => (object)[],
+            'this-generation' => (object)['compatibility' => ['grav' => [$isGrav2 ? '2.0' : '1.7']]],
+            'other-generation' => (object)['compatibility' => ['grav' => [$isGrav2 ? '1.7' : '2.0']]],
+        ];
+
+        // Absent from the index entirely — what the download feed does to a
+        // package built for another generation, and the classic `admin` plugin
+        // on Grav 2 stable.
+        self::assertFalse($this->gpm->dependencyIsInstallable('not-in-the-index'));
+
+        self::assertTrue($this->gpm->dependencyIsInstallable('declares-nothing'));
+        self::assertTrue($this->gpm->dependencyIsInstallable('this-generation'));
+        self::assertFalse($this->gpm->dependencyIsInstallable('other-generation'));
+    }
+
+    /**
+     * An unsatisfiable dependency is dropped from the resolution rather than
+     * marked `install`, which is what used to make `bin/gpm install` fatal.
+     */
+    public function testGetDependenciesDropsUninstallableDependency(): void
+    {
+        $isGrav2 = ((int)GRAV_VERSION) >= 2;
+
+        $this->gpm->data = [
+            'test-plugin' => (object)[
+                'dependencies' => [
+                    ['name' => 'wrong-generation', 'version' => '>=1.0.0'],
+                    ['name' => 'not-in-the-index', 'version' => '>=1.0.0'],
+                    ['name' => 'fine', 'version' => '>=1.0.0'],
+                ]
+            ],
+            'wrong-generation' => (object)['compatibility' => ['grav' => [$isGrav2 ? '1.7' : '2.0']]],
+            'fine' => (object)[],
+        ];
+
+        $dependencies = $this->gpm->getDependencies(['test-plugin']);
+
+        self::assertArrayNotHasKey('wrong-generation', $dependencies, 'a dependency for another Grav generation is dropped');
+        self::assertArrayNotHasKey('not-in-the-index', $dependencies, 'a dependency the repository does not serve is dropped');
+        self::assertSame('install', $dependencies['fine'] ?? null, 'a satisfiable dependency is still reported');
+    }
+
     public function testCalculateVersionNumberFromDependencyVersion(): void
     {
         self::assertSame('2.0', $this->gpm->calculateVersionNumberFromDependencyVersion('>=2.0'));
