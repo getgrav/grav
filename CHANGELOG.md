@@ -1,3 +1,15 @@
+# v2.0.24
+## 09/03/2026
+
+1. [](#bugfix)
+    * Installing a package whose dependency is not in the GPM index now says so and carries on, instead of stopping the command with a PHP fatal error. A plugin that still asks for the Grav 1.7 admin plugin was enough to trigger it [getgrav/grav-premium-issues#618](https://github.com/getgrav/grav-premium-issues/issues/618)
+
+# v2.0.24
+## 09/03/2026
+
+1. [](#bugfix)
+    * A JSON request whose body is a bare scalar (`"text"`, `12345`, `true`) sent with `Content-Type: application/json` no longer answers a 500 from the request pipeline before any route runs. It is treated as an empty body, so a plugin's webhook or API route gets to answer it, log it and refuse it itself. With `errors.display` on, the old failure also printed a stack trace with server paths to whoever sent it
+
 # v2.0.23
 ## 09/02/2026
 

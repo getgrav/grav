@@ -1225,7 +1225,10 @@ class GPM extends Iterator
     {
         $packageData = $this->findPackage($packageName);
 
-        if (empty($packageData->dependencies)) {
+        // findPackage() returns false when the index has no such package, and
+        // reading a property off that is a PHP 8 warning before empty() ever
+        // sees it.
+        if (!$packageData || empty($packageData->dependencies)) {
             return $dependencies;
         }
 
