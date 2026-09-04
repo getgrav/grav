@@ -355,4 +355,34 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
             'an int is returned as-is' => [0, 0],
         ];
     }
+
+    /* ------------------------------------------------------------------ *
+     * The GRAV_CONFIG gate itself must not require getenv() (#4279).
+     *
+     * SAPIs such as Apache's SetEnv or nginx's fastcgi_param only populate
+     * $_SERVER, never the process environment getenv() reads, so a gate
+     * that checks getenv() alone silently drops every GRAV_CONFIG__*
+     * override for those setups even though the body one line below it
+     * already reads $_ENV + $_SERVER.
+     * ------------------------------------------------------------------ */
+
+    public function testConfigOverrideAppliesWhenGravConfigIsOnlyInServer(): void
+    {
+        $original = $this->config->get('test.grav_config_4279');
+
+        $_SERVER['GRAV_CONFIG'] = '1';
+        $_SERVER['GRAV_CONFIG__test__grav_config_4279'] = 'from-server-only';
+
+        try {
+            $processor = new InitializeProcessor($this->grav);
+            $method = new ReflectionMethod($processor, 'initializeConfig');
+            $method->setAccessible(true);
+            $method->invoke($processor);
+
+            self::assertSame('from-server-only', $this->config->get('test.grav_config_4279'));
+        } finally {
+            unset($_SERVER['GRAV_CONFIG'], $_SERVER['GRAV_CONFIG__test__grav_config_4279']);
+            $this->config->set('test.grav_config_4279', $original);
+        }
+    }
 }
