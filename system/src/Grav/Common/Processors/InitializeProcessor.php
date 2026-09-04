@@ -206,7 +206,7 @@ class InitializeProcessor extends ProcessorBase
 
         // Override configuration using the environment.
         $prefix = 'GRAV_CONFIG';
-        $env = getenv($prefix);
+        $env = $_SERVER[$prefix] ?? $_ENV[$prefix] ?? (getenv($prefix) ?: null);
         if ($env) {
             $cPrefix = $prefix . '__';
             $aPrefix = $prefix . '_ALIAS__';

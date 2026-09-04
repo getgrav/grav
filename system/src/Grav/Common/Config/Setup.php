@@ -182,7 +182,7 @@ class Setup extends Data
 
         // If environment is not set, look for the environment variable and then the constant.
         $environment = static::$environment ??
-            (defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : (getenv('GRAV_ENVIRONMENT') ?: null));
+            (defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : ($_SERVER['GRAV_ENVIRONMENT'] ?? $_ENV['GRAV_ENVIRONMENT'] ?? (getenv('GRAV_ENVIRONMENT') ?: null)));
 
         // If no environment is set, make sure we get one (CLI or hostname).
         if (null === $environment) {
@@ -204,7 +204,7 @@ class Setup extends Data
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
         // If GRAV_SETUP_PATH has been defined, use it, otherwise use defaults.
-        $setupFile = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : (getenv('GRAV_SETUP_PATH') ?: null);
+        $setupFile = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : ($_SERVER['GRAV_SETUP_PATH'] ?? $_ENV['GRAV_SETUP_PATH'] ?? (getenv('GRAV_SETUP_PATH') ?: null));
         if (null !== $setupFile) {
             // Make sure that the custom setup file exists. Terminates the script if not.
             if (!str_starts_with((string) $setupFile, '/')) {
@@ -237,10 +237,10 @@ class Setup extends Data
         $this->def('environment', static::$environment);
 
         // Figure out path for the current environment.
-        $envPath = defined('GRAV_ENVIRONMENT_PATH') ? GRAV_ENVIRONMENT_PATH : (getenv('GRAV_ENVIRONMENT_PATH') ?: null);
+        $envPath = defined('GRAV_ENVIRONMENT_PATH') ? GRAV_ENVIRONMENT_PATH : ($_SERVER['GRAV_ENVIRONMENT_PATH'] ?? $_ENV['GRAV_ENVIRONMENT_PATH'] ?? (getenv('GRAV_ENVIRONMENT_PATH') ?: null));
         if (null === $envPath) {
             // Find common path for all environments and append current environment into it.
-            $envPath = defined('GRAV_ENVIRONMENTS_PATH') ? GRAV_ENVIRONMENTS_PATH : (getenv('GRAV_ENVIRONMENTS_PATH') ?: null);
+            $envPath = defined('GRAV_ENVIRONMENTS_PATH') ? GRAV_ENVIRONMENTS_PATH : ($_SERVER['GRAV_ENVIRONMENTS_PATH'] ?? $_ENV['GRAV_ENVIRONMENTS_PATH'] ?? (getenv('GRAV_ENVIRONMENTS_PATH') ?: null));
             if (null !== $envPath) {
                 $envPath .= '/';
             } else {
