@@ -355,4 +355,91 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
             'an int is returned as-is' => [0, 0],
         ];
     }
+
+    /* ------------------------------------------------------------------ *
+     * The GRAV_CONFIG gate itself must not require getenv() (#4279).
+     *
+     * SAPIs such as Apache's SetEnv or nginx's fastcgi_param only populate
+     * $_SERVER, never the process environment getenv() reads, so a gate
+     * that checks getenv() alone silently drops every GRAV_CONFIG__*
+     * override for those setups even though the body one line below it
+     * already reads $_ENV + $_SERVER.
+     * ------------------------------------------------------------------ */
+
+    public function testConfigOverrideAppliesWhenGravConfigIsOnlyInServer(): void
+    {
+        $original = $this->config->get('test.grav_config_4279');
+        $restoreServer = $this->stashServerVars(['GRAV_CONFIG', 'GRAV_CONFIG__test__grav_config_4279']);
+
+        $_SERVER['GRAV_CONFIG'] = '1';
+        $_SERVER['GRAV_CONFIG__test__grav_config_4279'] = 'from-server-only';
+
+        try {
+            $processor = new InitializeProcessor($this->grav);
+            $method = new ReflectionMethod($processor, 'initializeConfig');
+            $method->setAccessible(true);
+            $method->invoke($processor);
+
+            self::assertSame('from-server-only', $this->config->get('test.grav_config_4279'));
+        } finally {
+            $restoreServer();
+            $this->config->set('test.grav_config_4279', $original);
+        }
+    }
+
+    /**
+     * A present-but-empty `$_SERVER['GRAV_CONFIG']` is what an unset nginx
+     * `fastcgi_param` or an empty Apache `SetEnv` leaves behind. The gate
+     * must fall through to `getenv()` in that case rather than treating the
+     * empty value as "GRAV_CONFIG is off".
+     */
+    public function testConfigOverrideFallsBackToGetenvWhenServerValueIsEmpty(): void
+    {
+        $original = $this->config->get('test.grav_config_4279');
+        $restoreServer = $this->stashServerVars(['GRAV_CONFIG', 'GRAV_CONFIG__test__grav_config_4279']);
+        $hadGetenv = getenv('GRAV_CONFIG');
+
+        $_SERVER['GRAV_CONFIG'] = '';
+        $_SERVER['GRAV_CONFIG__test__grav_config_4279'] = 'from-getenv-fallback';
+        putenv('GRAV_CONFIG=1');
+
+        try {
+            $processor = new InitializeProcessor($this->grav);
+            $method = new ReflectionMethod($processor, 'initializeConfig');
+            $method->setAccessible(true);
+            $method->invoke($processor);
+
+            self::assertSame('from-getenv-fallback', $this->config->get('test.grav_config_4279'));
+        } finally {
+            putenv($hadGetenv === false ? 'GRAV_CONFIG' : "GRAV_CONFIG={$hadGetenv}");
+            $restoreServer();
+            $this->config->set('test.grav_config_4279', $original);
+        }
+    }
+
+    /**
+     * Stashes the current value (or absence) of each `$_SERVER` key and
+     * returns a closure that restores exactly that state, instead of
+     * blindly unsetting keys a real request may already carry.
+     *
+     * @param list<string> $keys
+     * @return callable(): void
+     */
+    private function stashServerVars(array $keys): callable
+    {
+        $stash = [];
+        foreach ($keys as $key) {
+            $stash[$key] = [array_key_exists($key, $_SERVER), $_SERVER[$key] ?? null];
+        }
+
+        return static function () use ($stash): void {
+            foreach ($stash as $key => [$existed, $value]) {
+                if ($existed) {
+                    $_SERVER[$key] = $value;
+                } else {
+                    unset($_SERVER[$key]);
+                }
+            }
+        };
+    }
 }
