@@ -53,7 +53,7 @@ pages:
     short: 'jS M Y'                              # Short date format
     long: 'F jS \a\t g:ia'                       # Long date format
   publish_dates: true                            # automatically publish/unpublish based on dates
-  media_route_urls: false                        # Link page media through the page route instead of its path on disk, so plugins can apply the page's `access` rules. Required before the `user/pages` deny rule in .htaccess (or your webserver-configs equivalent) can be enabled
+  media_route_urls: false                        # Link page media through the page route instead of its path on disk, so plugins can apply the page's `access` rules to it. Half of a two-part change, and deliberately not exposed in the admin panel: set this BEFORE uncommenting the `user/pages` deny rule in .htaccess (or your webserver-configs equivalent), because enabling that rule on its own turns every media URL on the site into a 403
   process:
     markdown: true                               # Process Markdown
     # NOTE: If you override this `process:` block in user/config/system.yaml,
