@@ -177,6 +177,17 @@ form:
               validate:
                 type: bool
 
+            pages.media_route_urls:
+              type: toggle
+              label: PLUGIN_ADMIN.PAGE_MEDIA_ROUTE_URLS
+              help: PLUGIN_ADMIN.PAGE_MEDIA_ROUTE_URLS_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             pages.events:
               type: checkboxes
               label: PLUGIN_ADMIN.EVENTS

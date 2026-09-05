@@ -22,6 +22,7 @@ use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Media\MediaRouteUrls;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Traits\PageFormTrait;
@@ -1602,6 +1603,10 @@ class Page implements PageInterface
 
         /** @var Media $media */
         $media = $this->getMedia();
+
+        // Applied here rather than in getMedia() because the media collection is
+        // cached, and the route depends on the active language and base route.
+        MediaRouteUrls::apply($this, $media);
 
         return $media;
     }

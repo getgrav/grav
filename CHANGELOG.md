@@ -1,3 +1,10 @@
+# v2.0.25
+## 09/04/2026
+
+1. [](#new)
+    * A new `pages.media_route_urls` setting, off by default, links a page's media by its page route instead of its path on disk, so plugins can apply the page's `access` rules to media requests. Resized images keep serving from the image cache
+    * Every web server config now carries a commented rule for denying direct access to `user/pages`, which only becomes safe to enable once `pages.media_route_urls` is on
+
 # v2.0.24
 ## 09/03/2026
 

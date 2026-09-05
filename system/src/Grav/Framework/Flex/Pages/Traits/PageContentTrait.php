@@ -14,6 +14,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Media\MediaRouteUrls;
 use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\Excerpts;
@@ -192,7 +193,15 @@ trait PageContentTrait
             $this->setProperty('media', $var);
         }
 
-        return $this->getProperty('media');
+        $media = $this->getProperty('media');
+
+        // Applied here rather than where the collection is built because the
+        // route depends on the active language and base route. See Page::media().
+        if ($this instanceof PageInterface) {
+            MediaRouteUrls::apply($this, $media);
+        }
+
+        return $media;
     }
 
     /**
