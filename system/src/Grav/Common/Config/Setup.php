@@ -167,6 +167,29 @@ class Setup extends Data
     ];
 
     /**
+     * Read a bootstrap variable from wherever the SAPI put it.
+     *
+     * $_SERVER is the only source PHP guarantees for server-set variables, but
+     * a present-but-empty entry (an unset nginx variable used in a
+     * `fastcgi_param`, an empty `SetEnv`) must not shadow a working getenv(),
+     * or the fix breaks the hosts where the old code worked. Mirrors Env.php
+     * and Uri::ip(). (#4279)
+     *
+     * @param string $name
+     * @return string|null
+     */
+    private static function envVar(string $name): ?string
+    {
+        foreach ([$_SERVER[$name] ?? null, $_ENV[$name] ?? null, getenv($name)] as $value) {
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param Container|array $container
      */
     public function __construct($container)
@@ -182,7 +205,7 @@ class Setup extends Data
 
         // If environment is not set, look for the environment variable and then the constant.
         $environment = static::$environment ??
-            (defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : ($_SERVER['GRAV_ENVIRONMENT'] ?? $_ENV['GRAV_ENVIRONMENT'] ?? (getenv('GRAV_ENVIRONMENT') ?: null)));
+            (defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : static::envVar('GRAV_ENVIRONMENT'));
 
         // If no environment is set, make sure we get one (CLI or hostname).
         if (null === $environment) {
@@ -204,7 +227,7 @@ class Setup extends Data
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
         // If GRAV_SETUP_PATH has been defined, use it, otherwise use defaults.
-        $setupFile = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : ($_SERVER['GRAV_SETUP_PATH'] ?? $_ENV['GRAV_SETUP_PATH'] ?? (getenv('GRAV_SETUP_PATH') ?: null));
+        $setupFile = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : static::envVar('GRAV_SETUP_PATH');
         if (null !== $setupFile) {
             // Make sure that the custom setup file exists. Terminates the script if not.
             if (!str_starts_with((string) $setupFile, '/')) {
@@ -237,10 +260,10 @@ class Setup extends Data
         $this->def('environment', static::$environment);
 
         // Figure out path for the current environment.
-        $envPath = defined('GRAV_ENVIRONMENT_PATH') ? GRAV_ENVIRONMENT_PATH : ($_SERVER['GRAV_ENVIRONMENT_PATH'] ?? $_ENV['GRAV_ENVIRONMENT_PATH'] ?? (getenv('GRAV_ENVIRONMENT_PATH') ?: null));
+        $envPath = defined('GRAV_ENVIRONMENT_PATH') ? GRAV_ENVIRONMENT_PATH : static::envVar('GRAV_ENVIRONMENT_PATH');
         if (null === $envPath) {
             // Find common path for all environments and append current environment into it.
-            $envPath = defined('GRAV_ENVIRONMENTS_PATH') ? GRAV_ENVIRONMENTS_PATH : ($_SERVER['GRAV_ENVIRONMENTS_PATH'] ?? $_ENV['GRAV_ENVIRONMENTS_PATH'] ?? (getenv('GRAV_ENVIRONMENTS_PATH') ?: null));
+            $envPath = defined('GRAV_ENVIRONMENTS_PATH') ? GRAV_ENVIRONMENTS_PATH : static::envVar('GRAV_ENVIRONMENTS_PATH');
             if (null !== $envPath) {
                 $envPath .= '/';
             } else {
