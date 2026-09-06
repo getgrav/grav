@@ -358,16 +358,21 @@ class Grav extends Container
      * has to run after those responses too, not only after a rendered page.
      *
      * @param ResponseInterface $response
-     * @return void
+     * @return bool whether shutdown() will run for this request
      */
-    protected function registerShutdown(ResponseInterface $response): void
+    protected function registerShutdown(ResponseInterface $response): bool
     {
-        if ($this->shutdownRegistered || $response->getHeaderLine('Grav-Internal-SkipShutdown') === '1') {
-            return;
+        if ($response->getHeaderLine('Grav-Internal-SkipShutdown') === '1') {
+            return false;
+        }
+        if ($this->shutdownRegistered) {
+            return true;
         }
 
         $this->shutdownRegistered = true;
         register_shutdown_function([$this, 'shutdown']);
+
+        return true;
     }
 
     /**
@@ -514,17 +519,30 @@ class Grav extends Container
             }
         }
 
-        // Echo page content.
-        $this->header($response);
-        if (!$this->streamResponseBody($body)) {
-            echo $body;
-        }
-
         // A redirect or an early close is still a finished request: the slow
         // work plugins queue for onShutdown runs after it exactly as it does
-        // after a rendered page. A streamed body has already committed its
-        // headers, so shutdown() skips the header-based connection close.
-        $this->registerShutdown($response);
+        // after a rendered page.
+        $shutdown = $this->registerShutdown($response);
+
+        // Echo page content.
+        $this->header($response);
+        if ($this->streamResponseBody($body)) {
+            // Streaming committed the headers, so shutdown() will skip the
+            // header-based connection close and only run the event.
+            exit();
+        }
+
+        if ($shutdown) {
+            // Hold the body in a buffer, the way a rendered page is held, so
+            // that on a host without fastcgi_finish_request shutdown() can still
+            // frame the response with Content-Length and Connection: close
+            // before the slow work starts. Without this the client would wait
+            // for the whole of onShutdown before its redirect or JSON answer
+            // was complete.
+            ob_start();
+        }
+        echo $body;
+
         exit();
     }
 
