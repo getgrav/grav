@@ -13,7 +13,7 @@ form:
 
       fields:
 
-        content:
+        content_tab:
           fields:
 
             header.title:

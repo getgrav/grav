@@ -8,7 +8,7 @@ form:
       active: 1
 
       fields:
-        content:
+        content_tab:
           fields:
 
             modular_title:

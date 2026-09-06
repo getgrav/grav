@@ -16,7 +16,7 @@ form:
       active: 1
 
       fields:
-        content:
+        content_tab:
           type: tab
           title: PLUGIN_ADMIN.CONTENT
 
