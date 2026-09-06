@@ -5,6 +5,9 @@
     * A new `pages.media_route_urls` setting in `system.yaml`, off by default, links a page's media by its page route instead of its path on disk, so plugins can apply the page's `access` rules to media requests. Resized images keep serving from the image cache
     * Every web server config now carries a commented rule for denying direct access to `user/pages`, which only becomes safe to enable once `pages.media_route_urls` is on
 
+2. [](#bugfix)
+    * `onShutdown` now fires after a request that ended through `close()` or `redirect()`, not only after a rendered page. Those requests echoed their response and exited before the shutdown handler was registered, so a plugin doing slow work after the response (sending queued mail, warming a cache) never ran on a form submit that redirected. The non-FastCGI fallback also stops trying to set headers once they have been sent
+
 # v2.0.24
 ## 09/03/2026
 

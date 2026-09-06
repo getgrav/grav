@@ -96,6 +96,15 @@ class Grav extends Container
     protected static $instance;
 
     /**
+     * Whether the shutdown handler has been registered for this request. Both
+     * the normal page path and close() register it, and a plugin that calls
+     * close() from inside onShutdown must not queue a second run.
+     *
+     * @var bool
+     */
+    protected $shutdownRegistered = false;
+
+    /**
      * @var array Contains all Services and ServicesProviders that are mapped
      *            to the dependency injection container.
      */
@@ -336,9 +345,29 @@ class Grav extends Container
 
         // Response object can turn off all shutdown processing. This can be used for example to speed up AJAX responses.
         // Note that using this feature will also turn off response compression.
-        if ($response->getHeaderLine('Grav-Internal-SkipShutdown') !== '1') {
-            register_shutdown_function([$this, 'shutdown']);
+        $this->registerShutdown($response);
+    }
+
+    /**
+     * Register shutdown() to run once PHP finishes this request, unless the
+     * response asked to skip it with the `Grav-Internal-SkipShutdown` header.
+     *
+     * Registered rather than called, so it runs after exit() as well as after
+     * a normal render: close() and redirect() end with exit(), and the work
+     * that plugins hang on onShutdown (sending queued mail, warming a cache)
+     * has to run after those responses too, not only after a rendered page.
+     *
+     * @param ResponseInterface $response
+     * @return void
+     */
+    protected function registerShutdown(ResponseInterface $response): void
+    {
+        if ($this->shutdownRegistered || $response->getHeaderLine('Grav-Internal-SkipShutdown') === '1') {
+            return;
         }
+
+        $this->shutdownRegistered = true;
+        register_shutdown_function([$this, 'shutdown']);
     }
 
     /**
@@ -490,6 +519,12 @@ class Grav extends Container
         if (!$this->streamResponseBody($body)) {
             echo $body;
         }
+
+        // A redirect or an early close is still a finished request: the slow
+        // work plugins queue for onShutdown runs after it exactly as it does
+        // after a rendered page. A streamed body has already committed its
+        // headers, so shutdown() skips the header-based connection close.
+        $this->registerShutdown($response);
         exit();
     }
 
@@ -707,7 +742,7 @@ class Grav extends Container
 
             // FastCGI allows us to flush all response data to the client and finish the request.
             $success = function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
-            if (!$success) {
+            if (!$success && !headers_sent()) {
                 // Unfortunately without FastCGI there is no way to force close the connection.
                 // We need to ask browser to close the connection for us.
 
@@ -735,7 +770,7 @@ class Grav extends Container
                         $canSetContentLength = false;
                     }
 
-                    if ($canSetContentLength) {
+                    if ($canSetContentLength && ob_get_level() > 0) {
                         // Get length and close the connection (only when not using compression).
                         header('Content-Length: ' . ob_get_length());
                     }
@@ -743,8 +778,19 @@ class Grav extends Container
 
                 header('Connection: close');
 
-                ob_end_flush();
-                @ob_flush();
+                // close() has already emptied every buffer before echoing, so
+                // there may be nothing left to end here.
+                while (ob_get_level() > 0) {
+                    ob_end_flush();
+                }
+                flush();
+            } elseif (!$success) {
+                // Headers are out already (close() echoed the body, or the body
+                // was streamed), so the connection cannot be closed early. Push
+                // whatever is buffered so the client at least has the response.
+                while (ob_get_level() > 0) {
+                    ob_end_flush();
+                }
                 flush();
             }
         }
