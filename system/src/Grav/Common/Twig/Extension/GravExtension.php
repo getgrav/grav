@@ -169,8 +169,8 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('int', $this->intFilter(...), ['is_safe' => ['all']]),
             new TwigFilter('bool', $this->boolFilter(...)),
             new TwigFilter('float', $this->floatFilter(...), ['is_safe' => ['all']]),
-            new TwigFilter('array', $this->arrayFilter(...)),
-            new TwigFilter('yaml', $this->yamlFilter(...)),
+            new TwigFilter('array', $this->arrayGuarded(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
+            new TwigFilter('yaml', $this->yamlGuarded(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
 
             // Object Types
             new TwigFilter('get_type', $this->getTypeFunc(...)),
@@ -197,7 +197,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('array', $this->arrayFilter(...)),
+            new TwigFunction('array', $this->arrayGuarded(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
             new TwigFunction('array_key_value', $this->arrayKeyValueFunc(...)),
             new TwigFunction('array_key_exists', 'array_key_exists'),
             new TwigFunction('array_unique', 'array_unique'),
@@ -438,6 +438,111 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     {
         $this->assertSandboxDumpSafe($env, $isSandboxed, $data, 'yaml_encode', false);
         return $this->yamlEncodeFilter($data, $inline);
+    }
+
+    /**
+     * Guarded override of the `array` filter and its identical function form.
+     *
+     * arrayFilter() converts an object without ever asking the sandbox: it calls
+     * toArray() directly, or falls back to `(array)`, which exposes private and
+     * protected state. Both routes walk past GravSecurityPolicy::checkMethodAllowed(),
+     * and `toarray` on a raw Config or Data object is deliberately absent from the
+     * allowlist (see SandboxDefaults::methods()). The `grav` global is the raw DI
+     * container, so `grav|array` returned Pimple's private $values — every resolved
+     * service, including the un-redacted Config that buildSandboxVars() replaces with
+     * a filtered facade for exactly this reason. (GHSA-59qm-58v5-gvc5)
+     *
+     * @param Environment $env
+     * @param bool $isSandboxed
+     * @param mixed $input
+     * @return array
+     */
+    public function arrayGuarded(Environment $env, bool $isSandboxed, mixed $input)
+    {
+        $this->assertSandboxCastSafe($env, $isSandboxed, $input);
+
+        return $this->arrayFilter($input);
+    }
+
+    /**
+     * Guarded override of the `yaml` filter.
+     *
+     * The serializing twin of `yaml_encode` and it needs the same guard: without one
+     * it prints whatever the casts above hand it. On its own it cannot leak an object
+     * (Symfony's dumper refuses object serialization outright), but it is the natural
+     * printer for an already-cast array. (GHSA-59qm-58v5-gvc5)
+     *
+     * @param Environment $env
+     * @param bool $isSandboxed
+     * @param array|object $value
+     * @param int|null $inline
+     * @param int|null $indent
+     * @return string
+     */
+    public function yamlGuarded(Environment $env, bool $isSandboxed, $value, $inline = null, $indent = null): string
+    {
+        $this->assertSandboxDumpSafe($env, $isSandboxed, $value, 'yaml', false);
+
+        return $this->yamlFilter($value, $inline, $indent);
+    }
+
+    /**
+     * Decide whether an object may be cast to an array inside sandboxed content.
+     *
+     * Unlike assertSandboxDumpSafe(), this asks the question the cast actually poses.
+     * isClassAllowed() only tests whether the CLASS appears in the method allowlist,
+     * and Grav\Common\Grav does appear there (for offsetexists / getversion / theme),
+     * so reusing that helper would let the container straight through. What matters is
+     * whether toArray() itself is permitted on this object, which is the same question
+     * Twig would ask for `{{ obj.toArray }}`.
+     *
+     * Permitted inside a sandboxed template:
+     *  - anything that is not an object;
+     *  - stdClass, whose `(array)` cast cannot expose state the policy meant to hide;
+     *  - an object whose toArray() the policy allows (the SandboxConfig facade, Uri);
+     *  - an allow-listed Iterator, where the cast is iterator_to_array().
+     *
+     * Everything else is refused, which soft-fails the render and logs the violation
+     * like any other sandbox block. A site that needs the cast on a particular class
+     * can re-add `toarray` for it under security.twig_sandbox.allowed_methods, which
+     * is additive over the shipped defaults.
+     *
+     * @param Environment $env
+     * @param bool $isSandboxed
+     * @param mixed $input
+     * @return void
+     */
+    protected function assertSandboxCastSafe(Environment $env, bool $isSandboxed, mixed $input): void
+    {
+        if (!$isSandboxed || !is_object($input) || $input instanceof \stdClass) {
+            return;
+        }
+
+        // See assertSandboxDumpSafe(): the SandboxExtension is only registered when
+        // security.twig_sandbox.enabled is true, and with the sandbox off there is
+        // nothing to enforce (getgrav/grav#4175).
+        if (!$env->hasExtension(SandboxExtension::class)) {
+            return;
+        }
+
+        /** @var SandboxExtension $sandbox */
+        $sandbox = $env->getExtension(SandboxExtension::class);
+        $policy = $sandbox->getSecurityPolicy();
+
+        if (method_exists($input, 'toArray')) {
+            $policy->checkMethodAllowed($input, 'toArray');
+
+            return;
+        }
+
+        if ($input instanceof Iterator && $policy instanceof GravSecurityPolicy && $policy->isClassAllowed($input)) {
+            return;
+        }
+
+        throw new SecurityNotAllowedFilterError(
+            sprintf('Filter "array" is not allowed on a "%s" object inside sandboxed content.', $input::class),
+            'array'
+        );
     }
 
     /**
