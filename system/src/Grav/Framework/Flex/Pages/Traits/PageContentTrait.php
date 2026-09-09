@@ -706,6 +706,14 @@ trait PageContentTrait
         $twig_first = $this->getNestedProperty('header.twig_first') ?? $config->get('system.pages.twig_first', false);
         $never_cache_twig = $this->getNestedProperty('header.never_cache_twig') ?? $config->get('system.pages.never_cache_twig', false);
 
+        // Editor-authored content Twig is request-aware even inside the sandbox, and
+        // the render cache below is keyed on the page key and the config checksum
+        // only, with no session or request dimension. Cache the markdown, re-run the
+        // Twig every request. Mirrors Page::content(). (GHSA-pp89-h475-7gj6)
+        if ($process_twig && !$this->isModule()) {
+            $never_cache_twig = true;
+        }
+
         if ($cache_enable) {
             $cache = $this->getCache('render');
             // Mix the full config checksum into the cache id so any change

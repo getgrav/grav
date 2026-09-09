@@ -960,6 +960,18 @@ class Page implements PageInterface
                 false
             );
 
+            // Editor-authored content Twig is sandboxed but still request-aware:
+            // authorize() and isajaxrequest() both answer for the current visitor, and
+            // plugins can allow-list more through the sandbox event. The page-content
+            // cache is keyed on page identity and the config checksum only, with no
+            // session, user or request dimension, so storing that render hands one
+            // visitor's output to the next. Cache the markdown, re-run the Twig every
+            // request. Modules render theme-controlled Twig, so they keep the site's
+            // own setting. (GHSA-pp89-h475-7gj6)
+            if ($process_twig && !$this->modularTwig()) {
+                $never_cache_twig = true;
+            }
+
             // if no cached-content run everything
             if ($never_cache_twig) {
                 if ($this->content === false || $cache_enable === false) {
