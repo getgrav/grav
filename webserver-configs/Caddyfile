@@ -47,6 +47,14 @@ root * .
 	not path_regexp (?i)\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf)$
 }
 
+# Serve page media only through the page route, so plugins can apply the page's
+# `access` rules to it. DO NOT uncomment this matcher and its `respond` line
+# below without first setting `pages.media_route_urls: true` in
+# user/config/system.yaml, or every media URL on the site becomes a 403.
+# @denied_user_pages {
+# 	path_regexp (?i)^/user/pages/
+# }
+
 # deny running scripts inside core system folders
 @denied_system path_regexp (?i)^/(system|vendor)/.*\.(txt|xml|md|html|htm|shtml|shtm|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
 
@@ -65,6 +73,7 @@ route {
 	respond @denied_user_config 403
 	respond @denied_user_accounts 403
 	respond @denied_user_data 403
+	# respond @denied_user_pages 403
 	respond @denied_system 403
 	respond @denied_user_scripts 403
 	respond @denied_root_files 403

@@ -28,6 +28,14 @@ use function is_string;
 trait UserTrait
 {
     /**
+     * Actions which may be authorized before the user has completed two-factor
+     * authentication. Matched exactly, never as a substring.
+     *
+     * @var string[]
+     */
+    protected const LOGIN_ACTIONS = ['login', 'site.login', 'admin.login'];
+
+    /**
      * Authenticate user.
      *
      * If user password needs to be updated, new information will be saved.
@@ -88,8 +96,11 @@ trait UserTrait
             return false;
         }
 
-        // User needs to be authorized (2FA).
-        if (!str_contains($action, 'login') && !$this->get('authorized', true)) {
+        // User needs to be authorized (2FA), unless this is a login action itself.
+        // Matched exactly: a substring test also exempted any operator-chosen
+        // permission whose name merely contained "login", such as `site.logins` or a
+        // plugin's `admin.plugin_logins`, granting it during the 2FA window.
+        if (!in_array($action, static::LOGIN_ACTIONS, true) && !$this->get('authorized', true)) {
             return false;
         }
 

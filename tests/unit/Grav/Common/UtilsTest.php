@@ -318,6 +318,32 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertSame($timestamp, Utils::date2timestamp('2000-09-10 00:00:00'));
     }
 
+    public function testDate2timestampWithNonStringDate(): void
+    {
+        // An unquoted YAML date header such as `date: 2000-09-10` never reaches
+        // us as a string: the YAML parser reads it as a date and hands over a
+        // Unix timestamp, which strtotime() then misreads as a year in the far
+        // future. Accept these directly instead. Fixes #3812.
+        $timestamp = (new DateTime('2000-09-10 00:00:00'))->getTimestamp();
+
+        self::assertSame($timestamp, Utils::date2timestamp($timestamp));
+        self::assertSame($timestamp, Utils::date2timestamp((float) $timestamp));
+        self::assertSame($timestamp, Utils::date2timestamp(new DateTime('2000-09-10 00:00:00')));
+        self::assertSame($timestamp, Utils::date2timestamp(new DateTimeImmutable('2000-09-10 00:00:00')));
+    }
+
+    public function testDate2timestampKeepsReadingBareNumericDates(): void
+    {
+        // `date: 20000910` is also an int by the time it arrives, but it is the
+        // number the author typed rather than a timestamp, and it has always
+        // been read correctly as a date. Treating every int as a timestamp
+        // would silently move these pages to 1970.
+        $timestamp = (new DateTime('2000-09-10 00:00:00'))->getTimestamp();
+
+        self::assertSame($timestamp, Utils::date2timestamp(20000910));
+        self::assertSame($timestamp, Utils::date2timestamp('20000910'));
+    }
+
     public function testResolve(): void
     {
         $array = [

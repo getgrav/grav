@@ -272,7 +272,16 @@ class UserObject extends FlexObject implements UserInterface, Countable
     public function authorize(string $action, ?string $scope = null): ?bool
     {
         if ($scope === 'test') {
-            // Special scope to test user permissions.
+            // Special scope to test the permissions of a user who may not be the
+            // active session user. Account state still applies -- that is a fact
+            // about the account -- but the session facts below (authenticated, 2FA)
+            // do not, because pre-login ACL checks depend on this scope answering
+            // for a user who has not logged in yet. The default keeps a hand-written
+            // account file with no `state:` key from losing every permission.
+            if ($this->getProperty('state', 'enabled') !== 'enabled') {
+                return false;
+            }
+
             $scope = null;
         } else {
             // User needs to be enabled.
@@ -285,8 +294,10 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 return false;
             }
 
-            if (!str_contains($action, 'login') && !$this->getProperty('authorized')) {
-                // User needs to be authorized (2FA).
+            // User needs to be authorized (2FA), unless this is a login action itself.
+            // Matched exactly: a substring test also exempted any operator-chosen
+            // permission whose name merely contained "login".
+            if (!in_array($action, static::LOGIN_ACTIONS, true) && !$this->getProperty('authorized')) {
                 return false;
             }
 
@@ -819,7 +830,13 @@ class UserObject extends FlexObject implements UserInterface, Countable
             }
         }
 
-        if ($user instanceof self && $user->getStorageKey() === $this->getStorageKey()) {
+        // Both keys have to be non-empty. FlexObject::getStorageKey() returns '' for
+        // any object that has never been persisted, and the anonymous guest Grav
+        // hands a session-less visitor is itself created with an empty key -- so a
+        // bare comparison made a guest the "owner" of any not-yet-created account.
+        // (GHSA-hp5c-hmwq-qjv6)
+        $key = $this->getStorageKey();
+        if ($key !== '' && $user instanceof self && $user->getStorageKey() === $key) {
             // User cannot delete his own account, otherwise he has full access.
             return $action !== 'delete';
         }

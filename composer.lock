@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1dd663bd521cb92772a23acb2f91b5f2",
+    "content-hash": "a5725e8d73004a06d69f0b37f7e1bc86",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -2078,30 +2078,28 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "v2.x-dev",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "c569a53304cd7d95ff21bffa6fc590adcf0be83d"
+                "reference": "6f6cfc5868ce53666e075a1d22a0d5f061099580"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/c569a53304cd7d95ff21bffa6fc590adcf0be83d",
-                "reference": "c569a53304cd7d95ff21bffa6fc590adcf0be83d",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/6f6cfc5868ce53666e075a1d22a0d5f061099580",
+                "reference": "6f6cfc5868ce53666e075a1d22a0d5f061099580",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": ">=7.2.5",
+                "php": "^8.3",
                 "pimple/pimple": "~3.0",
-                "symfony/polyfill-php80": "^1.23",
-                "symfony/polyfill-php81": "^1.23",
-                "symfony/yaml": "^4.0|^5.0|^6.0|^7.0"
+                "symfony/yaml": "^7.0"
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.2",
                 "phpstan/phpstan-deprecation-rules": "^1.0",
-                "phpunit/phpunit": "^8.0"
+                "phpunit/phpunit": "^10.5"
             },
             "type": "library",
             "autoload": {
@@ -2127,13 +2125,13 @@
             },
             "scripts": {
                 "test": [
-                    "vendor/bin/phpunit run unit"
+                    "vendor/bin/phpunit"
                 ],
                 "test-windows": [
-                    "vendor\\bin\\phpunit run unit"
+                    "vendor\\bin\\phpunit"
                 ],
                 "phpstan": [
-                    "vendor/bin/phpstan analyse -l 8 -c ./tests/phpstan/phpstan.neon . --memory-limit=128M --no-progress"
+                    "vendor/bin/phpstan analyse -l 8 -c ./tests/phpstan/phpstan.neon . --memory-limit=512M --no-progress"
                 ]
             },
             "license": [
@@ -2146,10 +2144,10 @@
                 "rockettheme"
             ],
             "support": {
-                "source": "https://github.com/rockettheme/toolbox/tree/v2",
+                "source": "https://github.com/rockettheme/toolbox/tree/2.0.0",
                 "issues": "https://github.com/rockettheme/toolbox/issues"
             },
-            "time": "2026-05-31T23:44:29+00:00"
+            "time": "2026-09-09T20:37:01+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -7450,7 +7448,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "rockettheme/toolbox": 20,
         "twig/twig": 20
     },
     "prefer-stable": false,
@@ -7458,6 +7455,8 @@
     "platform": {
         "php": "^8.3",
         "ext-json": "*",
+        "ext-ctype": "*",
+        "ext-session": "*",
         "ext-openssl": "*",
         "ext-curl": "*",
         "ext-zip": "*",

@@ -680,6 +680,81 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * The `array` cast converted the object itself — toArray(), or `(array)` for
+     * anything without it — so it never reached checkMethodAllowed(). `toarray` on a
+     * raw Config is deliberately off the allowlist, and `(array)` on the Grav
+     * container exposes Pimple's private $values, handing sandboxed content every
+     * resolved service including the un-redacted Config.
+     *
+     * (GHSA-59qm-58v5-gvc5)
+     *
+     * @dataProvider arrayCastProvider
+     * @param string $template
+     */
+    public function testGhsa59qm_ArrayCastOfNonAllowlistedObjectIsBlockedUnderSourcePolicy(string $template): void
+    {
+        $config = new \Grav\Common\Config\Config([
+            'plugins' => ['email' => ['smtp' => ['password' => 'PLUGIN_SECRET_42']]],
+        ]);
+
+        $env = $this->sourcePolicySandboxEnv(['@Var:poc' => $template]);
+
+        $this->expectException(SecurityError::class);
+        $env->render('@Var:poc', ['subject' => $config]);
+    }
+
+    /**
+     * @return array<string,array{0:string}>
+     */
+    public static function arrayCastProvider(): array
+    {
+        return [
+            'filter form' => ['{{ subject|array|json_encode }}'],
+            'function form' => ['{{ array(subject)|json_encode }}'],
+            'piped to yaml' => ['{{ subject|array|yaml }}'],
+        ];
+    }
+
+    /**
+     * The redacting facade is what sandboxed content is supposed to reach, and
+     * `toarray` is allow-listed on it, so the guard must leave it alone. If this
+     * fails, the GHSA-59qm fix has over-reached and broken legitimate content.
+     */
+    public function testGhsa59qm_ArrayCastOfSandboxConfigFacadeStillWorks(): void
+    {
+        $facade = new \Grav\Common\Twig\Sandbox\SandboxConfig(
+            new \Grav\Common\Config\Config([
+                'site' => ['title' => 'Grav'],
+                'plugins' => ['email' => ['smtp' => ['password' => 'PLUGIN_SECRET_42']]],
+            ]),
+            ['plugins']
+        );
+
+        $env = $this->sourcePolicySandboxEnv(['@Var:ok' => '{{ (subject|array)["site"]["title"] }}']);
+
+        self::assertSame('Grav', $env->render('@Var:ok', ['subject' => $facade]));
+    }
+
+    /**
+     * Plain values and stdClass must still cast, or the guard breaks ordinary
+     * page content that uses `|array` on a list or a page header.
+     */
+    public function testGhsa59qm_ArrayCastOfPlainValuesStillWorks(): void
+    {
+        $env = $this->sourcePolicySandboxEnv([
+            '@Var:list' => '{{ (subject|array)|join(",") }}',
+        ]);
+
+        self::assertSame('a,b', $env->render('@Var:list', ['subject' => ['a', 'b']]));
+
+        $obj = new \stdClass();
+        $obj->title = 'Hello';
+        $env2 = $this->sourcePolicySandboxEnv(['@Var:obj' => '{{ (subject|array)["title"] }}']);
+
+        self::assertSame('Hello', $env2->render('@Var:obj', ['subject' => $obj]));
+    }
+
+    /**
      * print_r reflects private state, so it walked straight through the redacting
      * SandboxConfig facade and returned the whole config tree — the exact leak
      * GHSA-mc5q-6hpj-rp7j was supposed to close, and did not. Assert it through the

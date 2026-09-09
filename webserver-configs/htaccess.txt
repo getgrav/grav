@@ -71,6 +71,13 @@ RewriteRule ^(user)/accounts/(.*) error [F,NC]
 # served per project policy despite the same risk on this user-writable folder.
 RewriteCond %{REQUEST_URI} !\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf|woff2|woff|ttf|otf|eot|css|js)$ [NC]
 RewriteRule ^(user)/data/(.*) error [F,NC]
+# Serve page media only through the page route, so plugins can apply the page's
+# `access` rules to it (the Login plugin's "Protect a login-protected page media"
+# setting, for one). Page media is normally linked by its path on disk, which the
+# web server answers without ever starting Grav.
+# DO NOT enable this without first setting `pages.media_route_urls: true` in
+# user/config/system.yaml, or every media URL on the site becomes a 403.
+# RewriteRule ^(user)/pages/(.*) error [F,NC]
 # Block access to specific file types for these system folders
 RewriteRule ^(system|vendor)/(.*)\.(txt|xml|md|html|htm|shtml|shtm|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ error [F,NC]
 # Block access to specific file types for these user folders
