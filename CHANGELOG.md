@@ -17,6 +17,7 @@
     * `onShutdown` now fires after a request that ended through `close()` or `redirect()`, not only after a rendered page. Those requests echoed their response and exited before the shutdown handler was registered, so a plugin doing slow work after the response (sending queued mail, warming a cache) never ran on a form submit that redirected. The non-FastCGI fallback also stops trying to set headers once they have been sent
     * Fixed the Flex user ACL treating an unsaved account and an anonymous visitor as the same person. Thanks to @AlpetGexha
     * Corrected the `security.yaml` comment claiming Twig in page content is off by default. It has shipped on since 2.0.19
+    * Page content is now validated against the rules its blueprint declares. The Content field and the Content tab that holds it share the name `content`, and the tab was overwriting the field, so every rule set on a page body was quietly unused. [#4271](https://github.com/getgrav/grav/issues/4271)
 
 # v2.0.24
 ## 09/03/2026

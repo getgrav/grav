@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1dd663bd521cb92772a23acb2f91b5f2",
+    "content-hash": "0d28912ab185bb1abe375eb9686c7dbc",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -2082,12 +2082,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "c569a53304cd7d95ff21bffa6fc590adcf0be83d"
+                "reference": "43b64210a290a0397a8904e11549426897f2adc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/c569a53304cd7d95ff21bffa6fc590adcf0be83d",
-                "reference": "c569a53304cd7d95ff21bffa6fc590adcf0be83d",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/43b64210a290a0397a8904e11549426897f2adc4",
+                "reference": "43b64210a290a0397a8904e11549426897f2adc4",
                 "shasum": ""
             },
             "require": {
@@ -2149,7 +2149,7 @@
                 "source": "https://github.com/rockettheme/toolbox/tree/v2",
                 "issues": "https://github.com/rockettheme/toolbox/issues"
             },
-            "time": "2026-05-31T23:44:29+00:00"
+            "time": "2026-09-09T19:37:58+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -7458,6 +7458,8 @@
     "platform": {
         "php": "^8.3",
         "ext-json": "*",
+        "ext-ctype": "*",
+        "ext-session": "*",
         "ext-openssl": "*",
         "ext-curl": "*",
         "ext-zip": "*",
