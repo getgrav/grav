@@ -221,6 +221,15 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('text/html', Utils::getMimeByExtension('foo', 'text/html'));
     }
 
+    public function testGetMimeByExtensionHonorsMediaTypesOverride(): void
+    {
+        $this->grav['config']->set('media.types.rss.mime', 'application/xml; charset=utf-8');
+
+        self::assertEquals('application/xml; charset=utf-8', Utils::getMimeByExtension('rss'));
+        // untouched types are unaffected
+        self::assertEquals('application/atom+xml', Utils::getMimeByExtension('atom'));
+    }
+
     public function testGetExtensionByMime(): void
     {
         self::assertEquals('html', Utils::getExtensionByMime('*/*'));

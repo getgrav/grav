@@ -932,10 +932,19 @@ abstract class Utils
     {
         $extension = strtolower($extension);
 
-        // look for some standard types
+        if ($extension === '') {
+            return $default;
+        }
+
+        // media.types (which a site can override) takes precedence over the built-in defaults
+        $media_types = Grav::instance()['config']->get('media.types');
+        $mime = $media_types[$extension]['mime'] ?? null;
+        if ($mime) {
+            return $mime;
+        }
+
+        // fallback for a few standard types not present in media.types
         switch ($extension) {
-            case null:
-                return $default;
             case 'json':
                 return 'application/json';
             case 'html':
@@ -948,9 +957,7 @@ abstract class Utils
                 return 'application/xml';
         }
 
-        $media_types = Grav::instance()['config']->get('media.types');
-
-        return $media_types[$extension]['mime'] ?? $default;
+        return $default;
     }
 
     /**

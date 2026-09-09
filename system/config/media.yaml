@@ -104,6 +104,14 @@ types:
     type: file
     thumb: media/thumb-xml.png
     mime: application/xml
+  atom:
+    type: file
+    thumb: media/thumb-xml.png
+    mime: application/atom+xml
+  rss:
+    type: file
+    thumb: media/thumb-rss.png
+    mime: application/rss+xml
   doc:
     type: file
     thumb: media/thumb-doc.png
