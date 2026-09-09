@@ -1466,11 +1466,10 @@ abstract class Utils
     /**
      * Get the timestamp of a date
      *
-     * @param string|int|DateTimeInterface $date a String expressed in the system.pages.dateformat.default format,
-     *                     with fallback to a strtotime argument. An unquoted YAML date header (e.g. `date: 2022-01-06`)
-     *                     is parsed by the YAML component into an int timestamp or a DateTimeInterface rather than a
-     *                     string, so those are accepted directly instead of being coerced into strtotime(), which
-     *                     misparses a bare numeric string into a bogus date.
+     * @param string|int|float|DateTimeInterface $date a String expressed in the system.pages.dateformat.default
+     *                     format, with fallback to a strtotime argument. An unquoted YAML date header such as
+     *                     `date: 2022-01-06` never reaches us as a string: the YAML parser reads it as a date and
+     *                     hands over a Unix timestamp, which strtotime() then misreads as a year in the far future.
      * @param string|null $format a date format to use if possible
      * @return int the timestamp
      */
@@ -1481,7 +1480,15 @@ abstract class Utils
         }
 
         if (is_int($date) || is_float($date)) {
-            return (int) $date;
+            $date = (string) (int) $date;
+
+            // `date: 20220106` arrives as the number the author typed, and the
+            // parsing below already reads it correctly as a date, so only a
+            // number that cannot be one is treated as a timestamp.
+            $ymd = DateTime::createFromFormat('!Ymd', $date);
+            if ($ymd === false || $ymd->format('Ymd') !== $date) {
+                return (int) $date;
+            }
         }
 
         $config = Grav::instance()['config'];
