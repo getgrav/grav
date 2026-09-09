@@ -191,13 +191,49 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     public function checkXss(): void
     {
         $tmpFile = $this->getTmpFile();
-        $mime = $this->getClientMediaType();
-        if (Utils::contains($mime, 'svg', false)) {
+        if ($this->isSvgUpload($tmpFile)) {
             $response = Security::detectXssFromSvgFile($tmpFile);
             if ($response) {
                 throw new RuntimeException(sprintf('SVG file XSS check failed on %s', $response));
             }
         }
+    }
+
+    /**
+     * Is this upload an SVG?
+     *
+     * Decided from the real file -- its extension, then a server-side sniff of the
+     * stored bytes -- never from the client-supplied Content-Type, which an attacker
+     * controls and could set to anything to skip the scan entirely. This brings the
+     * Form path in line with the media path, which calls Security::sanitizeSVG()
+     * unconditionally by path (see MediaUploadTrait::doSanitizeSvg()).
+     *
+     * @param string|null $tmpFile
+     * @return bool
+     */
+    protected function isSvgUpload(?string $tmpFile): bool
+    {
+        $extension = strtolower(Utils::pathinfo((string)$this->getClientFilename(), PATHINFO_EXTENSION) ?: '');
+        if (in_array($extension, ['svg', 'svgz'], true)) {
+            return true;
+        }
+
+        if (null === $tmpFile || !is_file($tmpFile)) {
+            return false;
+        }
+
+        if (class_exists('finfo')) {
+            $mime = (string)(new \finfo(FILEINFO_MIME_TYPE))->file($tmpFile);
+            if (Utils::contains($mime, 'svg', false)) {
+                return true;
+            }
+        }
+
+        // Last resort: an SVG root element in the head of the file, for an SVG
+        // uploaded under a bland extension that finfo reports as text/xml.
+        $head = (string)file_get_contents($tmpFile, false, null, 0, 1024);
+
+        return $head !== '' && Utils::contains($head, '<svg', false);
     }
 
     /**
