@@ -44,7 +44,7 @@
         "nyholm/psr7": "^1.8",
         "erusev/parsedown": "^2.0",
         "erusev/parsedown-extra": "^1.0",
-        "rockettheme/toolbox": "v2.x-dev",
+        "rockettheme/toolbox": "^2.0",
         "composer/ca-bundle": "^1.5",
         "composer/semver": "^3.4",
         "dragonmantank/cron-expression": "^3.3",

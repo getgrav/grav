@@ -6,6 +6,7 @@
     * Every web server config now carries a commented rule for denying direct access to `user/pages`, which only becomes safe to enable once `pages.media_route_urls` is on
 
 2. [](#improved)
+    * Now depends on a released `rockettheme/toolbox` 2.0 rather than tracking its development branch, so a build always resolves to the same code
     * **An operator who manages users can no longer give themselves full admin rights.** Permission fields that only a super admin may write were guarded by name, and writing the same field under its flattened name slipped past that guard. Thanks to @movon-ava
     * **Twig in page content can no longer read the site's configuration through the `array` filter.** The `|array` cast was the one conversion that never asked the sandbox whether it was allowed, so it could turn Grav's internal service registry into a plain list and read the settings the sandbox exists to keep out of page content, including plugin passwords and API keys. Thanks to @1diot9 and @AlpetGexha
     * **A page can no longer capture the session of an administrator who views it.** Page content could read the visitor's cookies, and the finished page was stored in a cache shared by everyone, so an administrator's session could be handed to the next visitor. Cookie reading is no longer available to page content, and pages that run editor-written code are no longer cached after that code runs. Thanks to @canhieu
@@ -17,6 +18,7 @@
     * `onShutdown` now fires after a request that ended through `close()` or `redirect()`, not only after a rendered page. Those requests echoed their response and exited before the shutdown handler was registered, so a plugin doing slow work after the response (sending queued mail, warming a cache) never ran on a form submit that redirected. The non-FastCGI fallback also stops trying to set headers once they have been sent
     * Fixed the Flex user ACL treating an unsaved account and an anonymous visitor as the same person. Thanks to @AlpetGexha
     * Corrected the `security.yaml` comment claiming Twig in page content is off by default. It has shipped on since 2.0.19
+    * A relative path handed to the resource locator can no longer resolve outside the site folder. Making file paths absolute meant a `..` climbed out through the base instead of being refused. Stream paths such as `user://` were never affected, and Grav addresses its own resources that way
     * Page content is now validated against the rules its blueprint declares. The Content field and the Content tab that holds it share the name `content`, and the tab was overwriting the field, so every rule set on a page body was quietly unused. Thanks to @wakqasahmed [#4271](https://github.com/getgrav/grav/issues/4271)
 
 # v2.0.24
