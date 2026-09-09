@@ -10,6 +10,7 @@
 namespace Grav\Common;
 
 use DateTime;
+use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use Grav\Common\Flex\Types\Pages\PageObject;
@@ -1465,13 +1466,24 @@ abstract class Utils
     /**
      * Get the timestamp of a date
      *
-     * @param string $date a String expressed in the system.pages.dateformat.default format, with fallback to a
-     *                     strtotime argument
+     * @param string|int|DateTimeInterface $date a String expressed in the system.pages.dateformat.default format,
+     *                     with fallback to a strtotime argument. An unquoted YAML date header (e.g. `date: 2022-01-06`)
+     *                     is parsed by the YAML component into an int timestamp or a DateTimeInterface rather than a
+     *                     string, so those are accepted directly instead of being coerced into strtotime(), which
+     *                     misparses a bare numeric string into a bogus date.
      * @param string|null $format a date format to use if possible
      * @return int the timestamp
      */
     public static function date2timestamp($date, $format = null)
     {
+        if ($date instanceof DateTimeInterface) {
+            return $date->getTimestamp();
+        }
+
+        if (is_int($date) || is_float($date)) {
+            return (int) $date;
+        }
+
         $config = Grav::instance()['config'];
         $dateformat = $format ?: $config->get('system.pages.dateformat.default');
 

@@ -318,6 +318,19 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertSame($timestamp, Utils::date2timestamp('2000-09-10 00:00:00'));
     }
 
+    public function testDate2timestampWithNonStringDate(): void
+    {
+        // An unquoted YAML date header (e.g. `date: 2000-09-10`) is parsed by the YAML
+        // component into an int timestamp or a DateTimeInterface rather than a string.
+        // Passing that straight into strtotime() misparses it into a bogus date, so
+        // these need to be accepted directly instead.
+        $timestamp = (new DateTime('2000-09-10 00:00:00'))->getTimestamp();
+
+        self::assertSame($timestamp, Utils::date2timestamp($timestamp));
+        self::assertSame($timestamp, Utils::date2timestamp(new DateTime('2000-09-10 00:00:00')));
+        self::assertSame($timestamp, Utils::date2timestamp(new DateTimeImmutable('2000-09-10 00:00:00')));
+    }
+
     public function testResolve(): void
     {
         $array = [
