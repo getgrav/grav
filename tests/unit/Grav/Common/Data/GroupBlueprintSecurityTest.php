@@ -62,10 +62,54 @@ class GroupBlueprintSecurityTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * The guard resolves a rule by the field's own item path, so a FLAT dot-notation
+     * key addressed no rule at all and fell through to the loose-mode extra-key
+     * branch that keeps it. FlexObject::update() then expanded it again via
+     * setNestedProperty(), writing straight into the guarded subtree.
+     *
+     * (GHSA-mwjj-r7vm-pgqm)
+     */
+    public function testAccountOperatorCannotWriteGroupAccessViaFlatKey(): void
+    {
+        $filtered = $this->filterAs(
+            ['admin.users' => true, 'admin.users.update' => true],
+            ['groupname' => 'ops', 'access.admin.super' => true]
+        );
+
+        self::assertArrayNotHasKey('access.admin.super', $filtered);
+        self::assertArrayNotHasKey('access', $filtered);
+    }
+
+    public function testSuperAdminMayStillWriteGroupAccessViaFlatKey(): void
+    {
+        $filtered = $this->filterAs(
+            ['admin.super' => true],
+            ['groupname' => 'ops', 'access.admin.super' => true]
+        );
+
+        self::assertTrue($filtered['access.admin.super']);
+    }
+
+    /**
+     * A dotted key whose ancestors are NOT guarded must survive, or the fix would
+     * break every legitimate flat submission.
+     */
+    public function testUnguardedFlatKeysAreStillKept(): void
+    {
+        $filtered = $this->filterAs(
+            ['admin.users' => true, 'admin.users.update' => true],
+            ['groupname' => 'ops', 'readableName.extra' => 'kept']
+        );
+
+        self::assertSame('kept', $filtered['readableName.extra']);
+    }
+
+    /**
      * @param array<string,bool> $permissions
+     * @param array<string,mixed>|null $data
      * @return array<string,mixed>
      */
-    private function filterAs(array $permissions): array
+    private function filterAs(array $permissions, ?array $data = null): array
     {
         $user = new class extends DataUser {
             /** @var array<string,bool> */
@@ -80,7 +124,7 @@ class GroupBlueprintSecurityTest extends \PHPUnit\Framework\TestCase
 
         Grav::instance()['user'] = $user;
 
-        $data = [
+        $data ??= [
             'groupname' => 'ops',
             'readableName' => 'Operations',
             'access' => ['admin' => ['super' => true, 'login' => true]],
