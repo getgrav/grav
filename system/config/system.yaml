@@ -197,7 +197,7 @@ images:
   default_image_quality: 85                      # Default image quality to use when resampling images (85%)
   progressive_jpeg: true                         # Save resized and cached JPEGs as progressive, so they appear whole and sharpen rather than filling in a line at a time
   cache_all: false                               # Cache all image by default
-  cache_perms: '0755'                            # MUST BE IN QUOTES!! Default cache folder perms. Usually '0755' or '0775'
+  cache_perms: '0775'                            # MUST BE IN QUOTES!! Default cache folder perms. Usually '0775' (the umask still applies) or '0755'
   debug: false                                   # Show an overlay over images indicating the pixel depth of the image when working with retina for example
   auto_fix_orientation: true                     # Automatically fix the image orientation based on the Exif data
   seofriendly: false                             # SEO-friendly processed image names

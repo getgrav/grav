@@ -386,11 +386,46 @@ class Grav extends Container
     public function cleanOutputBuffers(): void
     {
         // Make sure nothing extra gets written to the response.
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
+        self::endOutputBuffers(false);
         // Work around PHP bug #8218 (8.0.17 & 8.1.4).
         header_remove('Content-Encoding');
+    }
+
+    /**
+     * End the output buffers PHP allows to be ended, sending or discarding what
+     * they hold.
+     *
+     * Stops at the first buffer that cannot be removed. PHP's own
+     * zlib.output_compression handler becomes one of those once it has written
+     * its first compressed chunk, and ending it anyway raises a notice that the
+     * error handler turns into an exception (#4294). Inside shutdown() that
+     * skipped onShutdown and appended an error page to the gzip stream. Nothing
+     * below such a buffer can be reached and PHP finishes it at the end of the
+     * request, so its pending output is only flushed or discarded in place, and
+     * only where the buffer allows it.
+     *
+     * @param bool $flush True to send the buffered output, false to discard it.
+     * @return void
+     */
+    private static function endOutputBuffers(bool $flush): void
+    {
+        while (ob_get_level() > 0) {
+            $flags = ob_get_status()['flags'] ?? 0;
+            if (!($flags & PHP_OUTPUT_HANDLER_REMOVABLE)) {
+                if ($flush && ($flags & PHP_OUTPUT_HANDLER_FLUSHABLE)) {
+                    ob_flush();
+                } elseif (!$flush && ($flags & PHP_OUTPUT_HANDLER_CLEANABLE)) {
+                    ob_clean();
+                }
+
+                return;
+            }
+
+            // Never spin on a buffer PHP refused to end.
+            if (!($flush ? ob_end_flush() : ob_end_clean())) {
+                return;
+            }
+        }
     }
 
     /**
@@ -813,17 +848,13 @@ class Grav extends Container
 
                 // close() has already emptied every buffer before echoing, so
                 // there may be nothing left to end here.
-                while (ob_get_level() > 0) {
-                    ob_end_flush();
-                }
+                self::endOutputBuffers(true);
                 flush();
             } elseif (!$success) {
                 // Headers are out already (close() echoed the body, or the body
                 // was streamed), so the connection cannot be closed early. Push
                 // whatever is buffered so the client at least has the response.
-                while (ob_get_level() > 0) {
-                    ob_end_flush();
-                }
+                self::endOutputBuffers(true);
                 flush();
             }
         }

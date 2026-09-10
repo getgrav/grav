@@ -1502,7 +1502,7 @@ form:
               size: small
               label: PLUGIN_ADMIN.CACHE_PERMS
               help: PLUGIN_ADMIN.CACHE_PERMS_HELP
-              highlight: '0755'
+              highlight: '0775'
               options:
                 '0755': '0755'
                 '0775': '0775'

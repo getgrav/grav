@@ -10,6 +10,7 @@
 namespace Grav\Common\Scheduler;
 
 use DateTime;
+use Grav\Common\Filesystem\Folder;
 use RocketTheme\Toolbox\File\JsonFile;
 
 /**
@@ -41,9 +42,11 @@ class JobHistory
         $this->historyPath = $historyPath;
         $this->retentionDays = $retentionDays;
         
-        // Ensure history directory exists
+        // Ensure history directory exists. Folder::create() leaves the mode to
+        // the umask like every other Grav folder, so a group-writable install
+        // stays writable for both the web and the CLI user (#4295).
         if (!is_dir($this->historyPath)) {
-            mkdir($this->historyPath, 0755, true);
+            Folder::create($this->historyPath);
         }
     }
     
@@ -138,7 +141,7 @@ class JobHistory
     {
         $jobDir = $this->historyPath . '/jobs';
         if (!is_dir($jobDir)) {
-            mkdir($jobDir, 0755, true);
+            Folder::create($jobDir);
         }
         
         $filename = $jobDir . '/' . $jobId . '.json';
