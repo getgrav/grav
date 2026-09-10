@@ -66,6 +66,75 @@ form:
               default: ['html','htm','json','xml','txt','rss','atom']
               value_only: true
 
+            markdown_output_section:
+              type: section
+              title: PLUGIN_ADMIN.MARKDOWN_OUTPUT
+              underline: true
+
+            pages.markdown_output.enabled:
+              type: toggle
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_ENABLED
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_ENABLED_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            pages.markdown_output.frontmatter:
+              type: toggle
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_FRONTMATTER
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_FRONTMATTER_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            pages.markdown_output.links:
+              type: toggle
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_LINKS
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_LINKS_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            pages.markdown_output.max_links:
+              type: number
+              size: x-small
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_MAX_LINKS
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_MAX_LINKS_HELP
+              validate:
+                type: int
+                min: 0
+
+            pages.markdown_output.absolute_urls:
+              type: toggle
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_ABSOLUTE_URLS
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_ABSOLUTE_URLS_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            pages.markdown_output.token_header:
+              type: toggle
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_TOKEN_HEADER
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_TOKEN_HEADER_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             timezone:
               type: select
               label: PLUGIN_ADMIN.TIMEZONE

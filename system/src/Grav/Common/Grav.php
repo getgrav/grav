@@ -14,6 +14,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Config\Setup;
 use Grav\Common\Helpers\Exif;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Pages;
@@ -607,6 +608,16 @@ class Grav extends Container
                     $url .= trim((string) $route, '/'); // Remove trailing slash
                 } else {
                     $url .= ltrim((string) $route, '/'); // Support trailing slash default routes
+                }
+
+                // A request for `/section.md` that Grav redirects (to a first
+                // child, a default route, a language prefix) should land on
+                // Markdown too, or the agent following it silently gets HTML.
+                if ($uri->extension() === MarkdownOutput::FORMAT
+                    && MarkdownOutput::enabled()
+                    && !preg_match('/[?#]/', $url)
+                    && !Utils::pathinfo($url, PATHINFO_EXTENSION)) {
+                    $url = rtrim($url, '/') . '.' . MarkdownOutput::FORMAT;
                 }
             }
         } elseif ($route instanceof Route) {

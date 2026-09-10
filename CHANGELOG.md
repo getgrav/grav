@@ -1,3 +1,20 @@
+# v2.1.0
+## 09/10/2026
+
+1. [](#new)
+    * Every page can now be read as Markdown, built for AI agents and other text clients. Add `.md` to any page URL, or send an `Accept: text/markdown` request header, and Grav answers with the rendered page converted back to Markdown instead of the theme's HTML
+    * The Markdown is what a browser would see, not the raw source file, so shortcodes, content Twig, modular pages and resolved image and link paths all come through
+    * Each Markdown document opens with a YAML block (title, URL, date, description, taxonomy) and closes with links to the parent, neighbouring and child pages by their own `.md` URLs, so an agent can walk a whole site without leaving Markdown
+    * The feature and each of its parts can be switched off under the new **Markdown Output** settings in **Configuration → System → Content**
+    * HTML responses now carry a `Link` header and a `<link rel="alternate" type="text/markdown">` tag pointing at their Markdown version, and Markdown responses carry an `X-Markdown-Tokens` header with an estimated token count, matching Cloudflare's Markdown for Agents
+    * Themes can override the Markdown layout with a `default.md.twig` or `<template>.md.twig` template, using the new `markdown_output()`, `markdown_frontmatter()`, `markdown_body()`, `markdown_links()` and `markdown_url()` Twig functions and the `html_to_markdown` filter
+    * Grav's own templates are now also reachable under the `@grav` Twig namespace, so a theme can include or extend `@grav/partials/metadata.html.twig` to add a line instead of keeping a copy of the whole file
+1. [](#improved)
+    * A redirect answered to a `.md` request now points at the `.md` version of its target, so a section URL that forwards to its first page keeps an agent in Markdown
+    * A URL with no extension sends `Vary: Accept` while Markdown output is on, so a shared cache never hands an agent the HTML or a browser the Markdown
+    * Converted Markdown is cached per page under the same rules as page content, so a page whose Twig must run on every request is never served from the Markdown cache
+    * The Apache and lighttpd configs now forbid `.md` URLs only when they point at a real file, so page routes ending in `.md` reach Grav while source files under `user/pages` stay blocked
+
 # v2.0.26
 ## 09/09/2026
 

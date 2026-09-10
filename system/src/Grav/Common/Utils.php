@@ -16,6 +16,7 @@ use Exception;
 use Grav\Common\Flex\Types\Pages\PageObject;
 use Grav\Common\Helpers\Truncator;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Markdown\Excerpts;
@@ -946,6 +947,8 @@ abstract class Utils
                 return 'application/rss+xml';
             case 'xml':
                 return 'application/xml';
+            case MarkdownOutput::FORMAT:
+                return MarkdownOutput::MIME;
         }
 
         $media_types = Grav::instance()['config']->get('media.types');
@@ -1022,6 +1025,8 @@ abstract class Utils
                 return 'rss';
             case 'application/xml':
                 return 'xml';
+            case MarkdownOutput::MIME:
+                return MarkdownOutput::FORMAT;
         }
 
         $media_types = (array)Grav::instance()['config']->get('media.types');
@@ -2120,6 +2125,13 @@ abstract class Utils
 
         // put them back at the front
         $types = array_merge(['html', 'htm'], $types);
+
+        // Markdown output for agents adds `.md` as a page type without anyone
+        // having to edit their `pages.types` list. It goes last so it never
+        // wins an ambiguous `Accept` negotiation.
+        if (MarkdownOutput::enabled() && !in_array(MarkdownOutput::FORMAT, $types, true)) {
+            $types[] = MarkdownOutput::FORMAT;
+        }
 
         return $types;
     }

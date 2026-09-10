@@ -100,6 +100,13 @@ pages:
       attributes: false                          # A `{.class #id}` line after a table sets attributes on the table
       multiline: false                           # A row ending in `\` continues into the next line (multi-line cells)
   types: [html,htm,xml,txt,json,rss,atom]        # list of valid page types
+  markdown_output:                               # Serve any page as Markdown for AI agents and other text clients
+    enabled: true                                # Answer `<route>.md` URLs and `Accept: text/markdown` requests with Markdown
+    frontmatter: true                            # Start the Markdown with a YAML block: title, url, date, description, taxonomy
+    links: true                                  # End the Markdown with links to the parent, neighbouring and child pages
+    max_links: 100                               # Most child pages listed in that navigation section (0 for no limit)
+    absolute_urls: true                          # Turn root-relative links and images into absolute URLs
+    token_header: true                           # Send an `X-Markdown-Tokens` header with an estimated token count
   append_url_extension: ''                       # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)
   cache_control:                                 # Can be blank for no setting, or a valid `cache-control` text value

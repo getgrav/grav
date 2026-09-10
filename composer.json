@@ -63,7 +63,8 @@
         "miljar/php-exif": "^0.6",
         "league/climate": "^3.10",
         "multiavatar/multiavatar-php": "^1.0",
-        "symfony/dotenv": "^7.0"
+        "symfony/dotenv": "^7.0",
+        "league/html-to-markdown": "^5.1"
     },
     "require-dev": {
         "codeception/codeception": "^5.1",

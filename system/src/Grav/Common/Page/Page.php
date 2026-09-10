@@ -12,6 +12,7 @@ namespace Grav\Common\Page;
 use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
+use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\File\CompiledYamlFile;
@@ -752,6 +753,14 @@ class Page implements PageInterface
 
         // Set Content-Type header
         $headers['Content-Type'] = Utils::getMimeByExtension($format, 'text/html');
+        if ($format === MarkdownOutput::FORMAT) {
+            // Markdown has no <meta charset>, so the header has to say it.
+            $headers['Content-Type'] .= '; charset=utf-8';
+        } elseif ($format === 'html' && MarkdownOutput::enabled() && $this->routable()) {
+            // Point agents at the Markdown version from the response itself,
+            // so it works whatever the theme puts in <head>.
+            $headers['Link'] = '<' . $grav['markdown_output']->url($this) . '>; rel="alternate"; type="text/markdown"';
+        }
 
         // Calculate Expires Headers if set to > 0
         if ($expires > 0) {
@@ -786,9 +795,21 @@ class Page implements PageInterface
             $headers['ETag'] = '1';
         }
 
-        // Set Vary: Accept-Encoding header
+        // Set Vary header
+        $vary = [];
         if ($grav['config']->get('system.pages.vary_accept_encoding', false)) {
-            $headers['Vary'] = 'Accept-Encoding';
+            $vary[] = 'Accept-Encoding';
+        }
+        // With Markdown output on, a URL without an extension answers either
+        // HTML or Markdown depending on the request's `Accept` header, so a
+        // shared cache must key on it or it hands an agent the HTML (and a
+        // browser the Markdown). The `.md` URL is its own resource and needs
+        // no such hint.
+        if (MarkdownOutput::enabled() && !$grav['uri']->extension()) {
+            $vary[] = 'Accept';
+        }
+        if ($vary) {
+            $headers['Vary'] = implode(', ', $vary);
         }
 
 
