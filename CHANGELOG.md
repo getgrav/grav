@@ -11,12 +11,18 @@
     * Grav's own templates are now also reachable under the `@grav` Twig namespace, so a theme can include or extend `@grav/partials/metadata.html.twig` to add a line instead of keeping a copy of the whole file
     * The home page can be requested in any output format as `/index.md`, `/index.rss`, `/index.json` and so on, the way static site generators do it, instead of `/.md`, which every web server treats as a hidden file. A root page actually named `index` still takes precedence
     * `page.url()` takes a fifth argument naming an output format, so `page.url(true, false, true, false, 'rss')` gives the right link for any page, home included, without a theme having to check for the home page and append `index` itself
+    * A media file's `url()` now takes a second argument that prepends the scheme and host, so `page.media['photo.jpg'].url(true, true)` gives a full URL for one image where Open Graph, Pinterest or a feed needs it, without turning on `absolute_urls` for the whole site [#894](https://github.com/getgrav/grav/issues/894)
+    * The content type served for an output format can be changed per site: set `media.types.rss.mime` in `user/config/media.yaml` and the RSS feed is sent as that type, so a feed can be styled with XSLT without a plugin. The same works for `atom`, `xml`, `json` and `md` [#3735](https://github.com/getgrav/grav/issues/3735)
+    * The short and long date format pickers offer ISO 8601 presets, `Y-m-d` and `Y-m-d H:i` [#2283](https://github.com/getgrav/grav/issues/2283)
+    * A new **Flex Render Hints** debugger setting wraps every rendered Flex object and collection in an HTML comment naming it, so the source of a block can be found in the page markup. Off by default
 1. [](#improved)
     * A redirect answered to a `.md` request now points at the `.md` version of its target, so a section URL that forwards to its first page keeps an agent in Markdown
     * A URL with no extension sends `Vary: Accept` while Markdown output is on, so a shared cache never hands an agent the HTML or a browser the Markdown
     * The Apache and lighttpd configs now forbid `.md` URLs only when they point at a real file, so page routes ending in `.md` reach Grav while source files under `user/pages` stay blocked
     * Upgrading patches the same rule into an existing site's `.htaccess`, which upgrades never replace, as long as the stock line is still there untouched. nginx, Caddy and IIS configs never blocked page routes and need no change
 1. [](#bugfix)
+    * **Updating Grav no longer deletes the processed-image cache.** The update ran a full cache clear that ignored `cache.clear_images_by_default`, so every gallery thumbnail was regenerated on the next visit. Resized images now survive every cache clear and update unless that setting is on; `bin/grav cache --images-only` still removes them on demand [#3416](https://github.com/getgrav/grav/issues/3416)
+    * With the debugger on, Flex wrote a comment marker around every rendered object and collection into RSS, Atom, XML and Markdown output, breaking feeds and sitemaps. The marker also used dashes that are not a valid HTML comment. It is now opt-in through the new Flex Render Hints setting, only ever appears in HTML pages, and is a real comment [#3538](https://github.com/getgrav/grav/issues/3538)
     * Pages with `twig_first: true` broke in 2.0.26 with a Twig syntax error such as `Unexpected character "&"`, because the fix for GHSA-pp89-h475-7gj6 sent every content-Twig page down a path that always ran Markdown before Twig. Twig-first pages run Twig on the raw source again and their output is never put in the page cache, and Markdown-first pages no longer have their Twig tags altered by Markdown
 
 # v2.0.26

@@ -60,4 +60,24 @@ class ImageMediumUrlTest extends \Codeception\Test\Unit
         $this->assertStringNotContainsString('/flex-media/', $url);
         $this->assertStringContainsString('/images/', $url);
     }
+
+    public function testIncludeHostPrependsTheAbsoluteBase(): void
+    {
+        // #894: url(true, true) mirrors page.url(true) and gives a full URL for one
+        // media item without turning on absolute_urls for the whole site.
+        $absolute = (string)$this->grav['base_url_absolute'];
+        $this->assertMatchesRegularExpression('#^https?://#', $absolute);
+
+        $relative = $this->medium()->url();
+        $this->assertStringStartsNotWith('http', $relative);
+
+        $full = $this->medium()->url(true, true);
+        $this->assertStringStartsWith($absolute . '/', $full);
+        $this->assertStringEndsWith($relative, $full);
+
+        // A resized derivative gets the host too.
+        $derivative = $this->medium()->cropResize(50, 50)->url(true, true);
+        $this->assertStringStartsWith($absolute . '/', $derivative);
+        $this->assertStringContainsString('/images/', $derivative);
+    }
 }

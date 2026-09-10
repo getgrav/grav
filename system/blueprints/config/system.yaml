@@ -172,6 +172,7 @@ form:
                 "d-m-y G:i": Date4
                 "jS M Y": Date5
                 "Y-m-d G:i": Date6
+                "Y-m-d": Date7
 
             pages.dateformat.long:
               type: dateformat
@@ -186,6 +187,7 @@ form:
                 "d-m-y G:i": Date4
                 "jS M Y": Date5
                 "Y-m-d G:i:s": Date6
+                "Y-m-d H:i": Date7
 
             pages.order.by:
               type: select
@@ -1421,6 +1423,17 @@ form:
               label: PLUGIN_ADMIN.DEBUGGER_TOKEN
               help: PLUGIN_ADMIN.DEBUGGER_TOKEN_HELP
               autocomplete: 'off'
+
+            debugger.flex_render_hints:
+              type: toggle
+              label: PLUGIN_ADMIN.DEBUGGER_FLEX_RENDER_HINTS
+              help: PLUGIN_ADMIN.DEBUGGER_FLEX_RENDER_HINTS_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
 
             debugger.shutdown.close_connection:
               type: toggle

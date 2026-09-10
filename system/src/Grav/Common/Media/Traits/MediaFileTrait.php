@@ -103,9 +103,10 @@ trait MediaFileTrait
      * Return URL to file.
      *
      * @param bool $reset
+     * @param bool $include_host Prepend the scheme and host, as `page.url(true)` does
      * @return string
      */
-    public function url($reset = true)
+    public function url($reset = true, $include_host = false)
     {
         $url = $this->get('url');
         if ($url) {
@@ -113,8 +114,9 @@ trait MediaFileTrait
         }
 
         $path = $this->relativePath($reset);
+        $base = $this->getGrav()[$include_host ? 'base_url_absolute' : 'base_url'];
 
-        return trim($this->getGrav()['base_url'] . '/' . $this->urlQuerystring($path), '\\');
+        return trim($base . '/' . $this->urlQuerystring($path), '\\');
     }
 
     /**

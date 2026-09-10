@@ -179,9 +179,10 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * Return URL to image.
      *
      * @param bool $reset
+     * @param bool $include_host Prepend the scheme and host, as `page.url(true)` does
      * @return string
      */
-    public function url($reset = true)
+    public function url($reset = true, $include_host = false)
     {
         $grav = $this->getGrav();
 
@@ -221,7 +222,9 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $this->reset();
         }
 
-        return trim($grav['base_url'] . '/' . $this->urlQuerystring($output), '\\');
+        $base = $grav[$include_host ? 'base_url_absolute' : 'base_url'];
+
+        return trim($base . '/' . $this->urlQuerystring($output), '\\');
     }
 
     /**

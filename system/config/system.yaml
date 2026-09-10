@@ -135,7 +135,7 @@ cache:
   purge_at: '0 4 * * *'                          # How often to purge old file cache (using new scheduler)
   clear_at: '0 3 * * *'                           # How often to clear cache (using new scheduler)
   clear_job_type: 'standard'                     # Type to clear when processing the scheduled clear job `standard`|`all`
-  clear_images_by_default: false                 # By default grav does not include processed images in cache clear, this can be enabled
+  clear_images_by_default: false                 # Processed images survive every cache clear and Grav update unless this is on; `bin/grav cache --images-only` always removes them
   cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcached, etc.)
   lifetime: 604800                               # Lifetime of cached data in seconds (0 = infinite)
   purge_max_age_days: 30                         # Maximum age of cache items in days before they are purged
@@ -188,6 +188,7 @@ debugger:
   provider: clockwork                            # Debugger provider: debugbar | clockwork
   censored: false                                # Censor potentially sensitive information (POST parameters, cookies, files, configuration and most array/object data in log messages)
   token: ''                                      # Shared secret a remote client must send as `X-Clockwork-Auth` to read `/__clockwork/` profiler data. Empty means loopback-only
+  flex_render_hints: false                       # Wrap every rendered Flex object and collection in an HTML comment naming it (HTML pages only)
   shutdown:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
 

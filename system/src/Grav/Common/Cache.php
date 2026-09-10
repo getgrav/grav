@@ -101,7 +101,6 @@ class Cache extends Getters
 
     protected static $all_remove = [
         'cache://',
-        'cache://images',
         'asset://',
         'tmp://'
     ];
@@ -576,6 +575,10 @@ class Cache extends Getters
     /**
      * Helper method to clear all Grav caches
      *
+     * Processed images (`cache://images`) are only removed by `images-only`, or by any other
+     * scope when `system.cache.clear_images_by_default` is on. Nothing in a cache clear or a
+     * Grav update invalidates a resized image, and regenerating a large gallery is expensive.
+     *
      * @param string $remove standard|all|assets-only|images-only|cache-only
      * @return array
      */
@@ -584,10 +587,15 @@ class Cache extends Getters
         $locator = Grav::instance()['locator'];
         $output = [];
         $user_config = USER_DIR . 'config/system.yaml';
+        $clear_images = $remove === 'images-only'
+            || (bool)Grav::instance()['config']->get('system.cache.clear_images_by_default');
 
         switch ($remove) {
             case 'all':
                 $remove_paths = self::$all_remove;
+                if ($clear_images) {
+                    $remove_paths[] = 'cache://images';
+                }
                 break;
             case 'assets-only':
                 $remove_paths = self::$assets_remove;
@@ -605,11 +613,13 @@ class Cache extends Getters
                 $remove_paths = [];
                 break;
             default:
-                if (Grav::instance()['config']->get('system.cache.clear_images_by_default')) {
-                    $remove_paths = self::$standard_remove;
-                } else {
-                    $remove_paths = self::$standard_remove_no_images;
-                }
+                $remove_paths = $clear_images ? self::$standard_remove : self::$standard_remove_no_images;
+        }
+
+        // `cache://` holds the images folder, so a whole-folder clear has to step over it.
+        $images_path = null;
+        if (!$clear_images) {
+            $images_path = $locator->findResource('cache://images', true, true) ?: null;
         }
 
         // Delete entries in the doctrine cache if required
@@ -650,7 +660,7 @@ class Cache extends Getters
                                 $anything = true;
                             }
                         } elseif (is_dir($file)) {
-                            if (basename($file) === 'grav-snapshots') {
+                            if (basename($file) === 'grav-snapshots' || $file === $images_path) {
                                 continue;
                             }
                             if (Folder::delete($file, false)) {

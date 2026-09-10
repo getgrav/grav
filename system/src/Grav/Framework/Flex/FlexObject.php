@@ -617,10 +617,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
                 ] + $context
             );
 
-            if ($debugger->enabled() &&
-                !($grav['uri']->getContentType() === 'application/json' || $grav['uri']->extension() === 'json')) {
+            if ($debugger->flexRenderHints()) {
                 $name = $this->getKey() . ' (' . $type . ')';
-                $output = "\n<!–– START {$name} object ––>\n{$output}\n<!–– END {$name} object ––>\n";
+                $output = "\n<!-- START {$name} object -->\n{$output}\n<!-- END {$name} object -->\n";
             }
 
             $block->setContent($output);

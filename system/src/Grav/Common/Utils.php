@@ -931,12 +931,21 @@ abstract class Utils
      */
     public static function getMimeByExtension($extension, $default = 'application/octet-stream')
     {
-        $extension = strtolower($extension);
+        $extension = strtolower((string)$extension);
+        if ($extension === '') {
+            return $default;
+        }
+
+        // A site's own `media.types.<ext>.mime` wins, so the type served for an output
+        // format such as `rss` or `atom` can be changed without a plugin.
+        $media_types = Grav::instance()['config']->get('media.types');
+        $mimetype = $media_types[$extension]['mime'] ?? null;
+        if (is_string($mimetype) && $mimetype !== '') {
+            return $mimetype;
+        }
 
         // look for some standard types
         switch ($extension) {
-            case null:
-                return $default;
             case 'json':
                 return 'application/json';
             case 'html':
@@ -951,9 +960,7 @@ abstract class Utils
                 return MarkdownOutput::MIME;
         }
 
-        $media_types = Grav::instance()['config']->get('media.types');
-
-        return $media_types[$extension]['mime'] ?? $default;
+        return $default;
     }
 
     /**

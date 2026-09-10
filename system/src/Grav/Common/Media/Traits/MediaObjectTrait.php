@@ -475,7 +475,7 @@ trait MediaObjectTrait
      * @param bool $reset
      * @return string
      */
-    abstract public function url($reset = true);
+    abstract public function url($reset = true, $include_host = false);
 
     /**
      * Turn the current Medium into a Link
