@@ -9,6 +9,10 @@
 
 namespace Grav\Common\Page\Markdown;
 
+use DOMDocument;
+use DOMElement;
+use DOMNode;
+use DOMXPath;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
@@ -16,6 +20,7 @@ use Grav\Common\Language\Language;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Security;
+use Grav\Common\Twig\Twig;
 use Grav\Common\Uri;
 use League\HTMLToMarkdown\Converter\TableConverter;
 use League\HTMLToMarkdown\HtmlConverter;
@@ -30,10 +35,17 @@ use function strlen;
  * Renders a page as Markdown for AI agents and other text clients.
  *
  * Any routable page can be fetched as `<route>.md`, or with an
- * `Accept: text/markdown` request header. The output is the page's rendered
- * HTML converted back to Markdown rather than the raw source file, so
- * shortcodes, content Twig, resolved image paths, page-relative links and
- * modular assembly all come out the way a browser would see them.
+ * `Accept: text/markdown` request header. The output is rendered HTML
+ * converted back to Markdown rather than the raw source file, so shortcodes,
+ * content Twig, resolved image paths, page-relative links and modular
+ * assembly all come out the way a browser would see them.
+ *
+ * Where that HTML comes from is the `source` setting. `page` (the default)
+ * renders the page through the theme exactly as for a browser and converts
+ * the main content region of the result, so a blog listing, a shop or a
+ * product page whose content lives in the template reads as it displays.
+ * `content` converts only `page.content()` and the page's modules: cleaner,
+ * cacheable, and blind to anything the template adds.
  *
  * The document has three parts, each switchable in `system.pages.markdown_output`:
  *
@@ -44,9 +56,12 @@ use function strlen;
  *      by their own `.md` URLs, so an agent can walk the site without ever
  *      leaving Markdown
  *
- * Conversion is the only expensive step (a DOM parse of the rendered HTML),
- * so its result is cached per page under the same rules `Page::content()`
- * uses: a page whose content Twig runs on every request is never cached.
+ * With `source: content` the conversion is cached per page under the same
+ * rules `Page::content()` uses: a page whose content Twig runs on every
+ * request is never cached. A full page render is request-aware (login state,
+ * a cart, form nonces) and Grav never caches it as HTML either, so with
+ * `source: page` nothing is cached and each request costs what the HTML
+ * page costs plus the conversion.
  *
  * @package Grav\Common\Page\Markdown
  */
@@ -54,6 +69,30 @@ class MarkdownOutput
 {
     public const FORMAT = 'md';
     public const MIME = 'text/markdown';
+
+    /**
+     * Where a theme keeps the page's own content, tried in this order. The
+     * first match wins; `<body>` less its chrome is the last resort.
+     */
+    protected const MAIN_REGION_QUERIES = [
+        '//main',
+        '//*[@role="main"]',
+        '//*[@id="main"]',
+        '//*[@id="content"]',
+        '//*[@id="main-content"]',
+        '//*[@id="body-wrapper"]',
+        '//*[@id="body"]',
+        '//*[@id="start"]',
+    ];
+
+    /** Page chrome that is never part of the content, wherever it sits. */
+    protected const CHROME_QUERIES = [
+        './/nav',
+        './/aside',
+        './/*[@role="navigation" or @role="banner" or @role="contentinfo" or @role="search" or @role="dialog" or @role="complementary"]',
+        './/*[@aria-hidden="true"]',
+        './/*[@hidden]',
+    ];
 
     /** @var Grav */
     protected $grav;
@@ -182,11 +221,25 @@ class MarkdownOutput
     public function body(?PageInterface $page = null): string
     {
         $page = $page ?? $this->grav['page'];
+        $title = trim((string)$page->title());
+
+        if ($this->option('source', 'page') === 'page') {
+            $html = $this->renderPageHtml($page);
+            $content = $html !== null ? $this->convert($this->mainRegion($html)) : '';
+            if ($content !== '') {
+                // The theme usually prints the title itself; add it only when it did not.
+                if ($title !== '' && !preg_match('/^# /m', $content)) {
+                    $content = '# ' . $title . "\n\n" . $content;
+                }
+
+                return $content;
+            }
+            // A theme that rendered nothing usable falls back to the content itself.
+        }
 
         $parts = [];
         $content = $this->convertPage($page);
 
-        $title = trim((string)$page->title());
         if ($title !== '' && !preg_match('/^# /', $content)) {
             $parts[] = '# ' . $title;
         }
@@ -331,6 +384,248 @@ class MarkdownOutput
         $markdown = preg_replace("/\n{3,}/", "\n\n", $markdown) ?? $markdown;
 
         return trim($markdown);
+    }
+
+    /**
+     * Render a page through the theme as HTML, the way a browser request
+     * would get it. Rendering another page than the current one swaps it
+     * into the container for the duration, since site templates and plugin
+     * hooks read `grav.page`.
+     *
+     * @param PageInterface $page
+     * @return string|null Null when the render failed
+     */
+    protected function renderPageHtml(PageInterface $page): ?string
+    {
+        $grav = $this->grav;
+        if (!isset($grav['twig'])) {
+            return null;
+        }
+
+        /** @var Twig $twig */
+        $twig = $grav['twig'];
+        $current = isset($grav['page']) ? $grav['page'] : null;
+        $swap = $current !== $page;
+        $format = $page->templateFormat();
+
+        try {
+            if ($swap) {
+                unset($grav['page']);
+                $grav['page'] = $page;
+            }
+
+            $html = $twig->processSite('html');
+        } catch (Throwable $e) {
+            $grav['log']->warning('Markdown output: could not render ' . $page->route() . ' as HTML: ' . $e->getMessage());
+            $html = null;
+        } finally {
+            // processSite() stamps its format on the page; the response is still Markdown.
+            $page->templateFormat($format);
+            if ($swap) {
+                unset($grav['page']);
+                $grav['page'] = $current;
+            }
+        }
+
+        return is_string($html) ? $html : null;
+    }
+
+    /**
+     * The part of a full HTML page that is the page's own content: the
+     * theme's `<main>` (or one of its usual stand-ins) with navigation,
+     * sidebars and other chrome removed; failing that, `<body>` without its
+     * header, footer and navigation.
+     *
+     * @param string $html
+     * @return string
+     */
+    public function mainRegion(string $html): string
+    {
+        if (trim($html) === '') {
+            return '';
+        }
+
+        $document = new DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+        $loaded = $document->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_NOERROR | LIBXML_NOWARNING | LIBXML_NONET);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+        if (!$loaded) {
+            return $html;
+        }
+
+        $xpath = new DOMXPath($document);
+        $region = null;
+        foreach (self::MAIN_REGION_QUERIES as $query) {
+            $nodes = $xpath->query($query);
+            if ($nodes && $nodes->length > 0) {
+                $region = $nodes->item(0);
+                break;
+            }
+        }
+
+        if ($region === null) {
+            $articles = $xpath->query('//article');
+            if ($articles && $articles->length === 1) {
+                $region = $articles->item(0);
+            }
+        }
+
+        $bodyFallback = false;
+        if ($region === null) {
+            $body = $xpath->query('//body');
+            $region = $body && $body->length > 0 ? $body->item(0) : $document->documentElement;
+            $bodyFallback = true;
+        }
+
+        if (!$region instanceof DOMNode) {
+            return $html;
+        }
+
+        $remove = [];
+        foreach (self::CHROME_QUERIES as $query) {
+            foreach ($xpath->query($query, $region) ?: [] as $node) {
+                $remove[] = $node;
+            }
+        }
+        if ($bodyFallback) {
+            // Page header and footer are chrome only when they belong to the body itself.
+            foreach ($xpath->query('./header | ./footer | ./*/header[.//nav] | ./*/footer', $region) ?: [] as $node) {
+                $remove[] = $node;
+            }
+        }
+        foreach ($remove as $node) {
+            if ($node->parentNode) {
+                $node->parentNode->removeChild($node);
+            }
+        }
+
+        $this->blockWrappersToDivs($xpath, $region);
+        $this->unwrapBlockLinks($xpath, $region);
+        $this->breakBeforeHeadings($xpath, $region);
+
+        $inner = '';
+        foreach ($region->childNodes as $child) {
+            $inner .= $document->saveHTML($child);
+        }
+
+        return $inner;
+    }
+
+    /**
+     * A card is usually one `<a>` around a heading, an image and a paragraph,
+     * and Markdown has no link that wraps blocks: the converter would put the
+     * whole card inside `[...]()`. The blocks are lifted out of the anchor and
+     * the anchor is left after them holding just the card's title.
+     *
+     * @param DOMXPath $xpath
+     * @param DOMNode $region
+     * @return void
+     */
+    protected function unwrapBlockLinks(DOMXPath $xpath, DOMNode $region): void
+    {
+        $blocks = 'h1 or h2 or h3 or h4 or h5 or h6 or p or div or ul or ol or table or section or article or figure or blockquote or pre';
+        $anchors = $xpath->query('.//a[.//*[self::' . str_replace(' or ', ' or self::', $blocks) . ']]', $region);
+        if (!$anchors) {
+            return;
+        }
+
+        $list = [];
+        foreach ($anchors as $anchor) {
+            $list[] = $anchor;
+        }
+        // Innermost first, so a card inside a card is handled before its parent.
+        foreach (array_reverse($list) as $anchor) {
+            if (!$anchor instanceof DOMElement || !$anchor->parentNode) {
+                continue;
+            }
+
+            $heading = $xpath->query('.//h1 | .//h2 | .//h3 | .//h4 | .//h5 | .//h6', $anchor);
+            $label = $heading && $heading->length > 0 ? $heading->item(0)->textContent : $anchor->textContent;
+            $label = trim(preg_replace('/\s+/', ' ', (string)$label) ?? '');
+            if (mb_strlen($label) > 80) {
+                $label = rtrim(mb_substr($label, 0, 79)) . '…';
+            }
+
+            while ($anchor->firstChild) {
+                $anchor->parentNode->insertBefore($anchor->firstChild, $anchor);
+            }
+            if ($label === '') {
+                $anchor->parentNode->removeChild($anchor);
+                continue;
+            }
+
+            $anchor->appendChild($anchor->ownerDocument->createTextNode($label));
+            $paragraph = $anchor->ownerDocument->createElement('p');
+            $anchor->parentNode->insertBefore($paragraph, $anchor);
+            $paragraph->appendChild($anchor);
+        }
+    }
+
+    /**
+     * The converter knows nothing of HTML5 sectioning elements and strips
+     * them, so the text of a `<header>` runs straight into whatever block
+     * follows it. As `<div>`s they keep their line breaks.
+     *
+     * @param DOMXPath $xpath
+     * @param DOMNode $region
+     * @return void
+     */
+    protected function blockWrappersToDivs(DOMXPath $xpath, DOMNode $region): void
+    {
+        $wrappers = $xpath->query('.//header | .//footer | .//section | .//article | .//main | .//figure | .//details | .//summary | .//address | .//hgroup', $region);
+        if (!$wrappers) {
+            return;
+        }
+
+        $list = [];
+        foreach ($wrappers as $node) {
+            $list[] = $node;
+        }
+        foreach ($list as $node) {
+            if (!$node instanceof DOMElement || !$node->parentNode) {
+                continue;
+            }
+            $div = $node->ownerDocument->createElement('div');
+            while ($node->firstChild) {
+                $div->appendChild($node->firstChild);
+            }
+            $node->parentNode->replaceChild($div, $node);
+        }
+    }
+
+    /**
+     * A heading that follows inline content in the same parent (a date
+     * `<span>` before the post title, say) would come out of the converter on
+     * the same line as that text, which is no heading in Markdown. A line
+     * break in front of it keeps it a heading.
+     *
+     * @param DOMXPath $xpath
+     * @param DOMNode $region
+     * @return void
+     */
+    protected function breakBeforeHeadings(DOMXPath $xpath, DOMNode $region): void
+    {
+        $headings = $xpath->query('.//h1 | .//h2 | .//h3 | .//h4 | .//h5 | .//h6', $region);
+        if (!$headings) {
+            return;
+        }
+
+        foreach ($headings as $heading) {
+            $previous = $heading->previousSibling;
+            while ($previous && $previous->nodeType === XML_TEXT_NODE && trim($previous->textContent) === '') {
+                $previous = $previous->previousSibling;
+            }
+            if ($previous === null) {
+                continue;
+            }
+
+            $inline = $previous->nodeType === XML_TEXT_NODE
+                || ($previous instanceof DOMElement && !in_array(strtolower($previous->nodeName), ['p', 'div', 'ul', 'ol', 'table', 'pre', 'blockquote', 'section', 'article', 'header', 'footer', 'figure', 'hr', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'dl', 'form', 'nav', 'aside', 'main'], true));
+            if ($inline && trim($previous->textContent) !== '') {
+                $heading->parentNode?->insertBefore($heading->ownerDocument->createElement('br'), $heading);
+            }
+        }
     }
 
     /**

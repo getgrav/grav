@@ -28,6 +28,7 @@ class MarkdownOutputTest extends \PHPUnit\Framework\TestCase
         $this->grav['config']->set('system.languages.supported', []);
         $this->grav['config']->set('system.pages.markdown_output', [
             'enabled' => true,
+            'source' => 'content',
             'frontmatter' => true,
             'links' => true,
             'max_links' => 100,

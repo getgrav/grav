@@ -102,6 +102,7 @@ pages:
   types: [html,htm,xml,txt,json,rss,atom]        # list of valid page types
   markdown_output:                               # Serve any page as Markdown for AI agents and other text clients
     enabled: true                                # Answer `<route>.md` URLs and `Accept: text/markdown` requests with Markdown
+    source: page                                 # `page`: convert the main region of the page as the theme renders it. `content`: convert only the page content and modules (cacheable)
     frontmatter: true                            # Start the Markdown with a YAML block: title, url, date, description, taxonomy
     links: true                                  # End the Markdown with links to the parent, neighbouring and child pages
     max_links: 100                               # Most child pages listed in that navigation section (0 for no limit)

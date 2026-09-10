@@ -82,6 +82,16 @@ form:
               validate:
                 type: bool
 
+            pages.markdown_output.source:
+              type: select
+              size: medium
+              classes: fancy
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_SOURCE
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_SOURCE_HELP
+              options:
+                page: PLUGIN_ADMIN.MARKDOWN_OUTPUT_SOURCE_PAGE
+                content: PLUGIN_ADMIN.MARKDOWN_OUTPUT_SOURCE_CONTENT
+
             pages.markdown_output.frontmatter:
               type: toggle
               label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_FRONTMATTER
