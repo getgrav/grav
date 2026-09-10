@@ -134,7 +134,7 @@ class MarkdownOutputTest extends \PHPUnit\Framework\TestCase
         self::assertSame('', $this->output->convert("  \n "));
     }
 
-    public function testUrlAppendsMdAndUsesTheRealRouteForHome(): void
+    public function testUrlAppendsMdAndUsesIndexForHome(): void
     {
         $page = $this->page('/item1');
         self::assertSame('http://localhost/item1.md', $this->output->url($page));
@@ -142,8 +142,7 @@ class MarkdownOutputTest extends \PHPUnit\Framework\TestCase
         $this->grav['config']->set('system.home.alias', '/item1');
         $this->grav['pages']->init();
         $home = $this->page('/item1');
-        self::assertStringEndsWith('/item1.md', $this->output->url($home));
-        self::assertStringNotContainsString('/.md', $this->output->url($home));
+        self::assertSame('http://localhost/index.md', $this->output->url($home));
     }
 
     public function testRenderHasFrontmatterBodyAndNavigation(): void

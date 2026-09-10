@@ -2162,9 +2162,12 @@ class Page implements PageInterface
      * @param bool $canonical    True to return the canonical URL
      * @param bool $include_base Include base url on multisite as well as language code
      * @param bool $raw_route
+     * @param string|null $extension An output format to link to (`md`, `rss`, `json`…) instead of the
+     *                               site's `append_url_extension`. The home page becomes `/index.<ext>`,
+     *                               since `/.<ext>` is a hidden file to every web server.
      * @return string The url.
      */
-    public function url($include_host = false, $canonical = false, $include_base = true, $raw_route = false)
+    public function url($include_host = false, $canonical = false, $include_base = true, $raw_route = false, $extension = null)
     {
         // Override any URL when external_url is set
         if (isset($this->external_url)) {
@@ -2200,9 +2203,14 @@ class Page implements PageInterface
             $route .= $this->route();
         }
 
+        $extension = is_string($extension) && $extension !== '' ? '.' . ltrim($extension, '.') : $this->urlExtension();
+        if ($extension !== '' && !$raw_route && $this->home()) {
+            $route = ($include_base ? $pages->baseRoute() : '') . '/index';
+        }
+
         /** @var Uri $uri */
         $uri = $grav['uri'];
-        $url = $uri->rootUrl($include_host) . '/' . trim((string) $route, '/') . $this->urlExtension();
+        $url = $uri->rootUrl($include_host) . '/' . trim((string) $route, '/') . $extension;
 
         return Uri::filterPath($url);
     }

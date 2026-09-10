@@ -54,9 +54,10 @@ interface PageRoutableInterface
      * @param bool $canonical true to return the canonical URL
      * @param bool $include_lang
      * @param bool $raw_route
+     * @param string|null $extension An output format to link to (`md`, `rss`, `json`…); the home page becomes `/index.<ext>`
      * @return string The url.
      */
-    public function url($include_host = false, $canonical = false, $include_lang = true, $raw_route = false);
+    public function url($include_host = false, $canonical = false, $include_lang = true, $raw_route = false, $extension = null);
 
     /**
      * Gets the route for the page based on the route headers if available, else from

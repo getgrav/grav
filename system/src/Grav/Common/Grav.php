@@ -617,7 +617,11 @@ class Grav extends Container
                     && MarkdownOutput::enabled()
                     && !preg_match('/[?#]/', $url)
                     && !Utils::pathinfo($url, PATHINFO_EXTENSION)) {
-                    $url = rtrim($url, '/') . '.' . MarkdownOutput::FORMAT;
+                    // The site root has nothing to carry an extension; it is `/index.md`.
+                    if (trim((string) parse_url($url, PHP_URL_PATH), '/') === '') {
+                        $url = rtrim($url, '/') . '/index';
+                    }
+                    $url .= '.' . MarkdownOutput::FORMAT;
                 }
             }
         } elseif ($route instanceof Route) {

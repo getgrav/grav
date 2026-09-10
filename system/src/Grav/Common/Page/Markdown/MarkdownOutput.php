@@ -281,11 +281,7 @@ class MarkdownOutput
     }
 
     /**
-     * The absolute `.md` URL of a page.
-     *
-     * The home page is linked by its real route (`/home.md` rather than
-     * `/.md`), because a path segment starting with a dot is refused by every
-     * web server config Grav ships.
+     * The absolute `.md` URL of a page. The home page is `/index.md`.
      *
      * @param PageInterface|null $page
      * @return string
@@ -294,17 +290,13 @@ class MarkdownOutput
     {
         $page = $page ?? $this->grav['page'];
 
-        $home = $page->route() === '/' || $page->home();
-        $url = $home ? $page->url(true, false, true, true) : $page->url(true);
-
         // A page with no route of its own (a plugin's stand-in page at the
-        // site root) has nothing to append the extension to.
-        $path = (string)parse_url($url, PHP_URL_PATH);
-        if (trim($path, '/') === '') {
-            return $url;
+        // site root) has nothing to carry the extension.
+        if (!$page->home() && trim((string)parse_url($page->url(true), PHP_URL_PATH), '/') === '') {
+            return $page->url(true);
         }
 
-        return rtrim($url, '/') . '.' . self::FORMAT;
+        return $page->url(true, false, true, false, self::FORMAT);
     }
 
     /**

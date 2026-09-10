@@ -116,7 +116,10 @@ class PagesServiceProvider implements ServiceProviderInterface
                         $uriExtension = $uri->extension();
                         $uriExtension = null !== $uriExtension ? '.' . $uriExtension : '';
 
-                        if ($route !== $path || ($pageExtension !== $uriExtension
+                        // `/index.<ext>` is how the home page is addressed in a format.
+                        $requested = $path === '/index' && $uriExtension !== '' && $page->home() ? '/' : $path;
+
+                        if ($route !== $requested || ($pageExtension !== $uriExtension
                                 && \in_array($pageExtension, ['', '.htm', '.html'], true)
                                 && \in_array($uriExtension, ['', '.htm', '.html'], true))) {
                             $grav->redirect($url, $redirectCode);

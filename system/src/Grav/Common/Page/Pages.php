@@ -1226,9 +1226,31 @@ class Pages
      * @return PageInterface|null
      * @throws Exception
      */
+    /**
+     * Whether the current request asks for a page in a specific output format
+     * (`.md`, `.rss`, `.json`…) by its URL extension.
+     *
+     * @return bool
+     */
+    protected function isFormatRequest(): bool
+    {
+        /** @var Uri $uri */
+        $uri = $this->grav['uri'];
+        $extension = $uri->extension();
+
+        return is_string($extension) && $uri->isValidExtension($extension);
+    }
+
     public function dispatch($route, $all = false, $redirect = true)
     {
         $page = $this->find($route, true);
+
+        // `/index.<ext>` is the home page in that output format: the URL
+        // Page::url() builds for it, since `/.<ext>` is a hidden file to every
+        // web server. A root page really called `index` still wins.
+        if (($page === null || !$page->routable()) && $route === '/index' && $this->isFormatRequest()) {
+            $page = $this->find('/', true);
+        }
 
         // If we want all pages or are in admin, return what we already have.
         if ($all || isset($this->grav['admin'])) {

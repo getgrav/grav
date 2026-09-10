@@ -9,6 +9,8 @@
     * HTML responses now carry a `Link` header and a `<link rel="alternate" type="text/markdown">` tag pointing at their Markdown version, and Markdown responses carry an `X-Markdown-Tokens` header with an estimated token count, matching Cloudflare's Markdown for Agents
     * Themes can override the Markdown layout with a `default.md.twig` or `<template>.md.twig` template, using the new `markdown_output()`, `markdown_frontmatter()`, `markdown_body()`, `markdown_links()` and `markdown_url()` Twig functions and the `html_to_markdown` filter
     * Grav's own templates are now also reachable under the `@grav` Twig namespace, so a theme can include or extend `@grav/partials/metadata.html.twig` to add a line instead of keeping a copy of the whole file
+    * The home page can be requested in any output format as `/index.md`, `/index.rss`, `/index.json` and so on, the way static site generators do it, instead of `/.md`, which every web server treats as a hidden file. A root page actually named `index` still takes precedence
+    * `page.url()` takes a fifth argument naming an output format, so `page.url(true, false, true, false, 'rss')` gives the right link for any page, home included, without a theme having to check for the home page and append `index` itself
 1. [](#improved)
     * A redirect answered to a `.md` request now points at the `.md` version of its target, so a section URL that forwards to its first page keeps an agent in Markdown
     * A URL with no extension sends `Vary: Accept` while Markdown output is on, so a shared cache never hands an agent the HTML or a browser the Markdown
