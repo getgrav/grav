@@ -272,4 +272,73 @@ class DetectXssTest extends \PHPUnit\Framework\TestCase
             'GHSA-c2q3 real attack payload must still be flagged via on_events'
         );
     }
+
+    // =========================================================================
+    // premium#619: the invalid_protocols rule matched any word ENDING in a
+    // protocol name, and the all-whitespace-stripped subject glued a
+    // line-ending colon onto the next line, defeating the `\S` guard that is
+    // supposed to require a URI body. A Hungarian sentence ending in
+    // "mondata:" therefore read as `data:Ez...` and blocked the save.
+    // =========================================================================
+
+    /**
+     * @dataProvider providerPremium619_PlainProse
+     */
+    public function testDetectXss_Premium619_PlainProseNotFlagged(string $content, string $description): void
+    {
+        self::assertNull(
+            Security::detectXss($content),
+            "Plain prose must not be flagged: $description"
+        );
+    }
+
+    public static function providerPremium619_PlainProse(): array
+    {
+        return [
+            ["A dokumentum egyik legismertebb mondata:\n\nEz a következő bekezdés.", 'premium#619 report: Hungarian "mondata:" at end of line'],
+            ['The metadata: value is here.', 'English word ending in "data"'],
+            ["metadata:\n  description: hello", 'YAML-ish key ending in "data"'],
+            ['Subscribe to the feed: https://example.com/feed', 'word "feed" followed by a colon and a space'],
+            ["See the data:\nbelow", 'bare "data:" at end of line, next line glued by the URL strip'],
+            ["Foo bar.\ndata: baz", 'sentence break before a bare "data:"'],
+            ['Errata: none. Stratadata: none.', 'two words ending in a protocol name'],
+        ];
+    }
+
+    /**
+     * The boundary fix must not cost any real detection. Every one of these is
+     * a scheme sitting in a URL position, including the forms that only the
+     * tab/LF/CR strip can reassemble.
+     *
+     * @dataProvider providerPremium619_RealProtocolPayloads
+     */
+    public function testDetectXss_Premium619_RealProtocolPayloadsStillFlagged(string $payload, string $description): void
+    {
+        self::assertSame(
+            'invalid_protocols',
+            Security::detectXss($payload),
+            "Should still flag invalid_protocols for: $description"
+        );
+    }
+
+    public static function providerPremium619_RealProtocolPayloads(): array
+    {
+        return [
+            ['<a href="javascript:alert(1)">x</a>', 'quoted javascript: href'],
+            ['<a href=javascript:alert(1)>x</a>', 'unquoted javascript: href'],
+            ['<a href=" javascript:alert(1)">x</a>', 'leading space before the scheme'],
+            ['<a href="JaVaScRiPt:alert(1)">x</a>', 'mixed case'],
+            ['<a href="javascript&#58;alert(1)">x</a>', 'entity-encoded colon'],
+            ['<a href="&#106;avascript:alert(1)">x</a>', 'entity-encoded first character'],
+            ['<a href="%6a%61%76%61%73%63%72%69%70%74:alert(1)">x</a>', 'percent-encoded scheme'],
+            ["<a href=\"java\nscript:alert(1)\">x</a>", 'newline inside the scheme'],
+            ["<a href=\"java\tscript:alert(1)\">x</a>", 'tab inside the scheme'],
+            ['<a href="java&#10;script:alert(1)">x</a>', 'entity newline inside the scheme'],
+            ['<img src="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">', 'data: URI in src'],
+            ["<img src=\"data:\ntext/html,<b>x</b>\">", 'data: URI split by a newline after the colon'],
+            ['<a href=\'vbscript:msgbox(1)\'>x</a>', 'vbscript: scheme'],
+            ['url(javascript:alert(1))', 'scheme inside a CSS url()'],
+            ['[link](javascript:alert(1))', 'scheme as a markdown link target'],
+        ];
+    }
 }
