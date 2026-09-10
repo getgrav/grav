@@ -753,7 +753,7 @@ class Page implements PageInterface
 
         // Set Content-Type header
         $headers['Content-Type'] = Utils::getMimeByExtension($format, 'text/html');
-        if ($format === MarkdownOutput::FORMAT) {
+        if ($format === MarkdownOutput::FORMAT && stripos($headers['Content-Type'], 'charset=') === false) {
             // Markdown has no <meta charset>, so the header has to say it.
             $headers['Content-Type'] .= '; charset=utf-8';
         } elseif ($format === 'html' && MarkdownOutput::enabled() && $this->routable()) {
