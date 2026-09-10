@@ -478,11 +478,21 @@ class Debugger
      */
     protected function debuggerCredentials(RequestInterface $request): array
     {
-        $body = (string)$request->getBody();
-        $data = json_decode($body, true);
-        if (!is_array($data)) {
-            $data = [];
-            parse_str($body, $data);
+        // The Clockwork browser extension posts the password as multipart/form-data,
+        // which only ever shows up in the parsed body ($_POST), never as a raw JSON
+        // or query-string body. Read that first, then fall back to the raw body for
+        // scripts posting JSON or application/x-www-form-urlencoded.
+        $data = $request instanceof ServerRequestInterface ? $request->getParsedBody() : null;
+        if (!is_array($data) || $data === []) {
+            $body = (string)$request->getBody();
+            $data = json_decode($body, true);
+            if (!is_array($data)) {
+                $data = [];
+                parse_str($body, $data);
+            }
+        }
+        if ($data === [] && !empty($_POST)) {
+            $data = $_POST;
         }
 
         return [
