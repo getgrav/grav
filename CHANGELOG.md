@@ -14,6 +14,7 @@
     * A URL with no extension sends `Vary: Accept` while Markdown output is on, so a shared cache never hands an agent the HTML or a browser the Markdown
     * Converted Markdown is cached per page under the same rules as page content, so a page whose Twig must run on every request is never served from the Markdown cache
     * The Apache and lighttpd configs now forbid `.md` URLs only when they point at a real file, so page routes ending in `.md` reach Grav while source files under `user/pages` stay blocked
+    * Upgrading patches the same rule into an existing site's `.htaccess`, which upgrades never replace, as long as the stock line is still there untouched. nginx, Caddy and IIS configs never blocked page routes and need no change
 
 # v2.0.26
 ## 09/09/2026
