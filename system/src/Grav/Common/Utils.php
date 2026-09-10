@@ -943,7 +943,8 @@ abstract class Utils
             return $mime;
         }
 
-        // fallback for a few standard types not present in media.types
+        // fallback if media.types is missing one of these standard entries entirely
+        // (e.g. a site config that replaces media.yaml wholesale instead of merging)
         switch ($extension) {
             case 'json':
                 return 'application/json';
