@@ -714,7 +714,11 @@ trait PageContentTrait
             $never_cache_twig = true;
         }
 
-        if ($cache_enable) {
+        // Twig-first content that is never cached has no Twig-free stage to read
+        // back either: the Twig output is what Markdown parses.
+        $twig_first_uncached = $twig_first && $process_twig && $never_cache_twig;
+
+        if ($cache_enable && !$twig_first_uncached) {
             $cache = $this->getCache('render');
             // Mix the full config checksum into the cache id so any change
             // to system, site, security, or plugin config (including the
@@ -761,7 +765,7 @@ trait PageContentTrait
             $this->_content = $content;
             $grav->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
-            if ($twig_first && !$never_cache_twig) {
+            if ($twig_first) {
                 if ($process_twig) {
                     $this->_content = $this->processTwig($this->_content);
                 }

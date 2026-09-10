@@ -995,24 +995,41 @@ class Page implements PageInterface
 
             // if no cached-content run everything
             if ($never_cache_twig) {
-                if ($this->content === false || $cache_enable === false) {
+                if ($twig_first && $process_twig) {
+                    // Twig first: its output is what Markdown parses, so there is no
+                    // Twig-free stage to cache. Both run on every request, from the
+                    // raw source, and whatever the cache holds for this page is ignored.
                     $this->content = $this->rawMarkdown();
                     Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
+                    $this->processTwig();
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
 
                     // Content Processed but not cached yet
                     Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+                } else {
+                    if ($this->content === false || $cache_enable === false) {
+                        $this->content = $this->rawMarkdown();
+                        Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
-                    if ($cache_enable) {
-                        $this->cachePageContent();
+                        if ($process_markdown) {
+                            // Markdown must leave the Twig tags alone for the pass below.
+                            $this->processMarkdown($process_twig);
+                        }
+
+                        // Content Processed but not cached yet
+                        Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
+                        if ($cache_enable) {
+                            $this->cachePageContent();
+                        }
                     }
-                }
 
-                if ($process_twig) {
-                    $this->processTwig();
+                    if ($process_twig) {
+                        $this->processTwig();
+                    }
                 }
             } else {
                 if ($this->content === false || $cache_enable === false) {

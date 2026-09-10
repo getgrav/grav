@@ -15,6 +15,8 @@
     * Converted Markdown is cached per page under the same rules as page content, so a page whose Twig must run on every request is never served from the Markdown cache
     * The Apache and lighttpd configs now forbid `.md` URLs only when they point at a real file, so page routes ending in `.md` reach Grav while source files under `user/pages` stay blocked
     * Upgrading patches the same rule into an existing site's `.htaccess`, which upgrades never replace, as long as the stock line is still there untouched. nginx, Caddy and IIS configs never blocked page routes and need no change
+1. [](#bugfix)
+    * Pages with `twig_first: true` broke in 2.0.26 with a Twig syntax error such as `Unexpected character "&"`, because the fix for GHSA-pp89-h475-7gj6 sent every content-Twig page down a path that always ran Markdown before Twig. Twig-first pages run Twig on the raw source again and their output is never put in the page cache, and Markdown-first pages no longer have their Twig tags altered by Markdown
 
 # v2.0.26
 ## 09/09/2026
