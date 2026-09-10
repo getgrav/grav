@@ -1,3 +1,9 @@
+# v2.0.26
+## 09/09/2026
+
+1. [](#bugfix)
+    * Plain text that happens to contain a word ending in `data`, `feed` or another URI scheme name no longer blocks a page from saving with "Potential XSS issues detected". The check matched the scheme anywhere inside a word, so a Hungarian sentence ending in "mondata:" or an English one mentioning "metadata:" was read as a `data:` URI. Thanks to @csbrny [#619](https://github.com/getgrav/grav-premium-issues/issues/619)
+
 # v2.0.25
 ## 09/09/2026
 

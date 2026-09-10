@@ -303,9 +303,39 @@ class Security
         // Decode entities
         $string = html_entity_decode((string) $string, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
 
+        // Removing *every* whitespace character is far too blunt for the
+        // protocol rule: it manufactures scheme-looking sequences out of
+        // ordinary prose. A paragraph ending in a colon glues onto the next
+        // one, so a Hungarian sentence like "...legismertebb mondata:" became
+        // `mondata:Ez...` and tripped the `data:` protocol (premium#619), and
+        // the same strip defeats the `\S` guard that is supposed to require a
+        // URI body — "metadata: value" collapses to "metadata:value".
+        //
+        // A URL parser only ever discards tab, LF and CR from inside a URL
+        // (WHATWG URL, "URL code points" cleanup), so those are the only
+        // characters that can hide a scheme, e.g. `java&#10;script:alert(1)`.
+        // A space cannot: `java script:` is not a scheme to any browser.
+        // Strip exactly what the parser strips and nothing more. Built before
+        // the general whitespace pass below, which would have already turned
+        // those characters into spaces.
+        $url_stripped = preg_replace('![\x00\x09\x0A\x0D]!u', '', (string) $string);
+
         // Strip whitespace characters
         $string = preg_replace('!\s!u', ' ', $string);
         $stripped = preg_replace('!\s!u', '', (string) $string);
+
+        $protocol_alt = implode('|', array_map('preg_quote', $invalid_protocols, ['#']));
+
+        // Same protocol rule, run against $url_stripped, with a stricter left
+        // boundary: whitespace and a full stop are rejected as well as word
+        // characters. Removing tab/LF/CR joins a line-ending colon to the next
+        // line, so prose like "See the data:\nbelow" would otherwise read as
+        // `data:below`. Nothing is lost: a scheme that survives that strip is
+        // sitting in a URL position, so what precedes it is a real delimiter
+        // (`"`, `'`, `=`, `(`, `<`, `,`) or the start of the string — never a
+        // space or the end of a sentence. Bare `javascript: alert(1)` in running
+        // text is still caught on the other two subjects.
+        $protocol_url_regex = '#(?<![a-z0-9\s.])(' . $protocol_alt . ')(:|\&\#58)\S.*?#iUu';
 
         // Set the patterns we'll test against
         $patterns = [
@@ -358,7 +388,18 @@ class Security
             'xmlns' => '#<(?:=\s*"[^"]*"|=\s*\'[^\']*\'|[^>])*?(?:[\s\x00-\x20\"\'\/]|=\s*"[^"]*"|=\s*\'[^\']*\')xmlns\s*=#iu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
-            'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',
+            //
+            // The leading lookbehind is what keeps ordinary words out of this.
+            // A scheme is only a scheme at the start of a URL, so the character
+            // in front of it is always a delimiter — a quote, `=`, `(`, `,`, a
+            // space, a tag boundary — never a letter or digit. Without the
+            // lookbehind every word ending in a protocol name matched: the
+            // Hungarian "mondata:" and the English "metadata:" both carry
+            // `data:`, and "newsfeed:" carries `feed:` (premium#619). Prefixing
+            // a letter also breaks the payload for real — `xjavascript:alert(1)`
+            // is an unknown scheme and does nothing in an href — so nothing is
+            // lost by requiring the boundary.
+            'invalid_protocols' => '#(?<![a-z0-9])(' . $protocol_alt . ')(:|\&\#58)\S.*?#iUu',
 
             // Match -moz-bindings
             'moz_binding' => '#-moz-binding[a-z\x00-\x20]*:#u',
@@ -378,6 +419,13 @@ class Security
                 // or contain 'on'
                 if ($name === 'on_events' || $name === 'xmlns') {
                     if (static::patternMatches($regex, (string) $string) || static::patternMatches($regex, $orig)) {
+                        return $name;
+                    }
+                } elseif ($name === 'invalid_protocols') {
+                    // Uses the URL-parser-faithful strip instead of the
+                    // all-whitespace one, which invented `data:`/`feed:` hits in
+                    // plain prose. See $url_stripped and $protocol_url_regex.
+                    if (static::patternMatches($regex, (string) $string) || static::patternMatches($protocol_url_regex, (string) $url_stripped) || static::patternMatches($regex, $orig)) {
                         return $name;
                     }
                 } else {
