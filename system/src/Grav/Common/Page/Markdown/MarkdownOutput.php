@@ -13,13 +13,10 @@ use DOMDocument;
 use DOMElement;
 use DOMNode;
 use DOMXPath;
-use Grav\Common\Cache;
-use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Interfaces\PageInterface;
-use Grav\Common\Security;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Uri;
 use League\HTMLToMarkdown\Converter\TableConverter;
@@ -40,28 +37,23 @@ use function strlen;
  * content Twig, resolved image paths, page-relative links and modular
  * assembly all come out the way a browser would see them.
  *
- * Where that HTML comes from is the `source` setting. `page` (the default)
- * renders the page through the theme exactly as for a browser and converts
- * the main content region of the result, so a blog listing, a shop or a
- * product page whose content lives in the template reads as it displays.
- * `content` converts only `page.content()` and the page's modules: cleaner,
- * cacheable, and blind to anything the template adds.
+ * The page is rendered through the theme exactly as for a browser and the
+ * main content region of the result is converted, so a blog listing, a shop
+ * or a product page whose content lives in the template reads as it
+ * displays. Converting `page.content()` alone would miss all of that.
  *
  * The document has three parts, each switchable in `system.pages.markdown_output`:
  *
  *   1. A YAML frontmatter block: title, url, date, description, taxonomy
- *   2. The body: `# Title`, the page content, then each module of a modular
- *      page under its own `## Title`
+ *   2. The body: the main content region of the rendered page, with a
+ *      `# Title` added only when the theme printed none
  *   3. A navigation section linking the parent, neighbouring and child pages
  *      by their own `.md` URLs, so an agent can walk the site without ever
  *      leaving Markdown
  *
- * With `source: content` the conversion is cached per page under the same
- * rules `Page::content()` uses: a page whose content Twig runs on every
- * request is never cached. A full page render is request-aware (login state,
- * a cart, form nonces) and Grav never caches it as HTML either, so with
- * `source: page` nothing is cached and each request costs what the HTML
- * page costs plus the conversion.
+ * A full page render is request-aware (login state, a cart, form nonces) and
+ * Grav never caches it as HTML, so its Markdown is not cached either: each
+ * request costs what the HTML page costs plus the conversion.
  *
  * @package Grav\Common\Page\Markdown
  */
@@ -212,8 +204,8 @@ class MarkdownOutput
     }
 
     /**
-     * The Markdown body of a page: its title, its content and, for a modular
-     * page, every module in the order the page lists them.
+     * The Markdown body of a page: the main content region of the page as
+     * the theme renders it.
      *
      * @param PageInterface|null $page
      * @return string
@@ -223,46 +215,15 @@ class MarkdownOutput
         $page = $page ?? $this->grav['page'];
         $title = trim((string)$page->title());
 
-        if ($this->option('source', 'page') === 'page') {
-            $html = $this->renderPageHtml($page);
-            $content = $html !== null ? $this->convert($this->mainRegion($html)) : '';
-            if ($content !== '') {
-                // The theme usually prints the title itself; add it only when it did not.
-                if ($title !== '' && !preg_match('/^# /m', $content)) {
-                    $content = '# ' . $title . "\n\n" . $content;
-                }
+        $html = $this->renderPageHtml($page);
+        $content = $html !== null ? $this->convert($this->mainRegion($html)) : '';
 
-                return $content;
-            }
-            // A theme that rendered nothing usable falls back to the content itself.
+        // The theme usually prints the title itself; add it only when it did not.
+        if ($title !== '' && !preg_match('/^# /m', $content)) {
+            $content = '# ' . $title . ($content !== '' ? "\n\n" . $content : '');
         }
 
-        $parts = [];
-        $content = $this->convertPage($page);
-
-        if ($title !== '' && !preg_match('/^# /', $content)) {
-            $parts[] = '# ' . $title;
-        }
-        if ($content !== '') {
-            $parts[] = $content;
-        }
-
-        foreach ($this->modules($page) as $module) {
-            $moduleContent = $this->convertPage($module);
-            if ($moduleContent === '') {
-                continue;
-            }
-
-            // A module that opens with its own H1 or H2 has already named itself.
-            $moduleTitle = trim((string)$module->title());
-            if ($moduleTitle !== '' && !preg_match('/^#{1,2} /', $moduleContent)) {
-                $moduleContent = '## ' . $moduleTitle . "\n\n" . $moduleContent;
-            }
-
-            $parts[] = $moduleContent;
-        }
-
-        return implode("\n\n", $parts);
+        return $content;
     }
 
     /**
@@ -716,106 +677,6 @@ class MarkdownOutput
         $summary = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($summary), ENT_QUOTES | ENT_HTML5)) ?? '');
 
         return $summary;
-    }
-
-    /**
-     * The modules a modular page lists, in the page's own order.
-     *
-     * @param PageInterface $page
-     * @return PageInterface[]
-     */
-    protected function modules(PageInterface $page): array
-    {
-        if ($page->isModule()) {
-            return [];
-        }
-
-        try {
-            $collection = $page->collection('content', false);
-        } catch (Throwable $e) {
-            return [];
-        }
-
-        $modules = [];
-        foreach ($collection as $item) {
-            if ($item instanceof PageInterface && $item->isModule()) {
-                $modules[] = $item;
-            }
-        }
-
-        return $modules;
-    }
-
-    /**
-     * Convert a page's rendered content, from cache when the page allows it.
-     *
-     * @param PageInterface $page
-     * @return string
-     */
-    protected function convertPage(PageInterface $page): string
-    {
-        $cacheable = $this->cacheable($page);
-        $cache_id = null;
-
-        if ($cacheable) {
-            /** @var Config $config */
-            $config = $this->grav['config'];
-
-            $cache_id = md5(implode(':', [
-                'markdown-output',
-                GRAV_VERSION,
-                $page->id(),
-                (string)$page->modified(),
-                (string)$config->checksum(),
-                json_encode($config->get('system.pages.markdown_output')),
-            ]));
-
-            /** @var Cache $cache */
-            $cache = $this->grav['cache'];
-            $cached = $cache->fetch($cache_id);
-            if (is_string($cached)) {
-                return $cached;
-            }
-        }
-
-        $markdown = $this->convert((string)$page->content());
-
-        if ($cache_id !== null) {
-            $this->grav['cache']->save($cache_id, $markdown);
-        }
-
-        return $markdown;
-    }
-
-    /**
-     * Mirror of the rules `Page::content()` applies before it caches: the
-     * site cache must be on, the page must not opt out, and content Twig
-     * that runs per request keeps its output out of the cache.
-     *
-     * @param PageInterface $page
-     * @return bool
-     */
-    protected function cacheable(PageInterface $page): bool
-    {
-        /** @var Config $config */
-        $config = $this->grav['config'];
-        $header = $page->header();
-
-        $cache_enable = $header->cache_enable ?? $config->get('system.cache.enabled', true);
-        if (!$cache_enable) {
-            return false;
-        }
-
-        $never_cache_twig = $header->never_cache_twig ?? $config->get('system.pages.never_cache_twig', false);
-        if ($never_cache_twig) {
-            return false;
-        }
-
-        if (Security::willProcessContentTwig($page) && !$page->isModule()) {
-            return false;
-        }
-
-        return true;
     }
 
     /**

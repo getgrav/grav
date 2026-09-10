@@ -28,7 +28,6 @@ class MarkdownOutputTest extends \PHPUnit\Framework\TestCase
         $this->grav['config']->set('system.languages.supported', []);
         $this->grav['config']->set('system.pages.markdown_output', [
             'enabled' => true,
-            'source' => 'content',
             'frontmatter' => true,
             'links' => true,
             'max_links' => 100,
@@ -44,8 +43,10 @@ class MarkdownOutputTest extends \PHPUnit\Framework\TestCase
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+        $locator->addPath('theme', '', 'tests/fake/twig-first-site/user/themes/testing', false);
         $locator->addPath('page', '', 'tests/fake/nested-site/user/pages', false);
         $this->grav['pages']->init();
+        $this->grav['twig']->init();
 
         $this->output = new MarkdownOutput($this->grav);
     }
@@ -54,8 +55,8 @@ class MarkdownOutputTest extends \PHPUnit\Framework\TestCase
     {
         self::assertSame('text/markdown', Utils::getMimeByExtension('md'));
         self::assertSame('md', Utils::getExtensionByMime('text/markdown'));
-        self::assertContains('md', Utils::getSupportPageTypes());
         $types = Utils::getSupportPageTypes();
+        self::assertContains('md', $types);
         self::assertSame('md', end($types), 'md goes last so it never wins an ambiguous Accept negotiation');
 
         $this->grav['config']->set('system.pages.markdown_output.enabled', false);

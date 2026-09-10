@@ -4,7 +4,6 @@
 1. [](#new)
     * Every page can now be read as Markdown, built for AI agents and other text clients. Add `.md` to any page URL, or send an `Accept: text/markdown` request header, and Grav answers with the rendered page converted back to Markdown instead of the theme's HTML
     * The Markdown is the page as the theme renders it, reduced to its main content region, so blog listings, shops, product pages and anything else a template builds read the way they display. Shortcodes, content Twig, modular pages and resolved image and link paths all come through, and site navigation, sidebars and footers are left out
-    * A `source: content` setting converts only the page's own content and modules instead, which is cleaner and cached per page but blind to what the template adds
     * Each Markdown document opens with a YAML block (title, URL, date, description, taxonomy) and closes with links to the parent, neighbouring and child pages by their own `.md` URLs, so an agent can walk a whole site without leaving Markdown
     * The feature and each of its parts can be switched off under the new **Markdown Output** settings in **Configuration → System → Content**
     * HTML responses now carry a `Link` header and a `<link rel="alternate" type="text/markdown">` tag pointing at their Markdown version, and Markdown responses carry an `X-Markdown-Tokens` header with an estimated token count, matching Cloudflare's Markdown for Agents
@@ -13,7 +12,6 @@
 1. [](#improved)
     * A redirect answered to a `.md` request now points at the `.md` version of its target, so a section URL that forwards to its first page keeps an agent in Markdown
     * A URL with no extension sends `Vary: Accept` while Markdown output is on, so a shared cache never hands an agent the HTML or a browser the Markdown
-    * With `source: content`, converted Markdown is cached per page under the same rules as page content, so a page whose Twig must run on every request is never served from the Markdown cache. A rendered page is never cached, the same as its HTML
     * The Apache and lighttpd configs now forbid `.md` URLs only when they point at a real file, so page routes ending in `.md` reach Grav while source files under `user/pages` stay blocked
     * Upgrading patches the same rule into an existing site's `.htaccess`, which upgrades never replace, as long as the stock line is still there untouched. nginx, Caddy and IIS configs never blocked page routes and need no change
 1. [](#bugfix)

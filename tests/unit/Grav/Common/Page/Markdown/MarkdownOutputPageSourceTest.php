@@ -9,9 +9,9 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 /**
  * Class MarkdownOutputPageSourceTest
  *
- * `source: page`: the Markdown comes from the page as the theme renders it,
- * reduced to its main content region, so template-driven pages (listings,
- * shops) read as they display.
+ * The Markdown comes from the page as the theme renders it, reduced to its
+ * main content region, so template-driven pages (listings, shops) read as
+ * they display.
  */
 class MarkdownOutputPageSourceTest extends \PHPUnit\Framework\TestCase
 {
@@ -35,7 +35,6 @@ class MarkdownOutputPageSourceTest extends \PHPUnit\Framework\TestCase
         $this->grav['config']->set('system.languages.supported', []);
         $this->grav['config']->set('system.pages.markdown_output', [
             'enabled' => true,
-            'source' => 'page',
             'frontmatter' => false,
             'links' => false,
             'absolute_urls' => true,
