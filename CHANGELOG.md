@@ -33,6 +33,13 @@
     * Markdown Extra no longer deletes page content that follows the first element of an HTML block. Every raw HTML block went through PHP's DOM parser, which kept only its first element [#4291](https://github.com/getgrav/grav/issues/4291) [#3452](https://github.com/getgrav/grav/issues/3452) [#1198](https://github.com/getgrav/grav/issues/1198)
     * Markdown Extra leaves raw HTML exactly as written, as it does with Extra off, so Twig in `href` and `src` attributes works again and SVG attributes, entities and self-closing tags are no longer rewritten. Only blocks marked `markdown="1"` are still processed [#1495](https://github.com/getgrav/grav/issues/1495) [#1449](https://github.com/getgrav/grav/issues/1449) [#1352](https://github.com/getgrav/grav/issues/1352)
     * Pages with an HTML block that starts with `<html>` no longer crash with Markdown Extra turned on
+    * Markdown inside a `markdown="1"` block is now rendered from the text as written, so a fenced code block keeps its capital letters and tags [#1840](https://github.com/getgrav/grav/issues/1840)
+    * A `>` blockquote inside a `markdown="1"` block now renders as a blockquote [#3204](https://github.com/getgrav/grav/issues/3204)
+    * `&` in code spans and entities such as `&commat;` inside a `markdown="1"` block are no longer escaped twice [#764](https://github.com/getgrav/grav/issues/764) [#2590](https://github.com/getgrav/grav/issues/2590)
+    * `<https://...>` and `<name@example.com>` links now work inside a `markdown="1"` block [#287](https://github.com/getgrav/grav/issues/287)
+    * A `<source>` inside a `<picture markdown="1">` no longer swallows the image after it [#1168](https://github.com/getgrav/grav/issues/1168)
+    * Twig in attributes, SVG attribute names and text after a `<` are kept as written inside a `markdown="1"` block
+    * `markdown="1"` on a `<script>` or `<style>` tag no longer turns its code into paragraphs
 
 # v2.0.26
 ## 09/09/2026
