@@ -1,3 +1,10 @@
+# v2.1.2
+## 09/11/2026
+
+1. [](#bugfix)
+    * **Updating a 2.0 site to 2.1 from Admin2 no longer fails.** The check that runs before an update still treated a minor release as a major one, so it refused the update unless every enabled plugin and theme listed Grav 2.1 as compatible, which almost none do yet. From 2.0 on those checks only run for a new major version [#4299](https://github.com/getgrav/grav/issues/4299)
+    * `bin/gpm update` no longer calls a 2.0 to 2.1 update a new major version
+
 # v2.1.1
 ## 09/11/2026
 
