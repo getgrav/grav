@@ -31,10 +31,6 @@ parameters:
     reportUnmatchedIgnoredErrors: false
     treatPhpDocTypesAsCertain: false
 
-    # These checks are new in phpstan 1, ignore them for now.
-    checkMissingIterableValueType: false
-    #checkGenericClassInNonGenericObjectType: false
-
     universalObjectCratesClasses:
         - Grav\Common\Config\Config
         - Grav\Common\Config\Languages
@@ -48,6 +44,9 @@ parameters:
     dynamicConstantNames:
         - GRAV_CLI
     ignoreErrors:
+        # PHPStan 2 removed checkMissingIterableValueType; this is its replacement.
+        -
+            identifier: missingType.iterableValue
         # New in phpstan 1, ignore them for now.
         - '#Unsafe usage of new static\(\)#'
 

@@ -26,10 +26,6 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
 
-    # These checks are new in phpstan 1, ignore them for now.
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
-
     universalObjectCratesClasses:
         - Grav\Common\Config\Config
         - Grav\Common\Config\Languages
@@ -50,6 +46,12 @@ parameters:
         - GANTRY5_PLATFORM
         - GANTRY5_ROOT
     ignoreErrors:
+        # PHPStan 2 removed checkMissingIterableValueType and
+        # checkGenericClassInNonGenericObjectType; these are their replacements.
+        -
+            identifier: missingType.iterableValue
+        -
+            identifier: missingType.generics
         # New in phpstan 1, ignore them for now.
         - '#Unsafe usage of new static\(\)#'
         - '#Cannot instantiate interface Grav\\Framework\\#'
