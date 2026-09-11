@@ -534,16 +534,16 @@
         },
         {
             "name": "erusev/parsedown-extra",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/parsedown-extra.git",
-                "reference": "43977b5fa32123ccac1ffd2b7166d57dc85936de"
+                "reference": "72dc9e120db2531c39ebbef1a5adc8500ea28c65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/parsedown-extra/zipball/43977b5fa32123ccac1ffd2b7166d57dc85936de",
-                "reference": "43977b5fa32123ccac1ffd2b7166d57dc85936de",
+                "url": "https://api.github.com/repos/getgrav/parsedown-extra/zipball/72dc9e120db2531c39ebbef1a5adc8500ea28c65",
+                "reference": "72dc9e120db2531c39ebbef1a5adc8500ea28c65",
                 "shasum": ""
             },
             "require": {
@@ -587,9 +587,9 @@
                 "parser"
             ],
             "support": {
-                "source": "https://github.com/getgrav/parsedown-extra/tree/1.0.0"
+                "source": "https://github.com/getgrav/parsedown-extra/tree/1.0.1"
             },
-            "time": "2026-06-01T16:55:11+00:00"
+            "time": "2026-09-11T02:15:28+00:00"
         },
         {
             "name": "filp/whoops",

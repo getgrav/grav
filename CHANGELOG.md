@@ -20,6 +20,7 @@
     * A URL with no extension sends `Vary: Accept` while Markdown output is on, so a shared cache never hands an agent the HTML or a browser the Markdown
     * The Apache and lighttpd configs now forbid `.md` URLs only when they point at a real file, so page routes ending in `.md` reach Grav while source files under `user/pages` stay blocked
     * Upgrading patches the same rule into an existing site's `.htaccess`, which upgrades never replace, as long as the stock line is still there untouched. nginx, Caddy and IIS configs never blocked page routes and need no change
+    * Parsedown Extra updated to 1.0.1, which removes two PHP 8.2+ deprecation notices
 1. [](#bugfix)
     * **The Clockwork browser extension can now sign in with the debugger token.** The extension posts the password as a multipart form, and the `/__clockwork/auth` endpoint only read raw JSON or query-string bodies, so every password entered in the extension was refused while `curl` with the same token worked. The parsed form body is read first now
     * **Updating Grav no longer deletes the processed-image cache.** The update ran a full cache clear that ignored `cache.clear_images_by_default`, so every gallery thumbnail was regenerated on the next visit. Resized images now survive every cache clear and update unless that setting is on; `bin/grav cache --images-only` still removes them on demand [#3416](https://github.com/getgrav/grav/issues/3416)
