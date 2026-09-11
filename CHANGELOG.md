@@ -1,5 +1,5 @@
 # v2.1.0
-## 09/10/2026
+## 09/11/2026
 
 1. [](#new)
     * Every page can now be read as Markdown, built for AI agents and other text clients. Add `.md` to any page URL, or send an `Accept: text/markdown` request header, and Grav answers with the rendered page converted back to Markdown instead of the theme's HTML
