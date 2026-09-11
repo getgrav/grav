@@ -110,13 +110,35 @@ trait MediaFileTrait
     {
         $url = $this->get('url');
         if ($url) {
-            return $url;
+            return $this->withHost((string)$url, $include_host);
         }
 
         $path = $this->relativePath($reset);
-        $base = $this->getGrav()[$include_host ? 'base_url_absolute' : 'base_url'];
 
-        return trim($base . '/' . $this->urlQuerystring($path), '\\');
+        return $this->withHost(trim($this->getGrav()['base_url'] . '/' . $this->urlQuerystring($path), '\\'), $include_host);
+    }
+
+    /**
+     * Prepend the scheme and host to a root-relative URL when `$include_host` is
+     * set, the way `page.url(true)` builds its URL.
+     *
+     * A root-relative URL, the file's own or a `url` override (the page route
+     * from `pages.media_route_urls`, or a media proxy), already carries the
+     * site's base path, so only the host is added. `Uri::base()` is also where
+     * a `custom_base_url` host lands. Absolute and protocol-relative URLs are
+     * returned as they are.
+     *
+     * @param string $url
+     * @param bool $include_host
+     * @return string
+     */
+    protected function withHost(string $url, $include_host): string
+    {
+        if ($include_host && str_starts_with($url, '/') && !str_starts_with($url, '//')) {
+            return $this->getGrav()['uri']->base() . $url;
+        }
+
+        return $url;
     }
 
     /**

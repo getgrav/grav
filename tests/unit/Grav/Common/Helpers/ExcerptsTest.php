@@ -389,6 +389,50 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
         }
     }
 
+    /**
+     * `url(true, true)` must give the same scheme, host and base path as
+     * `page.url(true)`, whether the file is linked through its page route or by
+     * its path on disk, in a subfolder install and with `custom_base_url` set.
+     *
+     * @dataProvider mediaHostProvider
+     */
+    public function testMediaUrlWithHostMirrorsPageUrlWithHost(string $custom_base, string $root_path, string $url, string $expected_host, string $expected_root): void
+    {
+        $current_base = $this->config->get('system.custom_base_url');
+        $this->config->set('system.custom_base_url', $custom_base);
+
+        try {
+            $this->uri->initializeWithUrlAndRootPath($url, $root_path)->init();
+            $page_url = $this->page->url(true);
+            self::assertSame($expected_root . '/item2/item2-2', $page_url);
+
+            $this->withMediaRouteUrls(function () use ($page_url) {
+                self::assertSame($page_url . '/sample-image.jpg', $this->page->media()['sample-image.jpg']->url(true, true));
+                self::assertSame($page_url . '/existing-file.zip', $this->page->media()['existing-file.zip']->url(true, true));
+            });
+
+            // Linked by its path on disk, the host goes in front of what url() gives.
+            foreach (['sample-image.jpg', 'existing-file.zip'] as $filename) {
+                $relative = $this->page->media()[$filename]->url();
+                self::assertStringStartsWith('/', $relative);
+                self::assertSame($expected_host . $relative, $this->page->media()[$filename]->url(true, true));
+            }
+        } finally {
+            $this->config->set('system.custom_base_url', $current_base);
+            $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
+        }
+    }
+
+    public static function mediaHostProvider(): array
+    {
+        return [
+            'root install' => ['', '', 'https://example.com/item2/item2-2', 'https://example.com', 'https://example.com'],
+            'subfolder' => ['', '/sub', 'https://example.com/sub/item2/item2-2', 'https://example.com', 'https://example.com/sub'],
+            'relative custom base' => ['/act', '', 'https://example.com/act/item2/item2-2', 'https://example.com', 'https://example.com/act'],
+            'full custom base' => ['https://public.example.org/act', '', 'https://example.com/act/item2/item2-2', 'https://public.example.org', 'https://public.example.org/act'],
+        ];
+    }
+
     private function withMediaRouteUrls(callable $test): void
     {
         $this->config->set('system.pages.media_route_urls', true);

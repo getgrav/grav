@@ -210,7 +210,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 $this->reset();
             }
 
-            return $url;
+            return $this->withHost((string)$url, $include_host);
         }
 
         /** @var UniformResourceLocator $locator */
@@ -233,9 +233,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $this->reset();
         }
 
-        $base = $grav[$include_host ? 'base_url_absolute' : 'base_url'];
-
-        return trim($base . '/' . $this->urlQuerystring($output), '\\');
+        return $this->withHost(trim($grav['base_url'] . '/' . $this->urlQuerystring($output), '\\'), $include_host);
     }
 
     /**
