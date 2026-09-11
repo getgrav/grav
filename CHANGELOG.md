@@ -1,3 +1,12 @@
+# v2.0.27
+## 09/11/2026
+
+1. [](#bugfix)
+    * **Grav 2.0 sites can update to 2.1.** `bin/gpm selfupgrade` treated each minor release as a separate line, the way 1.7 and 1.8 were, so a 2.0 site was told it was up to date while 2.1.0 was out. Only a new major version now needs a manual move [#4299](https://github.com/getgrav/grav/issues/4299)
+    * When a new major version of Grav is out, `bin/gpm selfupgrade` says so and links to the migration guide instead of only reporting that the site is up to date
+    * **Licence keys from other stores are accepted.** The key format check only knew the Grav Premium format, so a KahunaCart key such as `KC-XXXX-XXXX-XXXX-XXXX` was refused by the API plugin's install endpoint and by License Manager. The check now only turns away what no store could have issued
+    * When getgrav.org refuses a premium download for a reason the person can act on, such as an updates window that has ended, `bin/gpm install` prints the store's explanation instead of only "Unauthorized Premium License Key". The API plugin bundled with this release relies on it
+
 # v2.0.26
 ## 09/09/2026
 
