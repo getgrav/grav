@@ -307,17 +307,8 @@ class SelfupgradeCommand extends GpmCommand
         $incompatibleTarget = $incompatible['target'] ?? '';
         $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? null;
         if ($isMajorMinorUpgrade === null && $this->upgrader) {
-            $local = $this->upgrader->getLocalVersion();
-            $remote = $this->upgrader->getRemoteVersion();
-            $localParts = explode('.', $local);
-            $remoteParts = explode('.', $remote);
-
-            $localMajor = (int)($localParts[0] ?? 0);
-            $localMinor = (int)($localParts[1] ?? 0);
-            $remoteMajor = (int)($remoteParts[0] ?? 0);
-            $remoteMinor = (int)($remoteParts[1] ?? 0);
-
-            $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
+            $isMajorMinorUpgrade = Upgrader::family($this->upgrader->getLocalVersion())
+                !== Upgrader::family($this->upgrader->getRemoteVersion());
         }
         $isMajorMinorUpgrade = (bool)$isMajorMinorUpgrade;
 

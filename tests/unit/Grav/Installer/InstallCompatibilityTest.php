@@ -157,6 +157,20 @@ class InstallCompatibilityTest extends \PHPUnit\Framework\TestCase
         self::assertArrayNotHasKey('compatible-plugin', $result['warnings']);
     }
 
+    public function testMinorUpgradeFromTwoIsNotMajor(): void
+    {
+        // getgrav/grav#4299: 2.0 -> 2.1 counted as a major upgrade, so every enabled
+        // plugin not listing "2.1" blocked the update from Admin2.
+        self::assertFalse($this->callMethod('isMajorMinorUpgrade', ['2.1.1', '2.0.27']));
+        self::assertFalse($this->callMethod('isMajorMinorUpgrade', ['2.3.0', '2.1.1']));
+        self::assertFalse($this->callMethod('isMajorMinorUpgrade', ['2.0.27', '2.0.26']));
+        self::assertTrue($this->callMethod('isMajorMinorUpgrade', ['3.0.0', '2.4.1']));
+        self::assertTrue($this->callMethod('isMajorMinorUpgrade', ['2.0.0', '1.7.49']));
+        self::assertTrue($this->callMethod('isMajorMinorUpgrade', ['1.8.0', '1.7.49']));
+        self::assertFalse($this->callMethod('isMajorMinorUpgrade', ['1.7.50', '1.7.49']));
+        self::assertFalse($this->callMethod('isMajorMinorUpgrade', ['not-a-version', '2.0.27']));
+    }
+
     /**
      * Create a plugin directory with a blueprints.yaml file.
      */

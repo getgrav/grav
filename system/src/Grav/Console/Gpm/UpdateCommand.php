@@ -117,17 +117,9 @@ class UpdateCommand extends GpmCommand
         $local = $this->upgrader->getLocalVersion();
         $remote = $this->upgrader->getRemoteVersion();
         if ($local !== $remote) {
-            // Determine if this is a major/minor version upgrade by comparing versions
-            $localParts = explode('.', $local);
-            $remoteParts = explode('.', $remote);
-
-            $localMajor = (int)($localParts[0] ?? 0);
-            $localMinor = (int)($localParts[1] ?? 0);
-            $remoteMajor = (int)($remoteParts[0] ?? 0);
-            $remoteMinor = (int)($remoteParts[1] ?? 0);
-
-            // Check if this is a major/minor version change (e.g., 1.7.x -> 1.8.y)
-            $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
+            // A new release family is a major upgrade (e.g., 1.7.x -> 1.8.y, or 2.x -> 3.0);
+            // from 2.0 on a minor release is an ordinary one.
+            $isMajorMinorUpgrade = Upgrader::family($local) !== Upgrader::family($remote);
 
             if ($isMajorMinorUpgrade) {
                 // For major/minor upgrades (e.g., 1.7.x -> 1.8.y), recommend updating plugins FIRST

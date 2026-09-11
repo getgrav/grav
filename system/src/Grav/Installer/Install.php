@@ -653,7 +653,15 @@ ERR;
         return $report;
     }
 
-    private function isMajorMinorUpgrade(string $targetVersion): bool
+    /**
+     * Whether the upgrade crosses a release family, which turns on the stricter checks
+     * (pending package updates, packages not marked compatible). Before 2.0 a family is
+     * major.minor, because 1.8 was a breaking line. From 2.0 on a minor release is an
+     * ordinary upgrade and only a new major counts. The rule is repeated here instead of
+     * calling Upgrader::family(), because this class runs from the update package while
+     * the rest of the code is still the installed version.
+     */
+    private function isMajorMinorUpgrade(string $targetVersion, ?string $currentVersion = null): bool
     {
         // An unreadable target version must never be treated as a major/minor upgrade,
         // otherwise it parses to 0.0 and wrongly triggers the incompatible-package gate.
@@ -661,10 +669,14 @@ ERR;
             return false;
         }
 
-        [$currentMajor, $currentMinor] = array_map('intval', array_pad(explode('.', GRAV_VERSION), 2, 0));
+        [$currentMajor, $currentMinor] = array_map('intval', array_pad(explode('.', $currentVersion ?? GRAV_VERSION), 2, 0));
         [$targetMajor, $targetMinor] = array_map('intval', array_pad(explode('.', $targetVersion), 2, 0));
 
-        return $currentMajor !== $targetMajor || $currentMinor !== $targetMinor;
+        if ($currentMajor !== $targetMajor) {
+            return true;
+        }
+
+        return $currentMajor < 2 && $currentMinor !== $targetMinor;
     }
 
     private function detectPendingPackageUpdates(): array
