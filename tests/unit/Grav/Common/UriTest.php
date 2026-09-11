@@ -1255,4 +1255,42 @@ class UriTest extends \PHPUnit\Framework\TestCase
 
         $this->config->set('system.custom_base_url', $current_base);
     }
+
+    /**
+     * @dataProvider customBaseBoundaryProvider
+     */
+    public function testCustomBaseBoundary(string $custom_base, string $root_path, string $url, string $path, string $query, string $route): void
+    {
+        $current_base = $this->config->get('system.custom_base_url');
+        $this->config->set('system.custom_base_url', $custom_base);
+        $this->uri->initializeWithUrlAndRootPath($url, $root_path)->init();
+
+        $this->assertSame($path, $this->uri->path());
+        $this->assertSame($query, $this->uri->query());
+        $this->assertSame($route, $this->uri->route());
+
+        $this->config->set('system.custom_base_url', $current_base);
+    }
+
+    public static function customBaseBoundaryProvider(): array
+    {
+        return [
+            // the home page with a query string stays the home page
+            'custom base home with query' => ['/act', '', 'https://example.com/act?page=2', '', 'page=2', '/'],
+            'custom base home, slash and query' => ['/act', '', 'https://example.com/act/?page=2', '/', 'page=2', '/'],
+            'full custom base home with query' => ['https://public.example.org/act', '', 'https://example.com/act?page=2', '', 'page=2', '/'],
+            'subfolder home with query' => ['', '/sub', 'https://example.com/sub?x=1', '', 'x=1', '/'],
+            'subfolder and custom base home with query' => ['/act', '/grav', 'https://example.com/grav?x=1', '', 'x=1', '/'],
+            // pages under the base lose the base
+            'custom base page' => ['/act', '', 'https://example.com/act/foo?x=1', '/foo', 'x=1', '/foo'],
+            'subfolder page' => ['', '/sub', 'https://example.com/sub/foo', '/foo', '', '/foo'],
+            // a page that only starts with the same letters keeps its name
+            'custom base prefix collision' => ['/act', '', 'https://example.com/action-bar', '/action-bar', '', '/action-bar'],
+            'custom base prefix collision with query' => ['/act', '', 'https://example.com/action-bar?x=1', '/action-bar', 'x=1', '/action-bar'],
+            'custom base with trailing slash' => ['/act/', '', 'https://example.com/action-bar', '/action-bar', '', '/action-bar'],
+            'full custom base prefix collision' => ['https://public.example.org/act', '', 'https://example.com/action-bar', '/action-bar', '', '/action-bar'],
+            // a proxy that already removed the base
+            'custom base already stripped' => ['/act', '', 'https://example.com/foo', '/foo', '', '/foo'],
+        ];
+    }
 }
