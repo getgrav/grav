@@ -129,4 +129,57 @@ class ParsedownExtraTest extends \PHPUnit\Framework\TestCase
             $this->parsedown->text('# Title {#myid .a .b}')
         );
     }
+
+    /**
+     * Raw HTML blocks without `markdown="1"` come out exactly as written, the
+     * same as with Markdown Extra off. They used to be reserialized through
+     * DOMDocument, which dropped everything after a block's first element
+     * (#4291), URL-encoded Twig in href/src, rewrote SVG, voids and entities,
+     * and threw a TypeError on `<html>` markup.
+     *
+     * @dataProvider rawHtmlBlockProvider
+     */
+    public function testRawHtmlBlockIsPassedThroughAsWritten(string $markdown): void
+    {
+        self::assertSame($markdown, $this->parsedown->text($markdown));
+    }
+
+    public static function rawHtmlBlockProvider(): array
+    {
+        return [
+            'nested close tags share a line (#4291)' => ["<div class=\"box\">\n<div>inner\n</div></div>\n\n<p>After the box</p>\n\nA **markdown** paragraph."],
+            'elements on one line' => ['<div>1</div><p>2</p>'],
+            'text after the closing tag' => ['<div></div> text after'],
+            'twig in href and src' => ["<div class=\"gallery\">\n<a href=\"{{ page.url }}\"><img src=\"{{ page.media['a b.jpg'].url }}\" /></a>\n</div>"],
+            'self-closing voids and boolean attributes' => ["<div>\n<img src=\"a.png\" alt=\"x\" />\n<input type=\"checkbox\" disabled=\"\" checked />\n</div>"],
+            'svg attribute and element case' => ["<svg viewBox=\"0 0 24 24\">\n<linearGradient id=\"g\"><stop offset=\"0\"/></linearGradient>\n</svg>"],
+            'entities' => ["<div>\n&copy; &nbsp; &#8217; &hellip;\n</div>"],
+            'source inside video' => ["<video controls>\n<source src=\"a.webm\" type=\"video/webm\">\nSorry.\n</video>"],
+            'backslash in src' => ["<figure>\n<img src=\"images\\totalen.png\">\n</figure>"],
+            'data-markdown is not the markdown attribute' => ["<div data-markdown=\"1\">\n**x**\n</div>"],
+            'html document markup' => ["<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\" />\n</head>\n<body>x</body>\n</html>"],
+        ];
+    }
+
+    /**
+     * `markdown="1"` still renders the Markdown inside the block, and an
+     * element or text after the block's closing tag is no longer dropped.
+     *
+     * @dataProvider markdownAttributeProvider
+     */
+    public function testMarkdownAttributeRendersMarkdown(string $markdown, string $expected): void
+    {
+        self::assertSame($expected, $this->parsedown->text($markdown));
+    }
+
+    public static function markdownAttributeProvider(): array
+    {
+        return [
+            'quoted' => ["<div markdown=\"1\">\n**bold**\n</div>", "<div>\n<p><strong>bold</strong></p>\n</div>"],
+            'unquoted' => ["<div markdown=1>\n**bold**\n</div>", "<div>\n<p><strong>bold</strong></p>\n</div>"],
+            'nested in a plain block' => ["<div class=\"outer\">\n<div markdown=\"1\">\n**inner**\n</div>\n</div>", "<div class=\"outer\">\n<div>\n<p><strong>inner</strong></p>\n</div>\n</div>"],
+            'element after the closing tag' => ["<div markdown=\"1\">**a**</div><p>b</p>", "<div>\n<p><strong>a</strong></p>\n</div><p>b</p>"],
+            'text after the closing tag' => ["<div markdown=\"1\">\n**a**\n</div> tail text", "<div>\n<p><strong>a</strong></p>\n</div> tail text"],
+        ];
+    }
 }

@@ -29,6 +29,9 @@
     * **Scheduler folders and processed-image cache folders are created group-writable like the rest of Grav**, so on hosts where the web server and the command line run as different users, `bin/grav clearcache` can empty them again. The `system.images.cache_perms` default is now `0775`, and the umask still applies. Thanks to @sandymac [#4295](https://github.com/getgrav/grav/issues/4295)
     * A user group saved without a display name is listed under its own name in the Groups field, instead of as a blank entry [getgrav/grav-plugin-admin2#172](https://github.com/getgrav/grav-plugin-admin2/issues/172)
     * Saving a page whose code samples contain heredocs or long runs of `key='value'` lines no longer fails with `PREG_BACKTRACK_LIMIT_ERROR`. The XSS check's event-handler rule gave up on that content, and a check that can't finish counts as a hit, so the save was refused. The rule now runs in linear time and still catches everything it did before. Thanks to @amadeusp [#4291](https://github.com/getgrav/grav/issues/4291)
+    * Markdown Extra no longer deletes page content that follows the first element of an HTML block. Every raw HTML block went through PHP's DOM parser, which kept only its first element [#4291](https://github.com/getgrav/grav/issues/4291) [#3452](https://github.com/getgrav/grav/issues/3452) [#1198](https://github.com/getgrav/grav/issues/1198)
+    * Markdown Extra leaves raw HTML exactly as written, as it does with Extra off, so Twig in `href` and `src` attributes works again and SVG attributes, entities and self-closing tags are no longer rewritten. Only blocks marked `markdown="1"` are still processed [#1495](https://github.com/getgrav/grav/issues/1495) [#1449](https://github.com/getgrav/grav/issues/1449) [#1352](https://github.com/getgrav/grav/issues/1352)
+    * Pages with an HTML block that starts with `<html>` no longer crash with Markdown Extra turned on
 
 # v2.0.26
 ## 09/09/2026
