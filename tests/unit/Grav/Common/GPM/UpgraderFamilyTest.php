@@ -114,6 +114,28 @@ class UpgraderFamilyTest extends TestCase
     }
 
     // ------------------------------------------------------------------
+    // 2.x: a minor release is an ordinary upgrade, only a major is gated
+    // ------------------------------------------------------------------
+
+    public function testTwoZeroToTwoOneIsAllowed(): void
+    {
+        // getgrav/grav#4299: 2.0 sites were told they were current while 2.1.0 was out.
+        $u = $this->make('2.0.26', '2.1.0');
+        $this->assertTrue($u->isUpgradable(), '2.0→2.1 must be allowed');
+        $this->assertFalse($u->isNextMajorAvailable());
+        $this->assertTrue($this->make('2.1.0', '2.3.4')->isUpgradable());
+        $this->assertTrue($this->make('2.0.26', '2.1.1-rc.1')->isUpgradable());
+        $this->assertFalse($this->make('2.1.0', '2.0.26')->isUpgradable(), 'never downgrade');
+    }
+
+    public function testTwoToThreeIsBlocked(): void
+    {
+        $u = $this->make('2.4.1', '3.0.0', ['version' => '3.0.0']);
+        $this->assertFalse($u->isUpgradable(), '2.x→3.0 must be blocked');
+        $this->assertTrue($u->isNextMajorAvailable());
+    }
+
+    // ------------------------------------------------------------------
     // Same version: not upgradable
     // ------------------------------------------------------------------
 
