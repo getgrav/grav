@@ -121,6 +121,10 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     {
         parent::reset();
 
+        // A reset medium is the original again. The default filters applied
+        // below may queue changes of their own.
+        $this->transformed = false;
+
         if ($this->image) {
             $this->image();
             $this->medium_querystring = [];
@@ -186,6 +190,29 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     {
         $grav = $this->getGrav();
 
+        // Serving the unmodified original: nothing is queued that changes its
+        // pixels, format or quality. Honor a `url` override here, and only here,
+        // so the original can be routed through a proxy while resized / cropped
+        // derivatives keep serving straight from `images/`. Mirrors
+        // MediaFileTrait::url().
+        //
+        // This asks what is queued rather than whether an image object is open.
+        // reset() reopens the image once any action has run on the medium, so
+        // testing for the object dropped the override for every later use of
+        // the same file in the request. getgrav/grav#4298.
+        $url = $this->transformed ? null : $this->get('url');
+        if ($url) {
+            // The original on disk, for auto_sizes to measure. saveImage() hands
+            // back the override itself when no image is open, which is a URL.
+            $this->saved_image_path = $this->get('filepath');
+
+            if ($reset) {
+                $this->reset();
+            }
+
+            return $url;
+        }
+
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
         $image_path = (string)($locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true));
@@ -195,22 +222,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         if ($locator->isStream($output)) {
             $output = (string)($locator->findResource($output, false) ?: $locator->findResource($output, false, true));
-        }
-
-        // Serving the unmodified original (no image operations queued — the same
-        // condition under which saveImage() returns the source file). Honor a
-        // `url` override here, and only here, so the original can be routed
-        // through a proxy while resized / cropped derivatives keep serving
-        // straight from `images/`. Mirrors MediaFileTrait::url().
-        if (empty($this->image)) {
-            $url = $this->get('url');
-            if ($url) {
-                if ($reset) {
-                    $this->reset();
-                }
-
-                return $url;
-            }
         }
 
         if (Utils::startsWith($output, $image_path)) {
@@ -508,6 +519,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         if (!$this->image) {
             $this->image();
         }
+
+        $this->transformed = true;
 
         try {
             $this->image->{$method}(...$args);
