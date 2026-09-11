@@ -193,7 +193,17 @@ class Uri implements \Stringable
 
         $this->url = $this->base . $this->uri;
 
-        $uri = Utils::replaceFirstOccurrence(static::filterPath($this->root), '', $this->url);
+        // Strip the root only where it ends a path segment. A raw prefix match made a
+        // custom base of `/act` also match `/action-bar`, leaving `ion-bar` (#3057). The
+        // query string is part of $this->url, so `?` ends the root too, and a request
+        // that is not under the root at all keeps its path relative to the site's base.
+        $root = rtrim(static::filterPath($this->root), '/');
+        $next = substr($this->url, strlen($root), 1);
+        if (str_starts_with($this->url, $root) && ($next === '' || strpbrk($next, '/?#') !== false)) {
+            $uri = substr($this->url, strlen($root));
+        } else {
+            $uri = Utils::replaceFirstOccurrence($this->base, '', $this->url);
+        }
 
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
