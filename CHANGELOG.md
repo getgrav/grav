@@ -44,6 +44,8 @@
     * Footnotes inside a `markdown="1"` block now join the page's single footnote list and are numbered in reading order
     * A definition list item with more than one paragraph no longer breaks every reference link after it on the page
     * With `system.custom_base_url` set to something like `/act`, pages whose names start with the same letters, such as `/action-bar`, no longer open the wrong page. Thanks to @wakqasahmed [#4296](https://github.com/getgrav/grav/pull/4296) [#3057](https://github.com/getgrav/grav/issues/3057)
+    * Images placed in page content with Markdown, including images from other pages and the image inside a `?lightbox` link, now link through the page route when `pages.media_route_urls` is on, so enabling the `user/pages` deny rule that goes with it no longer turns them into 403s. Thanks to @complanar [#4298](https://github.com/getgrav/grav/issues/4298)
+    * With `pages.media_route_urls` and `images.cls.auto_sizes` both on, a page showing an image at its original size no longer fails with a `getimagesize()` error [#4298](https://github.com/getgrav/grav/issues/4298)
 
 # v2.0.26
 ## 09/09/2026
