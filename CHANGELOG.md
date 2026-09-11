@@ -43,6 +43,7 @@
     * Reference links, footnotes and abbreviations now work on both sides of a `markdown="1"` block, instead of the block wiping out every definition written above it
     * Footnotes inside a `markdown="1"` block now join the page's single footnote list and are numbered in reading order
     * A definition list item with more than one paragraph no longer breaks every reference link after it on the page
+    * With `system.custom_base_url` set to something like `/act`, pages whose names start with the same letters, such as `/action-bar`, no longer open the wrong page. Thanks to @wakqasahmed [#4296](https://github.com/getgrav/grav/pull/4296) [#3057](https://github.com/getgrav/grav/issues/3057)
 
 # v2.0.26
 ## 09/09/2026
