@@ -40,6 +40,9 @@
     * A `<source>` inside a `<picture markdown="1">` no longer swallows the image after it [#1168](https://github.com/getgrav/grav/issues/1168)
     * Twig in attributes, SVG attribute names and text after a `<` are kept as written inside a `markdown="1"` block
     * `markdown="1"` on a `<script>` or `<style>` tag no longer turns its code into paragraphs
+    * Reference links, footnotes and abbreviations now work on both sides of a `markdown="1"` block, instead of the block wiping out every definition written above it
+    * Footnotes inside a `markdown="1"` block now join the page's single footnote list and are numbered in reading order
+    * A definition list item with more than one paragraph no longer breaks every reference link after it on the page
 
 # v2.0.26
 ## 09/09/2026

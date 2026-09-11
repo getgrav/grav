@@ -21,7 +21,9 @@ use Grav\Common\Page\Markdown\Excerpts;
  */
 class ParsedownExtra extends \ParsedownExtra
 {
-    use ParsedownGravTrait;
+    use ParsedownGravTrait {
+        text as private pageText;
+    }
 
     /** A `markdown="1"` attribute, quoted or not, anywhere in a raw HTML block. */
     private const MARKDOWN_ATTRIBUTE = '/\smarkdown\s*=\s*(?:"1"|\'1\'|1(?=[\s\/>]))/i';
@@ -40,6 +42,23 @@ class ParsedownExtra extends \ParsedownExtra
 
     /** Elements that never have an end tag. */
     private const VOID_ELEMENTS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+
+    /** Marks the place of a held element in the markup of a `markdown="1"` block (see element()). */
+    private const HOLD = "\x1A";
+
+    /** A held element's place: its index between two HOLD characters. */
+    private const HELD_ELEMENT = '/\x1A(\d+)\x1A/';
+
+    /** @var bool True while text() renders a page. */
+    private bool $rendering = false;
+
+    /**
+     * Elements held back for the page to render, one list for each
+     * `markdown="1"` block being parsed.
+     *
+     * @var list<list<array<string, mixed>>>
+     */
+    private array $heldElements = [];
 
     /**
      * ParsedownExtra constructor.
@@ -62,6 +81,69 @@ class ParsedownExtra extends \ParsedownExtra
         parent::__construct();
 
         $this->init($excerpts, $defaults);
+    }
+
+    /**
+     * Render a page.
+     *
+     * Parsedown's text() starts by clearing the page's reference, footnote and
+     * abbreviation definitions, and Parsedown Extra's text() ends by adding a
+     * footnote list. Some content that belongs to a page is also rendered
+     * through text(): a definition list item with more than one paragraph, and
+     * the content of a `markdown="1"` element that goes through the DOM. A
+     * call made while a page is rendering keeps the page's definitions and
+     * leaves the footnote list to the page.
+     *
+     * @param string $text
+     * @return string
+     */
+    #[\ReturnTypeWillChange]
+    public function text($text)
+    {
+        if ($this->rendering) {
+            return $this->nestedText((string) $text);
+        }
+
+        $this->rendering = true;
+        try {
+            return $this->pageText($text);
+        } finally {
+            $this->rendering = false;
+        }
+    }
+
+    /**
+     * While the content of a `markdown="1"` element is parsed, its elements
+     * are held back and a placeholder takes their place in the block's markup.
+     * The page renders them when it renders the block, in reading order and
+     * after every block on the page has been parsed, like the rest of the
+     * page's Markdown. So a link inside the block finds a definition written
+     * anywhere on the page, and footnotes are numbered in the order they are
+     * read.
+     *
+     * @param array $Element
+     * @return string
+     */
+    protected function element(array $Element): string
+    {
+        $block = array_key_last($this->heldElements);
+        if ($block !== null) {
+            $this->heldElements[$block][] = $Element;
+
+            return self::HOLD . (count($this->heldElements[$block]) - 1) . self::HOLD;
+        }
+
+        if (isset($Element['heldMarkup'])) {
+            $elements = $Element['heldElements'];
+
+            return (string) preg_replace_callback(
+                self::HELD_ELEMENT,
+                fn (array $m): string => $this->element($elements[(int) $m[1]]),
+                $Element['heldMarkup']
+            );
+        }
+
+        return parent::element($Element);
     }
 
     /**
@@ -140,14 +222,43 @@ class ParsedownExtra extends \ParsedownExtra
      * (#287) and wrapped content in a phantom `</source>` (#1168). The round
      * trip is only kept for a block whose element has no end tag to match.
      *
+     * The content used to be rendered on its own, through text(), which
+     * cleared every reference, footnote and abbreviation definition on the
+     * page, gave the block a footnote list of its own, and ran before the rest
+     * of the page was read. Now the content is parsed where the block stands,
+     * so the definitions in it count for the whole page, and its elements are
+     * rendered with the rest of the page (element()). Markup that already
+     * holds the HOLD character is rendered right away instead, and so is
+     * every block inside it.
+     *
      * @param array $Block
      * @return array
      */
     protected function blockMarkupComplete($Block)
     {
-        if (!isset($Block['void']) && preg_match(self::MARKDOWN_ATTRIBUTE, (string) $Block['markup'])) {
-            $markup = (string) $Block['markup'];
+        $markup = (string) $Block['markup'];
+        if (isset($Block['void']) || !preg_match(self::MARKDOWN_ATTRIBUTE, $markup)) {
+            return $Block;
+        }
+
+        if (str_contains($markup, self::HOLD)) {
             $Block['markup'] = $this->renderMarkdownElements($markup) ?? $this->processTag($markup);
+
+            return $Block;
+        }
+
+        $this->heldElements[] = [];
+        try {
+            $markup = $this->renderMarkdownElements($markup) ?? $this->processTag($markup);
+        } finally {
+            $elements = array_pop($this->heldElements);
+        }
+
+        if ($elements) {
+            unset($Block['markup']);
+            $Block['element'] = ['heldMarkup' => $markup, 'heldElements' => $elements];
+        } else {
+            $Block['markup'] = $markup;
         }
 
         return $Block;
@@ -213,9 +324,9 @@ class ParsedownExtra extends \ParsedownExtra
     /**
      * Render every `markdown="1"` element in a raw HTML block from the markup
      * as written, and pass everything else through untouched. The element's
-     * opening tag keeps its attributes apart from `markdown`, its content goes
-     * through text() as in Parsedown Extra, and whatever follows its end tag,
-     * on the same line or after it, is kept as written.
+     * opening tag keeps its attributes apart from `markdown`, its content is
+     * rendered as part of the page (nestedText()), and whatever follows its
+     * end tag, on the same line or after it, is kept as written.
      *
      * An element is rendered where Parsedown Extra would render it: at the top
      * of the block, or nested only in elements that are not text-level (so a
@@ -275,7 +386,7 @@ class ParsedownExtra extends \ParsedownExtra
                 [$closeStart, $closeEnd] = $close;
                 $out .= substr($html, $copied, $lt - $copied)
                     . '<' . $m[1] . $attributes . '>'
-                    . "\n" . $this->text(substr($html, $end, $closeStart - $end)) . "\n"
+                    . "\n" . $this->nestedText(substr($html, $end, $closeStart - $end)) . "\n"
                     . substr($html, $closeStart, $closeEnd - $closeStart);
                 $copied = $offset = $closeEnd;
                 continue;
@@ -288,6 +399,21 @@ class ParsedownExtra extends \ParsedownExtra
         }
 
         return $out . substr($html, $copied);
+    }
+
+    /**
+     * Render Markdown that belongs to the page being rendered: Parsedown's
+     * text() without clearing the page's definitions, and with no footnote
+     * list of its own.
+     *
+     * @param string $text
+     * @return string
+     */
+    private function nestedText(string $text): string
+    {
+        $text = trim(str_replace(["\r\n", "\r"], "\n", $text), "\n");
+
+        return trim($this->lines(explode("\n", $text)), "\n");
     }
 
     /**

@@ -241,4 +241,84 @@ class ParsedownExtraTest extends \PHPUnit\Framework\TestCase
             'lightbox and crop (#764)' => ['![Sample Image](sample-image.jpg?lightbox=1024&crop=100,100,600,600)'],
         ];
     }
+
+    /**
+     * A `markdown="1"` block no longer clears the page's reference, footnote
+     * and abbreviation definitions. Its content was rendered through text(),
+     * which starts by clearing them, so a definition written above the block
+     * stopped working for the whole page, and a link inside the block found
+     * none of the page's definitions. A definition list item with two
+     * paragraphs went through text() too, and had the same problem.
+     *
+     * @dataProvider definitionsAcrossMarkdownBlockProvider
+     */
+    public function testDefinitionsWorkAcrossAMarkdownBlock(string $markdown, string $expected): void
+    {
+        self::assertSame($expected, $this->parsedown->text($markdown));
+    }
+
+    public static function definitionsAcrossMarkdownBlockProvider(): array
+    {
+        return [
+            'definition above the block, link below it' => ["[r]: https://example.com/r\n\n<div markdown=\"1\">\n**x**\n</div>\n\nAfter [link][r].", "<div>\n<p><strong>x</strong></p>\n</div>\n<p>After <a href=\"https://example.com/r\">link</a>.</p>"],
+            'link inside the block, definition below it' => ["<div markdown=\"1\">\nInside [link][r].\n</div>\n\n[r]: https://example.com/r", "<div>\n<p>Inside <a href=\"https://example.com/r\">link</a>.</p>\n</div>"],
+            'link inside the block, definition above it' => ["[r]: https://example.com/r\n\n<div markdown=\"1\">\nInside [link][r] and [r][].\n</div>", "<div>\n<p>Inside <a href=\"https://example.com/r\">link</a> and <a href=\"https://example.com/r\">r</a>.</p>\n</div>"],
+            'definition inside the block, links above and below it' => ["Above [link][r].\n\n<div markdown=\"1\">\n[r]: https://example.com/r\n\nInside.\n</div>\n\nBelow [link][r].", "<p>Above <a href=\"https://example.com/r\">link</a>.</p>\n<div>\n<p>Inside.</p>\n</div>\n<p>Below <a href=\"https://example.com/r\">link</a>.</p>"],
+            'nested markdown elements' => ["<div markdown=\"1\">\nA [one][r].\n<div class=\"x\">\n<div markdown=\"1\">\nB [two][r].\n</div>\n</div>\n</div>\n\n[r]: https://example.com/r", "<div>\n<p>A <a href=\"https://example.com/r\">one</a>.</p>\n<div class=\"x\">\n<div>\n<p>B <a href=\"https://example.com/r\">two</a>.</p>\n</div>\n</div>\n</div>"],
+            'element with no end tag goes through the DOM' => ["[r]: https://example.com/r\n\n<div markdown=\"1\">\nInside [link][r].", "<div>\n<p>Inside <a href=\"https://example.com/r\">link</a>.</p>\n</div>"],
+            'reference image' => ["<div markdown=\"1\">\n![Alt][img]\n</div>\n\n[img]: /a.png", "<div>\n<p><img src=\"/a.png\" alt=\"Alt\" /></p>\n</div>"],
+            'abbreviation defined outside the block' => ["*[HTML]: Hyper Text Markup Language\n\nHTML outside.\n\n<div markdown=\"1\">\nHTML inside.\n</div>", "<p><abbr title=\"Hyper Text Markup Language\">HTML</abbr> outside.</p>\n<div>\n<p><abbr title=\"Hyper Text Markup Language\">HTML</abbr> inside.</p>\n</div>"],
+            'abbreviation defined inside the block' => ["HTML above.\n\n<div markdown=\"1\">\n*[HTML]: Hyper Text Markup Language\n\nHTML inside.\n</div>", "<p><abbr title=\"Hyper Text Markup Language\">HTML</abbr> above.</p>\n<div>\n<p><abbr title=\"Hyper Text Markup Language\">HTML</abbr> inside.</p>\n</div>"],
+            'definition list item with two paragraphs' => ["[r]: https://example.com/r\n\nTerm\n: First [link][r].\n\n    Second [link][r].\n\nAfter [link][r].", "<dl>\n<dt>Term</dt>\n<dd><p>First <a href=\"https://example.com/r\">link</a>.</p>\n<p>Second <a href=\"https://example.com/r\">link</a>.</p></dd>\n</dl>\n<p>After <a href=\"https://example.com/r\">link</a>.</p>"],
+        ];
+    }
+
+    /**
+     * Footnotes inside and around a `markdown="1"` block share the page's one
+     * footnote list and are numbered in reading order. The block used to get
+     * a footnote list of its own, and a marker in it could not find a
+     * definition written below it (erusev/parsedown-extra#72).
+     *
+     * @dataProvider footnotesAcrossMarkdownBlockProvider
+     */
+    public function testFootnotesAcrossAMarkdownBlock(string $markdown, string $expected): void
+    {
+        self::assertSame($expected, $this->parsedown->text($markdown));
+    }
+
+    public static function footnotesAcrossMarkdownBlockProvider(): array
+    {
+        return [
+            'marker inside the block, definition below it' => ["<div markdown=\"1\">\nInside.[^a]\n</div>\n\n[^a]: Note A.", "<div>\n<p>Inside.<sup id=\"fnref1:a\"><a href=\"#fn:a\" class=\"footnote-ref\">1</a></sup></p>\n</div>\n<div class=\"footnotes\">\n<hr />\n<ol>\n<li id=\"fn:a\">\n<p>Note A.&#160;<a href=\"#fnref1:a\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n</ol>\n</div>"],
+            'marker above the block, definition inside it' => ["Above.[^a]\n\n<div markdown=\"1\">\n[^a]: Note A.\n\nInside.\n</div>", "<p>Above.<sup id=\"fnref1:a\"><a href=\"#fn:a\" class=\"footnote-ref\">1</a></sup></p>\n<div>\n<p>Inside.</p>\n</div>\n<div class=\"footnotes\">\n<hr />\n<ol>\n<li id=\"fn:a\">\n<p>Note A.&#160;<a href=\"#fnref1:a\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n</ol>\n</div>"],
+            'numbered in reading order across the block' => ["One[^1].\n\n<div markdown=\"1\">\nTwo[^2].\n</div>\n\nThree[^3].\n\n[^1]: N1\n[^2]: N2\n[^3]: N3", "<p>One<sup id=\"fnref1:1\"><a href=\"#fn:1\" class=\"footnote-ref\">1</a></sup>.</p>\n<div>\n<p>Two<sup id=\"fnref1:2\"><a href=\"#fn:2\" class=\"footnote-ref\">2</a></sup>.</p>\n</div>\n<p>Three<sup id=\"fnref1:3\"><a href=\"#fn:3\" class=\"footnote-ref\">3</a></sup>.</p>\n<div class=\"footnotes\">\n<hr />\n<ol>\n<li id=\"fn:1\">\n<p>N1&#160;<a href=\"#fnref1:1\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n<li id=\"fn:2\">\n<p>N2&#160;<a href=\"#fnref1:2\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n<li id=\"fn:3\">\n<p>N3&#160;<a href=\"#fnref1:3\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n</ol>\n</div>"],
+            'marker and definition inside the block' => ["<div markdown=\"1\">\nInside.[^x]\n\n[^x]: Inner note.\n</div>\n\nAfter.", "<div>\n<p>Inside.<sup id=\"fnref1:x\"><a href=\"#fn:x\" class=\"footnote-ref\">1</a></sup></p>\n</div>\n<p>After.</p>\n<div class=\"footnotes\">\n<hr />\n<ol>\n<li id=\"fn:x\">\n<p>Inner note.&#160;<a href=\"#fnref1:x\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n</ol>\n</div>"],
+        ];
+    }
+
+    /**
+     * Markup that already holds the character used to mark held elements is
+     * rendered where it stands: the character is kept, and the page's
+     * definitions still apply.
+     */
+    public function testHoldCharacterInAMarkdownBlockIsKept(): void
+    {
+        self::assertSame(
+            "<div>\n<p>\x1A0\x1A <a href=\"https://example.com/r\">link</a></p>\n</div>",
+            $this->parsedown->text("[r]: https://example.com/r\n\n<div markdown=\"1\">\n\x1A0\x1A [link][r]\n</div>")
+        );
+    }
+
+    /**
+     * Each page still starts with no definitions: a second page rendered on
+     * the same parser does not see the first page's.
+     */
+    public function testDefinitionsDoNotCarryOverToTheNextPage(): void
+    {
+        self::assertSame(
+            "<div>\n<p><a href=\"https://example.com/r\">link</a></p>\n</div>",
+            $this->parsedown->text("[r]: https://example.com/r\n\n<div markdown=\"1\">\n[link][r]\n</div>")
+        );
+        self::assertSame('<p>[link][r]</p>', $this->parsedown->text('[link][r]'));
+    }
 }
