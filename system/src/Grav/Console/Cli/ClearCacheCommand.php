@@ -30,7 +30,7 @@ class ClearCacheCommand extends GravCommand
             ->setDescription('Clears Grav cache')
             ->addOption('invalidate', null, InputOption::VALUE_NONE, 'Invalidate cache, but do not remove any files')
             ->addOption('purge', null, InputOption::VALUE_NONE, 'If set purge old caches')
-            ->addOption('all', null, InputOption::VALUE_NONE, 'If set will remove all including compiled, twig, doctrine caches')
+            ->addOption('all', null, InputOption::VALUE_NONE, 'If set will remove all including compiled, twig, doctrine caches (processed images only when cache.clear_images_by_default is on)')
             ->addOption('assets-only', null, InputOption::VALUE_NONE, 'If set will remove only assets/*')
             ->addOption('images-only', null, InputOption::VALUE_NONE, 'If set will remove only images/*')
             ->addOption('cache-only', null, InputOption::VALUE_NONE, 'If set will remove only cache/*')

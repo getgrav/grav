@@ -57,6 +57,9 @@ trait ImageMediaTrait
     /** @var bool */
     protected $progressive;
 
+    /** @var bool Whether anything is queued that changes the image's pixels, format or quality */
+    protected $transformed = false;
+
     /** @var array */
     public static $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
@@ -216,6 +219,7 @@ trait ImageMediaTrait
                 $this->image();
             }
 
+            $this->transformed = true;
             $this->quality = $quality;
 
             return $this;
@@ -236,6 +240,7 @@ trait ImageMediaTrait
             $this->image();
         }
 
+        $this->transformed = true;
         $this->format = $format;
 
         return $this;
@@ -414,7 +419,9 @@ trait ImageMediaTrait
 
         if ($this->format === 'guess') {
             $extension = strtolower($this->get('extension'));
-            $this->format($extension);
+            // Assigned directly: format() records a transformation, and keeping
+            // the original's own format is not one.
+            $this->format = $extension;
         }
 
         if (!$this->debug_watermarked && $this->get('debug')) {

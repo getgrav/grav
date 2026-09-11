@@ -12,6 +12,7 @@ namespace Grav\Common\Page;
 use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
+use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\File\CompiledYamlFile;
@@ -752,6 +753,14 @@ class Page implements PageInterface
 
         // Set Content-Type header
         $headers['Content-Type'] = Utils::getMimeByExtension($format, 'text/html');
+        if ($format === MarkdownOutput::FORMAT && stripos($headers['Content-Type'], 'charset=') === false) {
+            // Markdown has no <meta charset>, so the header has to say it.
+            $headers['Content-Type'] .= '; charset=utf-8';
+        } elseif ($format === 'html' && MarkdownOutput::enabled() && $this->routable()) {
+            // Point agents at the Markdown version from the response itself,
+            // so it works whatever the theme puts in <head>.
+            $headers['Link'] = '<' . $grav['markdown_output']->url($this) . '>; rel="alternate"; type="text/markdown"';
+        }
 
         // Calculate Expires Headers if set to > 0
         if ($expires > 0) {
@@ -786,9 +795,21 @@ class Page implements PageInterface
             $headers['ETag'] = '1';
         }
 
-        // Set Vary: Accept-Encoding header
+        // Set Vary header
+        $vary = [];
         if ($grav['config']->get('system.pages.vary_accept_encoding', false)) {
-            $headers['Vary'] = 'Accept-Encoding';
+            $vary[] = 'Accept-Encoding';
+        }
+        // With Markdown output on, a URL without an extension answers either
+        // HTML or Markdown depending on the request's `Accept` header, so a
+        // shared cache must key on it or it hands an agent the HTML (and a
+        // browser the Markdown). The `.md` URL is its own resource and needs
+        // no such hint.
+        if (MarkdownOutput::enabled() && !$grav['uri']->extension()) {
+            $vary[] = 'Accept';
+        }
+        if ($vary) {
+            $headers['Vary'] = implode(', ', $vary);
         }
 
 
@@ -974,24 +995,41 @@ class Page implements PageInterface
 
             // if no cached-content run everything
             if ($never_cache_twig) {
-                if ($this->content === false || $cache_enable === false) {
+                if ($twig_first && $process_twig) {
+                    // Twig first: its output is what Markdown parses, so there is no
+                    // Twig-free stage to cache. Both run on every request, from the
+                    // raw source, and whatever the cache holds for this page is ignored.
                     $this->content = $this->rawMarkdown();
                     Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
+                    $this->processTwig();
                     if ($process_markdown) {
                         $this->processMarkdown();
                     }
 
                     // Content Processed but not cached yet
                     Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+                } else {
+                    if ($this->content === false || $cache_enable === false) {
+                        $this->content = $this->rawMarkdown();
+                        Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
-                    if ($cache_enable) {
-                        $this->cachePageContent();
+                        if ($process_markdown) {
+                            // Markdown must leave the Twig tags alone for the pass below.
+                            $this->processMarkdown($process_twig);
+                        }
+
+                        // Content Processed but not cached yet
+                        Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+
+                        if ($cache_enable) {
+                            $this->cachePageContent();
+                        }
                     }
-                }
 
-                if ($process_twig) {
-                    $this->processTwig();
+                    if ($process_twig) {
+                        $this->processTwig();
+                    }
                 }
             } else {
                 if ($this->content === false || $cache_enable === false) {
@@ -2124,9 +2162,12 @@ class Page implements PageInterface
      * @param bool $canonical    True to return the canonical URL
      * @param bool $include_base Include base url on multisite as well as language code
      * @param bool $raw_route
+     * @param string|null $extension An output format to link to (`md`, `rss`, `json`…) instead of the
+     *                               site's `append_url_extension`. The home page becomes `/index.<ext>`,
+     *                               since `/.<ext>` is a hidden file to every web server.
      * @return string The url.
      */
-    public function url($include_host = false, $canonical = false, $include_base = true, $raw_route = false)
+    public function url($include_host = false, $canonical = false, $include_base = true, $raw_route = false, $extension = null)
     {
         // Override any URL when external_url is set
         if (isset($this->external_url)) {
@@ -2162,9 +2203,14 @@ class Page implements PageInterface
             $route .= $this->route();
         }
 
+        $extension = is_string($extension) && $extension !== '' ? '.' . ltrim($extension, '.') : $this->urlExtension();
+        if ($extension !== '' && !$raw_route && $this->home()) {
+            $route = ($include_base ? $pages->baseRoute() : '') . '/index';
+        }
+
         /** @var Uri $uri */
         $uri = $grav['uri'];
-        $url = $uri->rootUrl($include_host) . '/' . trim((string) $route, '/') . $this->urlExtension();
+        $url = $uri->rootUrl($include_host) . '/' . trim((string) $route, '/') . $extension;
 
         return Uri::filterPath($url);
     }

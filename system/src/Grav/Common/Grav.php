@@ -14,6 +14,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Config\Setup;
 use Grav\Common\Helpers\Exif;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Pages;
@@ -385,11 +386,46 @@ class Grav extends Container
     public function cleanOutputBuffers(): void
     {
         // Make sure nothing extra gets written to the response.
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
+        self::endOutputBuffers(false);
         // Work around PHP bug #8218 (8.0.17 & 8.1.4).
         header_remove('Content-Encoding');
+    }
+
+    /**
+     * End the output buffers PHP allows to be ended, sending or discarding what
+     * they hold.
+     *
+     * Stops at the first buffer that cannot be removed. PHP's own
+     * zlib.output_compression handler becomes one of those once it has written
+     * its first compressed chunk, and ending it anyway raises a notice that the
+     * error handler turns into an exception (#4294). Inside shutdown() that
+     * skipped onShutdown and appended an error page to the gzip stream. Nothing
+     * below such a buffer can be reached and PHP finishes it at the end of the
+     * request, so its pending output is only flushed or discarded in place, and
+     * only where the buffer allows it.
+     *
+     * @param bool $flush True to send the buffered output, false to discard it.
+     * @return void
+     */
+    private static function endOutputBuffers(bool $flush): void
+    {
+        while (ob_get_level() > 0) {
+            $flags = ob_get_status()['flags'] ?? 0;
+            if (!($flags & PHP_OUTPUT_HANDLER_REMOVABLE)) {
+                if ($flush && ($flags & PHP_OUTPUT_HANDLER_FLUSHABLE)) {
+                    ob_flush();
+                } elseif (!$flush && ($flags & PHP_OUTPUT_HANDLER_CLEANABLE)) {
+                    ob_clean();
+                }
+
+                return;
+            }
+
+            // Never spin on a buffer PHP refused to end.
+            if (!($flush ? ob_end_flush() : ob_end_clean())) {
+                return;
+            }
+        }
     }
 
     /**
@@ -608,6 +644,20 @@ class Grav extends Container
                 } else {
                     $url .= ltrim((string) $route, '/'); // Support trailing slash default routes
                 }
+
+                // A request for `/section.md` that Grav redirects (to a first
+                // child, a default route, a language prefix) should land on
+                // Markdown too, or the agent following it silently gets HTML.
+                if ($uri->extension() === MarkdownOutput::FORMAT
+                    && MarkdownOutput::enabled()
+                    && !preg_match('/[?#]/', $url)
+                    && !Utils::pathinfo($url, PATHINFO_EXTENSION)) {
+                    // The site root has nothing to carry an extension; it is `/index.md`.
+                    if (trim((string) parse_url($url, PHP_URL_PATH), '/') === '') {
+                        $url = rtrim($url, '/') . '/index';
+                    }
+                    $url .= '.' . MarkdownOutput::FORMAT;
+                }
             }
         } elseif ($route instanceof Route) {
             $url = $route->toString(true);
@@ -798,17 +848,13 @@ class Grav extends Container
 
                 // close() has already emptied every buffer before echoing, so
                 // there may be nothing left to end here.
-                while (ob_get_level() > 0) {
-                    ob_end_flush();
-                }
+                self::endOutputBuffers(true);
                 flush();
             } elseif (!$success) {
                 // Headers are out already (close() echoed the body, or the body
                 // was streamed), so the connection cannot be closed early. Push
                 // whatever is buffered so the client at least has the response.
-                while (ob_get_level() > 0) {
-                    ob_end_flush();
-                }
+                self::endOutputBuffers(true);
                 flush();
             }
         }

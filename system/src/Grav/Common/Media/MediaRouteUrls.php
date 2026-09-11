@@ -12,6 +12,7 @@ namespace Grav\Common\Media;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Utils;
 use function is_string;
 use function rawurlencode;
 use function rtrim;
@@ -76,6 +77,16 @@ final class MediaRouteUrls
             // The filename is decoded again by `Grav::fallbackUrl()`, which
             // reads it back through `rawurldecode()`.
             $medium->set('url', $base . '/' . rawurlencode((string)$filename));
+
+            // Retina files (`photo@2x.jpg`) are files of their own, listed in the
+            // image's srcset, and `Grav::fallbackUrl()` serves them from the page
+            // folder by name. Alternatives resized on the fly are not files and
+            // keep serving from `images/`. getgrav/grav#4298.
+            foreach ($medium->getAlternatives(false) as $alternative) {
+                if ($alternative !== $medium) {
+                    $alternative->set('url', $base . '/' . rawurlencode(Utils::basename((string)$alternative->get('filepath'))));
+                }
+            }
         }
     }
 }

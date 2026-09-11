@@ -305,4 +305,149 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
             );
         }
     }
+
+    /**
+     * getgrav/grav#4298: with `pages.media_route_urls` on, a Markdown image that
+     * serves its original file must link it through the page route, or the
+     * `user/pages` deny rule turns it into a 403.
+     */
+    public function testMarkdownImageUsesRouteUrlWhenMediaRouteUrlsIsOn(): void
+    {
+        // The leading space keeps these from matching the `data-src` attribute,
+        // which echoes the path as written.
+        $this->withMediaRouteUrls(function () {
+            self::assertStringContainsString(
+                ' src="/item2/item2-2/sample-image.jpg"',
+                Excerpts::processImageHtml('<img src="sample-image.jpg" alt="Sample Image" />', $this->page)
+            );
+        });
+    }
+
+    public function testUntouchedImageKeepsRouteUrlAfterTheSameImageWasResized(): void
+    {
+        $this->withMediaRouteUrls(function () {
+            self::assertMatchesRegularExpression(
+                '| src="/images/.*-sample-image\.jpe?g"|',
+                Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=300,300" alt="Sample Image" />', $this->page)
+            );
+            self::assertStringContainsString(
+                ' src="/item2/item2-2/sample-image.jpg"',
+                Excerpts::processImageHtml('<img src="sample-image.jpg?classes=foo" alt="Sample Image" />', $this->page)
+            );
+        });
+    }
+
+    public function testLightboxImageUsesRouteUrl(): void
+    {
+        $this->withMediaRouteUrls(function () {
+            $html = Excerpts::processImageHtml('<img src="sample-image.jpg?lightbox" alt="Sample Image" />', $this->page);
+
+            self::assertStringContainsString('rel="lightbox"', $html);
+            self::assertStringContainsString(' src="/item2/item2-2/sample-image.jpg"', $html);
+            self::assertStringNotContainsString('nested-site', $html);
+        });
+    }
+
+    public function testImageFromAnotherPageUsesThatPagesRouteUrl(): void
+    {
+        // An image default is only applied once the file is found among the
+        // other page's media, so it proves the src below came from that medium
+        // and was not just passed through unresolved.
+        $this->config->set('system.images.defaults', ['loading' => 'lazy']);
+
+        try {
+            $this->withMediaRouteUrls(function () {
+                $html = Excerpts::processImageHtml('<img src="/item2/item2-2/sample-image.jpg" alt="Sample Image" />', $this->pages->find('/item2/item2-3'));
+
+                self::assertStringContainsString('loading="lazy"', $html);
+                self::assertStringContainsString(' src="/item2/item2-2/sample-image.jpg"', $html);
+            });
+        } finally {
+            $this->config->set('system.images.defaults', []);
+        }
+    }
+
+    public function testAutoSizesMeasuresTheOriginalWhenItIsRouted(): void
+    {
+        $this->config->set('system.images.cls.auto_sizes', true);
+
+        try {
+            $this->withMediaRouteUrls(function () {
+                $medium = $this->page->media()['sample-image.jpg'];
+                [$width, $height] = getimagesize($medium->get('filepath'));
+                // auto_sizes is read from config on reset.
+                $medium->reset();
+
+                $html = Excerpts::processImageHtml('<img src="sample-image.jpg" alt="Sample Image" />', $this->page);
+
+                self::assertStringContainsString(' src="/item2/item2-2/sample-image.jpg"', $html);
+                self::assertStringContainsString('width="' . $width . '" height="' . $height . '"', $html);
+            });
+        } finally {
+            $this->config->set('system.images.cls.auto_sizes', false);
+            $this->page->getMedia()['sample-image.jpg']->reset();
+        }
+    }
+
+    /**
+     * `url(true, true)` must give the same scheme, host and base path as
+     * `page.url(true)`, whether the file is linked through its page route or by
+     * its path on disk, in a subfolder install and with `custom_base_url` set.
+     *
+     * @dataProvider mediaHostProvider
+     */
+    public function testMediaUrlWithHostMirrorsPageUrlWithHost(string $custom_base, string $root_path, string $url, string $expected_host, string $expected_root): void
+    {
+        $current_base = $this->config->get('system.custom_base_url');
+        $this->config->set('system.custom_base_url', $custom_base);
+
+        try {
+            $this->uri->initializeWithUrlAndRootPath($url, $root_path)->init();
+            $page_url = $this->page->url(true);
+            self::assertSame($expected_root . '/item2/item2-2', $page_url);
+
+            $this->withMediaRouteUrls(function () use ($page_url) {
+                self::assertSame($page_url . '/sample-image.jpg', $this->page->media()['sample-image.jpg']->url(true, true));
+                self::assertSame($page_url . '/existing-file.zip', $this->page->media()['existing-file.zip']->url(true, true));
+            });
+
+            // Linked by its path on disk, the host goes in front of what url() gives.
+            foreach (['sample-image.jpg', 'existing-file.zip'] as $filename) {
+                $relative = $this->page->media()[$filename]->url();
+                self::assertStringStartsWith('/', $relative);
+                self::assertSame($expected_host . $relative, $this->page->media()[$filename]->url(true, true));
+            }
+        } finally {
+            $this->config->set('system.custom_base_url', $current_base);
+            $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
+        }
+    }
+
+    public static function mediaHostProvider(): array
+    {
+        return [
+            'root install' => ['', '', 'https://example.com/item2/item2-2', 'https://example.com', 'https://example.com'],
+            'subfolder' => ['', '/sub', 'https://example.com/sub/item2/item2-2', 'https://example.com', 'https://example.com/sub'],
+            'relative custom base' => ['/act', '', 'https://example.com/act/item2/item2-2', 'https://example.com', 'https://example.com/act'],
+            'full custom base' => ['https://public.example.org/act', '', 'https://example.com/act/item2/item2-2', 'https://public.example.org', 'https://public.example.org/act'],
+        ];
+    }
+
+    private function withMediaRouteUrls(callable $test): void
+    {
+        $this->config->set('system.pages.media_route_urls', true);
+
+        try {
+            $test();
+        } finally {
+            $this->config->set('system.pages.media_route_urls', false);
+
+            // The route URL is stamped on the media objects, which outlive the test.
+            foreach (['/item2/item2-2', '/item2/item2-3'] as $route) {
+                foreach ($this->pages->find($route)->getMedia()->all() as $medium) {
+                    $medium->set('url', null);
+                }
+            }
+        }
+    }
 }

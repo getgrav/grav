@@ -658,6 +658,10 @@ class InstallCommand extends GpmCommand
         } catch (Exception $e) {
             if (!empty($package->premium) && $e->getCode() === 401) {
                 $message = '<yellow>Unauthorized Premium License Key</yellow>';
+                $reason = Licenses::refusalReason($e);
+                if ($reason !== null) {
+                    $message .= "\n" . $reason;
+                }
             } else {
                 $message = $e->getMessage();
             }

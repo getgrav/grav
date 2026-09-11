@@ -60,4 +60,57 @@ class ImageMediumUrlTest extends \Codeception\Test\Unit
         $this->assertStringNotContainsString('/flex-media/', $url);
         $this->assertStringContainsString('/images/', $url);
     }
+
+    public function testIncludeHostPrependsTheAbsoluteBase(): void
+    {
+        // #894: url(true, true) mirrors page.url(true) and gives a full URL for one
+        // media item without turning on absolute_urls for the whole site.
+        $absolute = (string)$this->grav['base_url_absolute'];
+        $this->assertMatchesRegularExpression('#^https?://#', $absolute);
+
+        $relative = $this->medium()->url();
+        $this->assertStringStartsNotWith('http', $relative);
+
+        $full = $this->medium()->url(true, true);
+        $this->assertStringStartsWith($absolute . '/', $full);
+        $this->assertStringEndsWith($relative, $full);
+
+        // A resized derivative gets the host too.
+        $derivative = $this->medium()->cropResize(50, 50)->url(true, true);
+        $this->assertStringStartsWith($absolute . '/', $derivative);
+        $this->assertStringContainsString('/images/', $derivative);
+    }
+
+    public function testIncludeHostPrefixesARootRelativeOverride(): void
+    {
+        // The override from `pages.media_route_urls` is the page route, which
+        // already carries the base path, so only the scheme and host are added.
+        $override = '/flex-media/contacts/0001/home-sample-image.jpg';
+        $medium = $this->medium();
+        $medium->set('url', $override);
+
+        $host = (string)$this->grav['uri']->base();
+        $this->assertMatchesRegularExpression('#^https?://[^/]+$#', $host);
+        $this->assertSame($host . $override, $medium->url(true, true));
+        $this->assertSame($override, $medium->url());
+    }
+
+    public function testIncludeHostLeavesAnAbsoluteOverrideAlone(): void
+    {
+        $medium = $this->medium();
+        foreach (['https://cdn.example.com/home-sample-image.jpg', '//cdn.example.com/home-sample-image.jpg'] as $override) {
+            $medium->set('url', $override);
+            $this->assertSame($override, $medium->url(true, true));
+        }
+    }
+
+    public function testIncludeHostPrefixesTheOverrideOfANonImageFile(): void
+    {
+        $medium = MediumFactory::fromFile(GRAV_ROOT . '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/existing-file.zip');
+        $this->assertNotNull($medium);
+        $this->assertNotInstanceOf(ImageMedium::class, $medium);
+        $medium->set('url', '/item2/item2-2/existing-file.zip');
+
+        $this->assertSame((string)$this->grav['uri']->base() . '/item2/item2-2/existing-file.zip', $medium->url(true, true));
+    }
 }

@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Scheduler;
 
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Security;
 use RocketTheme\Toolbox\File\JsonFile;
@@ -60,9 +61,12 @@ class JobQueue
             $this->queuePath . '/completed',
         ];
         
+        // Folder::create() leaves the mode to the umask like every other Grav
+        // folder, so a group-writable install stays writable for both the web
+        // and the CLI user (#4295).
         foreach ($dirs as $dir) {
             if (!file_exists($dir)) {
-                mkdir($dir, 0755, true);
+                Folder::create($dir);
             }
         }
     }

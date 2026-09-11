@@ -119,9 +119,11 @@ trait PageRoutableTrait
      * @param bool $canonical true to return the canonical URL
      * @param bool $include_base
      * @param bool $raw_route
+     * @param string|null $extension An output format to link to (`md`, `rss`, `json`…) instead of the
+     *                               site's `append_url_extension`. The home page becomes `/index.<ext>`.
      * @return string The url.
      */
-    public function url($include_host = false, $canonical = false, $include_base = true, $raw_route = false): string
+    public function url($include_host = false, $canonical = false, $include_base = true, $raw_route = false, $extension = null): string
     {
         // Override any URL when external_url is set
         $external = $this->getNestedProperty('header.external_url');
@@ -158,9 +160,14 @@ trait PageRoutableTrait
             $route .= $this->route();
         }
 
+        $extension = is_string($extension) && $extension !== '' ? '.' . ltrim($extension, '.') : $this->urlExtension();
+        if ($extension !== '' && !$raw_route && $this->home()) {
+            $route = ($include_base ? $pages->baseRoute() : '') . '/index';
+        }
+
         /** @var Uri $uri */
         $uri = $grav['uri'];
-        $url = $uri->rootUrl($include_host) . '/' . trim($route, '/') . $this->urlExtension();
+        $url = $uri->rootUrl($include_host) . '/' . trim($route, '/') . $extension;
 
         return Uri::filterPath($url);
     }

@@ -35,7 +35,7 @@ class UtilsPathinfoExtension implements DynamicStaticMethodReturnTypeExtension
 	{
         $argsCount = count($methodCall->getArgs());
         if ($argsCount === 0) {
-            return ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
+            return ParametersAcceptorSelector::selectFromArgs($scope, $methodCall->getArgs(), $methodReflection->getVariants())->getReturnType();
         }
         if ($argsCount === 1) {
             $stringType = new StringType();

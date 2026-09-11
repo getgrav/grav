@@ -100,6 +100,13 @@ pages:
       attributes: false                          # A `{.class #id}` line after a table sets attributes on the table
       multiline: false                           # A row ending in `\` continues into the next line (multi-line cells)
   types: [html,htm,xml,txt,json,rss,atom]        # list of valid page types
+  markdown_output:                               # Serve any page as Markdown for AI agents and other text clients
+    enabled: true                                # Answer `<route>.md` URLs and `Accept: text/markdown` requests with Markdown
+    frontmatter: true                            # Start the Markdown with a YAML block: title, url, date, description, taxonomy
+    links: true                                  # End the Markdown with links to the parent, neighbouring and child pages
+    max_links: 100                               # Most child pages listed in that navigation section (0 for no limit)
+    absolute_urls: true                          # Turn root-relative links and images into absolute URLs
+    token_header: true                           # Send an `X-Markdown-Tokens` header with an estimated token count
   append_url_extension: ''                       # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)
   cache_control:                                 # Can be blank for no setting, or a valid `cache-control` text value
@@ -128,7 +135,7 @@ cache:
   purge_at: '0 4 * * *'                          # How often to purge old file cache (using new scheduler)
   clear_at: '0 3 * * *'                           # How often to clear cache (using new scheduler)
   clear_job_type: 'standard'                     # Type to clear when processing the scheduled clear job `standard`|`all`
-  clear_images_by_default: false                 # By default grav does not include processed images in cache clear, this can be enabled
+  clear_images_by_default: false                 # Processed images survive every cache clear and Grav update unless this is on; `bin/grav cache --images-only` always removes them
   cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcached, etc.)
   lifetime: 604800                               # Lifetime of cached data in seconds (0 = infinite)
   purge_max_age_days: 30                         # Maximum age of cache items in days before they are purged
@@ -181,6 +188,7 @@ debugger:
   provider: clockwork                            # Debugger provider: debugbar | clockwork
   censored: false                                # Censor potentially sensitive information (POST parameters, cookies, files, configuration and most array/object data in log messages)
   token: ''                                      # Shared secret a remote client must send as `X-Clockwork-Auth` to read `/__clockwork/` profiler data. Empty means loopback-only
+  flex_render_hints: false                       # Wrap every rendered Flex object and collection in an HTML comment naming it (HTML pages only)
   shutdown:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
 
@@ -189,7 +197,7 @@ images:
   default_image_quality: 85                      # Default image quality to use when resampling images (85%)
   progressive_jpeg: true                         # Save resized and cached JPEGs as progressive, so they appear whole and sharpen rather than filling in a line at a time
   cache_all: false                               # Cache all image by default
-  cache_perms: '0755'                            # MUST BE IN QUOTES!! Default cache folder perms. Usually '0755' or '0775'
+  cache_perms: '0775'                            # MUST BE IN QUOTES!! Default cache folder perms. Usually '0775' (the umask still applies) or '0755'
   debug: false                                   # Show an overlay over images indicating the pixel depth of the image when working with retina for example
   auto_fix_orientation: true                     # Automatically fix the image orientation based on the Exif data
   seofriendly: false                             # SEO-friendly processed image names

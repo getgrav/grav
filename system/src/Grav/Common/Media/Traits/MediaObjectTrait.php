@@ -475,7 +475,7 @@ trait MediaObjectTrait
      * @param bool $reset
      * @return string
      */
-    abstract public function url($reset = true);
+    abstract public function url($reset = true, $include_host = false);
 
     /**
      * Turn the current Medium into a Link
@@ -731,6 +731,16 @@ trait MediaObjectTrait
                     break;
                 }
             }
+        }
+
+        // A thumbnail made from the medium's own file is that same file, so it is
+        // linked the same way: a `url` override on the medium (the page route from
+        // `pages.media_route_urls`, or a media proxy) applies to it too. Without
+        // this the image inside a `lightbox` or `link` pointed at the file on
+        // disk. getgrav/grav#4298.
+        $thumbnail = $this->_thumbnail;
+        if ($thumbnail && $thumbnail->get('filepath') === $this->get('filepath')) {
+            $thumbnail->set('url', $this->get('url'));
         }
 
         return $this->_thumbnail;

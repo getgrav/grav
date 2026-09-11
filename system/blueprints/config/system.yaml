@@ -66,6 +66,75 @@ form:
               default: ['html','htm','json','xml','txt','rss','atom']
               value_only: true
 
+            markdown_output_section:
+              type: section
+              title: PLUGIN_ADMIN.MARKDOWN_OUTPUT
+              underline: true
+
+            pages.markdown_output.enabled:
+              type: toggle
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_ENABLED
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_ENABLED_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            pages.markdown_output.frontmatter:
+              type: toggle
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_FRONTMATTER
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_FRONTMATTER_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            pages.markdown_output.links:
+              type: toggle
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_LINKS
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_LINKS_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            pages.markdown_output.max_links:
+              type: number
+              size: x-small
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_MAX_LINKS
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_MAX_LINKS_HELP
+              validate:
+                type: int
+                min: 0
+
+            pages.markdown_output.absolute_urls:
+              type: toggle
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_ABSOLUTE_URLS
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_ABSOLUTE_URLS_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            pages.markdown_output.token_header:
+              type: toggle
+              label: PLUGIN_ADMIN.MARKDOWN_OUTPUT_TOKEN_HEADER
+              help: PLUGIN_ADMIN.MARKDOWN_OUTPUT_TOKEN_HEADER_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             timezone:
               type: select
               label: PLUGIN_ADMIN.TIMEZONE
@@ -103,6 +172,7 @@ form:
                 "d-m-y G:i": Date4
                 "jS M Y": Date5
                 "Y-m-d G:i": Date6
+                "Y-m-d": Date7
 
             pages.dateformat.long:
               type: dateformat
@@ -117,6 +187,7 @@ form:
                 "d-m-y G:i": Date4
                 "jS M Y": Date5
                 "Y-m-d G:i:s": Date6
+                "Y-m-d H:i": Date7
 
             pages.order.by:
               type: select
@@ -1353,6 +1424,17 @@ form:
               help: PLUGIN_ADMIN.DEBUGGER_TOKEN_HELP
               autocomplete: 'off'
 
+            debugger.flex_render_hints:
+              type: toggle
+              label: PLUGIN_ADMIN.DEBUGGER_FLEX_RENDER_HINTS
+              help: PLUGIN_ADMIN.DEBUGGER_FLEX_RENDER_HINTS_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             debugger.shutdown.close_connection:
               type: toggle
               label: PLUGIN_ADMIN.SHUTDOWN_CLOSE_CONNECTION
@@ -1420,7 +1502,7 @@ form:
               size: small
               label: PLUGIN_ADMIN.CACHE_PERMS
               help: PLUGIN_ADMIN.CACHE_PERMS_HELP
-              highlight: '0755'
+              highlight: '0775'
               options:
                 '0755': '0755'
                 '0775': '0775'

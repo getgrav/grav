@@ -10,6 +10,7 @@
 namespace Grav\Common\Processors;
 
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Framework\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -68,8 +69,13 @@ class RenderProcessor extends ProcessorBase
         $event = new Event(['page' => $page, 'output' => $html]);
         $this->container->fireEvent('onOutputRendered', $event);
 
+        $headers = $page->httpHeaders();
+        if ($page->templateFormat() === MarkdownOutput::FORMAT && MarkdownOutput::tokenHeaderEnabled()) {
+            $headers['X-Markdown-Tokens'] = (string)MarkdownOutput::estimateTokens($html);
+        }
+
         $this->stopTimer();
 
-        return new Response($page->httpResponseCode(), $page->httpHeaders(), $html);
+        return new Response($page->httpResponseCode(), $headers, $html);
     }
 }

@@ -221,6 +221,21 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('text/html', Utils::getMimeByExtension('foo', 'text/html'));
     }
 
+    public function testGetMimeByExtensionHonoursMediaTypesOverride(): void
+    {
+        $config = $this->grav['config'];
+        $original = $config->get('media.types.rss');
+
+        // A site can change the type served for an output format in its own media.yaml,
+        // for example application/xml so an RSS feed can be styled with XSLT (#3735).
+        $config->set('media.types.rss.mime', 'application/xml');
+        self::assertEquals('application/xml', Utils::getMimeByExtension('rss'));
+        self::assertEquals('application/xml', Utils::getMimeByExtension('RSS'));
+
+        $config->set('media.types.rss', $original);
+        self::assertEquals('application/rss+xml', Utils::getMimeByExtension('rss'));
+    }
+
     public function testGetExtensionByMime(): void
     {
         self::assertEquals('html', Utils::getExtensionByMime('*/*'));

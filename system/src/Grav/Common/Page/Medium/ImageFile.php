@@ -133,7 +133,7 @@ class ImageFile extends Image
 
         // Asking the cache for the cacheFile
         try {
-            $perms = $config->get('system.images.cache_perms', '0755');
+            $perms = $config->get('system.images.cache_perms', '0775');
             $perms = octdec((string) $perms);
             $file = $this->getCacheSystem()->setDirectoryMode($perms)->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
         } catch (GenerationError $e) {

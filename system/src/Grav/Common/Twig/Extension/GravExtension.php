@@ -19,6 +19,7 @@ use Grav\Common\Inflector;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Page\Media;
 use Grav\Common\Scheduler\Cron;
 use Grav\Common\Security;
@@ -114,6 +115,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         return [
             new TwigFilter('*ize', $this->inflectorFilter(...)),
             new TwigFilter('absolute_url', $this->absoluteUrlFilter(...)),
+            new TwigFilter('html_to_markdown', $this->htmlToMarkdownFilter(...)),
             new TwigFilter('contains', $this->containsFilter(...)),
             new TwigFilter('chunk_split', $this->chunkSplitFilter(...)),
             new TwigFilter('nicenumber', $this->niceNumberFunc(...)),
@@ -213,6 +215,11 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('evaluate', $this->evaluateStringFunc(...), ['needs_context' => true]),
             new TwigFunction('evaluate_twig', $this->evaluateTwigFunc(...), ['needs_context' => true]),
             new TwigFunction('gist', $this->gistFunc(...)),
+            new TwigFunction('markdown_output', $this->markdownOutputFunc(...)),
+            new TwigFunction('markdown_frontmatter', $this->markdownFrontmatterFunc(...)),
+            new TwigFunction('markdown_body', $this->markdownBodyFunc(...)),
+            new TwigFunction('markdown_links', $this->markdownLinksFunc(...)),
+            new TwigFunction('markdown_url', $this->markdownUrlFunc(...)),
             new TwigFunction('nonce_field', $this->nonceFieldFunc(...)),
             new TwigFunction('pathinfo', 'pathinfo'),
             new TwigFunction('parseurl', 'parse_url'),
@@ -2274,5 +2281,71 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         }
 
         return CoreExtension::sort($env, $isSandboxed, $array ?? [], $arrow);
+    }
+
+    /**
+     * Convert a fragment of rendered HTML to Markdown.
+     *
+     * @param string|null $html
+     * @return string
+     */
+    public function htmlToMarkdownFilter($html): string
+    {
+        return $this->grav['markdown_output']->convert((string)$html);
+    }
+
+    /**
+     * The full Markdown document for a page: frontmatter, body and navigation links.
+     *
+     * @param PageInterface|null $page Defaults to the current page
+     * @return string
+     */
+    public function markdownOutputFunc(?PageInterface $page = null): string
+    {
+        return $this->grav['markdown_output']->render($page);
+    }
+
+    /**
+     * The YAML frontmatter block of a page's Markdown document.
+     *
+     * @param PageInterface|null $page Defaults to the current page
+     * @return string
+     */
+    public function markdownFrontmatterFunc(?PageInterface $page = null): string
+    {
+        return $this->grav['markdown_output']->frontmatter($page);
+    }
+
+    /**
+     * The Markdown body of a page: title, content and modules.
+     *
+     * @param PageInterface|null $page Defaults to the current page
+     * @return string
+     */
+    public function markdownBodyFunc(?PageInterface $page = null): string
+    {
+        return $this->grav['markdown_output']->body($page);
+    }
+
+    /**
+     * The navigation section of a page's Markdown document.
+     *
+     * @param PageInterface|null $page Defaults to the current page
+     * @return string
+     */
+    public function markdownLinksFunc(?PageInterface $page = null): string
+    {
+        return $this->grav['markdown_output']->links($page);
+    }
+
+    /**
+     * The absolute `.md` URL of a page.
+     *
+     * @param PageInterface|null $page Defaults to the current page
+     * @return string
+     */
+    public function markdownUrlFunc(?PageInterface $page = null): string
+    {
+        return $this->grav['markdown_output']->url($page);
     }
 }

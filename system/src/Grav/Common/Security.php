@@ -376,7 +376,19 @@ class Security
             // and returning null. Anchoring the quoted-value alternatives to
             // `=\s*"..."` consumes such a quote as an ordinary char instead, so
             // the scan still reaches the handler. (GHSA-vfmf-q6x9-cw96)
-            'on_events' => '#<(?:=\s*"[^"]*"|=\s*\'[^\']*\'|[^>])*?(?:[\s\x00-\x20\"\'\/]|=\s*"[^"]*"|=\s*\'[^\']*\')on\s*[a-z]+\s*=#iu',
+            //
+            // Two narrowings keep that scan linear without changing what it can
+            // match (grav#4291). A quoted value is only taken as one unit when it
+            // contains a `>`, the one thing single characters cannot step over;
+            // offering every `='...'` both ways gave the engine two paths through
+            // each one, so a heredoc of INI/dconf lines in a code block (`<<` opens
+            // a "tag" that runs to the next `>`) went exponential, hit
+            // PREG_BACKTRACK_LIMIT_ERROR, and the fail-closed check blocked the
+            // save. And a single character step now stops at `<` too: a match that
+            // stepped over a `<` also exists starting at that `<`, so nothing is
+            // lost, and each `<` in a long code sample no longer rescans the rest
+            // of the page.
+            'on_events' => '#<(?:=\s*"[^">]*>[^"]*"|=\s*\'[^\'>]*>[^\']*\'|[^<>])*?(?:[\s\x00-\x20\"\'\/]|=\s*"[^"]*"|=\s*\'[^\']*\')on\s*[a-z]+\s*=#iu',
 
             // xmlns namespace declarations. Split out from on_events (which it
             // historically shared a regex with) so the render-time output scan
@@ -385,7 +397,7 @@ class Security
             // for post-render HTML blanks pages that merely display an icon. It
             // stays on by default for raw-input sanitization (it follows the
             // on_events toggle below). Same quote-aware tag-body scan as on_events.
-            'xmlns' => '#<(?:=\s*"[^"]*"|=\s*\'[^\']*\'|[^>])*?(?:[\s\x00-\x20\"\'\/]|=\s*"[^"]*"|=\s*\'[^\']*\')xmlns\s*=#iu',
+            'xmlns' => '#<(?:=\s*"[^">]*>[^"]*"|=\s*\'[^\'>]*>[^\']*\'|[^<>])*?(?:[\s\x00-\x20\"\'\/]|=\s*"[^"]*"|=\s*\'[^\']*\')xmlns\s*=#iu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             //

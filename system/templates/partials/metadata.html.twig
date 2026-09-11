@@ -1,3 +1,6 @@
 {% for meta in page.metadata %}
     <meta {% if meta.name %}name="{{ meta.name|e }}" {% endif %}{% if meta.http_equiv %}http-equiv="{{ meta.http_equiv|e }}" {% endif %}{% if meta.charset %}charset="{{ meta.charset|e }}" {% endif %}{% if meta.property %}property="{{ meta.property|e }}" {% endif %}{% if meta.content %}content="{{ meta.content|raw }}" {% endif %}/>
 {% endfor %}
+{% if config.system.pages.markdown_output.enabled and page.routable %}
+    <link rel="alternate" type="text/markdown" href="{{ markdown_url(page)|e }}" />
+{% endif %}

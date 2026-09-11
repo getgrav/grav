@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>{{ page.title }}</title></head>
+<body>
+<header id="header"><nav><a href="/">Home</a> <a href="/about">About</a></nav></header>
+<main>
+    <h1>{{ page.title }}</h1>
+    {{ content|raw }}
+    <ul class="cards">
+        <li><a href="/shop/board"><img src="/board.jpg" alt=""><h3>Board</h3><p>A board.</p><span>$10</span></a></li>
+    </ul>
+    <aside>Related links</aside>
+    <form action="/search"><input name="q"></form>
+</main>
+<footer>Copyright footer</footer>
+</body>
+</html>

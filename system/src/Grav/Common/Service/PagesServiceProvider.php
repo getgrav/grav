@@ -12,6 +12,7 @@ namespace Grav\Common\Service;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
@@ -33,6 +34,7 @@ class PagesServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['pages'] = fn(Grav $grav) => new Pages($grav);
+        $container['markdown_output'] = fn(Grav $grav) => new MarkdownOutput($grav);
 
         if (defined('GRAV_CLI')) {
             $container['page'] = static function (Grav $grav) {
@@ -114,7 +116,10 @@ class PagesServiceProvider implements ServiceProviderInterface
                         $uriExtension = $uri->extension();
                         $uriExtension = null !== $uriExtension ? '.' . $uriExtension : '';
 
-                        if ($route !== $path || ($pageExtension !== $uriExtension
+                        // `/index.<ext>` is how the home page is addressed in a format.
+                        $requested = $path === '/index' && $uriExtension !== '' && $page->home() ? '/' : $path;
+
+                        if ($route !== $requested || ($pageExtension !== $uriExtension
                                 && \in_array($pageExtension, ['', '.htm', '.html'], true)
                                 && \in_array($uriExtension, ['', '.htm', '.html'], true))) {
                             $grav->redirect($url, $redirectCode);

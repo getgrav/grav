@@ -143,4 +143,101 @@ class DetectXssFailClosedTest extends \PHPUnit\Framework\TestCase
     {
         self::assertNull(Security::detectXss(str_repeat("<p>Ordinary paragraph text here.</p>\n", 3000)));
     }
+
+    // =========================================================================
+    // grav#4291: legitimate content must not exhaust the backtrack limit
+    // =========================================================================
+
+    /**
+     * Ordinary page content that made the on_events/xmlns scan give up with
+     * PREG_BACKTRACK_LIMIT_ERROR. The fail-closed check below reads that as a
+     * hit, so these pages could not be saved at all. `<<` in a heredoc opens a
+     * "tag" that runs to the next `>`, and every `key='value'` in between used
+     * to be offered to the engine two ways; about 16 of them was enough.
+     *
+     * @dataProvider providerGrav4291_BenignBacktrackContent
+     */
+    public function testDetectXss_Grav4291_DoesNotFailClosedOnLegitimateContent(string $payload, string $description): void
+    {
+        self::assertNull(Security::detectXss($payload), "Should not flag: $description");
+    }
+
+    public function providerGrav4291_BenignBacktrackContent(): array
+    {
+        $heredoc = "- [x] Configured GNOME Shell extension settings with\n\n```\ndconf load /org/gnome/shell/extensions/ <<'EOF'\n[copyous]\n"
+            . str_repeat("clipboard-position-vertical='top'\ndatabase-backend='sqlite'\n", 20)
+            . "EOF\n```\n";
+
+        return [
+            'dconf heredoc with single-quoted values (the reported page)' => [$heredoc, 'heredoc followed by many key=\'value\' lines'],
+            'ini heredoc with double-quoted values' => [
+                "cat > app.ini << \"EOF\"\n" . str_repeat("name=\"value\"\n", 40) . "EOF\n",
+                'heredoc followed by many key="value" lines',
+            ],
+            'code sample with comparisons and strings' => [
+                str_repeat("if (a < b && s == 'x' || t == \"y\") { echo 'z'; }\n", 3000),
+                'thousands of bare < next to quoted strings, no > anywhere',
+            ],
+        ];
+    }
+
+    /**
+     * The same heredoc through the xmlns rule on its own, which shares the
+     * tag-body scan with on_events.
+     */
+    public function testDetectXss_Grav4291_XmlnsRuleDoesNotFailClosedOnHeredoc(): void
+    {
+        $payload = "dconf load / <<'EOF'\n" . str_repeat("database-backend='sqlite'\n", 40) . "EOF\n";
+        $options = ['enabled_rules' => ['xmlns' => true]];
+
+        self::assertNull(Security::detectXss($payload, $options));
+        self::assertSame('xmlns', Security::detectXss('<svg title=">" xmlns="http://www.w3.org/2000/svg">', $options));
+    }
+
+    /**
+     * The narrower scan must still reach every handler the old one did.
+     *
+     * @dataProvider providerGrav4291_StillFlagged
+     */
+    public function testDetectXss_Grav4291_StillFlagsHandlers(string $payload, string $description): void
+    {
+        self::assertSame('on_events', Security::detectXss($payload), "Should flag: $description");
+    }
+
+    public function providerGrav4291_StillFlagged(): array
+    {
+        return [
+            'handler behind a quoted >' => ['<img src=x title=">" onerror=alert(1)>', 'GHSA-269c-h76q-8cxw'],
+            'handler glued to a quoted >' => ['<img title=">"onerror=alert(1)>', 'GHSA-269c follow-up'],
+            'stray quote in an unquoted value' => ['<img src=x" onerror=alert(1)>', 'GHSA-vfmf-q6x9-cw96'],
+            'quote after = inside an unquoted value' => ['<img src=a=" onerror=alert(1)//">', 'browser sees onerror, not a quoted value'],
+            '< inside a quoted value' => ['<img title="a<b" onerror=alert(1)>', 'scan restarts at the inner <'],
+            'second < inside the tag' => ['<a <b onerror=alert(1)>', 'attribute named <b, then a real handler'],
+            'quoted < and > before the handler' => ["<x a='<' b='>' onmouseover=alert(1)>", 'mixed quoted delimiters'],
+            'handler after the heredoc' => [
+                "dconf load / << 'EOF'\n" . str_repeat("k='v'\n", 40) . "EOF\n<img src=x onerror=alert(1)>",
+                'the content that used to overflow, followed by a live payload',
+            ],
+        ];
+    }
+
+    /**
+     * A pattern the engine cannot finish must still count as a hit. Forcing the
+     * limit down makes every pattern give up, whatever the regexes look like.
+     */
+    public function testDetectXss_Grav4291_EngineFailureStillFailsClosed(): void
+    {
+        $limit = ini_get('pcre.backtrack_limit');
+        $jit = ini_get('pcre.jit');
+        ini_set('pcre.jit', '0');
+        ini_set('pcre.backtrack_limit', '1');
+        try {
+            $result = Security::detectXss('<p title="a">Ordinary paragraph</p>');
+        } finally {
+            ini_set('pcre.backtrack_limit', (string) $limit);
+            ini_set('pcre.jit', (string) $jit);
+        }
+
+        self::assertNotNull($result);
+    }
 }

@@ -28,7 +28,7 @@ class MediaStyleSecurityTest extends \PHPUnit\Framework\TestCase
             use MediaObjectTrait;
             public function addMetaFile($filepath) {}
             public function __toString(): string { return ''; }
-            public function url($reset = true) { return ''; }
+            public function url($reset = true, $include_host = false) { return ''; }
             public function get($name, mixed $default = null, $separator = null) { return $default; }
             public function set($name, mixed $value, $separator = null) { return $this; }
             protected function createThumbnail($thumb) { return null; }
