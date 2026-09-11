@@ -46,6 +46,8 @@
     * With `system.custom_base_url` set to something like `/act`, pages whose names start with the same letters, such as `/action-bar`, no longer open the wrong page. Thanks to @wakqasahmed [#4296](https://github.com/getgrav/grav/pull/4296) [#3057](https://github.com/getgrav/grav/issues/3057)
     * Images placed in page content with Markdown, including images from other pages and the image inside a `?lightbox` link, now link through the page route when `pages.media_route_urls` is on, so enabling the `user/pages` deny rule that goes with it no longer turns them into 403s. Thanks to @complanar [#4298](https://github.com/getgrav/grav/issues/4298)
     * With `pages.media_route_urls` and `images.cls.auto_sizes` both on, a page showing an image at its original size no longer fails with a `getimagesize()` error [#4298](https://github.com/getgrav/grav/issues/4298)
+    * **Licence keys from other stores are accepted.** GPM serves packages licensed by stores other than Grav Premium, but the key format check only knew the Grav Premium shape, so a KahunaCart key such as `KC-XXXX-XXXX-XXXX-XXXX` was refused by the API plugin's install endpoint and by License Manager while a hand-written `user/data/licenses.yaml` worked. The check now only turns away what no store could have issued and leaves the store that issued the key to say whether it is real
+    * When getgrav.org refuses a premium download for a reason the person can act on, such as an updates window that has ended or a key that does not cover the add-on being installed, `bin/gpm install` now prints the store's explanation and where to renew or buy, instead of only "Unauthorized Premium License Key"
 
 # v2.0.26
 ## 09/09/2026
