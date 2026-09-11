@@ -193,7 +193,13 @@ class Uri implements \Stringable
 
         $this->url = $this->base . $this->uri;
 
-        $uri = Utils::replaceFirstOccurrence(static::filterPath($this->root), '', $this->url);
+        $root = static::filterPath($this->root);
+        $root_prefix = Utils::endsWith($root, '/') ? $root : $root . '/';
+        if ($this->url === $root || Utils::startsWith($this->url, $root_prefix)) {
+            $uri = Utils::replaceFirstOccurrence($root, '', $this->url);
+        } else {
+            $uri = Utils::replaceFirstOccurrence($this->base, '', $this->url);
+        }
 
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();

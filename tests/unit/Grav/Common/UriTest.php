@@ -1244,4 +1244,15 @@ class UriTest extends \PHPUnit\Framework\TestCase
 
         $this->config->set('system.custom_base_url', $current_base);
     }
+
+    public function testCustomBasePrefixCollision(): void
+    {
+        $current_base = $this->config->get('system.custom_base_url');
+        $this->config->set('system.custom_base_url', '/test');
+        $this->uri->initializeWithURL('https://mydomain.example.com:8090/testing/foo')->init();
+
+        $this->assertSame('/testing/foo', $this->uri->toArray()['path']);
+
+        $this->config->set('system.custom_base_url', $current_base);
+    }
 }
