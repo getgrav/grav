@@ -198,7 +198,7 @@ class Upgrader
      * @param string $version
      * @return string
      */
-    private static function family(string $version): string
+    public static function family(string $version): string
     {
         $parts = explode('.', ltrim($version, 'vV'));
         $major = (int) ($parts[0] ?? 0);
