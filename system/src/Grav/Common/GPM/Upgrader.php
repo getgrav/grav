@@ -119,11 +119,11 @@ class Upgrader
     /**
      * Checks if the currently installed Grav is upgradable to a newer version.
      *
-     * Returns false when the remote version is from a different major.minor family
+     * Returns false when the remote version is from a different release family
      * (e.g. local is 1.8.x and remote is 2.0.x), so that installs are never
-     * silently jumped across a major boundary.
+     * silently jumped across a major boundary. See family() for what a family is.
      *
-     * @return bool True if it's upgradable within the same major.minor family.
+     * @return bool True if it's upgradable within the same release family.
      */
     public function isUpgradable()
     {
@@ -181,19 +181,29 @@ class Upgrader
     }
 
     /**
-     * Returns true when the remote version belongs to a different major.minor family than the local version.
+     * Returns true when the remote version belongs to a different release family than the local version.
      *
      * @return bool
      */
     private function isCrossFamilyUpgrade(): bool
     {
-        $localParts  = explode('.', $this->getLocalVersion());
-        $remoteParts = explode('.', $this->getRemoteVersion());
+        return static::family($this->getLocalVersion()) !== static::family($this->getRemoteVersion());
+    }
 
-        $localFamily  = ($localParts[0] ?? '0') . '.' . ($localParts[1] ?? '0');
-        $remoteFamily = ($remoteParts[0] ?? '0') . '.' . ($remoteParts[1] ?? '0');
+    /**
+     * The release family a version belongs to. Before 2.0 it is major.minor, because 1.8
+     * was a breaking line that a routine upgrade must never reach. From 2.0 on a minor
+     * release is an ordinary upgrade, so the family is the major version alone.
+     *
+     * @param string $version
+     * @return string
+     */
+    private static function family(string $version): string
+    {
+        $parts = explode('.', ltrim($version, 'vV'));
+        $major = (int) ($parts[0] ?? 0);
 
-        return $localFamily !== $remoteFamily;
+        return $major >= 2 ? (string) $major : $major . '.' . ($parts[1] ?? '0');
     }
 
     /**

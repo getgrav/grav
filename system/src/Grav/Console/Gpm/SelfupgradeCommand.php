@@ -146,6 +146,16 @@ class SelfupgradeCommand extends GpmCommand
                 $io->writeln("You are already running the latest version of <green>Grav v{$local}</green>");
                 $io->writeln("which was released on {$release}");
 
+                if ($this->upgrader->isNextMajorAvailable()) {
+                    $next = $this->upgrader->getNextMajorVersion();
+                    $io->newLine();
+                    $io->writeln("Grav <green>v{$next}</green> is out as a new major version, which selfupgrade does not install.");
+                    $url = $this->upgrader->getMigrationUrl();
+                    if ($url) {
+                        $io->writeln("How to move to it: <white>{$url}</white>");
+                    }
+                }
+
                 $config = Grav::instance()['config'];
                 $schema = $config->get('versions.core.grav.schema');
                 if ($schema !== GRAV_SCHEMA && version_compare($schema, GRAV_SCHEMA, '<')) {
