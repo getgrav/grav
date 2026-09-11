@@ -1,3 +1,10 @@
+# v2.1.1
+## 09/11/2026
+
+1. [](#bugfix)
+    * **Grav 2.0 sites can update to 2.1.** `bin/gpm selfupgrade` treated each minor release as a separate line, the way 1.7 and 1.8 were, so a 2.0 site was told it was up to date while 2.1.0 was out. Only a new major version now needs a manual move [#4299](https://github.com/getgrav/grav/issues/4299)
+    * When a new major version of Grav is out, `bin/gpm selfupgrade` says so and links to the migration guide instead of only reporting that the site is up to date
+
 # v2.1.0
 ## 09/11/2026
 
