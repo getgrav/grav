@@ -3,6 +3,7 @@
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
 use Grav\Common\Assets;
+use Grav\Common\Page\Page;
 
 /**
  * Class AssetsTest
@@ -585,6 +586,31 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         $this->assets->add('/system/assets/debugger/phpdebugbar', null, true);
         $css = $this->assets->css();
         self::assertMatchesRegularExpression('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
+    }
+
+    public function testClockworkScriptBypassesPipeline(): void
+    {
+        $this->assets->reset();
+        $this->assets->setJsPipeline(true);
+        $this->assets->addJs('/system/assets/jquery/jquery-3.x.min.js');
+
+        $this->grav['config']->set('system.debugger.enabled', true);
+        $this->grav['config']->set('system.debugger.provider', 'clockwork');
+        $page = new Page();
+        $page->templateFormat('html');
+        $this->grav['page'] = $page;
+
+        $debugger = $this->grav['debugger'];
+        $debugger->init();
+        $debugger->addAssets();
+
+        $js = $this->assets->js();
+
+        self::assertMatchesRegularExpression(
+            '#<script\b(?=[^>]*\bsrc="/system/assets/debugger/clockwork\.js")(?=[^>]*\bid="clockwork-script")(?=[^>]*\bdata-route="https://github\.com/getgrav/grav-plugin-clockwork-web")[^>]*></script>#',
+            $js
+        );
+        self::assertMatchesRegularExpression('#<script src="/assets/[a-f0-9]+\.js"></script>#', $js);
     }
 
     public function testPipelineWithTimestamp(): void
