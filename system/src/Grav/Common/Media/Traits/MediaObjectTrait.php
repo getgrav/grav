@@ -13,6 +13,7 @@ use Grav\Common\Data\Data;
 use Grav\Common\Media\Interfaces\MediaFileInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\ThumbnailImageMedium;
 use Grav\Common\Utils;
 use function count;
@@ -643,7 +644,7 @@ trait MediaObjectTrait
      *
      * @param string $method
      * @param array $args
-     * @return $this
+     * @return $this|null
      */
     #[\ReturnTypeWillChange]
     public function __call($method, $args)
@@ -657,6 +658,17 @@ trait MediaObjectTrait
 
                 return rawurlencode($a);
             }, $args));
+        } elseif ($count === 0 && !Medium::isAllowedAction((string)$method)) {
+            // Twig resolves `{{ image.copyright }}` for a key that is missing from
+            // the medium's `.meta.yaml` by falling through to __call(), so an
+            // unknown bare name used to be appended to the querystring and rewrote
+            // the `src` of the image for every visitor. A zero-argument name that
+            // is not a documented media action now reads as an absent property and
+            // returns null, matching what `{{ image['copyright'] }}` already does.
+            // Documented actions still pass through, and so does everything called
+            // with arguments — including the empty-argument form Markdown uses for
+            // flag-style params such as `![](img.png?myflag)`. getgrav/grav#4301.
+            return null;
         }
 
         if (!empty($method)) {

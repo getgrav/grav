@@ -214,7 +214,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Allow any action to be called on this medium from twig or markdown
      *
      * @param string $method
-     * @return $this
+     * @return $this|null
      */
     #[\ReturnTypeWillChange]
     public function __call($method, mixed $args);

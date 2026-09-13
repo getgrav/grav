@@ -1,3 +1,9 @@
+# v2.1.3
+## 09/13/2026
+
+1. [](#bugfix)
+    * **Asking a template for an image caption or credit that was never set no longer changes the image address.** Reading a `.meta.yaml` field that is missing, such as `{{ image.copyright }}`, added the field name to the end of the image URL for every visitor instead of simply returning nothing. Thanks @phmg701 [#4301](https://github.com/getgrav/grav/issues/4301)
+
 # v2.1.2
 ## 09/11/2026
 
