@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * **Asking a template for an image caption or credit that was never set no longer changes the image address.** Reading a `.meta.yaml` field that is missing, such as `{{ image.copyright }}`, added the field name to the end of the image URL for every visitor instead of simply returning nothing. Thanks @phmg701 [#4301](https://github.com/getgrav/grav/issues/4301)
+    * **The debug bar is back on pages that swap in a different page while the request runs.** A form that failed validation, or an error page served by the Error plugin, rendered without the bar because Grav no longer recognised the replacement page as one it had already loaded. Thanks @hughbris [#4300](https://github.com/getgrav/grav/issues/4300)
 
 # v2.1.2
 ## 09/11/2026
