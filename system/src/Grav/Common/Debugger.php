@@ -667,7 +667,8 @@ class Debugger
                 $assets->addCss('/system/assets/debugger/clockwork.css');
                 $assets->addJs('/system/assets/debugger/clockwork.js', [
                     'id' => 'clockwork-script',
-                    'data-route' => $route
+                    'data-route' => $route,
+                    'pipeline' => false
                 ]);
             }
 
