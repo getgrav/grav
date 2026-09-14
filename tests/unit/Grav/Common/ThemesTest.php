@@ -1,6 +1,7 @@
 <?php
 
 use Codeception\Util\Fixtures;
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\StreamWrapper\ReadOnlyStream;
@@ -93,6 +94,32 @@ class ThemesTest extends \PHPUnit\Framework\TestCase
         $this->grav['themes']->initTheme();
 
         self::assertFalse($this->grav['locator']->findResource('blueprints://default.yaml'));
+    }
+
+    /**
+     * A theme's own pages/ blueprint extending the system default is a
+     * different, already-supported case from the Quark collision above: the
+     * system default lives at blueprints://pages/default.yaml, a slot that
+     * already accepts theme/user overrides (locator override groups return
+     * every registered layer via findResources(), not just the closest one),
+     * so `extends@: default` here must inherit system fields rather than
+     * resolve back to itself or find nothing.
+     */
+    public function testThemePageBlueprintExtendsSystemDefaultWithoutRecursion(): void
+    {
+        $this->writeBlueprint('pages/issue-4303-override.yaml', "extends@: default\ntitle: Theme Override\n");
+
+        $this->grav['themes']->initTheme();
+
+        $blueprint = new Blueprint('issue-4303-override');
+        $blueprint->setContext('blueprints://pages');
+        $blueprint->load()->init();
+
+        // The theme's own title wins over the inherited one, but the rest of
+        // the system default (the whole tabbed field structure) still comes
+        // through the extends@ chain.
+        self::assertSame('Theme Override', $blueprint->get('title'));
+        self::assertArrayHasKey('content', $blueprint->get('form/fields/tabs/fields'));
     }
 
     protected function writeBlueprint(string $path, string $content = "title: Issue 4303\n"): string
