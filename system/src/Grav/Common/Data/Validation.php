@@ -641,7 +641,8 @@ class Validation
             }
         }
 
-        if (isset($params['step'])) {
+        // HTML number fields use "any" to allow values outside a fixed step grid.
+        if (isset($params['step']) && $params['step'] !== 'any') {
             $step = (float)$params['step'];
             // Count of how many steps we are above/below the minimum value.
             $pos = ($value - $min) / $step;
