@@ -94,7 +94,7 @@ class Themes extends Iterator
             }
 
             // Register blueprints.
-            if (is_dir('theme://blueprints/pages')) {
+            if (is_dir('theme://blueprints')) {
                 /** @var UniformResourceLocator $locator */
                 $locator = $this->grav['locator'];
                 $locator->addPath('blueprints', '', ['theme://blueprints'], ['user', 'blueprints']);
