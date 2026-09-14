@@ -20,6 +20,12 @@ class ValidationNumberTest extends \PHPUnit\Framework\TestCase
         self::assertTrue(Validation::typeNumber(1, $rules, []));
     }
 
+    public function testAnyStepIsCaseInsensitive(): void
+    {
+        self::assertTrue(Validation::typeNumber(0.12345, ['step' => 'ANY'], []));
+        self::assertTrue(Validation::typeNumber(0.12345, ['step' => 'Any'], []));
+    }
+
     public function testNumericStepStillEnforcesItsGrid(): void
     {
         $rules = ['step' => 0.01, 'min' => 0, 'max' => 1];
