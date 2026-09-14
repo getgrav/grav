@@ -146,16 +146,20 @@ class Pipeline extends PropertyObject
 
             if ($shouldMinify) {
                 $result = $this->gatherAndMinifyCss($assets);
-                $buffer = $result['buffer'];
                 $failedAssets = $result['failed'];
 
-                if (!empty($failedAssets)) {
-                    $successfulAssets = array_diff_key($assets, array_flip(array_keys($failedAssets)));
-                    $json_assets = json_encode($successfulAssets);
-                    $uid = md5($json_assets . (int)$this->css_minify . (int)$this->css_rewrite . $group);
-                    $file = $uid . '.css';
-                    $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
-                    $filepath = "{$this->assets_dir}/{$file}";
+                if (empty($failedAssets)) {
+                    $buffer = $result['buffer'];
+                } else {
+                    // Bundling the assets that minified and rendering the failed
+                    // ones individually afterward (Assets::render()'s existing
+                    // dispatcher always does bundle-then-failed) would reorder
+                    // them relative to assets that succeeded but come later in
+                    // $assets, which can change which rule wins the CSS cascade.
+                    // Fall back to rendering the whole group individually,
+                    // unminified, in its original order, instead.
+                    $buffer = '';
+                    $failedAssets = $assets;
                 }
             } else {
                 $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
@@ -167,7 +171,11 @@ class Pipeline extends PropertyObject
             }
         }
 
-        if ($inline_group) {
+        if (!empty($failedAssets)) {
+            // Nothing to bundle this round; every asset renders on its own via
+            // Assets::render()'s failed-asset loop.
+            $output = '';
+        } elseif ($inline_group) {
             $output = "<style>\n" . $buffer . "\n</style>\n";
         } else {
             $this->asset = $relative_path;
