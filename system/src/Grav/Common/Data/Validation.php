@@ -12,6 +12,7 @@ namespace Grav\Common\Data;
 use ArrayAccess;
 use Countable;
 use DateTime;
+use DateTimeInterface;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
@@ -24,6 +25,7 @@ use Traversable;
 use function count;
 use function is_array;
 use function is_bool;
+use function is_finite;
 use function is_float;
 use function is_int;
 use function is_string;
@@ -669,6 +671,18 @@ class Validation
     {
         $format = Grav::instance()['config']->get('system.pages.dateformat.default');
         if ($format) {
+            // Timestamps get here as well as strings, for the same reason
+            // typeDatetime() has to accept them. DateTime's constructor cannot
+            // parse a bare number ("1773765000" is a malformed time string to
+            // it), so normalize those the way the page objects do instead of
+            // throwing on a value validation just accepted.
+            if ($value instanceof DateTimeInterface) {
+                return $value->format($format);
+            }
+            if (is_int($value) || is_float($value)) {
+                return date($format, (int) Utils::date2timestamp($value));
+            }
+
             $converted = new DateTime($value);
             return $converted->format($format);
         }
@@ -767,9 +781,22 @@ class Validation
      */
     public static function typeDatetime(mixed $value, array $params, array $field)
     {
-        if ($value instanceof DateTime) {
+        if ($value instanceof DateTimeInterface) {
             return true;
         }
+
+        // A Unix timestamp is already an unambiguous point in time, and it is
+        // how Grav itself stores dates: YAML reads an unquoted
+        // `date: 2026-03-17T16:30:00` as an integer, so every page header date
+        // written the way the docs show it comes back out as a number rather
+        // than a string. Utils::date2timestamp(), which is what the page
+        // objects actually call, takes int and float straight through, so
+        // rejecting them here only meant a value the form never touched failed
+        // to save when it was posted back exactly as it had been stored.
+        if (is_int($value) || (is_float($value) && is_finite($value))) {
+            return true;
+        }
+
         if (!is_string($value)) {
             return false;
         }

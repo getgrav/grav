@@ -1,3 +1,13 @@
+# v2.1.3
+## 09/13/2026
+
+1. [](#bugfix)
+    * **Asking a template for an image caption or credit that was never set no longer changes the image address.** Reading a `.meta.yaml` field that is missing, such as `{{ image.copyright }}`, added the field name to the end of the image URL for every visitor instead of simply returning nothing. Thanks @phmg701 [#4301](https://github.com/getgrav/grav/issues/4301)
+    * **The debug bar is back on pages that swap in a different page while the request runs.** A form that failed validation, or an error page served by the Error plugin, rendered without the bar because Grav no longer recognised the replacement page as one it had already loaded. Thanks @hughbris [#4300](https://github.com/getgrav/grav/issues/4300)
+    * The Clockwork debug badge now appears when the JavaScript pipeline is enabled. Its script was being merged into the combined file, which dropped the attributes it needs to find itself. Thanks @wakqasahmed [#3871](https://github.com/getgrav/grav/issues/3871)
+    * AVIF images now honour the quality setting when the Imagick adapter is in use. The value was being written to a field the AVIF encoder never reads, so every AVIF came out at the encoder's own default regardless of the setting. Thanks @sridharkalaibala and @Rotzbua [#4059](https://github.com/getgrav/grav/issues/4059)
+    * **Saving a page or a Flex object no longer fails with `Invalid input in "Date"` on a date the author never touched.** A `date:` written the ordinary unquoted way comes back out of YAML as a number, and the date validator only accepted text, so editing any other field and saving was refused outright in Admin Next and through the API. Classic admin was never affected because it reformatted the date before submitting it [#4304](https://github.com/getgrav/grav/issues/4304)
+
 # v2.1.2
 ## 09/11/2026
 

@@ -174,7 +174,29 @@ class Container implements ArrayAccess
      */
     public function initialized(mixed $id): bool
     {
-        return is_string($id) && isset($this->frozen[$id]);
+        if (!is_string($id) || !isset($this->keys[$id])) {
+            return false;
+        }
+
+        // A service built from its own factory closure is marked frozen on the way out
+        // of offsetGet(). A value assigned directly never goes through that path -- and
+        // that is a normal thing to do: core and plugins alike swap `page` for one they
+        // resolved themselves (the 404 fallback in PagesProcessor, Form's validation
+        // error handler) by unsetting the key and assigning the object. Such a value is
+        // every bit as resolved, since reading it back invokes nothing. Report both, or
+        // callers asking "can I read this without building it?" get told no when the
+        // answer is yes.
+        if (isset($this->frozen[$id])) {
+            return true;
+        }
+
+        $value = $this->values[$id];
+
+        // Mirrors the test offsetGet() uses to decide whether reading invokes a factory.
+        return isset($this->raw[$id])
+            || !is_object($value)
+            || isset($this->protected[$value])
+            || !method_exists($value, '__invoke');
     }
 
     /**

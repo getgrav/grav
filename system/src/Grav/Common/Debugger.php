@@ -667,7 +667,8 @@ class Debugger
                 $assets->addCss('/system/assets/debugger/clockwork.css');
                 $assets->addJs('/system/assets/debugger/clockwork.js', [
                     'id' => 'clockwork-script',
-                    'data-route' => $route
+                    'data-route' => $route,
+                    'pipeline' => false
                 ]);
             }
 
@@ -762,7 +763,7 @@ class Debugger
 
             // Only render the bar if the page is HTML.
             $page = $this->grav['page'];
-            if ($page->templateFormat() !== 'html') {
+            if (!$page instanceof PageInterface || $page->templateFormat() !== 'html') {
                 return $this;
             }
 
