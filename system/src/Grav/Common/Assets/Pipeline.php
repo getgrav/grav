@@ -435,7 +435,12 @@ class Pipeline extends PropertyObject
             }
         }
 
-        $buffer = $this->moveImports($buffer);
+        // moveImports() always prefixes its result with "\n\n" even when there
+        // were no @import statements to hoist. The original single-pass design
+        // ran the whole buffer through the minifier afterward, which collapsed
+        // that filler away; per-asset minification happens before this point
+        // now, so strip it here instead.
+        $buffer = ltrim($this->moveImports($buffer));
 
         return ['buffer' => $buffer, 'failed' => $failed];
     }
