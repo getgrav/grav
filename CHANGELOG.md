@@ -1,3 +1,9 @@
+# v2.1.4
+## 09/14/2026
+
+1. [](#bugfix)
+    * **Sites on hosts with a restricted `AllowOverride` are no longer taken offline by the `user/.htaccess` file added in 2.0.19.** That file used an Apache directive many shared hosts do not permit in `.htaccess`, and where it was not permitted Apache returned an error for everything inside `user/` — so the admin went blank, the theme's styles and scripts stopped loading, and the front end broke too. It kept happening after a rollback, because rolling back Grav never replaces `user/`. The file now does the same job with directives every host running Grav already allows. Thanks @elanorpam [#4309](https://github.com/getgrav/grav/issues/4309)
+
 # v2.1.3
 ## 09/13/2026
 
