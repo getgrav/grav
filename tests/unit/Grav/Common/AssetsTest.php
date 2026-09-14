@@ -588,6 +588,24 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertMatchesRegularExpression('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
     }
 
+    public function testCssMinificationFailureFallsBackPerAsset(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/broken-modern-syntax.css');
+        $this->assets->addCss('/tests/unit/data/assets/valid.css');
+
+        $css = $this->assets->css();
+
+        self::assertMatchesRegularExpression('#<link href="/assets/[a-f0-9]+\.css" type="text/css" rel="stylesheet">#', $css);
+        self::assertStringContainsString(
+            '<link href="/tests/unit/data/assets/broken-modern-syntax.css" type="text/css" rel="stylesheet">' . PHP_EOL,
+            $css
+        );
+        self::assertStringNotContainsString('/tests/unit/data/assets/valid.css', $css);
+    }
+
     public function testClockworkScriptBypassesPipeline(): void
     {
         $this->assets->reset();
