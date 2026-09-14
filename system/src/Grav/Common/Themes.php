@@ -93,9 +93,8 @@ class Themes extends Iterator
                 $events->addSubscriber($instance);
             }
 
-            // Register blueprints. Any `blueprints/` folder counts, not just `blueprints/pages`,
-            // so themes can ship flex, user or config blueprints without also shipping page ones.
-            if (is_dir('theme://blueprints')) {
+            // Register blueprints.
+            if (is_dir('theme://blueprints/pages')) {
                 /** @var UniformResourceLocator $locator */
                 $locator = $this->grav['locator'];
                 $locator->addPath('blueprints', '', ['theme://blueprints'], ['user', 'blueprints']);
