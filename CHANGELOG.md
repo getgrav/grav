@@ -7,6 +7,7 @@
     * The Clockwork debug badge now appears when the JavaScript pipeline is enabled. Its script was being merged into the combined file, which dropped the attributes it needs to find itself. Thanks @wakqasahmed [#3871](https://github.com/getgrav/grav/issues/3871)
     * AVIF images now honour the quality setting when the Imagick adapter is in use. The value was being written to a field the AVIF encoder never reads, so every AVIF came out at the encoder's own default regardless of the setting. Thanks @sridharkalaibala and @Rotzbua [#4059](https://github.com/getgrav/grav/issues/4059)
     * **Saving a page or a Flex object no longer fails with `Invalid input in "Date"` on a date the author never touched.** A `date:` written the ordinary unquoted way comes back out of YAML as a number, and the date validator only accepted text, so editing any other field and saving was refused outright in Admin Next and through the API. Classic admin was never affected because it reformatted the date before submitting it [#4304](https://github.com/getgrav/grav/issues/4304)
+    * A theme's own blueprints are now picked up whenever the theme ships a `blueprints/` folder. Grav only looked for them if the theme also had a `blueprints/pages/` folder inside it, so a theme that supplied only Flex, user or config blueprints had them quietly ignored [#4303](https://github.com/getgrav/grav/issues/4303)
 
 # v2.1.2
 ## 09/11/2026
