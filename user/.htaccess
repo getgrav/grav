@@ -5,31 +5,30 @@
 # .htaccess in a theme or plugin folder that turns on RewriteEngine replaces the
 # root ruleset for that folder and everything beneath it, so a package shipping
 # its own .htaccess (to block a Makefile, say) can silently expose its .yaml,
-# .md, .twig and .php files (getgrav/grav#4236). Access control written with
-# Require / FilesMatch is merged into subdirectories rather than replaced, so
-# these rules keep applying no matter what a subfolder does with rewriting.
+# .md, .twig and .php files (getgrav/grav#4236).
+#
+# This used to be written with Require/FilesMatch instead, since that syntax is
+# merged into subdirectories rather than replaced. But Require/FilesMatch needs
+# `AllowOverride AuthConfig` (or `Limit`), which a lot of hosts don't grant in
+# their AllowOverride setting, and when a host doesn't, Apache doesn't skip the
+# directive — it 500s every request under this folder, admin panel and front
+# end alike (getgrav/grav#4309). RewriteOptions InheritDownBefore gets the same
+# non-inherited-subdirectory protection using only mod_rewrite, which every
+# host running Grav already allows since the site root .htaccess depends on it
+# too.
 #
 # Keep the extension list in sync with the `^(user)/(.*)\.(...)` rule in the
 # site root .htaccess.
-<FilesMatch "(?i)\.(txt|md|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$">
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Deny from all
-    </IfModule>
-</FilesMatch>
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteOptions InheritDownBefore
 
-# Dot-files: .env, git and CI metadata, editor state. Files *inside* a
-# dot-folder cannot be matched here, because <DirectoryMatch> is not allowed in
-# .htaccess; those still rely on the root rewrite rules.
-<FilesMatch "^\.">
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order allow,deny
-        Deny from all
-    </IfModule>
-</FilesMatch>
+    RewriteRule ^(accounts|config|env)/ - [F,NC]
+    RewriteRule ^data/ - [F,NC]
+    RewriteRule (?i)\.(txt|md|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ - [F]
+    RewriteRule (?i)(^|/)\. - [F]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . ../index.php [L]
+</IfModule>
