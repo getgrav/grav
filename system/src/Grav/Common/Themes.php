@@ -93,11 +93,25 @@ class Themes extends Iterator
                 $events->addSubscriber($instance);
             }
 
-            // Register blueprints.
-            if (is_dir('theme://blueprints/pages')) {
+            // Register blueprints. Each namespace subfolder (pages, flex-objects,
+            // user, config, ...) is mounted individually rather than mounting the
+            // whole blueprints/ tree at the blueprints:// root. A theme that keeps
+            // unnamespaced content directly under blueprints/ (e.g. Quark's
+            // blueprints/default.yaml, which self-extends via `extends@: default`)
+            // would otherwise shadow the stream root and recurse into itself when
+            // resolved, an out-of-memory fatal that takes down the whole site. See
+            // getgrav/grav#4303 and the reverted 8488c81d7.
+            if (is_dir('theme://blueprints')) {
                 /** @var UniformResourceLocator $locator */
                 $locator = $this->grav['locator'];
-                $locator->addPath('blueprints', '', ['theme://blueprints'], ['user', 'blueprints']);
+                foreach ($locator->getIterator('theme://blueprints') as $item) {
+                    if ($item->isDot() || !$item->isDir()) {
+                        continue;
+                    }
+
+                    $namespace = $item->getFilename();
+                    $locator->addPath('blueprints', $namespace, ["theme://blueprints/{$namespace}"], ['user', 'blueprints']);
+                }
             }
 
             // Register form fields.
