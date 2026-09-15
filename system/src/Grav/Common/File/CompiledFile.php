@@ -47,6 +47,7 @@ trait CompiledFile
                 $modified = $this->modified();
 
                 $class = get_class($this);
+                $corrupt = false;
 
                 // Fast path: include the compiled file directly (served from opcache when
                 // enabled) and use it as long as it still matches the source file.
@@ -65,7 +66,9 @@ trait CompiledFile
                             return parent::content($var);
                         }
                     } catch (Throwable $e) {
-                        // If the compiled file is broken, we can safely ignore the error and continue.
+                        // If the compiled file is broken, we can safely ignore the error and continue:
+                        // the slow path below regenerates it from the source file.
+                        $corrupt = true;
                         $this->logCorruptCache($cacheFilename, $filename, $e);
                     }
                 }
@@ -77,7 +80,8 @@ trait CompiledFile
 
                 $size = filesize($filename);
                 try {
-                    $cache = $file->exists() ? $file->content() : null;
+                    // A file the fast path already failed to include is not read a second time.
+                    $cache = !$corrupt && $file->exists() ? $file->content() : null;
                 } catch (Throwable $e) {
                     // A corrupt or partially written compiled cache file (e.g. from a
                     // concurrent regeneration race) can throw while being read/included —
@@ -119,15 +123,7 @@ trait CompiledFile
 
                     // If compiled file wasn't already locked by another process, save it.
                     if ($locked) {
-                        $file->save($cache);
-                        $file->unlock();
-
-                        // Compile cached file into bytecode cache
-                        if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN)) {
-                            // Silence error if function exists, but is restricted.
-                            @opcache_invalidate($cacheFilename, true);
-                            @opcache_compile_file($cacheFilename);
-                        }
+                        $this->saveCompiled($file, $cache);
                     }
                 }
                 $file->free();
@@ -187,16 +183,7 @@ trait CompiledFile
                 'data' => $data
             ];
 
-            $file->save($cache);
-            $file->unlock();
-
-            // Compile cached file into bytecode cache
-            if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN)) {
-                $cacheFilename = $file->filename();
-                // Silence error if function exists, but is restricted.
-                @opcache_invalidate($cacheFilename, true);
-                @opcache_compile_file($cacheFilename);
-            }
+            $this->saveCompiled($file, $cache);
         }
     }
 
@@ -238,11 +225,75 @@ trait CompiledFile
     }
 
     /**
+     * Write the compiled array to disk so that no other process can ever read a partial file.
+     *
+     * The compiled file is include()d by every request without a lock, so it must go from
+     * "old complete file" to "new complete file" in one step. Writing through the locked
+     * handle would truncate the file first and fill it afterwards, and a request that
+     * includes it in between sees a syntax error. Writing to a temporary name next to the
+     * target and renaming over it is atomic on every filesystem Grav runs on. The flock
+     * taken by the caller stays what it always was: a mutex so that parallel requests do
+     * not all do the same work. It is released before the rename because Windows will not
+     * replace a file that still has an open handle.
+     *
+     * A cache file that cannot be written is a cache miss, not an error: the data has
+     * already been decoded from the source, so the request goes on and the next one tries
+     * again. The failure is reported to the debugger like a failed lock is.
+     *
+     * @param PhpFile $file  Locked compiled cache file.
+     * @param array $cache   Compiled payload to store.
+     */
+    private function saveCompiled(PhpFile $file, array $cache): void
+    {
+        $cacheFilename = $file->filename();
+
+        // Let the PhpFile encode the payload, then write the raw PHP ourselves.
+        $file->content($cache);
+        $raw = $file->raw();
+
+        do {
+            $tmp = $cacheFilename . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        } while (file_exists($tmp));
+
+        $written = @file_put_contents($tmp, $raw) !== false;
+
+        // Release the lock and close the handle before the rename.
+        $file->unlock();
+
+        if (!$written || @rename($tmp, $cacheFilename) === false) {
+            @unlink($tmp);
+
+            try {
+                /** @var Debugger $debugger */
+                $debugger = Grav::instance()['debugger'];
+                $debugger->addMessage(sprintf('%s(): Cannot write compiled cache file for %s', __METHOD__, $this->filename), 'warning');
+            } catch (Throwable) {
+                // Best-effort reporting only.
+            }
+
+            return;
+        }
+
+        // Touch the directory as well, thus marking it modified.
+        @touch(dirname($cacheFilename));
+
+        // Compile cached file into bytecode cache
+        if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN)) {
+            // Silence error if function exists, but is restricted.
+            @opcache_invalidate($cacheFilename, true);
+            @opcache_compile_file($cacheFilename);
+        }
+    }
+
+    /**
      * Record that a compiled cache file could not be read and is being regenerated.
      *
      * Regenerating silently is the correct behaviour, but doing it without a trace
      * makes a *recurring* corruption problem invisible to an operator — the compiled
-     * file is valid again by the time anyone looks at it. The logger is resolved
+     * file is valid again by the time anyone looks at it. A file that another process
+     * is regenerating right now is not corruption though, only a moment in a write we
+     * are about to wait out, so that case stays quiet: a warning in the log should
+     * always mean something an operator needs to look at. The logger is resolved
      * defensively and the whole call is guarded, so logging a degraded cache can
      * never itself become the fatal we are recovering from.
      *
@@ -253,6 +304,10 @@ trait CompiledFile
     private function logCorruptCache(string $cacheFilename, string $filename, Throwable $e): void
     {
         try {
+            if ($this->isBeingRegenerated($cacheFilename)) {
+                return;
+            }
+
             $log = Grav::instance()['log'] ?? null;
             if ($log) {
                 $log->warning(sprintf(
@@ -265,6 +320,36 @@ trait CompiledFile
             }
         } catch (Throwable) {
             // Logging is best-effort: never let it mask the recovery it is reporting.
+        }
+    }
+
+    /**
+     * Tell whether another process currently holds the write lock on a compiled cache file.
+     *
+     * Writers take an exclusive flock on the file for the duration of the regeneration, so
+     * a shared lock that would block means a write is in flight. On a filesystem without
+     * lock support the probe cannot tell and answers no, which errs on the side of logging.
+     *
+     * @param string $cacheFilename
+     * @return bool
+     */
+    private function isBeingRegenerated(string $cacheFilename): bool
+    {
+        $handle = @fopen($cacheFilename, 'rb');
+        if (!$handle) {
+            return false;
+        }
+
+        try {
+            $wouldBlock = 0;
+            $acquired = flock($handle, LOCK_SH | LOCK_NB, $wouldBlock);
+            if ($acquired) {
+                flock($handle, LOCK_UN);
+            }
+
+            return !$acquired && $wouldBlock === 1;
+        } finally {
+            fclose($handle);
         }
     }
 }
