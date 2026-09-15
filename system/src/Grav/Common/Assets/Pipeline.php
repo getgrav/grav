@@ -110,7 +110,8 @@ class Pipeline extends PropertyObject
      * @param array $assets
      * @param string $group
      * @param array $attributes
-     * @return bool|string     URL or generated content if available, else false
+     * @return array{output: string, failed: array}|string|false  Returns array with output and failed assets when minifying,
+     *                                                             string when not minifying, or false if no assets
      */
     public function renderCss($assets, $group, $attributes = [])
     {
@@ -124,6 +125,9 @@ class Pipeline extends PropertyObject
 
         // Store Attributes
         $this->attributes = array_merge(['type' => 'text/css', 'rel' => 'stylesheet'], $attributes);
+
+        $shouldMinify = $this->shouldMinify('css');
+        $failedAssets = [];
 
         // Compute uid based on assets and timestamp
         $json_assets = json_encode($assets);
@@ -140,13 +144,25 @@ class Pipeline extends PropertyObject
                 return false;
             }
 
-            // Concatenate files
-            $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
+            if ($shouldMinify) {
+                $result = $this->gatherAndMinifyCss($assets);
+                $failedAssets = $result['failed'];
 
-            // Minify if required
-            if ($this->shouldMinify('css')) {
-                $minifier = new CSSMinifier();
-                $buffer = $minifier->run($buffer);
+                if (empty($failedAssets)) {
+                    $buffer = $result['buffer'];
+                } else {
+                    // Bundling the assets that minified and rendering the failed
+                    // ones individually afterward (Assets::render()'s existing
+                    // dispatcher always does bundle-then-failed) would reorder
+                    // them relative to assets that succeeded but come later in
+                    // $assets, which can change which rule wins the CSS cascade.
+                    // Fall back to rendering the whole group individually,
+                    // unminified, in its original order, instead.
+                    $buffer = '';
+                    $failedAssets = $assets;
+                }
+            } else {
+                $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
             }
 
             // Write file
@@ -155,11 +171,19 @@ class Pipeline extends PropertyObject
             }
         }
 
-        if ($inline_group) {
+        if (!empty($failedAssets)) {
+            // Nothing to bundle this round; every asset renders on its own via
+            // Assets::render()'s failed-asset loop.
+            $output = '';
+        } elseif ($inline_group) {
             $output = "<style>\n" . $buffer . "\n</style>\n";
         } else {
             $this->asset = $relative_path;
             $output = '<link href="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . BaseAsset::integrityHash($this->asset) . ">\n";
+        }
+
+        if ($shouldMinify) {
+            return ['output' => $output, 'failed' => $failedAssets];
         }
 
         return $output;
@@ -356,6 +380,77 @@ class Pipeline extends PropertyObject
         }
 
         return $minify;
+    }
+
+    /**
+     * Gather CSS files and minify each one individually.
+     * Files that fail minification are tracked and returned separately.
+     *
+     * @param array $assets Array of asset objects
+     * @return array{buffer: string, failed: array} Combined minified content and failed assets
+     */
+    private function gatherAndMinifyCss(array $assets): array
+    {
+        $buffer = '';
+        $failed = [];
+
+        /** @var Debugger $debugger */
+        $debugger = Grav::instance()['debugger'];
+
+        foreach ($assets as $key => $asset) {
+            $local = true;
+            $link = $asset->getAsset();
+            $relative_path = $link;
+
+            if (static::isRemoteLink($link)) {
+                $local = false;
+                if (str_starts_with((string) $link, '//')) {
+                    $link = 'http:' . $link;
+                }
+                $relative_dir = dirname((string) $relative_path);
+            } else {
+                // Fix to remove relative dir if grav is in one
+                if (($this->base_url !== '/') && Utils::startsWith($relative_path, $this->base_url)) {
+                    $base_url = '#' . preg_quote($this->base_url, '#') . '#';
+                    $relative_path = ltrim((string) preg_replace($base_url, '/', (string) $link, 1), '/');
+                }
+
+                $relative_dir = dirname((string) $relative_path);
+                $link = GRAV_ROOT . '/' . $relative_path;
+            }
+
+            $file = $this->fetch_command instanceof \Closure ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
+
+            // No file found, skip it...
+            if ($file === false) {
+                continue;
+            }
+
+            if ($this->css_rewrite) {
+                $file = $this->cssRewrite($file, $relative_dir, $local);
+            }
+
+            try {
+                $file = (new CSSMinifier())->run($file);
+                $file = rtrim($file) . PHP_EOL;
+                $buffer .= $file;
+            } catch (\Throwable $e) {
+                $failed[$key] = $asset;
+
+                $message = "CSS Minification failed for '{$asset->getAsset()}': {$e->getMessage()}";
+                $debugger->addMessage($message, 'error');
+                Grav::instance()['log']->error($message);
+            }
+        }
+
+        // moveImports() always prefixes its result with "\n\n" even when there
+        // were no @import statements to hoist. The original single-pass design
+        // ran the whole buffer through the minifier afterward, which collapsed
+        // that filler away; per-asset minification happens before this point
+        // now, so strip it here instead.
+        $buffer = ltrim($this->moveImports($buffer));
+
+        return ['buffer' => $buffer, 'failed' => $failed];
     }
 
     /**

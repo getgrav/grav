@@ -588,6 +588,40 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertMatchesRegularExpression('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
     }
 
+    public function testCssMinificationFailureFallsBackForWholeGroup(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/broken-modern-syntax.css');
+        $this->assets->addCss('/tests/unit/data/assets/valid.css');
+
+        $css = $this->assets->css();
+
+        // Bundling the good asset and rendering the broken one separately
+        // afterward would put the broken one's CSS after the good one's in
+        // the cascade regardless of which came first in the pipeline — so
+        // the whole group falls back to individual, unminified links in
+        // their original order instead of a partial bundle.
+        self::assertSame(
+            '<link href="/tests/unit/data/assets/broken-modern-syntax.css" type="text/css" rel="stylesheet">' . PHP_EOL .
+            '<link href="/tests/unit/data/assets/valid.css" type="text/css" rel="stylesheet">' . PHP_EOL,
+            $css
+        );
+    }
+
+    public function testCssMinificationSucceedsWhenNoAssetFails(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/valid.css');
+
+        $css = $this->assets->css();
+
+        self::assertMatchesRegularExpression('#<link href="/assets/[a-f0-9]+\.css" type="text/css" rel="stylesheet">#', $css);
+    }
+
     public function testClockworkScriptBypassesPipeline(): void
     {
         $this->assets->reset();
