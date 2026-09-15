@@ -2,6 +2,7 @@
 ## 09/14/2026
 
 1. [](#bugfix)
+    * **Avatars and files uploaded to `user/data` are served again, and the rest of the `user/.htaccess` fix from 2.1.4 now reaches the folders it missed.** 2.1.4 restated the site root's folder blocks without the two exceptions the root makes, so profile avatars and Flex Object image uploads came back as "forbidden" on Apache. The separate files in `user/accounts`, `user/config` and `user/data` also still used the directive that takes a site offline on a host with a restricted `AllowOverride`, so those three folders kept failing where 2.1.4 had fixed the rest. All four files now work the same way, and an upgrade replaces any of them a previous Grav wrote — a file you edited yourself is left alone. Thanks @onetrev [#4311](https://github.com/getgrav/grav/issues/4311)
     * **A premium package covered by a licence you already hold now installs, instead of being refused as unlicensed.** A store can sell one licence that carries several packages — a shop plugin whose payment providers come with it, say — and the repository entry says so with `premium.license_product`. The download proxy has always honoured that, but GPM only ever looked for a key filed under the package's own name, so a customer holding one key had to paste it once per package, and `bin/gpm install` failed on every package they had not pasted it against. The key filed under the product a package belongs to now counts for that package, and a key filed under the package's own name still wins wherever there is one.
 
 # v2.1.4
