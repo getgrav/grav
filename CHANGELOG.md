@@ -1,3 +1,9 @@
+# v2.1.7
+## 09/15/2026
+
+1. [](#bugfix)
+    * **A theme's Flex, user or config blueprints are now found, instead of being ignored unless the theme also happened to ship page blueprints.** A theme supplying, say, a Flex type of its own had it quietly never register: nothing errored and nothing was logged, the type simply never appeared. Each kind of blueprint a theme ships is now registered on its own, which also keeps a theme from shadowing the blueprints Grav itself provides. Thanks @wakqasahmed [#4303](https://github.com/getgrav/grav/issues/4303)
+
 # v2.1.6
 ## 09/15/2026
 
