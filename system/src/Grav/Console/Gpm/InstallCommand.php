@@ -587,7 +587,7 @@ class InstallCommand extends GpmCommand
         }
 
         $version = $package->available ?? $package->version;
-        $license = Licenses::get($package->slug);
+        $license = Licenses::forPackage($package);
 
         $io->writeln("Preparing to install <cyan>{$package->name}</cyan> [v{$version}]");
 

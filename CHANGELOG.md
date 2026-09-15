@@ -1,3 +1,9 @@
+# v2.1.5
+## 09/14/2026
+
+1. [](#bugfix)
+    * **A premium package covered by a licence you already hold now installs, instead of being refused as unlicensed.** A store can sell one licence that carries several packages — a shop plugin whose payment providers come with it, say — and the repository entry says so with `premium.license_product`. The download proxy has always honoured that, but GPM only ever looked for a key filed under the package's own name, so a customer holding one key had to paste it once per package, and `bin/gpm install` failed on every package they had not pasted it against. The key filed under the product a package belongs to now counts for that package, and a key filed under the package's own name still wins wherever there is one.
+
 # v2.1.4
 ## 09/14/2026
 

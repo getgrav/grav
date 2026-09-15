@@ -10,11 +10,14 @@
 namespace Grav\Common\GPM;
 
 use Grav\Common\File\CompiledYamlFile;
+use Grav\Common\GPM\Common\Package;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\File\FileInterface;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Throwable;
 use function in_array;
+use function is_array;
+use function is_object;
 use function is_string;
 use function str_starts_with;
 use function strip_tags;
@@ -99,6 +102,89 @@ class Licenses
         return $data['licenses'][$slug] ?? '';
     }
 
+
+    /**
+     * The license key to use for a package, wherever that package's key is
+     * filed.
+     *
+     * A key is stored under the slug it was pasted against, but a package is
+     * not always sold under its own name. KahunaCart's payment providers are
+     * packages inside the core licence rather than products of their own, and
+     * the repository entry says so: `premium.license_product` is the product a
+     * key has to belong to for this package. The download proxy has always
+     * validated against that product, so the key filed under it is the key to
+     * send. Without this, a customer holding one key has to paste it once per
+     * package, and every package they have not yet pasted it against reads as
+     * one they do not own.
+     *
+     * The package's own slug wins whenever it has a key of its own, so a store
+     * that sells an add-on separately and also grants it to a wider licence
+     * works either way round.
+     *
+     * @param string $slug    the package slug
+     * @param mixed  $premium the package's `premium` metadata, as an array or
+     *                        object. Anything else (a bare `true` from an
+     *                        installed package's blueprint, say) names no
+     *                        product and is treated as naming none.
+     * @return string the key, or an empty string when there is none
+     */
+    public static function resolve($slug, $premium = null)
+    {
+        $slug = is_string($slug) ? strtolower($slug) : '';
+
+        if ($slug !== '') {
+            $license = self::get($slug);
+            if (is_string($license) && $license !== '') {
+                return $license;
+            }
+        }
+
+        $product = self::licenseProduct($premium);
+        if ($product === '' || $product === $slug) {
+            return '';
+        }
+
+        $license = self::get($product);
+
+        return is_string($license) ? $license : '';
+    }
+
+    /**
+     * The license key to use for a package.
+     *
+     * @param Package|null $package
+     * @return string the key, or an empty string when there is none
+     */
+    public static function forPackage($package)
+    {
+        if (!$package instanceof Package) {
+            return '';
+        }
+
+        return self::resolve($package->slug ?? '', $package->premium ?? null);
+    }
+
+    /**
+     * The store product a package's licence has to belong to, from its
+     * `premium` metadata. Empty when the metadata names none.
+     *
+     * @param mixed $premium
+     * @return string
+     */
+    protected static function licenseProduct($premium)
+    {
+        if (is_object($premium)) {
+            $premium = (array)$premium;
+        }
+
+        if (!is_array($premium)) {
+            return '';
+        }
+
+        $product = $premium['license_product'] ?? null;
+
+        return is_string($product) ? strtolower(trim($product)) : '';
+    }
 
     /**
      * Validates the License format
