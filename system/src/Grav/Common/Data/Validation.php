@@ -624,11 +624,16 @@ class Validation
             return false;
         }
 
+        // Keep the decimal text: the step check below is exact on it and is not on
+        // the binary float it converts to.
+        $raw = trim((string)$value);
         $value = (float)$value;
 
         $min = 0;
+        $rawMin = '0';
         if (isset($params['min'])) {
             $min = (float)$params['min'];
+            $rawMin = trim((string)$params['min']);
             if ($value < $min) {
                 return false;
             }
@@ -641,15 +646,126 @@ class Validation
             }
         }
 
-        if (isset($params['step'])) {
-            $step = (float)$params['step'];
-            // Count of how many steps we are above/below the minimum value.
-            $pos = ($value - $min) / $step;
-            $pos = round($pos, 10);
-            return is_int(static::filterNumber($pos, $params, $field));
+        $step = $params['step'] ?? null;
+        if (null === $step || !is_scalar($step)) {
+            return true;
         }
 
-        return true;
+        // `any` is the HTML spec's own opt-out, and it is ASCII case-insensitive.
+        // Without this it casts to zero and the division below is a fatal rather
+        // than a failed validation.
+        if (strcasecmp((string)$step, 'any') === 0) {
+            return true;
+        }
+
+        // Decide this on the decimal text the blueprint and the form actually gave
+        // us. Scaling value, min and step to a common power of ten makes it integer
+        // arithmetic, which has an exact answer; going through binary floats does
+        // not, and rejected ordinary input such as 81.96 on a step of 0.0000001.
+        $exact = static::matchesStepGrid($raw, $rawMin, trim((string)$step));
+        if (null !== $exact) {
+            return $exact;
+        }
+
+        // A step that does not parse as a positive number is not a grid either. The
+        // spec falls back to the default step rather than erroring, so never divide
+        // by it.
+        $step = (float)$step;
+        if ($step <= 0.0) {
+            return true;
+        }
+
+        // Not decimal text, or a scale past anything worth computing: fall back to
+        // the float comparison rather than refusing to validate at all.
+        $pos = ($value - $min) / $step;
+        $pos = round($pos, 10);
+
+        return is_int(static::filterNumber($pos, $params, $field));
+    }
+
+    /**
+     * Is `$value` an exact number of `$step`s away from `$min`?
+     *
+     * Answered on the decimal text rather than on floats: each number is split into
+     * a digit string and a power of ten, all three are lifted to a common scale, and
+     * the remainder is taken in integer arithmetic. Native integers cover every range
+     * and step a blueprint realistically uses; bcmath takes anything larger when it
+     * is installed.
+     *
+     * Returns null when the question cannot be answered this way and the caller
+     * should fall back - a non-decimal input, a zero step, or an absurd scale.
+     *
+     * @param string $value
+     * @param string $min
+     * @param string $step
+     * @return bool|null
+     */
+    protected static function matchesStepGrid(string $value, string $min, string $step): ?bool
+    {
+        $v = static::decomposeDecimal($value);
+        $m = static::decomposeDecimal($min);
+        $s = static::decomposeDecimal($step);
+        if (null === $v || null === $m || null === $s) {
+            return null;
+        }
+        if (ltrim($s[0], '-') === '0') {
+            return null;
+        }
+
+        $scale = max($v[1], $m[1], $s[1]);
+        if ($scale > 100) {
+            return null;
+        }
+
+        $lift = static function (array $d) use ($scale): string {
+            $pad = $scale - $d[1];
+
+            return $pad > 0 ? $d[0] . str_repeat('0', $pad) : $d[0];
+        };
+
+        $scaledValue = $lift($v);
+        $scaledMin = $lift($m);
+        $scaledStep = ltrim($lift($s), '-');
+
+        if (strlen(ltrim($scaledValue, '-')) <= 18
+            && strlen(ltrim($scaledMin, '-')) <= 18
+            && strlen($scaledStep) <= 18) {
+            return ((int)$scaledValue - (int)$scaledMin) % (int)$scaledStep === 0;
+        }
+
+        if (function_exists('bcmod')) {
+            return bccomp(bcmod(bcsub($scaledValue, $scaledMin, 0), $scaledStep, 0), '0', 0) === 0;
+        }
+
+        return null;
+    }
+
+    /**
+     * Split decimal text into `[digits, scale]`, where the number is `digits * 10**-scale`.
+     *
+     * @param string $number
+     * @return array|null
+     */
+    protected static function decomposeDecimal(string $number): ?array
+    {
+        if (!preg_match('/^([+-]?)(\d*)(?:\.(\d*))?(?:[eE]([+-]?\d+))?$/', trim($number), $matches)) {
+            return null;
+        }
+
+        $int = $matches[2];
+        $frac = $matches[3] ?? '';
+        if ($int === '' && $frac === '') {
+            return null;
+        }
+
+        $digits = ltrim($int . $frac, '0');
+        $sign = $matches[1] === '-' ? '-' : '';
+        if ($digits === '') {
+            $digits = '0';
+            $sign = '';
+        }
+
+        return [$sign . $digits, strlen($frac) - (int)($matches[4] ?? 0)];
     }
 
     /**
@@ -913,8 +1029,13 @@ class Validation
                 return false;
             }
 
-            $min = $params['min'] ?? 0;
-            if (isset($params['step']) && (count($value) - $min) % $params['step'] !== 0) {
+            $min = (int)($params['min'] ?? 0);
+            // A count is whole, so only a whole step means anything here. Casting
+            // first also keeps `step: any` and `step: 0` from turning a failed
+            // validation into a fatal: `int % 'any'` is a TypeError and `int % 0`
+            // is a DivisionByZeroError. Same rule typeText() already uses.
+            $step = (int)($params['step'] ?? 0);
+            if ($step > 0 && (count($value) - $min) % $step !== 0) {
                 return false;
             }
         }

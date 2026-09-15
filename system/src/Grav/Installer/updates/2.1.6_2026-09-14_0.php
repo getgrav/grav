@@ -50,6 +50,17 @@ return [
                         // the deny-all the 2026-06-09 postflight writes
                         'd8b0c6828fc2e83bf0ce0a9d8ef61e0ca11ffadd6a282cd649046ea634281326',
                     ],
+                    'user/data/.htaccess' => [
+                        // The 2026-06-26 postflight widened the 06-09/06-15 carve-out in
+                        // place with str_replace, so these two copies exist only on disk -
+                        // in no release archive and no checkout. A hash sweep over git
+                        // history cannot see them, which is why 2.1.5 missed both and left
+                        // these sites returning 500 for the whole folder on a host that
+                        // grants only AllowOverride FileInfo (getgrav/grav#4309, #4311).
+                        'c098e2771a37bb2f54b5d2cdb83ef8210ce95f764d266315ee5207ba16ac110d',
+                        // the same carve-out before 2026-06-26 widened it
+                        'cb2da60edc62983310e9829d3d93b11dbb23b493c09d481dc4e9d1472192bca1',
+                    ],
                 ];
 
                 // Byte-for-byte the shipped files. user/env is the exception: Grav
@@ -126,6 +137,28 @@ return [
                             RewriteEngine On
                             RewriteOptions InheritDownBefore
 
+                            RewriteRule .* - [F]
+                        </IfModule>
+
+                        HTACCESS,
+                    'user/data/.htaccess' => <<<'HTACCESS'
+                        # Deny direct web access to this folder, except the public asset uploads
+                        # (e.g. Flex Object images) that Grav has always served from here.
+                        # Data files (.yaml/.json/.md), databases, keys and tokens stay blocked.
+                        # SVG stays blocked as a stored-XSS vector; .css/.js are served per project
+                        # policy despite the same risk on this user-writable folder.
+                        # Defense-in-depth backup for the rules in the site root .htaccess.
+                        #
+                        # mod_rewrite, not `Require`: `Require` is AuthConfig-class and returns 500 for
+                        # this whole folder on a host that grants only `AllowOverride FileInfo`, which
+                        # is all the root .htaccess has ever needed (getgrav/grav#4309, #4311).
+                        <IfModule mod_rewrite.c>
+                            RewriteEngine On
+                            RewriteOptions InheritDownBefore
+
+                            # REQUEST_URI is the whole original path; the rule pattern only sees the
+                            # path below this folder, so the exception is written as a condition.
+                            RewriteCond %{REQUEST_URI} !\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf|woff2|woff|ttf|otf|eot|css|js)$ [NC]
                             RewriteRule .* - [F]
                         </IfModule>
 
