@@ -34,3 +34,21 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule . ../index.php [L]
 </IfModule>
+
+# Backstop for the rules above. A subfolder that turns RewriteEngine on with
+# `RewriteOptions Inherit` and then ends its own rules with an unconditional [L]
+# never reaches them, because the inherited rules run last and [L] stops first.
+# mod_alias is FileInfo-class like mod_rewrite, but it sits outside the rewrite
+# pipeline and its rules merge into subdirectories instead of replacing what is
+# there, so no [L] can reach past this. It only covers the file types, which is
+# the case that matters: third-party packages, the ones that ship an .htaccess
+# of their own (getgrav/grav#4236), install into user/plugins and user/themes.
+#
+# Deliberately unanchored. These rules only run for requests that resolve into
+# this folder, which is what scopes them, and matching the tail rather than a
+# leading /user/ keeps them correct for a Grav installed in a subdirectory.
+# Keep the extension list in sync with the rule above.
+<IfModule mod_alias.c>
+    RedirectMatch 403 (?i)\.(txt|md|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
+    RedirectMatch 403 (?i)(^|/)\.
+</IfModule>

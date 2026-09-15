@@ -1,6 +1,9 @@
 # v2.1.6
 ## 09/14/2026
 
+1. [](#improved)
+    * **A package that ships its own `.htaccess` can no longer opt out of the protections around `user/`.** Those rules are pushed down into every folder beneath `user/` and run first, which is what stops a plugin or theme from replacing them. A folder can still ask Apache to run them last and then stop before they are reached. That takes a deliberate line in the package's own file rather than the accidental case this guards against, but the protection Grav shipped before 2.1.4 held against it, so this restores that. A second set of rules now backs up the first using a different Apache module, one that a folder underneath cannot switch off. [#4236](https://github.com/getgrav/grav/issues/4236)
+
 1. [](#bugfix)
     * **The last folder under `user/` that could answer with a server error on a host with a restricted `AllowOverride` now answers correctly.** 2.1.5 fixed the four files Grav ships, but a site with a `user/env` folder also has a file there that an earlier update wrote, and Grav has never shipped that one — so it kept the directive the rest were moved off. Nothing is served from that folder, so no site was broken by it; it is a stray error page where a "forbidden" belongs. An upgrade replaces the file if it is the one Grav wrote, and leaves a file you edited alone. [#4311](https://github.com/getgrav/grav/issues/4311)
 
