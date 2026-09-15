@@ -1,10 +1,13 @@
 # Deny all direct web access to this folder and everything beneath it.
 # Grav reads these files server-side; they must never be served over HTTP.
 # This is a defense-in-depth backup for the rules in the site root .htaccess.
-<IfModule mod_authz_core.c>
-    Require all denied
-</IfModule>
-<IfModule !mod_authz_core.c>
-    Order allow,deny
-    Deny from all
+#
+# mod_rewrite, not `Require`: `Require` is AuthConfig-class and returns 500 for
+# this whole folder on a host that grants only `AllowOverride FileInfo`, which
+# is all the root .htaccess has ever needed (getgrav/grav#4309, #4311).
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteOptions InheritDownBefore
+
+    RewriteRule .* - [F]
 </IfModule>
