@@ -1,5 +1,5 @@
 # v2.1.6
-## 09/14/2026
+## 09/15/2026
 
 1. [](#improved)
     * **A package that ships its own `.htaccess` can no longer opt out of the protections around `user/`.** Those rules are pushed down into every folder beneath `user/` and run first, which is what stops a plugin or theme from replacing them. A folder can still ask Apache to run them last and then stop before they are reached. That takes a deliberate line in the package's own file rather than the accidental case this guards against, but the protection Grav shipped before 2.1.4 held against it, so this restores that. A second set of rules now backs up the first using a different Apache module, one that a folder underneath cannot switch off. [#4236](https://github.com/getgrav/grav/issues/4236)
