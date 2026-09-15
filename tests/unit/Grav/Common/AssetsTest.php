@@ -1042,4 +1042,68 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertIsArray($this->assets->getJs());
         self::assertGreaterThan(0, (array) $this->assets->getJs());
     }
+
+    /**
+     * The CSS pipeline runs cssRewrite() per file, hoists @import to the top with
+     * moveImports(), and only then minifies. Modern colour syntax and calc() inside an
+     * at-rule prelude have to come through all three steps intact.
+     */
+    public function testPipelineMinifiesModernCss(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->addCss('/tests/unit/data/assets/minify-modern.css', null, true);
+
+        $css = $this->assets->css();
+        self::assertMatchesRegularExpression('#<link href="/assets/[a-f0-9]+\.css"#', $css);
+
+        $files = glob(GRAV_ROOT . '/assets/*.css') ?: [];
+        self::assertCount(1, $files);
+        $out = file_get_contents($files[0]);
+
+        // @import is hoisted to the very top of the bundle, media qualifier intact.
+        self::assertStringStartsWith('@import "/tests/unit/data/assets/minify-imported.css" screen;', $out);
+
+        // Relative url() is rewritten before minification.
+        self::assertStringContainsString('url(/tests/unit/data/images/dot.png)', $out);
+
+        // Space-separated colour syntax survives (tubalmartin/cssmin threw on this).
+        self::assertStringContainsString('hsl(210 40% 50%)', $out);
+        self::assertStringContainsString('rgb(255 0 0 / 50%)', $out);
+        self::assertStringContainsString('oklch(62.8% 0.25 29.2)', $out);
+        self::assertStringContainsString('color-mix(in oklab,red 40%,blue)', $out);
+
+        // calc() keeps the whitespace around '+' in a rule body and in an at-rule prelude.
+        self::assertStringContainsString('calc(100% - 2rem)', $out);
+        self::assertStringContainsString('calc(400px + 2rem)', $out);
+        self::assertStringContainsString('calc(100px + 1px)', $out);
+        self::assertStringContainsString('calc(300px + 1rem)', $out);
+
+        // Nesting and layer statements are passed through untouched.
+        self::assertStringContainsString('&:hover{color:blue}', $out);
+        self::assertStringContainsString('@layer base,components;', $out);
+
+        // Quoted strings keep their internal spacing, license comments survive,
+        // ordinary comments do not.
+        self::assertStringContainsString('content:"one, two: three"', $out);
+        self::assertStringContainsString('/*! minify-modern.css', $out);
+        self::assertStringNotContainsString('an ordinary comment', $out);
+
+        self::assertSame(substr_count($out, '{'), substr_count($out, '}'));
+    }
+
+    public function testInlinePipelineMinifiesModernCss(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->addCss('/tests/unit/data/assets/minify-modern.css', null, true);
+
+        $css = $this->assets->css('head', ['loading' => 'inline']);
+
+        self::assertStringStartsWith('<style>', $css);
+        self::assertStringContainsString('hsl(210 40% 50%)', $css);
+        self::assertStringContainsString('calc(400px + 2rem)', $css);
+        self::assertStringContainsString('url(/tests/unit/data/images/dot.png)', $css);
+        self::assertStringNotContainsString('<link', $css);
+    }
 }

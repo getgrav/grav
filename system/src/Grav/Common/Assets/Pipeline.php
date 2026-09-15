@@ -17,7 +17,7 @@ use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
-use tubalmartin\CssMin\Minifier as CSSMinifier;
+use Wikimedia\Minify\CSSMin;
 use JShrink\Minifier as JSMinifier;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function array_key_exists;
@@ -42,6 +42,13 @@ class Pipeline extends PropertyObject
 
     /** @const Regex to match CSS sourcemap comments */
     protected const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
+
+    /**
+     * @const Regex matching, in order, a quoted CSS string, a bang-prefixed license comment, or
+     *        an ordinary comment. Strings come first so that comment markers inside a string are
+     *        never taken for a comment, and a quote inside a comment is never taken for a string.
+     */
+    protected const CSS_STRING_OR_COMMENT_REGEX = '~("(?:[^"\\\\\r\n]|\\\\.)*"|\'(?:[^\'\\\\\r\n]|\\\\.)*\')|(/\*!.*?\*/)|/\*.*?\*/~s';
 
     protected const FIRST_FORWARDSLASH_REGEX = '{^\/{1}\w}';
 
@@ -145,8 +152,7 @@ class Pipeline extends PropertyObject
 
             // Minify if required
             if ($this->shouldMinify('css')) {
-                $minifier = new CSSMinifier();
-                $buffer = $minifier->run($buffer);
+                $buffer = self::minifyCss($buffer);
             }
 
             // Write file
@@ -356,6 +362,51 @@ class Pipeline extends PropertyObject
         }
 
         return $minify;
+    }
+
+    /**
+     * Minify a CSS buffer.
+     *
+     * Wikimedia\Minify\CSSMin::minify() collapses whitespace and drops comments with plain
+     * regexes, so it does not know where a string starts or ends. Left to itself it would
+     * rewrite `content: "Hello, world"` to `content:"Hello,world"`, and it would empty out a
+     * string that happens to contain comment markers. Quoted strings are therefore lifted out
+     * first and put back afterwards, which also lets bang-prefixed license comments survive as
+     * they did under the previous minifier.
+     *
+     * @param string $css
+     * @return string
+     */
+    private static function minifyCss(string $css): string
+    {
+        $preserved = [];
+
+        $stripped = preg_replace_callback(
+            self::CSS_STRING_OR_COMMENT_REGEX,
+            static function (array $matches) use (&$preserved): string {
+                $token = ($matches[1] ?? '') !== '' ? $matches[1] : ($matches[2] ?? '');
+                if ($token === '') {
+                    // An ordinary comment: drop it.
+                    return '';
+                }
+
+                $key = "\x01GRAVCSS" . count($preserved) . "\x01";
+                $preserved[$key] = $token;
+
+                return $key;
+            },
+            $css
+        );
+
+        // preg_replace_callback() returns null on a PCRE failure (bad UTF-8, backtrack limit).
+        // Minify the buffer as-is rather than losing the stylesheet.
+        if ($stripped === null) {
+            return CSSMin::minify($css);
+        }
+
+        $stripped = CSSMin::minify($stripped);
+
+        return $preserved === [] ? $stripped : strtr($stripped, $preserved);
     }
 
     /**
