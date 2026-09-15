@@ -110,7 +110,17 @@ class Themes extends Iterator
                     }
 
                     $namespace = $item->getFilename();
-                    $locator->addPath('blueprints', $namespace, ["theme://blueprints/{$namespace}"], ['user', 'blueprints']);
+
+                    // A namespace prefix is its own bucket and is consulted
+                    // before the '' prefix these lookups used to land in, so
+                    // environment:// has to be listed here or the theme would
+                    // start winning over it. Trailing slash so `pages` cannot
+                    // also match `pages-legacy`: prefixes are matched with a
+                    // plain strpos(), not per path segment.
+                    $locator->addPath('blueprints', "{$namespace}/", [
+                        "environment://blueprints/{$namespace}",
+                        "theme://blueprints/{$namespace}",
+                    ]);
                 }
             }
 
