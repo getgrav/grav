@@ -43,7 +43,7 @@ class ImageMediumAlternativesFormatTest extends \Codeception\Test\Unit
         }
     }
 
-    private function medium(string $image = null): ImageMedium
+    private function medium(?string $image = null): ImageMedium
     {
         $medium = MediumFactory::fromFile(GRAV_ROOT . '/' . ($image ?? $this->image));
         $this->assertInstanceOf(ImageMedium::class, $medium);
