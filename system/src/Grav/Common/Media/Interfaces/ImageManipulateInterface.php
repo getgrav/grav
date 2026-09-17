@@ -51,7 +51,8 @@ interface ImageManipulateInterface
     public function clearAlternatives();
 
     /**
-     * Sets or gets the quality of the image
+     * Sets or gets the quality of the image. Setting it reaches every
+     * alternative too, so a srcset is encoded at one quality throughout.
      *
      * @param int|null $quality 0-100 quality
      * @return int|$this
@@ -59,7 +60,8 @@ interface ImageManipulateInterface
     public function quality($quality = null);
 
     /**
-     * Sets image output format.
+     * Sets image output format, for the image and every alternative, so a
+     * srcset is served in one format throughout.
      *
      * @param string $format
      * @return $this

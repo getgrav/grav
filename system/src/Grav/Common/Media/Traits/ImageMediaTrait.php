@@ -10,6 +10,7 @@
 namespace Grav\Common\Media\Traits;
 
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\ImageManipulateInterface;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Medium\ImageFile;
@@ -191,6 +192,18 @@ trait ImageMediaTrait
                 $derivative->set('width', $width);
                 $derivative->set('height', $height);
 
+                // A derivative is this image at another width, so it takes the
+                // format and quality already set here. Without this the result
+                // depended on the order the actions arrived in: format() only
+                // reaches the alternatives that exist when it is called.
+                // getgrav/grav#4317.
+                if ($derivative instanceof ImageManipulateInterface) {
+                    if ($this->format !== 'guess') {
+                        $derivative->format($this->format);
+                    }
+                    $derivative->quality($this->quality);
+                }
+
                 $this->addAlternative($ratio, $derivative);
             }
         }
@@ -207,7 +220,8 @@ trait ImageMediaTrait
     }
 
     /**
-     * Sets or gets the quality of the image
+     * Sets or gets the quality of the image. Setting it reaches every
+     * alternative too, so a srcset is encoded at one quality throughout.
      *
      * @param  int|null $quality 0-100 quality
      * @return int|$this
@@ -222,6 +236,15 @@ trait ImageMediaTrait
             $this->transformed = true;
             $this->quality = $quality;
 
+            // The magic actions fan out to the alternatives from __call(), which
+            // a declared method never passes through, so it is done here.
+            // getgrav/grav#4317.
+            foreach ($this->alternatives as $medium) {
+                if ($medium instanceof ImageManipulateInterface) {
+                    $medium->quality($quality);
+                }
+            }
+
             return $this;
         }
 
@@ -229,7 +252,8 @@ trait ImageMediaTrait
     }
 
     /**
-     * Sets image output format.
+     * Sets image output format, for the image and every alternative, so a
+     * srcset is served in one format throughout.
      *
      * @param string $format
      * @return $this
@@ -242,6 +266,14 @@ trait ImageMediaTrait
 
         $this->transformed = true;
         $this->format = $format;
+
+        // As in quality(): __call() does the fan-out for the magic actions and
+        // never sees a declared method. getgrav/grav#4317.
+        foreach ($this->alternatives as $medium) {
+            if ($medium instanceof ImageManipulateInterface) {
+                $medium->format($format);
+            }
+        }
 
         return $this;
     }
