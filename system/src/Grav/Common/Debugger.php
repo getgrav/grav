@@ -1176,6 +1176,7 @@ class Debugger
         // Filter arguments.
         $cut = 0;
         $previous = null;
+        $templateLocation = null;
         foreach ($backtrace as $i => &$current) {
             if (isset($current['args'])) {
                 $args = [];
@@ -1214,6 +1215,19 @@ class Debugger
 
             if ($object instanceof Template) {
                 $file = $current['file'] ?? null;
+                // Twig can invoke generated templates through vendor frames
+                // that are removed below. Keep their source location so notices
+                // from different templates are not grouped at the PHP helper.
+                if ($templateLocation === null && $object->getSourceContext()->getPath()) {
+                    $templateLine = 1;
+                    foreach ($object->getDebugInfo() as $codeLine => $sourceLine) {
+                        if ($codeLine <= ($previous['line'] ?? $current['line'] ?? 0)) {
+                            $templateLine = $sourceLine;
+                            break;
+                        }
+                    }
+                    $templateLocation = ['file' => $object->getSourceContext()->getPath(), 'line' => $templateLine];
+                }
 
                 if (preg_match('`(Template.php|TemplateWrapper.php)$`', (string) $file)) {
                     $current = null;
@@ -1295,10 +1309,11 @@ class Debugger
         $current = reset($backtrace);
 
         // If the issue happened inside twig file, change the file and line to match that file.
-        $file = $current['twig']['file'] ?? '';
+        $location = $current['twig'] ?? $templateLocation;
+        $file = $location['file'] ?? '';
         if ($file) {
             $errfile = $file;
-            $errline = $current['twig']['line'] ?? 0;
+            $errline = $location['line'] ?? 0;
         }
 
         $deprecation = [
@@ -1310,7 +1325,17 @@ class Debugger
             'count' => 1
         ];
 
-        $this->deprecations[] = $deprecation;
+        // Keep one trace per source location. A page-tree rebuild can emit the
+        // same notice thousands of times; retaining and rendering every trace
+        // can make the debug response much larger than the page itself. Resolve
+        // YAML and Twig locations above before grouping, so different source
+        // documents are still reported separately.
+        $key = serialize([$scope, $errstr, $errfile, $errline]);
+        if (isset($this->deprecations[$key])) {
+            ++$this->deprecations[$key]['count'];
+        } else {
+            $this->deprecations[$key] = $deprecation;
+        }
 
         // Do not pass forward.
         return true;
@@ -1388,6 +1413,7 @@ class Debugger
             'message' => $deprecated['message'],
             'file' => $deprecated['file'],
             'line' => $deprecated['line'],
+            'count' => $deprecated['count'] > 1 ? $deprecated['count'] : null,
             'trace' => $trace
         ];
 
