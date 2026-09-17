@@ -57,7 +57,7 @@ RewriteRule .* index.php [L]
 
 ## Begin - Security
 # Block all direct access for these folders
-RewriteRule ^(\.git|cache|bin|logs|backup|webserver-configs|tests)/(.*) error [F,NC]
+RewriteRule ^(\.git|cache|bin|logs|backup|tmp|webserver-configs|tests)/(.*) error [F,NC]
 # Block all direct access to these sensitive user folders, whatever the file type
 RewriteRule ^(user)/(config|env)/(.*) error [F,NC]
 # Block user/accounts too, but allow avatar images to be served directly,
