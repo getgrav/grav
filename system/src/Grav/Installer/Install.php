@@ -752,6 +752,18 @@ ERR;
             }
         }
 
+        foreach ($pending as $slug => &$info) {
+            $destination = $scanRoot . '/user/' . $info['type'] . '/' . $slug;
+            // This installer can run against an older installed core during an upgrade.
+            $issue = method_exists(Installer::class, 'getDestinationIssue')
+                ? Installer::getDestinationIssue($destination, $info['type'] === 'themes')
+                : (is_link($destination) ? 'Symbolic link: update its target separately.' : null);
+            if ($issue !== null) {
+                $info['update_blocked'] = $issue;
+            }
+        }
+        unset($info);
+
         $this->relayProgress('initializing', sprintf('Detected %d updatable packages (including symlinks).', count($pending)), null);
 
         return $pending;

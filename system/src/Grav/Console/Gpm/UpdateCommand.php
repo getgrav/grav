@@ -116,7 +116,7 @@ class UpdateCommand extends GpmCommand
         $this->upgrader = new Upgrader($input->getOption('force'));
         $local = $this->upgrader->getLocalVersion();
         $remote = $this->upgrader->getRemoteVersion();
-        if ($local !== $remote) {
+        if (version_compare($local, $remote, '<')) {
             // A new release family is a major upgrade (e.g., 1.7.x -> 1.8.y, or 2.x -> 3.0);
             // from 2.0 on a minor release is an ordinary one.
             $isMajorMinorUpgrade = Upgrader::family($local) !== Upgrader::family($remote);
@@ -164,6 +164,9 @@ class UpdateCommand extends GpmCommand
             $list_type['themes'] = $input->getOption('themes');
         }
 
+        $only_packages = array_map('strtolower', $input->getArgument('package'));
+        $this->reportSkippedSymlinks($list_type, $only_packages);
+
         if ($this->overwrite) {
             $this->data = $this->gpm->getInstallable($list_type);
             $description = ' can be overwritten';
@@ -171,8 +174,6 @@ class UpdateCommand extends GpmCommand
             $this->data = $this->gpm->getUpdatable($list_type);
             $description = ' need updating';
         }
-
-        $only_packages = array_map('strtolower', $input->getArgument('package'));
 
         if (!$this->overwrite && !$this->data['total']) {
             $io->writeln('Nothing to update.');
@@ -191,6 +192,7 @@ class UpdateCommand extends GpmCommand
 
         // updates review
         $slugs = [];
+        $blocked = [];
 
         $index = 1;
         foreach ($this->data as $packages) {
@@ -230,8 +232,23 @@ class UpdateCommand extends GpmCommand
                     // compat badges
                     $compatStr
                 );
+                $issue = Installer::getDestinationIssue(
+                    $this->destination . DS . $package->install_path,
+                    $package->package_type === 'themes'
+                );
+                if ($issue !== null) {
+                    $blocked[] = $slug . ': ' . $issue;
+                }
                 $slugs[] = $slug;
             }
+        }
+
+        if ($blocked) {
+            $io->error(array_merge(['No packages were changed. Resolve these destination issues before updating:'], $blocked));
+            return 1;
+        }
+        if (!$slugs) {
+            return 0;
         }
 
         if (!$this->all_yes) {
@@ -266,6 +283,31 @@ class UpdateCommand extends GpmCommand
         }
 
         return 0;
+    }
+
+    /** Report linked packages explicitly, while keeping their targets untouched. */
+    protected function reportSkippedSymlinks(array $types, array $onlyPackages): void
+    {
+        foreach ($types as $type => $enabled) {
+            if (!$enabled) {
+                continue;
+            }
+            $installed = $type === 'plugins' ? $this->gpm->getInstalledPlugins() : $this->gpm->getInstalledThemes();
+            $repository = $type === 'plugins' ? $this->gpm->getRepositoryPlugins() : $this->gpm->getRepositoryThemes();
+            foreach ($installed as $slug => $package) {
+                if (!$package->symlink || ($onlyPackages && !in_array($slug, $onlyPackages, true))) {
+                    continue;
+                }
+                $remote = $repository[$slug] ?? null;
+                if ($remote && $package->version && $remote->version
+                    && version_compare($remote->version, $package->version, '>')) {
+                    $this->getIO()->writeln(sprintf(
+                        '<comment>Skipped %s (%s → %s): symbolic link; update its target separately.</comment>',
+                        $slug, $package->version, $remote->version
+                    ));
+                }
+            }
+        }
     }
 
     /**
