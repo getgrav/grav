@@ -6,6 +6,7 @@
     * Repeated deprecation notices now share one debug trace with an occurrence count, preventing large page-tree rebuilds from filling memory and the debug toolbar with thousands of identical traces. Notices from different YAML documents and Twig source locations remain separate.
 
 1. [](#bugfix)
+    * GPM now explains skipped symlinked updates and reports unwritable package directories before downloading or changing packages. Preflight annotates the same destination issues, and development builds no longer receive a misleading prompt to upgrade to an older release. [#4319](https://github.com/getgrav/grav/issues/4319)
     * Image `format()` and `quality()` settings now apply to all srcset alternatives, including derivatives created before or after those settings. This also fixes format conversion through `images.defaults`. Thanks @onetrev [#4318](https://github.com/getgrav/grav/pull/4318)
     * **A theme's Flex, user or config blueprints are now found, instead of being ignored unless the theme also happened to ship page blueprints.** A theme supplying, say, a Flex type of its own had it quietly never register: nothing errored and nothing was logged, the type simply never appeared. Each kind of blueprint a theme ships is now registered on its own, which also keeps a theme from shadowing the blueprints Grav itself provides. Thanks @wakqasahmed [#4303](https://github.com/getgrav/grav/issues/4303)
 
