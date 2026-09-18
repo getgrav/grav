@@ -370,12 +370,14 @@ class Debugger
         }
 
         // This endpoint answers during bootstrap, before plugins, session and
-        // accounts exist, so there is no Grav user to authorize against. Reads are
-        // therefore limited to the machine Grav runs on, unless the operator has
-        // set `system.debugger.token` and the caller presents it.
+        // accounts exist, so there is no Grav user to authorize against. Every
+        // read therefore requires the configured system.debugger.token.
         if (!$this->isDebuggerRequestAuthorized($request)) {
+            $configured = (string)$this->config->get('system.debugger.token', '') !== '';
             $response = [
-                'message' => 'Debugger metadata requires authentication.',
+                'message' => $configured
+                    ? 'Debugger metadata requires authentication: send the configured `system.debugger.token` as `X-Clockwork-Auth`.'
+                    : 'Debugger metadata requires authentication: set `system.debugger.token` and send it as `X-Clockwork-Auth`. Profiler data is unreadable, including from the local machine, until a token is configured.',
                 'requires' => $clockwork->authenticator()->requires()
             ];
 
@@ -436,8 +438,7 @@ class Debugger
      *
      * Clockwork's default is a NullAuthenticator, which waves every caller
      * through. When no `system.debugger.token` is configured we hand back an
-     * authenticator holding an unguessable one-shot secret instead, so nothing
-     * but a loopback request can read stored profiles.
+     * authenticator holding an unguessable one-shot secret, and reads fail closed.
      *
      * @return AuthenticatorInterface
      */
@@ -459,15 +460,17 @@ class Debugger
         $token = (string)$this->config->get('system.debugger.token', '');
         $presented = $request->getHeaderLine('X-Clockwork-Auth');
 
-        if ($token !== '' && $presented !== '') {
-            // Accept the raw token (scripts, same-origin admin clients) as well as
-            // the hashed one Clockwork's extension gets back from /__clockwork/auth.
-            if (hash_equals($token, $presented) || $this->clockwork->authenticator()->check($presented) === true) {
-                return true;
-            }
+        // The TCP peer may be a same-host HTTP reverse proxy, so REMOTE_ADDR being
+        // loopback does not prove that the client is local. Fail closed unless the
+        // operator configured a token and the caller supplied a valid credential.
+        if ($token === '' || $presented === '') {
+            return false;
         }
 
-        return $this->isLoopbackRequest($request);
+        // Accept the raw token (scripts, same-origin admin clients) as well as the
+        // hashed one Clockwork's extension gets back from /__clockwork/auth.
+        return hash_equals($token, $presented)
+            || $this->clockwork->authenticator()->check($presented) === true;
     }
 
     /**

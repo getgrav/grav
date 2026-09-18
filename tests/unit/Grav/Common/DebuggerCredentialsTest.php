@@ -1,5 +1,6 @@
 <?php
 
+use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
@@ -17,6 +18,27 @@ class DebuggerCredentialsTest extends \Codeception\Test\Unit
         $method->setAccessible(true);
 
         return $method->invoke(new Debugger(), $request);
+    }
+
+    private function authorized(string $configuredToken, string $presentedToken = ''): bool
+    {
+        $debugger = new Debugger();
+        $property = new ReflectionProperty(Debugger::class, 'config');
+        $property->setAccessible(true);
+        $property->setValue($debugger, new Config(['system' => ['debugger' => ['token' => $configuredToken]]]));
+
+        $request = new ServerRequest(
+            'GET',
+            '/__clockwork/latest',
+            ['X-Clockwork-Auth' => $presentedToken],
+            null,
+            '1.1',
+            ['REMOTE_ADDR' => '127.0.0.1']
+        );
+        $method = new ReflectionMethod(Debugger::class, 'isDebuggerRequestAuthorized');
+        $method->setAccessible(true);
+
+        return $method->invoke($debugger, $request);
     }
 
     public function testMultipartFormBodyFromTheExtension(): void
@@ -51,5 +73,20 @@ class DebuggerCredentialsTest extends \Codeception\Test\Unit
         $request = new ServerRequest('POST', '/__clockwork/auth');
 
         $this->assertSame(['username' => '', 'password' => ''], $this->credentials($request));
+    }
+
+    public function testLoopbackRequestWithoutConfiguredTokenIsDenied(): void
+    {
+        $this->assertFalse($this->authorized(''));
+    }
+
+    public function testLoopbackRequestWithoutPresentedTokenIsDenied(): void
+    {
+        $this->assertFalse($this->authorized('secret'));
+    }
+
+    public function testRawConfiguredTokenIsAccepted(): void
+    {
+        $this->assertTrue($this->authorized('secret', 'secret'));
     }
 }

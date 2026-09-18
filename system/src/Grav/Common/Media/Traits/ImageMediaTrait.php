@@ -61,6 +61,9 @@ trait ImageMediaTrait
     /** @var bool Whether anything is queued that changes the image's pixels, format or quality */
     protected $transformed = false;
 
+    /** @var array<string, array{0:int,1:int}> Source dimensions by path, cached for the request */
+    protected static $sourceSizeCache = [];
+
     /** @var array */
     public static $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
@@ -440,6 +443,33 @@ trait ImageMediaTrait
     protected function saveImage()
     {
         if (!$this->image) {
+            return parent::path(false);
+        }
+
+        // Refuse oversized source rasters before getgrav/image initializes its
+        // adapter. GD and Imagick decode the full source before applying a resize,
+        // so limiting only the requested output dimensions does not bound memory.
+        //
+        // This has to read the file rather than trust the `width`/`height` meta:
+        // derivatives() overwrites those with the requested output size while
+        // `filepath` still points at the full-size source. One srcset can put many
+        // derivatives of the same source through here, so the reads are cached for
+        // the request.
+        $maxPixels = (int) Grav::instance()['config']->get('system.images.max_pixels', 25000000);
+        $sourcePath = (string) $this->get('filepath');
+        if (!array_key_exists($sourcePath, static::$sourceSizeCache)) {
+            $sourceSize = @getimagesize($sourcePath);
+            static::$sourceSizeCache[$sourcePath] = [
+                (int) ($sourceSize[0] ?? 0),
+                (int) ($sourceSize[1] ?? 0),
+            ];
+        }
+        [$width, $height] = static::$sourceSizeCache[$sourcePath];
+        if ($maxPixels > 0 && $width > 0 && $height > intdiv($maxPixels, $width)) {
+            Grav::instance()['log']->warning(sprintf(
+                'Refusing to process image source above system.images.max_pixels: %s (%dx%d)',
+                $sourcePath, $width, $height
+            ));
             return parent::path(false);
         }
 
