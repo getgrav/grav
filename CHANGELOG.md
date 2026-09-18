@@ -2,6 +2,7 @@
 ## 09/15/2026
 
 1. [](#improved)
+    * Updated vendor libraries to latest versions
     * Defer OPcache compilation of newly generated YAML and Markdown cache files until they are first included, reducing cold-cache rebuild work on large sites while still invalidating stale bytecode immediately.
     * Repeated deprecation notices now share one debug trace with an occurrence count, preventing large page-tree rebuilds from filling memory and the debug toolbar with thousands of identical traces. Notices from different YAML documents and Twig source locations remain separate.
 
