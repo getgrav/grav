@@ -1,5 +1,5 @@
 # v2.1.7
-## 09/15/2026
+## 09/18/2026
 
 1. [](#improved)
     * Updated vendor libraries to latest versions
