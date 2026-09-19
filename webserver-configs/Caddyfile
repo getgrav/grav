@@ -25,7 +25,7 @@ root * .
 #    a `route` block, which executes top to bottom as written.
 
 # deny all direct access for these folders
-@denied_dirs path_regexp (?i)^/(\.git|cache|bin|logs|backups?|tests)/
+@denied_dirs path_regexp (?i)^/(\.git|cache|bin|logs|backups?|tmp|tests)/
 
 # deny all direct access to these sensitive user folders, whatever the file type
 @denied_user_config path_regexp (?i)^/user/(config|env)/
@@ -64,8 +64,14 @@ root * .
 # deny access to specific files in the root folder
 @denied_root_files path_regexp (?i)^/(LICENSE\.txt|composer\.lock|composer\.json|nginx\.conf|web\.config|htaccess\.txt)$
 
-# deny access to dotfiles anywhere: .htaccess, .env, .env.local, .migrating, ...
-@denied_dotfiles path_regexp (?i)(^|/)\.[^/]+$
+# deny hidden files and directories at any depth, except ACME challenges:
+# .htaccess, .env, .env.local, .migrating, and nested .git repositories.
+# Caddy matchers use RE2, which has no lookahead, so .well-known is excluded
+# with a separate `not` rather than inline in the expression.
+@denied_dotfiles {
+	path_regexp (?i)(^|/)\.
+	not path /.well-known/*
+}
 ## End - Security
 
 route {

@@ -187,7 +187,7 @@ debugger:
   enabled: false                                 # Enable Grav debugger and following settings
   provider: clockwork                            # Debugger provider: debugbar | clockwork
   censored: false                                # Censor potentially sensitive information (POST parameters, cookies, files, configuration and most array/object data in log messages)
-  token: ''                                      # Shared secret a remote client must send as `X-Clockwork-Auth` to read `/__clockwork/` profiler data. Empty means loopback-only
+  token: ''                                      # Shared secret required as `X-Clockwork-Auth` to read `/__clockwork/` profiler data. Empty denies all profiler-data reads
   flex_render_hints: false                       # Wrap every rendered Flex object and collection in an HTML comment naming it (HTML pages only)
   shutdown:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
@@ -202,7 +202,7 @@ images:
   auto_fix_orientation: true                     # Automatically fix the image orientation based on the Exif data
   seofriendly: false                             # SEO-friendly processed image names
   url_actions: false                             # Allow URL query-based image transforms (e.g. `image.jpg?resize=600,400`). Off by default; normal Twig/Markdown resizing is unaffected
-  max_pixels: 25000000                           # Total-pixel ceiling (width*height) for URL-based resize actions. Requests above this are refused. 0 disables the check
+  max_pixels: 25000000                           # Total-pixel ceiling (width*height) for source images and URL-based resize output. 0 disables the check
   cls:                                           # Cumulative Layout Shift: See https://web.dev/optimize-cls/
     auto_sizes: false                            # Automatically add height/width to image
     aspect_ratio: false                          # Reserve space with aspect ratio style

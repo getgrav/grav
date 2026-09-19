@@ -227,6 +227,11 @@ class SandboxDefaultsMergeTest extends \PHPUnit\Framework\TestCase
 
     // config_denied_paths additive ------------------------------------------
 
+    public function testDebuggerTokenIsDeniedByDefault(): void
+    {
+        self::assertContains('system.debugger.token', SandboxDefaults::configDeniedPaths());
+    }
+
     public function testConfigDeniedPaths_DefaultsPlusUserAdditions(): void
     {
         $effective = Security::effectiveConfigDeniedPaths();

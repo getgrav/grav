@@ -45,6 +45,9 @@ class PreflightCommand extends GpmCommand
             $io->writeln('<comment>Packages pending update</comment>');
             foreach ($report['plugins_pending'] as $slug => $info) {
                 $io->writeln(sprintf('  - %s (%s) %s → %s', $slug, $info['type'] ?? 'plugin', $info['current'] ?? 'unknown', $info['available'] ?? 'unknown'));
+                if (!empty($info['update_blocked'])) {
+                    $io->writeln('    <comment>' . $info['update_blocked'] . '</comment>');
+                }
             }
             $io->newLine();
         }

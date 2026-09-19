@@ -987,9 +987,8 @@ class Page implements PageInterface
             // cache is keyed on page identity and the config checksum only, with no
             // session, user or request dimension, so storing that render hands one
             // visitor's output to the next. Cache the markdown, re-run the Twig every
-            // request. Modules render theme-controlled Twig, so they keep the site's
-            // own setting. (GHSA-pp89-h475-7gj6)
-            if ($process_twig && !$this->modularTwig()) {
+            // request, including editor-authored module bodies. (GHSA-pp89-h475-7gj6)
+            if ($process_twig) {
                 $never_cache_twig = true;
             }
 
@@ -1241,10 +1240,12 @@ class Page implements PageInterface
      *
      * Matches the invalidation strategy Pages::buildPages() already uses for
      * the pages-index cache (Pages.php) — they should evict in lockstep.
+     * The version marker prevents a rendered modular response stored by older
+     * releases from surviving the request-aware Twig cache fix.
      */
     private function getPageContentCacheKey(Config $config): string
     {
-        return $this->getCacheKey() . ':cfg=' . (string) $config->checksum();
+        return $this->getCacheKey() . ':content-v2:cfg=' . (string) $config->checksum();
     }
 
     /**

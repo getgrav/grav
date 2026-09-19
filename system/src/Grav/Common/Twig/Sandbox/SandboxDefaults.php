@@ -49,6 +49,7 @@ final class SandboxDefaults
             'backups',
             'scheduler',
             'system.cache.redis.password',
+            'system.debugger.token',
             // Proxy URLs accept HTTP userinfo (http://user:pass@host:3128) and
             // Symfony turns that into a Basic auth header, so both slots are
             // credential-bearing even though neither is named like a secret —

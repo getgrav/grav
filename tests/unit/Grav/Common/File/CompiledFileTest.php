@@ -170,7 +170,11 @@ class CompiledFileTest extends \PHPUnit\Framework\TestCase
                 clearstatcache();
                 if (\$role === 'writer') {
                     // Change the size so the compiled file is out of date and gets rewritten.
-                    \$tmp = \$source . '.new';
+                    // The temp name carries this writer's pid: two writers sharing one would
+                    // blend their output and rename the result over the source, and then the
+                    // readers would be failing on a broken source rather than on anything the
+                    // compiled cache did.
+                    \$tmp = \$source . '.' . getmypid() . '.new';
                     file_put_contents(\$tmp, \$body . '# rev ' . \$i . ' ' . str_repeat('x', \$i % 11) . "\\n");
                     rename(\$tmp, \$source);
                 } else {

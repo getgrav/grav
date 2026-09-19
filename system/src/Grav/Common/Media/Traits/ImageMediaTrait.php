@@ -10,6 +10,7 @@
 namespace Grav\Common\Media\Traits;
 
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\ImageManipulateInterface;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Medium\ImageFile;
@@ -59,6 +60,9 @@ trait ImageMediaTrait
 
     /** @var bool Whether anything is queued that changes the image's pixels, format or quality */
     protected $transformed = false;
+
+    /** @var array<string, array{0:int,1:int}> Source dimensions by path, cached for the request */
+    protected static $sourceSizeCache = [];
 
     /** @var array */
     public static $magic_actions = [
@@ -191,6 +195,18 @@ trait ImageMediaTrait
                 $derivative->set('width', $width);
                 $derivative->set('height', $height);
 
+                // A derivative is this image at another width, so it takes the
+                // format and quality already set here. Without this the result
+                // depended on the order the actions arrived in: format() only
+                // reaches the alternatives that exist when it is called.
+                // getgrav/grav#4317.
+                if ($derivative instanceof ImageManipulateInterface) {
+                    if ($this->format !== 'guess') {
+                        $derivative->format($this->format);
+                    }
+                    $derivative->quality($this->quality);
+                }
+
                 $this->addAlternative($ratio, $derivative);
             }
         }
@@ -207,7 +223,8 @@ trait ImageMediaTrait
     }
 
     /**
-     * Sets or gets the quality of the image
+     * Sets or gets the quality of the image. Setting it reaches every
+     * alternative too, so a srcset is encoded at one quality throughout.
      *
      * @param  int|null $quality 0-100 quality
      * @return int|$this
@@ -222,6 +239,15 @@ trait ImageMediaTrait
             $this->transformed = true;
             $this->quality = $quality;
 
+            // The magic actions fan out to the alternatives from __call(), which
+            // a declared method never passes through, so it is done here.
+            // getgrav/grav#4317.
+            foreach ($this->alternatives as $medium) {
+                if ($medium instanceof ImageManipulateInterface) {
+                    $medium->quality($quality);
+                }
+            }
+
             return $this;
         }
 
@@ -229,7 +255,8 @@ trait ImageMediaTrait
     }
 
     /**
-     * Sets image output format.
+     * Sets image output format, for the image and every alternative, so a
+     * srcset is served in one format throughout.
      *
      * @param string $format
      * @return $this
@@ -242,6 +269,14 @@ trait ImageMediaTrait
 
         $this->transformed = true;
         $this->format = $format;
+
+        // As in quality(): __call() does the fan-out for the magic actions and
+        // never sees a declared method. getgrav/grav#4317.
+        foreach ($this->alternatives as $medium) {
+            if ($medium instanceof ImageManipulateInterface) {
+                $medium->format($format);
+            }
+        }
 
         return $this;
     }
@@ -408,6 +443,33 @@ trait ImageMediaTrait
     protected function saveImage()
     {
         if (!$this->image) {
+            return parent::path(false);
+        }
+
+        // Refuse oversized source rasters before getgrav/image initializes its
+        // adapter. GD and Imagick decode the full source before applying a resize,
+        // so limiting only the requested output dimensions does not bound memory.
+        //
+        // This has to read the file rather than trust the `width`/`height` meta:
+        // derivatives() overwrites those with the requested output size while
+        // `filepath` still points at the full-size source. One srcset can put many
+        // derivatives of the same source through here, so the reads are cached for
+        // the request.
+        $maxPixels = (int) Grav::instance()['config']->get('system.images.max_pixels', 25000000);
+        $sourcePath = (string) $this->get('filepath');
+        if (!array_key_exists($sourcePath, static::$sourceSizeCache)) {
+            $sourceSize = @getimagesize($sourcePath);
+            static::$sourceSizeCache[$sourcePath] = [
+                (int) ($sourceSize[0] ?? 0),
+                (int) ($sourceSize[1] ?? 0),
+            ];
+        }
+        [$width, $height] = static::$sourceSizeCache[$sourcePath];
+        if ($maxPixels > 0 && $width > 0 && $height > intdiv($maxPixels, $width)) {
+            Grav::instance()['log']->warning(sprintf(
+                'Refusing to process image source above system.images.max_pixels: %s (%dx%d)',
+                $sourcePath, $width, $height
+            ));
             return parent::path(false);
         }
 

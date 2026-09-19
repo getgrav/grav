@@ -370,12 +370,14 @@ class Debugger
         }
 
         // This endpoint answers during bootstrap, before plugins, session and
-        // accounts exist, so there is no Grav user to authorize against. Reads are
-        // therefore limited to the machine Grav runs on, unless the operator has
-        // set `system.debugger.token` and the caller presents it.
+        // accounts exist, so there is no Grav user to authorize against. Every
+        // read therefore requires the configured system.debugger.token.
         if (!$this->isDebuggerRequestAuthorized($request)) {
+            $configured = (string)$this->config->get('system.debugger.token', '') !== '';
             $response = [
-                'message' => 'Debugger metadata requires authentication.',
+                'message' => $configured
+                    ? 'Debugger metadata requires authentication: send the configured `system.debugger.token` as `X-Clockwork-Auth`.'
+                    : 'Debugger metadata requires authentication: set `system.debugger.token` and send it as `X-Clockwork-Auth`. Profiler data is unreadable, including from the local machine, until a token is configured.',
                 'requires' => $clockwork->authenticator()->requires()
             ];
 
@@ -436,8 +438,7 @@ class Debugger
      *
      * Clockwork's default is a NullAuthenticator, which waves every caller
      * through. When no `system.debugger.token` is configured we hand back an
-     * authenticator holding an unguessable one-shot secret instead, so nothing
-     * but a loopback request can read stored profiles.
+     * authenticator holding an unguessable one-shot secret, and reads fail closed.
      *
      * @return AuthenticatorInterface
      */
@@ -459,15 +460,17 @@ class Debugger
         $token = (string)$this->config->get('system.debugger.token', '');
         $presented = $request->getHeaderLine('X-Clockwork-Auth');
 
-        if ($token !== '' && $presented !== '') {
-            // Accept the raw token (scripts, same-origin admin clients) as well as
-            // the hashed one Clockwork's extension gets back from /__clockwork/auth.
-            if (hash_equals($token, $presented) || $this->clockwork->authenticator()->check($presented) === true) {
-                return true;
-            }
+        // The TCP peer may be a same-host HTTP reverse proxy, so REMOTE_ADDR being
+        // loopback does not prove that the client is local. Fail closed unless the
+        // operator configured a token and the caller supplied a valid credential.
+        if ($token === '' || $presented === '') {
+            return false;
         }
 
-        return $this->isLoopbackRequest($request);
+        // Accept the raw token (scripts, same-origin admin clients) as well as the
+        // hashed one Clockwork's extension gets back from /__clockwork/auth.
+        return hash_equals($token, $presented)
+            || $this->clockwork->authenticator()->check($presented) === true;
     }
 
     /**
@@ -1176,6 +1179,7 @@ class Debugger
         // Filter arguments.
         $cut = 0;
         $previous = null;
+        $templateLocation = null;
         foreach ($backtrace as $i => &$current) {
             if (isset($current['args'])) {
                 $args = [];
@@ -1214,6 +1218,19 @@ class Debugger
 
             if ($object instanceof Template) {
                 $file = $current['file'] ?? null;
+                // Twig can invoke generated templates through vendor frames
+                // that are removed below. Keep their source location so notices
+                // from different templates are not grouped at the PHP helper.
+                if ($templateLocation === null && $object->getSourceContext()->getPath()) {
+                    $templateLine = 1;
+                    foreach ($object->getDebugInfo() as $codeLine => $sourceLine) {
+                        if ($codeLine <= ($previous['line'] ?? $current['line'] ?? 0)) {
+                            $templateLine = $sourceLine;
+                            break;
+                        }
+                    }
+                    $templateLocation = ['file' => $object->getSourceContext()->getPath(), 'line' => $templateLine];
+                }
 
                 if (preg_match('`(Template.php|TemplateWrapper.php)$`', (string) $file)) {
                     $current = null;
@@ -1295,10 +1312,11 @@ class Debugger
         $current = reset($backtrace);
 
         // If the issue happened inside twig file, change the file and line to match that file.
-        $file = $current['twig']['file'] ?? '';
+        $location = $current['twig'] ?? $templateLocation;
+        $file = $location['file'] ?? '';
         if ($file) {
             $errfile = $file;
-            $errline = $current['twig']['line'] ?? 0;
+            $errline = $location['line'] ?? 0;
         }
 
         $deprecation = [
@@ -1310,7 +1328,17 @@ class Debugger
             'count' => 1
         ];
 
-        $this->deprecations[] = $deprecation;
+        // Keep one trace per source location. A page-tree rebuild can emit the
+        // same notice thousands of times; retaining and rendering every trace
+        // can make the debug response much larger than the page itself. Resolve
+        // YAML and Twig locations above before grouping, so different source
+        // documents are still reported separately.
+        $key = serialize([$scope, $errstr, $errfile, $errline]);
+        if (isset($this->deprecations[$key])) {
+            ++$this->deprecations[$key]['count'];
+        } else {
+            $this->deprecations[$key] = $deprecation;
+        }
 
         // Do not pass forward.
         return true;
@@ -1388,6 +1416,7 @@ class Debugger
             'message' => $deprecated['message'],
             'file' => $deprecated['file'],
             'line' => $deprecated['line'],
+            'count' => $deprecated['count'] > 1 ? $deprecated['count'] : null,
             'trace' => $trace
         ];
 

@@ -277,11 +277,11 @@ trait CompiledFile
         // Touch the directory as well, thus marking it modified.
         @touch(dirname($cacheFilename));
 
-        // Compile cached file into bytecode cache
+        // Invalidate old bytecode; the decoded data is already available to this request.
+        // Let OPcache compile the new file when a later request actually includes it.
         if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN)) {
             // Silence error if function exists, but is restricted.
             @opcache_invalidate($cacheFilename, true);
-            @opcache_compile_file($cacheFilename);
         }
     }
 

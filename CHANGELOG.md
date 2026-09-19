@@ -1,3 +1,22 @@
+# v2.1.7
+## 09/18/2026
+
+1. [](#improved)
+    * Updated vendor libraries to latest versions
+    * Defer OPcache compilation of newly generated YAML and Markdown cache files until they are first included, reducing cold-cache rebuild work on large sites while still invalidating stale bytecode immediately.
+    * Repeated deprecation notices now share one debug trace with an occurrence count, preventing large page-tree rebuilds from filling memory and the debug toolbar with thousands of identical traces. Notices from different YAML documents and Twig source locations remain separate.
+
+1. [](#bugfix)
+    * [security] Editor-authored Twig can no longer read the Clockwork debugger token from system configuration. Thanks @manus-pi
+    * [security] Bundled nginx, Caddy, lighttpd and IIS rules now block hidden files and directories at any depth, including nested Git repositories, while still allowing `.well-known` for ACME challenges. Operators who copied one of these configurations must update their active server configuration. Thanks @onetrev
+    * [security] Image transforms now refuse source rasters above the configured pixel limit before GD or Imagick decodes them. Thanks @manus-pi
+    * Modular page content that uses request-aware Twig is now rendered for each visitor instead of being shared from the page cache. Thanks @Lxcardoza993
+    * [security] Clockwork profiler data now requires a configured token, including for requests from the local machine. Thanks @Zagn
+    * GPM now explains skipped symlinked updates and reports unwritable package directories before downloading or changing packages. Preflight annotates the same destination issues, and development builds no longer receive a misleading prompt to upgrade to an older release. [#4319](https://github.com/getgrav/grav/issues/4319)
+    * Block direct access to `tmp/` in the bundled Apache, nginx, Caddy, lighttpd and IIS rules, including temporary package downloads. Servers that serve static files before Apache must apply the equivalent rule at that layer, and operators who copied one of these configurations must update their active server configuration. [#4316](https://github.com/getgrav/grav/issues/4316)
+    * Image `format()` and `quality()` settings now apply to all srcset alternatives, including derivatives created before or after those settings. This also fixes format conversion through `images.defaults`. Thanks @onetrev [#4318](https://github.com/getgrav/grav/pull/4318)
+    * **A theme's Flex, user or config blueprints are now found, instead of being ignored unless the theme also happened to ship page blueprints.** A theme supplying, say, a Flex type of its own had it quietly never register: nothing errored and nothing was logged, the type simply never appeared. Each kind of blueprint a theme ships is now registered on its own, which also keeps a theme from shadowing the blueprints Grav itself provides. Thanks @wakqasahmed [#4303](https://github.com/getgrav/grav/issues/4303)
+
 # v2.1.6
 ## 09/15/2026
 
