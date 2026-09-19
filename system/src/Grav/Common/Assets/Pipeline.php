@@ -110,8 +110,7 @@ class Pipeline extends PropertyObject
      * @param array $assets
      * @param string $group
      * @param array $attributes
-     * @return array{output: string, failed: array}|string|false  Returns array with output and failed assets when minifying,
-     *                                                             string when not minifying, or false if no assets
+     * @return string|false  Returns the rendered output, or false if no assets
      */
     public function renderCss($assets, $group, $attributes = [])
     {
@@ -127,7 +126,6 @@ class Pipeline extends PropertyObject
         $this->attributes = array_merge(['type' => 'text/css', 'rel' => 'stylesheet'], $attributes);
 
         $shouldMinify = $this->shouldMinify('css');
-        $failedAssets = [];
 
         // Compute uid based on assets and timestamp
         $json_assets = json_encode($assets);
@@ -146,20 +144,18 @@ class Pipeline extends PropertyObject
 
             if ($shouldMinify) {
                 $result = $this->gatherAndMinifyCss($assets);
-                $failedAssets = $result['failed'];
 
-                if (empty($failedAssets)) {
+                if (empty($result['failed'])) {
                     $buffer = $result['buffer'];
                 } else {
                     // Bundling the assets that minified and rendering the failed
-                    // ones individually afterward (Assets::render()'s existing
-                    // dispatcher always does bundle-then-failed) would reorder
-                    // them relative to assets that succeeded but come later in
-                    // $assets, which can change which rule wins the CSS cascade.
-                    // Fall back to rendering the whole group individually,
-                    // unminified, in its original order, instead.
-                    $buffer = '';
-                    $failedAssets = $assets;
+                    // ones individually afterward would reorder them relative to
+                    // assets that succeeded but come later in $assets, which can
+                    // change which rule wins the CSS cascade. Fall back to the
+                    // whole group concatenated unminified, in its original order
+                    // instead - the same output css_minify: false produces for
+                    // these files - so the bundle still caches as one file.
+                    $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
                 }
             } else {
                 $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
@@ -171,19 +167,11 @@ class Pipeline extends PropertyObject
             }
         }
 
-        if (!empty($failedAssets)) {
-            // Nothing to bundle this round; every asset renders on its own via
-            // Assets::render()'s failed-asset loop.
-            $output = '';
-        } elseif ($inline_group) {
+        if ($inline_group) {
             $output = "<style>\n" . $buffer . "\n</style>\n";
         } else {
             $this->asset = $relative_path;
             $output = '<link href="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . BaseAsset::integrityHash($this->asset) . ">\n";
-        }
-
-        if ($shouldMinify) {
-            return ['output' => $output, 'failed' => $failedAssets];
         }
 
         return $output;

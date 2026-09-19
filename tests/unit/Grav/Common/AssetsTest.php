@@ -601,12 +601,19 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         // Bundling the good asset and rendering the broken one separately
         // afterward would put the broken one's CSS after the good one's in
         // the cascade regardless of which came first in the pipeline — so
-        // the whole group falls back to individual, unminified links in
-        // their original order instead of a partial bundle.
-        self::assertSame(
-            '<link href="/tests/unit/data/assets/broken-modern-syntax.css" type="text/css" rel="stylesheet">' . PHP_EOL .
-            '<link href="/tests/unit/data/assets/valid.css" type="text/css" rel="stylesheet">' . PHP_EOL,
-            $css
+        // the whole group falls back to one unminified bundle instead of a
+        // partial bundle plus a reordered failure. It still renders as a
+        // single cached link, just like the successful-minify case.
+        self::assertMatchesRegularExpression('#<link href="/assets/[a-f0-9]+\.css" type="text/css" rel="stylesheet">#', $css);
+
+        preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
+        $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
+
+        self::assertStringContainsString('color: hsl(210 40% 50%)', $bundled);
+        self::assertStringContainsString('color: blue', $bundled);
+        self::assertLessThan(
+            strpos($bundled, 'color: blue'),
+            strpos($bundled, 'color: hsl(210 40% 50%)')
         );
     }
 
