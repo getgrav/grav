@@ -1,3 +1,9 @@
+# v2.1.8
+## 09/18/2026
+
+1. [](#bugfix)
+    * Upgrading now adds the `tmp/` block from 2.1.7 to an existing site's `.htaccess`, so upgraded Apache sites stop serving temporary files and the dashboard storage warning clears. [#4316](https://github.com/getgrav/grav/issues/4316)
+
 # v2.1.7
 ## 09/18/2026
 
