@@ -172,8 +172,7 @@ class Pipeline extends PropertyObject
      * @param string $group
      * @param array $attributes
      * @param int $type
-     * @return array{output: string, failed: array}|string|false  Returns array with output and failed assets when minifying,
-     *                                                             string when not minifying, or false if no assets
+     * @return string|false
      */
     public function renderJs($assets, $group, $attributes = [], $type = self::JS_ASSET)
     {
@@ -194,33 +193,43 @@ class Pipeline extends PropertyObject
         }
 
         $shouldMinify = $this->shouldMinify('js');
-        $failedAssets = [];
 
-        // When minifying, process each file individually to isolate failures
-        if ($shouldMinify) {
-            $result = $this->gatherAndMinifyJs($assets, $type);
-            $buffer = $result['buffer'];
-            $failedAssets = $result['failed'];
-
-            // Compute uid based on successful assets only
-            $successfulAssets = array_diff_key($assets, array_flip(array_keys($failedAssets)));
-            $json_assets = json_encode($successfulAssets);
-        } else {
-            $buffer = $this->gatherLinks($assets, $type);
-            $json_assets = json_encode($assets);
-        }
-
+        // Compute uid based on all assets. A minify failure now falls back to
+        // the whole group rather than a partial bundle plus the failed assets
+        // rendered separately, so there is no "successful subset" to key on.
+        $json_assets = json_encode($assets);
         $uid = md5($json_assets . (int)$shouldMinify . $group);
         $file = $uid . '.js';
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
         $filepath = "{$this->assets_dir}/{$file}";
 
-        // Check for cached version (only if no failed assets, as cache key changes)
-        if (empty($failedAssets) && file_exists($filepath)) {
+        if (file_exists($filepath)) {
             $buffer = file_get_contents($filepath) . "\n";
-        } elseif (trim($buffer) !== '') {
+        } else {
+            if ($shouldMinify) {
+                $result = $this->gatherAndMinifyJs($assets, $type);
+
+                if (empty($result['failed'])) {
+                    $buffer = $result['buffer'];
+                } else {
+                    // Bundling the assets that minified and rendering the failed
+                    // ones individually afterward would move them after
+                    // everything that minified successfully, which changes
+                    // execution order - a dependency (e.g. jQuery) could end up
+                    // loading after code that expects it. Fall back to the whole
+                    // group concatenated unminified, in its original order
+                    // instead - the same output js_minify: false produces for
+                    // these files - so the bundle still caches as one file.
+                    $buffer = $this->gatherLinks($assets, $type);
+                }
+            } else {
+                $buffer = $this->gatherLinks($assets, $type);
+            }
+
             // Write file
-            file_put_contents($filepath, $buffer);
+            if (trim($buffer) !== '') {
+                file_put_contents($filepath, $buffer);
+            }
         }
 
         if (trim($buffer) === '') {
@@ -230,11 +239,6 @@ class Pipeline extends PropertyObject
         } else {
             $this->asset = $relative_path;
             $output = '<script src="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . BaseAsset::integrityHash($this->asset) . "></script>\n";
-        }
-
-        // Return array with failed assets if minifying, otherwise just the output string
-        if ($shouldMinify) {
-            return ['output' => $output, 'failed' => $failedAssets];
         }
 
         return $output;
@@ -416,7 +420,7 @@ class Pipeline extends PropertyObject
                 $file = JSMinifier::minify($file);
                 $file = rtrim($file) . PHP_EOL;
                 $buffer .= $file;
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Track failed asset for individual rendering
                 $failed[$key] = $asset;
 
