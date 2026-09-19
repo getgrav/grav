@@ -421,7 +421,9 @@ class Pipeline extends PropertyObject
                 $file = rtrim($file) . PHP_EOL;
                 $buffer .= $file;
             } catch (\Throwable $e) {
-                // Track failed asset for individual rendering
+                // Track the failure so renderJs() can fall back to bundling the
+                // whole group unminified, in original order, instead of using
+                // this partial per-asset buffer.
                 $failed[$key] = $asset;
 
                 $message = "JS Minification failed for '{$asset->getAsset()}': {$e->getMessage()}";
