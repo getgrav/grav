@@ -158,7 +158,10 @@ trait ImageMediaTrait
         } else {
             $max_width = min($max_width, $base->get('width'));
 
-            for ($width = $min_width; $width < $max_width; $width += $step) {
+            for ($width = $min_width; $width <= $max_width; $width += $step) {
+                if ($width >= $base->get('width')) {
+                    continue;
+                }
                 $widths[] = $width;
             }
         }
