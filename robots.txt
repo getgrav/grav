@@ -1,7 +1,6 @@
 User-agent: *
 Disallow: /.github/
 Disallow: /.phan/
-Disallow: /assets/
 Disallow: /backup/
 Disallow: /bin/
 Disallow: /cache/
@@ -16,6 +15,15 @@ Allow: /user/pages/
 Allow: /user/themes/
 Allow: /user/images/
 Allow: /
-Allow: *.css$
-Allow: *.js$
+Allow: /*.css$
+Allow: /*.css?
+Allow: /*.js$
+Allow: /*.js?
+Allow: /system/*.css$
+Allow: /system/*.css?
 Allow: /system/*.js$
+Allow: /system/*.js?
+Allow: /user/plugins/*.css$
+Allow: /user/plugins/*.css?
+Allow: /user/plugins/*.js$
+Allow: /user/plugins/*.js?

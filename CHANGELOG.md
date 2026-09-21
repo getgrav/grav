@@ -1,3 +1,9 @@
+# v2.1.9
+## 09/21/2026
+
+1. [](#bugfix)
+    * The bundled `robots.txt` no longer blocks pipelined CSS and JS. `Disallow: /assets/` was removed, because it beat the shorter `Allow: *.css$` rules and stopped Google from rendering pages on sites with the asset pipeline turned on. The CSS and JS rules now start with `/`, also match URLs with a query string, and explicitly allow assets under `system/` and `user/plugins/`. Upgrades never replace `robots.txt`, so existing sites need to apply this change by hand.
+
 # v2.1.8
 ## 09/18/2026
 
