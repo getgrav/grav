@@ -1,3 +1,9 @@
+# v2.1.11
+## 09/22/2026
+
+1. [](#bugfix)
+    * Files under `.well-known/` are now served when running Grav with the built-in PHP server (`bin/grav server`), matching the shipped web server configs. Thanks @wakqasahmed [#4016](https://github.com/getgrav/grav/issues/4016)
+
 # v2.1.10
 ## 09/22/2026
 
