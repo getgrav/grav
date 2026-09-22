@@ -136,6 +136,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $this->quality = $this->default_quality;
 
         $this->debug_watermarked = false;
+        $this->watermarked = null;
 
         $config = $this->getGrav()['config'];
         // Set CLS configuration
@@ -383,10 +384,10 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $locator = $grav['locator'];
         $config = $grav['config'];
 
-        $args = func_get_args();
-
-        $file = $args[0] ?? '1'; // using '1' because of markdown. doing ![](image.jpg?watermark) returns $args[0]='1';
-        if ($file === '1') {
+        // `?watermark`, `?watermark=1` and a call with no image all use the
+        // operator-configured watermark.
+        $file = (string) ($image ?? '');
+        if ($file === '' || $file === '1') {
             // No editor-supplied value: use the operator-configured (trusted) watermark.
             $file = $config->get('system.images.watermark.image');
         } else {
@@ -399,59 +400,27 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             // and absolute paths; stream URIs (user://, image://, system://, …)
             // stay allowed because the locator's stream branch re-globs onto a
             // registered, contained root.
-            if (strpos((string) $file, '..') !== false || preg_match('`^(/|[a-z]:[\\\\/])`i', (string) $file)) {
+            if (strpos($file, '..') !== false || preg_match('`^(/|[a-z]:[\\\\/])`i', $file)) {
                 return $this;
             }
         }
 
-        $watermark = $locator->findResource($file);
+        $watermark = $file ? $locator->findResource($file) : false;
         if ($watermark === false) {
             return $this;
         }
         $watermark = ImageFile::open($watermark);
 
-        // Scaling operations
-        $scale     = ($scale ?? $config->get('system.images.watermark.scale', 100)) / 100;
-        $wwidth    = (int) ($this->get('width')  * $scale);
-        $wheight   = (int) ($this->get('height') * $scale);
-        $watermark->resize($wwidth, $wheight);
+        $scale = ($scale === null || $scale === '') ? $config->get('system.images.watermark.scale', 100) : $scale;
+        // "bottom-right", or one half of it with the other taken from config.
+        $position = explode('-', (string) $position, 2);
+        $position = ($position[0] ?: $config->get('system.images.watermark.position_y', 'center'))
+            . '-' . ($position[1] ?? $config->get('system.images.watermark.position_x', 'center'));
 
-        // Position operations
-        $position = !empty($args[1]) ? explode('-',  (string) $args[1]) : ['center', 'center']; // todo change to config
-        $positionY = $position[0] ?? $config->get('system.images.watermark.position_y', 'center');
-        $positionX = $position[1] ?? $config->get('system.images.watermark.position_x', 'center');
-
-        switch ($positionY)
-        {
-            case 'top':
-                $positionY = 0;
-                break;
-
-            case 'bottom':
-                $positionY = (int)$this->get('height')-$wheight;
-                break;
-
-            case 'center':
-                $positionY = ((int)$this->get('height')/2) - ($wheight/2);
-                break;
-        }
-
-        switch ($positionX)
-        {
-            case 'left':
-                $positionX = 0;
-                break;
-
-            case 'right':
-                $positionX = (int) ($this->get('width')-$wwidth);
-                break;
-
-            case 'center':
-                $positionX = (int) (($this->get('width')/2) - ($wwidth/2));
-                break;
-        }
-
-        $this->__call('merge', [$watermark,$positionX, $positionY]);
+        // Sized and placed when the image is processed, against the image as it
+        // is by then, so a resize or crop before it is taken into account.
+        // getgrav/grav#4322.
+        $this->queueWatermark([$watermark, $position, (float) $scale / 100]);
 
         return $this;
     }

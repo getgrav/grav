@@ -588,6 +588,66 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertMatchesRegularExpression('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
     }
 
+    public function testCssMinificationFailureFallsBackForWholeGroup(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/broken-modern-syntax.css');
+        $this->assets->addCss('/tests/unit/data/assets/valid.css');
+
+        $css = $this->assets->css();
+
+        // Bundling the good asset and rendering the broken one separately
+        // afterward would put the broken one's CSS after the good one's in
+        // the cascade regardless of which came first in the pipeline — so
+        // the whole group falls back to one unminified bundle instead of a
+        // partial bundle plus a reordered failure. It still renders as a
+        // single cached link, just like the successful-minify case.
+        self::assertMatchesRegularExpression('#<link href="/assets/[a-f0-9]+\.css" type="text/css" rel="stylesheet">#', $css);
+
+        preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
+        $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
+
+        self::assertStringContainsString('color: hsl(210 40%)', $bundled);
+        self::assertStringContainsString('color: blue', $bundled);
+        self::assertLessThan(
+            strpos($bundled, 'color: blue'),
+            strpos($bundled, 'color: hsl(210 40%)')
+        );
+    }
+
+    public function testCssMinificationSucceedsWhenNoAssetFails(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/valid.css');
+
+        $css = $this->assets->css();
+
+        self::assertMatchesRegularExpression('#<link href="/assets/[a-f0-9]+\.css" type="text/css" rel="stylesheet">#', $css);
+    }
+
+    public function testCssMinificationKeepsSpaceSeparatedColors(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/modern-colors.css');
+
+        $css = $this->assets->css();
+
+        preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
+        $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
+
+        // Minified, not the unminified fallback, and every colour intact.
+        self::assertStringContainsString('.rgb{color:#0a141e}', $bundled);
+        self::assertStringContainsString('.hsl{color:#4d7fb3}', $bundled);
+        self::assertStringContainsString('.alpha{color:rgb(10 20 30/50%)}', $bundled);
+        self::assertStringContainsString('.neg{color:#4d7fb3}', $bundled);
+    }
+
     public function testClockworkScriptBypassesPipeline(): void
     {
         $this->assets->reset();
@@ -610,6 +670,48 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
             '#<script\b(?=[^>]*\bsrc="/system/assets/debugger/clockwork\.js")(?=[^>]*\bid="clockwork-script")(?=[^>]*\bdata-route="https://github\.com/getgrav/grav-plugin-clockwork-web")[^>]*></script>#',
             $js
         );
+        self::assertMatchesRegularExpression('#<script src="/assets/[a-f0-9]+\.js"></script>#', $js);
+    }
+
+    public function testJsMinificationFailureFallsBackForWholeGroup(): void
+    {
+        $this->assets->reset();
+        $this->assets->setJsPipeline(true);
+        $this->assets->config(['js_minify' => true]);
+        $this->assets->addJs('/tests/unit/data/assets/broken-unclosed-string.js');
+        $this->assets->addJs('/tests/unit/data/assets/valid.js');
+
+        $js = $this->assets->js();
+
+        // Bundling the good asset and rendering the broken one separately
+        // afterward would move the broken one's code after the good one's,
+        // regardless of which came first in the pipeline. For JS that changes
+        // execution order (e.g. a dependency loading after code that expects
+        // it), so the whole group falls back to one unminified bundle instead
+        // of a partial bundle plus a reordered failure. It still renders as a
+        // single cached script tag, just like the successful-minify case.
+        self::assertMatchesRegularExpression('#<script src="/assets/[a-f0-9]+\.js"></script>#', $js);
+
+        preg_match('#/assets/([a-f0-9]+)\.js#', $js, $matches);
+        $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.js');
+
+        self::assertStringContainsString("var broken = 'unterminated;", $bundled);
+        self::assertStringContainsString("var valid = 'ok';", $bundled);
+        self::assertLessThan(
+            strpos($bundled, "var valid = 'ok';"),
+            strpos($bundled, "var broken = 'unterminated;")
+        );
+    }
+
+    public function testJsMinificationSucceedsWhenNoAssetFails(): void
+    {
+        $this->assets->reset();
+        $this->assets->setJsPipeline(true);
+        $this->assets->config(['js_minify' => true]);
+        $this->assets->addJs('/tests/unit/data/assets/valid.js');
+
+        $js = $this->assets->js();
+
         self::assertMatchesRegularExpression('#<script src="/assets/[a-f0-9]+\.js"></script>#', $js);
     }
 

@@ -1,0 +1,12 @@
+.rgb {
+    color: rgb(10 20 30);
+}
+.hsl {
+    color: hsl(210 40% 50%);
+}
+.alpha {
+    color: rgb(10 20 30 / 50%);
+}
+.neg {
+    color: hsl(-150 40% 50%);
+}

@@ -1,0 +1,4 @@
+.example {
+    color: hsl(210 40%);
+    width: calc(100% - 20px);
+}

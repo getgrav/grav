@@ -717,5 +717,21 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertFalse(Utils::checkFilename('a<b.png'));
         // `'` stays allowed — common in legitimate names, not a tag-breakout char.
         self::assertTrue(Utils::checkFilename("Bob's photo.png"));
+
+        // A dangerous extension anywhere in the name is rejected, since AddHandler
+        // servers run `evil.php.jpg` as PHP.
+        self::assertFalse(Utils::checkFilename('evil.php.jpg'));
+        self::assertFalse(Utils::checkFilename('evil.PhP.png'));
+        self::assertFalse(Utils::checkFilename('page.html.txt'));
+        self::assertTrue(Utils::checkFilename('report.v1.2.pdf'));
+        self::assertTrue(Utils::checkFilename('archive.tar.gz'));
+
+        // PHP-executable extensions stay blocked even when the config drops them.
+        $config->set('security.uploads_dangerous_extensions', []);
+        self::assertFalse(Utils::checkFilename('foo.php'));
+        self::assertFalse(Utils::checkFilename('foo.phtml'));
+        self::assertFalse(Utils::checkFilename('foo.pht'));
+        self::assertFalse(Utils::checkFilename('foo.php7.gif'));
+        self::assertTrue(Utils::checkFilename('foo.html'));
     }
 }

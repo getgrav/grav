@@ -55,6 +55,9 @@ root * .
 # 	path_regexp (?i)^/user/pages/
 # }
 
+# deny running scripts in the public cache folders (image derivatives and combined assets)
+@denied_cache_scripts path_regexp (?i)^/(images|assets)/.*\.(php|php2|php3|php4|php5|php7|php8|phar|phtml|pht|phtm|phps|pl|py|cgi|sh|bat)$
+
 # deny running scripts inside core system folders
 @denied_system path_regexp (?i)^/(system|vendor)/.*\.(txt|xml|md|html|htm|shtml|shtm|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
 
@@ -80,6 +83,7 @@ route {
 	respond @denied_user_accounts 403
 	respond @denied_user_data 403
 	# respond @denied_user_pages 403
+	respond @denied_cache_scripts 403
 	respond @denied_system 403
 	respond @denied_user_scripts 403
 	respond @denied_root_files 403

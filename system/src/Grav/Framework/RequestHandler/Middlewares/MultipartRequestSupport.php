@@ -36,7 +36,7 @@ class MultipartRequestSupport implements MiddlewareInterface
     {
         $contentType = $request->getHeaderLine('content-type');
         $method = $request->getMethod();
-        if (!str_starts_with($contentType, 'multipart/form-data') || !in_array($method, ['PUT', 'PATH'], true)) {
+        if (!str_starts_with($contentType, 'multipart/form-data') || !in_array($method, ['PUT', 'PATCH'], true)) {
             return $handler->handle($request);
         }
 
@@ -88,6 +88,8 @@ class MultipartRequestSupport implements MiddlewareInterface
         $filename = $matches[4] ?? null;
 
         if ($filename !== null) {
+            // Drop any client-supplied path, as PHP does for POST uploads in $_FILES.
+            $filename = basename(str_replace('\\', '/', $filename));
             $stream = Stream::create($body);
             $this->addFile($files, $name, new UploadedFile($stream, strlen($body), UPLOAD_ERR_OK, $filename, $headers['content-type'] ?? null));
         } elseif (str_contains((string) $contentDisposition, 'filename')) {

@@ -830,7 +830,9 @@ class Page implements PageInterface
     public function summary($size = null, $textOnly = false)
     {
         $config = (array)Grav::instance()['config']->get('site.summary');
-        if (isset($this->header->summary)) {
+        // `summary` in a page header is the summary settings. A page that uses
+        // it for its own lede text holds a string there, which is not settings.
+        if (isset($this->header->summary) && \is_array($this->header->summary)) {
             $config = array_merge($config, $this->header->summary);
         }
 

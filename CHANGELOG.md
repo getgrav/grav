@@ -1,3 +1,23 @@
+# v2.1.10
+## 09/22/2026
+
+1. [](#improved)
+    * The shipped web server configs now block running PHP and other scripts in `images/` and `assets/`, and upgrading adds the same rule to an existing site's `.htaccess`.
+    * Uploaded filenames are now rejected when any extension in the name is a dangerous one, not just the last, so `evil.php.jpg` can't run as PHP on servers that map PHP with `AddHandler`.
+    * PHP-executable extensions are now always treated as dangerous uploads, even if a site's config drops them from the list.
+    * `webserver-configs/htaccess.txt` now blocks `tmp/` like the root `.htaccess` does.
+    * File uploads sent with `PUT` or `PATCH` now drop any folder path from the filename, as PHP already does for `POST` uploads.
+    * Image derivatives now include the maximum width you ask for. Thanks @wakqasahmed [#2429](https://github.com/getgrav/grav/issues/2429)
+1. [](#bugfix)
+    * Multipart `PATCH` requests are now parsed, instead of being skipped because of a typo in the method check.
+    * A page whose `summary:` header is text rather than summary settings no longer crashes when its summary is read. Grav reads `summary` in a header as settings (`enabled`, `size`, `format`), and a site that used it for a page's lede broke the page's Markdown version (`.md` or `Accept: text/markdown`), which is what AI crawlers ask for. The text is now ignored as settings and the site's own summary settings apply.
+    * A stylesheet the CSS minifier can't handle no longer breaks the page. Its group is served unminified instead, in the original order, and cached like any other bundle. Thanks @wakqasahmed and @sridharkalaibala [#4305](https://github.com/getgrav/grav/issues/4305)
+    * A script the JS minifier can't handle no longer changes the order scripts load in, for the same reason. Thanks @wakqasahmed [#4313](https://github.com/getgrav/grav/issues/4313)
+    * Space-separated `rgb()` and `hsl()` colours are no longer mangled or dropped when CSS minification is on. Thanks @onetrev [#4305](https://github.com/getgrav/grav/issues/4305)
+    * Visiting a real folder such as `/user/pages` no longer sends the browser into an endless redirect loop. Thanks @3e33 [#4325](https://github.com/getgrav/grav/issues/4325)
+    * Watermarks now land in the right place on resized, cropped and derivative images, including retina files, instead of being placed for the original size or missed entirely. Thanks @phmg701 [#4322](https://github.com/getgrav/grav/issues/4322)
+    * Watermarks now follow the position set in configuration, and an unknown position or a bare `?watermark` no longer breaks the image. [#4322](https://github.com/getgrav/grav/issues/4322)
+
 # v2.1.9
 ## 09/21/2026
 

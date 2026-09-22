@@ -109,6 +109,28 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * The web server adds the slash to a real folder, so stripping it again loops (#4325).
+     */
+    public function testARealFolderKeepsItsTrailingSlash(): void
+    {
+        self::assertNull($this->redirectLocation(null, 'http://localhost/user/pages/'));
+        self::assertNull($this->redirectLocation(null, 'http://localhost/system/'));
+    }
+
+    public function testARealFolderInASubfolderInstallKeepsItsTrailingSlash(): void
+    {
+        self::assertNull($this->redirectLocation(null, 'http://localhost/sub/system/', '/sub'));
+    }
+
+    public function testParentSegmentsNeverCountAsARealFolder(): void
+    {
+        self::assertSame(
+            'http://localhost/system/..',
+            $this->redirectLocation(null, 'http://localhost/system/../')
+        );
+    }
+
+    /**
      * A path that would trip a naive prefix test if a base were involved. With no base
      * configured the new block is skipped entirely, so this must behave like any other.
      */
