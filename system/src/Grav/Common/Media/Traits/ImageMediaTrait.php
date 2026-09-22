@@ -55,6 +55,9 @@ trait ImageMediaTrait
     /** @var bool */
     protected $watermark;
 
+    /** @var array|null The watermark() arguments queued on this image, if any */
+    protected $watermarked;
+
     /** @var bool */
     protected $progressive;
 
@@ -210,11 +213,41 @@ trait ImageMediaTrait
                     $derivative->quality($this->quality);
                 }
 
+                // Same for a watermark asked for before the derivatives were.
+                if ($this->watermarked && method_exists($derivative, 'queueWatermark')) {
+                    $derivative->queueWatermark($this->watermarked);
+                }
+
                 $this->addAlternative($ratio, $derivative);
             }
         }
 
         return $this;
+    }
+
+    /**
+     * Queues a watermark on this image and on each alternative. The stamp is
+     * sized and placed when the image is processed, so every image is stamped
+     * at its own final size.
+     *
+     * @param array $args [stamp image, position, scale from 0 to 1]
+     * @return void
+     */
+    protected function queueWatermark(array $args)
+    {
+        if (!$this->image) {
+            $this->image();
+        }
+
+        $this->transformed = true;
+        $this->watermarked = $args;
+        $this->image->watermark(...$args);
+
+        foreach ($this->alternatives as $medium) {
+            if (method_exists($medium, 'queueWatermark')) {
+                $medium->queueWatermark($args);
+            }
+        }
     }
 
     /**
@@ -500,7 +533,8 @@ trait ImageMediaTrait
             $this->image->merge(ImageFile::open($overlay));
         }
 
-        if ($this->watermark) {
+        // `watermark_all`, unless this image already has a watermark of its own.
+        if ($this->watermark && !$this->watermarked) {
             $this->watermark();
         }
 

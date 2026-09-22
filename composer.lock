@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ccc9e2aeb213cdf9742b3add442b956",
+    "content-hash": "5211230f3387b9ad44dbcfbfb99add61",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -715,16 +715,16 @@
         },
         {
             "name": "getgrav/image",
-            "version": "v4.1.4",
+            "version": "v4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Image.git",
-                "reference": "8c364bebbaa29a92d1775cd23c9a6e01c66b8b4d"
+                "reference": "b7565a15fcd54585e1f8d1920262a29b18fac445"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Image/zipball/8c364bebbaa29a92d1775cd23c9a6e01c66b8b4d",
-                "reference": "8c364bebbaa29a92d1775cd23c9a6e01c66b8b4d",
+                "url": "https://api.github.com/repos/getgrav/Image/zipball/b7565a15fcd54585e1f8d1920262a29b18fac445",
+                "reference": "b7565a15fcd54585e1f8d1920262a29b18fac445",
                 "shasum": ""
             },
             "require": {
@@ -767,9 +767,9 @@
                 "image"
             ],
             "support": {
-                "source": "https://github.com/getgrav/Image/tree/v4.1.4"
+                "source": "https://github.com/getgrav/Image/tree/v4.2.0"
             },
-            "time": "2026-09-13T19:21:00+00:00"
+            "time": "2026-09-22T17:50:03+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
