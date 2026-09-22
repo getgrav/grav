@@ -1,7 +1,14 @@
 # v2.1.10
 ## 09/22/2026
 
+1. [](#improved)
+    * The shipped web server configs now block running PHP and other scripts in `images/` and `assets/`, and upgrading adds the same rule to an existing site's `.htaccess`.
+    * Uploaded filenames are now rejected when any extension in the name is a dangerous one, not just the last, so `evil.php.jpg` can't run as PHP on servers that map PHP with `AddHandler`.
+    * PHP-executable extensions are now always treated as dangerous uploads, even if a site's config drops them from the list.
+    * `webserver-configs/htaccess.txt` now blocks `tmp/` like the root `.htaccess` does.
+    * File uploads sent with `PUT` or `PATCH` now drop any folder path from the filename, as PHP already does for `POST` uploads.
 1. [](#bugfix)
+    * Multipart `PATCH` requests are now parsed, instead of being skipped because of a typo in the method check.
     * A page whose `summary:` header is text rather than summary settings no longer crashes when its summary is read. Grav reads `summary` in a header as settings (`enabled`, `size`, `format`), and a site that used it for a page's lede broke the page's Markdown version (`.md` or `Accept: text/markdown`), which is what AI crawlers ask for. The text is now ignored as settings and the site's own summary settings apply.
 
 # v2.1.9

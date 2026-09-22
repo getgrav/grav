@@ -1122,8 +1122,14 @@ abstract class Utils
      */
     public static function checkFilename($filename): bool
     {
-        $dangerous_extensions = Grav::instance()['config']->get('security.uploads_dangerous_extensions', []);
-        $extension = mb_strtolower(static::pathinfo($filename, PATHINFO_EXTENSION));
+        // The PHP-executable extensions are always dangerous, even if a site's config drops them.
+        $dangerous_extensions = array_merge(
+            ['php', 'php2', 'php3', 'php4', 'php5', 'php7', 'php8', 'phar', 'phtml', 'pht', 'phtm', 'phps'],
+            array_map('mb_strtolower', (array) Grav::instance()['config']->get('security.uploads_dangerous_extensions', []))
+        );
+        // Check every dot-separated part after the base name, not just the last one: servers that map
+        // handlers with AddHandler run `evil.php.jpg` as PHP.
+        $extensions = array_map('mb_strtolower', array_slice(explode('.', (string) $filename), 1));
 
         return !(
             // Empty filenames are not allowed.
@@ -1139,8 +1145,8 @@ abstract class Utils
             // (GHSA-76qg-8r9h-pxxr). `'` is intentionally allowed — it is common in
             // legitimate names and not needed to break out of an HTML tag.
             || strtr($filename, '<>"', '___') !== $filename
-            // File extension should not be part of configured dangerous extensions
-            || in_array($extension, $dangerous_extensions)
+            // No extension in the filename should be a dangerous one
+            || array_intersect($extensions, $dangerous_extensions)
         );
     }
 
