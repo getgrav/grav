@@ -1,3 +1,9 @@
+# v2.1.10
+## 09/22/2026
+
+1. [](#bugfix)
+    * A page whose `summary:` header is text rather than summary settings no longer crashes when its summary is read. Grav reads `summary` in a header as settings (`enabled`, `size`, `format`), and a site that used it for a page's lede broke the page's Markdown version (`.md` or `Accept: text/markdown`), which is what AI crawlers ask for. The text is now ignored as settings and the site's own summary settings apply.
+
 # v2.1.9
 ## 09/21/2026
 
