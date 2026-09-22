@@ -643,9 +643,9 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
 
         // Minified, not the unminified fallback, and every colour intact.
         self::assertStringContainsString('.rgb{color:#0a141e}', $bundled);
-        self::assertStringContainsString('.hsl{color:#4d7fb3}', $bundled);
+        self::assertStringContainsString('.hsl{color:#3d668f}', $bundled);
         self::assertStringContainsString('.alpha{color:rgb(10 20 30/50%)}', $bundled);
-        self::assertStringContainsString('.neg{color:#4d7fb3}', $bundled);
+        self::assertStringContainsString('.neg{color:#3d668f}', $bundled);
     }
 
     public function testClockworkScriptBypassesPipeline(): void
