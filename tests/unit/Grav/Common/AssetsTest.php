@@ -654,6 +654,48 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertMatchesRegularExpression('#<script src="/assets/[a-f0-9]+\.js"></script>#', $js);
     }
 
+    public function testJsMinificationFailureFallsBackForWholeGroup(): void
+    {
+        $this->assets->reset();
+        $this->assets->setJsPipeline(true);
+        $this->assets->config(['js_minify' => true]);
+        $this->assets->addJs('/tests/unit/data/assets/broken-unclosed-string.js');
+        $this->assets->addJs('/tests/unit/data/assets/valid.js');
+
+        $js = $this->assets->js();
+
+        // Bundling the good asset and rendering the broken one separately
+        // afterward would move the broken one's code after the good one's,
+        // regardless of which came first in the pipeline. For JS that changes
+        // execution order (e.g. a dependency loading after code that expects
+        // it), so the whole group falls back to one unminified bundle instead
+        // of a partial bundle plus a reordered failure. It still renders as a
+        // single cached script tag, just like the successful-minify case.
+        self::assertMatchesRegularExpression('#<script src="/assets/[a-f0-9]+\.js"></script>#', $js);
+
+        preg_match('#/assets/([a-f0-9]+)\.js#', $js, $matches);
+        $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.js');
+
+        self::assertStringContainsString("var broken = 'unterminated;", $bundled);
+        self::assertStringContainsString("var valid = 'ok';", $bundled);
+        self::assertLessThan(
+            strpos($bundled, "var valid = 'ok';"),
+            strpos($bundled, "var broken = 'unterminated;")
+        );
+    }
+
+    public function testJsMinificationSucceedsWhenNoAssetFails(): void
+    {
+        $this->assets->reset();
+        $this->assets->setJsPipeline(true);
+        $this->assets->config(['js_minify' => true]);
+        $this->assets->addJs('/tests/unit/data/assets/valid.js');
+
+        $js = $this->assets->js();
+
+        self::assertMatchesRegularExpression('#<script src="/assets/[a-f0-9]+\.js"></script>#', $js);
+    }
+
     public function testPipelineWithTimestamp(): void
     {
         $this->assets->reset();
