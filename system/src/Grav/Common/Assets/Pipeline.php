@@ -110,7 +110,7 @@ class Pipeline extends PropertyObject
      * @param array $assets
      * @param string $group
      * @param array $attributes
-     * @return bool|string     URL or generated content if available, else false
+     * @return string|false  Returns the rendered output, or false if no assets
      */
     public function renderCss($assets, $group, $attributes = [])
     {
@@ -124,6 +124,8 @@ class Pipeline extends PropertyObject
 
         // Store Attributes
         $this->attributes = array_merge(['type' => 'text/css', 'rel' => 'stylesheet'], $attributes);
+
+        $shouldMinify = $this->shouldMinify('css');
 
         // Compute uid based on assets and timestamp
         $json_assets = json_encode($assets);
@@ -140,13 +142,23 @@ class Pipeline extends PropertyObject
                 return false;
             }
 
-            // Concatenate files
-            $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
+            if ($shouldMinify) {
+                $result = $this->gatherAndMinifyCss($assets);
 
-            // Minify if required
-            if ($this->shouldMinify('css')) {
-                $minifier = new CSSMinifier();
-                $buffer = $minifier->run($buffer);
+                if (empty($result['failed'])) {
+                    $buffer = $result['buffer'];
+                } else {
+                    // Bundling the assets that minified and rendering the failed
+                    // ones individually afterward would reorder them relative to
+                    // assets that succeeded but come later in $assets, which can
+                    // change which rule wins the CSS cascade. Fall back to the
+                    // whole group concatenated unminified, in its original order
+                    // instead - the same output css_minify: false produces for
+                    // these files - so the bundle still caches as one file.
+                    $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
+                }
+            } else {
+                $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
             }
 
             // Write file
@@ -356,6 +368,77 @@ class Pipeline extends PropertyObject
         }
 
         return $minify;
+    }
+
+    /**
+     * Gather CSS files and minify each one individually.
+     * Files that fail minification are tracked and returned separately.
+     *
+     * @param array $assets Array of asset objects
+     * @return array{buffer: string, failed: array} Combined minified content and failed assets
+     */
+    private function gatherAndMinifyCss(array $assets): array
+    {
+        $buffer = '';
+        $failed = [];
+
+        /** @var Debugger $debugger */
+        $debugger = Grav::instance()['debugger'];
+
+        foreach ($assets as $key => $asset) {
+            $local = true;
+            $link = $asset->getAsset();
+            $relative_path = $link;
+
+            if (static::isRemoteLink($link)) {
+                $local = false;
+                if (str_starts_with((string) $link, '//')) {
+                    $link = 'http:' . $link;
+                }
+                $relative_dir = dirname((string) $relative_path);
+            } else {
+                // Fix to remove relative dir if grav is in one
+                if (($this->base_url !== '/') && Utils::startsWith($relative_path, $this->base_url)) {
+                    $base_url = '#' . preg_quote($this->base_url, '#') . '#';
+                    $relative_path = ltrim((string) preg_replace($base_url, '/', (string) $link, 1), '/');
+                }
+
+                $relative_dir = dirname((string) $relative_path);
+                $link = GRAV_ROOT . '/' . $relative_path;
+            }
+
+            $file = $this->fetch_command instanceof \Closure ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
+
+            // No file found, skip it...
+            if ($file === false) {
+                continue;
+            }
+
+            if ($this->css_rewrite) {
+                $file = $this->cssRewrite($file, $relative_dir, $local);
+            }
+
+            try {
+                $file = (new CSSMinifier())->run($file);
+                $file = rtrim($file) . PHP_EOL;
+                $buffer .= $file;
+            } catch (\Throwable $e) {
+                $failed[$key] = $asset;
+
+                $message = "CSS Minification failed for '{$asset->getAsset()}': {$e->getMessage()}";
+                $debugger->addMessage($message, 'error');
+                Grav::instance()['log']->error($message);
+            }
+        }
+
+        // moveImports() always prefixes its result with "\n\n" even when there
+        // were no @import statements to hoist. The original single-pass design
+        // ran the whole buffer through the minifier afterward, which collapsed
+        // that filler away; per-asset minification happens before this point
+        // now, so strip it here instead.
+        $buffer = ltrim($this->moveImports($buffer));
+
+        return ['buffer' => $buffer, 'failed' => $failed];
     }
 
     /**

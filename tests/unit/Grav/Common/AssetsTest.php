@@ -588,6 +588,47 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertMatchesRegularExpression('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
     }
 
+    public function testCssMinificationFailureFallsBackForWholeGroup(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/broken-modern-syntax.css');
+        $this->assets->addCss('/tests/unit/data/assets/valid.css');
+
+        $css = $this->assets->css();
+
+        // Bundling the good asset and rendering the broken one separately
+        // afterward would put the broken one's CSS after the good one's in
+        // the cascade regardless of which came first in the pipeline — so
+        // the whole group falls back to one unminified bundle instead of a
+        // partial bundle plus a reordered failure. It still renders as a
+        // single cached link, just like the successful-minify case.
+        self::assertMatchesRegularExpression('#<link href="/assets/[a-f0-9]+\.css" type="text/css" rel="stylesheet">#', $css);
+
+        preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
+        $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
+
+        self::assertStringContainsString('color: hsl(210 40% 50%)', $bundled);
+        self::assertStringContainsString('color: blue', $bundled);
+        self::assertLessThan(
+            strpos($bundled, 'color: blue'),
+            strpos($bundled, 'color: hsl(210 40% 50%)')
+        );
+    }
+
+    public function testCssMinificationSucceedsWhenNoAssetFails(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/valid.css');
+
+        $css = $this->assets->css();
+
+        self::assertMatchesRegularExpression('#<link href="/assets/[a-f0-9]+\.css" type="text/css" rel="stylesheet">#', $css);
+    }
+
     public function testClockworkScriptBypassesPipeline(): void
     {
         $this->assets->reset();
