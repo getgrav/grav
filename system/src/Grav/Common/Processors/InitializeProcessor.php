@@ -462,11 +462,36 @@ class InitializeProcessor extends ProcessorBase
         }
 
         if ($path !== $root && $path !== $root . '/' && Utils::endsWith($path, '/')) {
+            // A real folder, such as user/pages. The web server adds this slash itself
+            // (Apache's mod_dir, nginx, Caddy), so taking it off again sends the visitor
+            // round in a redirect loop (#4325). Leave it and let the request 404.
+            if (static::isFolderOnDisk(substr(rtrim($path, '/'), strlen(rtrim($root, '/'))))) {
+                return null;
+            }
+
             // Use permanent redirect for SEO reasons.
             return $this->container->getRedirectResponse((string)$uri->withPath(rtrim($path, '/')), $code);
         }
 
         return null;
+    }
+
+    /**
+     * Is `$relative` (a URL path below the site root) a real folder in the web root?
+     *
+     * `..` is refused so the check cannot be used to probe for folders outside the site.
+     *
+     * @param string $relative
+     * @return bool
+     */
+    protected static function isFolderOnDisk(string $relative): bool
+    {
+        $relative = trim(rawurldecode($relative), '/');
+        if ($relative === '' || in_array('..', explode('/', $relative), true)) {
+            return false;
+        }
+
+        return is_dir(GRAV_WEBROOT . '/' . $relative);
     }
 
     /**
