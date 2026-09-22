@@ -17,8 +17,8 @@ $root = $_SERVER['DOCUMENT_ROOT'];
 $path = $_SERVER['SCRIPT_NAME'];
 if ($path !== '/index.php' && is_file($root . $path)) {
     if (!(
-        // Block all direct access to files and folders beginning with a dot
-        str_contains((string) $path, '/.')
+        // Block dot files and folders except .well-known directories
+        preg_match('`/\.(?!well-known/)`', (string) $path)
         // Block all direct access for these folders
         || preg_match('`^/(\.git|cache|bin|logs|backup|webserver-configs|tests)/`ui', (string) $path)
         // Block access to specific file types for these system folders
