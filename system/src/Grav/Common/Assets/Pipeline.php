@@ -354,6 +354,26 @@ class Pipeline extends PropertyObject
     }
 
     /**
+     * Rewrite space-separated rgb()/hsl() colours to the comma form.
+     *
+     * tubalmartin/cssmin only understands the comma form. On rgb(10 20 30) it
+     * silently emits the invalid colour #0a, and on hsl(210 40% 50%) it throws.
+     * Only plain three-value forms are rewritten; anything with an alpha, a unit
+     * like deg, or var() is left alone, and cssmin leaves those untouched too.
+     *
+     * @param string $css
+     * @return string
+     */
+    private static function legacyColorSyntax(string $css): string
+    {
+        return (string) preg_replace(
+            '/(?<![\w-])(rgb|hsl)\(\s*(-?[\d.]+%?)\s+(-?[\d.]+%?)\s+(-?[\d.]+%?)\s*\)/i',
+            '$1($2,$3,$4)',
+            $css
+        );
+    }
+
+    /**
      * @param string $type
      * @return bool
      */
@@ -423,7 +443,7 @@ class Pipeline extends PropertyObject
             }
 
             try {
-                $file = (new CSSMinifier())->run($file);
+                $file = (new CSSMinifier())->run(self::legacyColorSyntax($file));
                 $file = rtrim($file) . PHP_EOL;
                 $buffer .= $file;
             } catch (\Throwable $e) {

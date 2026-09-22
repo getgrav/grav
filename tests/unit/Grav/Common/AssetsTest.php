@@ -609,11 +609,11 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
         $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
 
-        self::assertStringContainsString('color: hsl(210 40% 50%)', $bundled);
+        self::assertStringContainsString('color: hsl(210 40%)', $bundled);
         self::assertStringContainsString('color: blue', $bundled);
         self::assertLessThan(
             strpos($bundled, 'color: blue'),
-            strpos($bundled, 'color: hsl(210 40% 50%)')
+            strpos($bundled, 'color: hsl(210 40%)')
         );
     }
 
@@ -627,6 +627,25 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         $css = $this->assets->css();
 
         self::assertMatchesRegularExpression('#<link href="/assets/[a-f0-9]+\.css" type="text/css" rel="stylesheet">#', $css);
+    }
+
+    public function testCssMinificationKeepsSpaceSeparatedColors(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/modern-colors.css');
+
+        $css = $this->assets->css();
+
+        preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
+        $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
+
+        // Minified, not the unminified fallback, and every colour intact.
+        self::assertStringContainsString('.rgb{color:#0a141e}', $bundled);
+        self::assertStringContainsString('.hsl{color:#4d7fb3}', $bundled);
+        self::assertStringContainsString('.alpha{color:rgb(10 20 30/50%)}', $bundled);
+        self::assertStringContainsString('.neg{color:#4d7fb3}', $bundled);
     }
 
     public function testClockworkScriptBypassesPipeline(): void
