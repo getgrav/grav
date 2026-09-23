@@ -1,3 +1,10 @@
+# v2.1.12
+## 09/23/2026
+
+1. [](#bugfix)
+    * SVG fills that point at a gradient on the same page, such as `fill: url(#linear-gradient)`, keep working with CSS pipelining on. Thanks @wakqasahmed [#2784](https://github.com/getgrav/grav/issues/2784)
+    * CSS pipelining no longer breaks `url()` values that aren't file paths, such as `about:blank` or `blob:` links, and now correctly rewrites paths written as `URL(...)` or with spaces inside the brackets.
+
 # v2.1.11
 ## 09/23/2026
 
