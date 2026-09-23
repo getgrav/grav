@@ -1,0 +1,4 @@
+/* first file: nothing to hoist */
+.first {
+    content: "a; b { c }";
+}

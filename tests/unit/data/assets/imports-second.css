@@ -1,0 +1,13 @@
+@charset "UTF-8";
+@import url(//fonts.example.com/css?family=Montserrat:400|Muli:300,400);
+@import url("print.css") print;
+/* @import "/commented-out.css"; */
+#chapter h3 {
+    font-family: "Muli", "Helvetica", "Tahoma", sans-serif;
+}
+.second::before {
+    content: "@import '/not-an-import.css';";
+}
+.third {
+    color: red;
+}

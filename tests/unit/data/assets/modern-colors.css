@@ -1,8 +1,17 @@
 .rgb {
     color: rgb(10 20 30);
 }
+.orange {
+    color: rgb(255 128 0);
+}
+.percent {
+    color: rgb(10% 20% 30%);
+}
+.gradient {
+    background: linear-gradient(to right, rgb(10 20 30) 0%, rgb(255 128 0) 100%);
+}
 .hsl {
-    color: hsl(210 40% 40%);
+    color: hsl(210 40% 50%);
 }
 .alpha {
     color: rgb(10 20 30 / 50%);
