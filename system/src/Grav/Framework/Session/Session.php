@@ -311,6 +311,17 @@ class Session implements SessionInterface
             return;
         }
 
+        // Once the response headers are out, PHP refuses session_start() and
+        // session_id() alike, so the lock cannot be taken back. That is the case
+        // when something finished the request before Grav's own shutdown, such as a
+        // plugin calling fastcgi_finish_request() from its own shutdown function.
+        // The warning session_id() raised there became an exception that aborted
+        // Grav::shutdown() before onShutdown. Keep this request's data in memory,
+        // as for a session that is gone.
+        if (headers_sent()) {
+            return;
+        }
+
         $options = $this->options;
         $options['use_cookies'] = '0';
 

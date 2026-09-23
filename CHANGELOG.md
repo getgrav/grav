@@ -25,6 +25,7 @@
     * A new `session.lazy` setting, off by default, starts the session only when a visitor needs one, so anonymous page views can go out without a session cookie and be cached by a proxy or CDN.
     * CSS minification now uses wikimedia/minify, which understands modern CSS and is about 15 to 25 times faster on real stylesheets.
 1. [](#bugfix)
+    * Plugins' `onShutdown` work runs again after Admin Next saves on sites with `session.read_and_close` on, when another plugin had already finished the response.
     * Deleting or renaming a page folder is now picked up without clearing the cache.
     * The `file` change check no longer counts files that only contain `.md` somewhere in their name, such as `page.md.bak`, or whose name merely ends in `yaml`.
     * Searching Flex pages now matches a page's route as well as its title, slug and menu.

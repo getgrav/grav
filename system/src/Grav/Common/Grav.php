@@ -800,9 +800,14 @@ class Grav extends Container
             @ignore_user_abort(true);
         }
 
-        // Close the session allowing new requests to be handled.
+        // Close the session allowing new requests to be handled. A failure here must
+        // not cost every plugin its onShutdown work, so it is logged and skipped.
         if (isset($this['session'])) {
-            $this['session']->close();
+            try {
+                $this['session']->close();
+            } catch (\Throwable $e) {
+                $this['log']->error('Session close failed during shutdown: ' . $e->getMessage());
+            }
         }
 
         /** @var Config $config */
