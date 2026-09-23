@@ -42,4 +42,32 @@ class PipelineCssRewriteTest extends \Codeception\Test\Unit
         $this->assertStringNotContainsString('url(images/bg.png)', $result);
         $this->assertStringContainsString('assets/css/images/bg.png', $result);
     }
+
+    public function testUrlsThatAreNotFilePathsAreLeftUntouched(): void
+    {
+        foreach ([
+            'url("#linear-gradient")',
+            "url('#linear-gradient')",
+            'url( #linear-gradient )',
+            'url(about:blank)',
+            'url(blob:https://example.com/0f3a)',
+            'url(mailto:someone@example.com)',
+            "url('data:image/svg+xml;utf8,<svg/>')",
+            'url()',
+        ] as $url) {
+            $css = "a { background: $url; }";
+
+            $this->assertSame($css, $this->cssRewrite($css, 'assets/css', true), $url);
+        }
+    }
+
+    public function testRelativeFileUrlWithSpacesOrUppercaseIsRewritten(): void
+    {
+        foreach (['url( images/bg.png )', 'URL(images/bg.png)', 'url( "images/bg.png" )'] as $url) {
+            $result = $this->cssRewrite("a { background: $url; }", 'assets/css', true);
+
+            $this->assertStringContainsString('assets/css/images/bg.png', $result, $url);
+            $this->assertStringNotContainsString('css/ images', $result, $url);
+        }
+    }
 }
