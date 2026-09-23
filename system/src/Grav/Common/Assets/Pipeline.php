@@ -278,8 +278,10 @@ class Pipeline extends PropertyObject
                 $old_url = $matches[2];
             }
  
-            // Ensure link is not rooted to web server, a data URL, or to a remote host
-            if (preg_match(self::FIRST_FORWARDSLASH_REGEX, $old_url) || Utils::startsWith($old_url, 'data:') || $this->isRemoteLink($old_url)) {
+            // Ensure link is not rooted to web server, a data URL, a same-document
+            // fragment (e.g. `url(#linear-gradient)` referencing an inline SVG
+            // element), or a remote host
+            if (preg_match(self::FIRST_FORWARDSLASH_REGEX, $old_url) || Utils::startsWith($old_url, 'data:') || Utils::startsWith($old_url, '#') || $this->isRemoteLink($old_url)) {
                 return $matches[0];
             }
 
