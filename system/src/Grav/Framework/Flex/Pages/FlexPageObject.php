@@ -351,6 +351,23 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     }
 
     /**
+     * A page has no `key` property, so searching `key` matches the page key (its route) instead.
+     *
+     * @param string $property
+     * @param string $search
+     * @param array|null $options
+     * @return float
+     */
+    public function searchProperty(string $property, string $search, ?array $options = null): float
+    {
+        if ($property === 'key') {
+            return $this->searchNestedProperty($property, $search, $options);
+        }
+
+        return parent::searchProperty($property, $search, $options);
+    }
+
+    /**
      * @param string $property
      * @param mixed $default
      * @return mixed

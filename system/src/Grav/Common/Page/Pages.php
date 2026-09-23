@@ -16,6 +16,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Debugger;
+use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Flex\Types\Pages\PageCollection;
 use Grav\Common\Flex\Types\Pages\PageIndex;
@@ -57,6 +58,12 @@ use function md5;
  */
 class Pages
 {
+    /** Seconds a request waits for another request to finish rebuilding the pages before it rebuilds them itself. */
+    protected const REBUILD_LOCK_TIMEOUT = 15;
+
+    /** File in cache/compiled/pages holding the stamp that markChanged() bumps. */
+    protected const CHANGE_STAMP_FILE = 'change-stamp.txt';
+
     /** @var FlexDirectory|null */
     private $directory;
 
@@ -112,6 +119,10 @@ class Pages
     protected $children_lazy = false;
     /** @var bool Sort orders live in the index store; $this->sort only overlays runtime-built orders and memoized reads. */
     protected $sort_lazy = false;
+    /** @var array<string,int|false>|null Folders and files the running rebuild has seen, with their modification times. */
+    protected $scan_paths;
+    /** @var bool True while this process rebuilds the pages, so a nested rebuild never waits for its own lock. */
+    private static $rebuilding = false;
     /** @var Types|null */
     protected static $types;
     /** @var string|null */
@@ -1927,9 +1938,6 @@ class Pages
         /** @var Config $config */
         $config = $this->grav['config'];
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
-
         /** @var Language $language */
         $language = $this->grav['language'];
 
@@ -1939,55 +1947,106 @@ class Pages
         $this->active_lang = $language->getActive();
 
         if ($config->get('system.cache.enabled')) {
-            /** @var Language $language */
-            $language = $this->grav['language'];
-
             $interval = (int)$config->get('system.cache.check.interval', 0);
-            $hash = $this->resolvePagesHash($pages_dirs, $interval, (string)$this->check_method);
-
-            $this->simple_pages_hash = json_encode($pages_dirs) . $hash . $config->checksum();
-            $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive());
+            $method = (string)$this->check_method;
+            $this->setPagesCacheId($pages_dirs, $this->resolvePagesHash($pages_dirs, $interval, $method));
 
             /** @var Cache $cache */
             $cache = $this->grav['cache'];
-            $cached = $cache->fetch($this->pages_cache_id);
-            if ($cached && $this->getVersion() === $cached[0]) {
-                // A lazy index stores true-markers instead of Page objects; the pages
-                // themselves live in the per-page index store and hydrate on access.
-                $lazy = !empty($cached[6]);
-                $store = $lazy ? $this->openIndexStore($pages_dirs) : null;
-
-                if (!$lazy || ($store && $store->isValid($this->pages_cache_id))) {
-                    $this->index_store = $store;
-                    [, $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
-
-                    /** @var Taxonomy $taxonomy */
-                    $taxonomy = $this->grav['taxonomy'];
-                    if ($lazy) {
-                        // Routes, children lists, sort orders and the taxonomy map
-                        // live in the index store and load on first use.
-                        $this->routes_lazy = true;
-                        $this->children_lazy = true;
-                        $this->sort_lazy = true;
-                        $taxonomy->setLoader(
-                            fn() => $this->index_store ? $this->index_store->readTaxonomy() : [],
-                            fn(string $type, string $value) => $this->index_store ? $this->index_store->readTaxonomyValue($type, $value) : [],
-                            $language->getLanguage()
-                        );
-                    } else {
-                        $taxonomy->taxonomy($taxonomy_map);
-                    }
-
-                    return;
-                }
+            if ($this->loadCachedPages($cache, $pages_dirs)) {
+                return;
             }
 
-            $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
-        } else {
-            $this->grav['debugger']->addMessage('Page cache disabled, rebuilding pages..');
+            // Only one request rebuilds at a time. The others wait for it and then read the
+            // cache it wrote; if it takes too long, they rebuild the pages themselves.
+            $waited = false;
+            $lock = self::$rebuilding ? null : $this->acquireLock('rebuild-' . md5(json_encode($pages_dirs) . $this->active_lang), static::REBUILD_LOCK_TIMEOUT, $waited);
+            $rebuilding = self::$rebuilding;
+            self::$rebuilding = true;
+            try {
+                if ($waited) {
+                    $this->setPagesCacheId($pages_dirs, $this->resolvePagesHash($pages_dirs, $interval, $method));
+                    if ($this->loadCachedPages($cache, $pages_dirs)) {
+                        return;
+                    }
+                }
+
+                $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
+                $this->resetPages($pages_dirs);
+            } finally {
+                self::$rebuilding = $rebuilding;
+                $this->releaseLock($lock);
+            }
+
+            return;
         }
 
+        $this->grav['debugger']->addMessage('Page cache disabled, rebuilding pages..');
         $this->resetPages($pages_dirs);
+    }
+
+    /**
+     * Load the pages index from the cache entry for the current pages cache id.
+     *
+     * @param Cache $cache
+     * @param array $pages_dirs
+     * @return bool True if the cached index was used.
+     */
+    protected function loadCachedPages(Cache $cache, array $pages_dirs): bool
+    {
+        $cached = $cache->fetch($this->pages_cache_id);
+        if (!$cached || $this->getVersion() !== $cached[0]) {
+            return false;
+        }
+
+        // A lazy index stores true-markers instead of Page objects; the pages
+        // themselves live in the per-page index store and hydrate on access.
+        $lazy = !empty($cached[6]);
+        $store = $lazy ? $this->openIndexStore($pages_dirs) : null;
+        if ($lazy && !($store && $store->isValid($this->pages_cache_id))) {
+            return false;
+        }
+
+        $this->index_store = $store;
+        [, $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
+
+        /** @var Taxonomy $taxonomy */
+        $taxonomy = $this->grav['taxonomy'];
+        if ($lazy) {
+            /** @var Language $language */
+            $language = $this->grav['language'];
+
+            // Routes, children lists, sort orders and the taxonomy map
+            // live in the index store and load on first use.
+            $this->routes_lazy = true;
+            $this->children_lazy = true;
+            $this->sort_lazy = true;
+            $taxonomy->setLoader(
+                fn() => $this->index_store ? $this->index_store->readTaxonomy() : [],
+                fn(string $type, string $value) => $this->index_store ? $this->index_store->readTaxonomyValue($type, $value) : [],
+                $language->getLanguage()
+            );
+        } else {
+            $taxonomy->taxonomy($taxonomy_map);
+        }
+
+        return true;
+    }
+
+    /**
+     * Set the pages cache id from the pages hash, the change stamp, the configuration and the language.
+     *
+     * @param array $pages_dirs
+     * @param string|int $hash
+     * @return void
+     */
+    protected function setPagesCacheId(array $pages_dirs, $hash): void
+    {
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        $this->simple_pages_hash = json_encode($pages_dirs) . $hash . $this->getChangeStamp() . $this->grav['config']->checksum();
+        $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive());
     }
 
     protected function getPagesPaths(): array
@@ -2025,15 +2084,53 @@ class Pages
         $taxonomy = $this->grav['taxonomy'];
         $taxonomy->setLoader(null);
 
-        foreach ($pages_dirs as $dir) {
-            $this->recurse($dir);
+        /** @var Config $config */
+        $config = $this->grav['config'];
+        $cache_enabled = (bool)$config->get('system.cache.enabled');
+        $method = (string)$this->check_method;
+
+        // Record what the scan sees, so the change check can stat these paths instead of walking the tree.
+        $check = $cache_enabled && $this->pages_cache_id && $method !== 'none' && $method !== 'off';
+        $this->scan_paths = $check ? [] : null;
+
+        // Page files skip the per-file compiled cache during the scan and reuse the headers parsed last time.
+        $headers_file = $this->getScanFile('frontmatter-' . md5(json_encode($pages_dirs) . $this->active_lang));
+        $scanning = CompiledMarkdownFile::beginScan($headers_file ? ($this->readScanFile($headers_file) ?? []) : []);
+        try {
+            foreach ($pages_dirs as $dir) {
+                $this->recurse($dir);
+            }
+        } finally {
+            if ($scanning) {
+                $headers = CompiledMarkdownFile::endScan($changed);
+                if ($changed && $headers_file) {
+                    $this->writeScanFile($headers_file, $headers);
+                }
+            }
         }
 
         $this->buildRoutes();
         $this->enrichChildrenIndex();
 
+        if ($this->scan_paths !== null) {
+            // Cache the pages under the hash of what the scan saw rather than the hash the request
+            // started with, so a cached index always matches the tree it was built from. Without
+            // a saved scan state the next check could not reproduce that hash, so keep the old one.
+            $hash = $this->hashScanPaths($this->scan_paths);
+            $state_file = $this->getScanFile('check-' . md5(json_encode($pages_dirs) . $method));
+            if ($state_file && $this->writeScanFile($state_file, ['hash' => $hash, 'paths' => $this->scan_paths])) {
+                $interval = (int)$config->get('system.cache.check.interval', 0);
+                if ($interval > 0) {
+                    $this->grav['cache']->save($this->getPagesHashKey($pages_dirs, $method), $hash, $interval);
+                }
+
+                $this->setPagesCacheId($pages_dirs, $hash);
+            }
+            $this->scan_paths = null;
+        }
+
         // cache if needed
-        if ($this->grav['config']->get('system.cache.enabled')) {
+        if ($cache_enabled) {
             /** @var Cache $cache */
             $cache = $this->grav['cache'];
 
@@ -2164,6 +2261,12 @@ class Pages
         $directory = rtrim($directory, DS);
         $page = new Page;
 
+        // Take the folder time before listing it, so an entry added during the scan still counts as a change.
+        $scan = $this->scan_paths !== null ? (string)$this->check_method : null;
+        if ($scan !== null) {
+            $this->scan_paths[$directory] = @filemtime($directory);
+        }
+
         /** @var Config $config */
         $config = $this->grav['config'];
 
@@ -2239,6 +2342,14 @@ class Pages
             $modified = $file->getMTime();
             if ($modified > $last_modified) {
                 $last_modified = $modified;
+            }
+
+            // The folder method checks folders only; hash checks every file; file checks pages and YAML.
+            if ($scan !== null && $scan !== 'folder') {
+                $lower = strtolower($filename);
+                if ($scan === 'hash' || str_ends_with($lower, '.md') || str_ends_with($lower, '.yaml')) {
+                    $this->scan_paths[$file->getPathname()] = $modified;
+                }
             }
 
             // Page is the one that matches to $page_extensions list with the lowest index number.
@@ -2581,7 +2692,18 @@ class Pages
     }
 
     /**
-     * Resolve filesystem hash for pages with optional throttling to avoid expensive scans every request.
+     * Resolve the hash that tells whether the pages changed since they were cached.
+     *
+     * The check stats the folders and files the last rebuild saw instead of walking the whole
+     * tree. A folder's time changes when an entry is added, removed or renamed in it, and a
+     * file's time when it is edited, so this finds deleted and renamed pages as well as edits.
+     * The result is kept for `system.cache.check.interval` seconds, and while one request
+     * checks, the others keep using the last result.
+     *
+     * @param array $pagesDirs
+     * @param int $interval
+     * @param string $method
+     * @return string|int
      */
     protected function resolvePagesHash(array $pagesDirs, int $interval, string $method): string|int
     {
@@ -2589,36 +2711,213 @@ class Pages
             return 0;
         }
 
-        $resolver = static function () use ($pagesDirs, $method) {
-            return match ($method) {
-                'folder' => Folder::lastModifiedFolder($pagesDirs),
-                'hash' => Folder::hashAllFiles($pagesDirs),
-                default => Folder::lastModifiedFile($pagesDirs),
-            };
-        };
-
-        if ($interval <= 0) {
-            return $resolver();
-        }
-
         /** @var Cache $cache */
         $cache = $this->grav['cache'];
-        if (!$cache) {
-            return $resolver();
+        $cacheKey = $this->getPagesHashKey($pagesDirs, $method);
+        if ($interval > 0) {
+            $cached = $cache->fetch($cacheKey);
+            if ($cached !== false) {
+                return $cached;
+            }
         }
 
-        $configChecksum = $this->grav['config']->checksum();
-        $cacheKey = 'pages-hash-' . $method . '-' . md5(json_encode($pagesDirs) . $configChecksum);
+        $key = md5(json_encode($pagesDirs) . $method);
+        $file = $this->getScanFile('check-' . $key);
+        $state = $file ? $this->readScanFile($file) : null;
+        $known = isset($state['hash'], $state['paths']) && is_array($state['paths']);
 
-        $cached = $cache->fetch($cacheKey);
-        if ($cached !== false) {
-            return $cached;
+        $lock = $interval > 0 ? $this->acquireLock('check-' . $key) : null;
+        if ($lock === false && $known) {
+            return $state['hash'];
         }
 
-        $hash = $resolver();
-        $cache->save($cacheKey, $hash, $interval);
+        try {
+            if ($known) {
+                clearstatcache();
+                $current = [];
+                $changed = false;
+                foreach ($state['paths'] as $path => $modified) {
+                    $current[$path] = $now = @filemtime($path);
+                    if ($now !== $modified) {
+                        $changed = true;
+                    }
+                }
+                $hash = $changed ? $this->hashScanPaths($current) : $state['hash'];
+            } else {
+                // Nothing scanned yet (or the scan state cannot be saved): walk the tree. A
+                // rebuild records the paths it sees, and later checks only stat those.
+                $hash = match ($method) {
+                    'folder' => Folder::lastModifiedFolder($pagesDirs),
+                    'hash' => Folder::hashAllFiles($pagesDirs),
+                    default => Folder::lastModifiedFile($pagesDirs),
+                };
+            }
+
+            if ($interval > 0) {
+                $cache->save($cacheKey, $hash, $interval);
+            }
+        } finally {
+            $this->releaseLock($lock);
+        }
 
         return $hash;
+    }
+
+    /**
+     * Tell Grav that page files changed, so the next request rebuilds the pages cache instead of
+     * waiting for the change check to notice. Call it after saving, moving or deleting pages.
+     *
+     * @return void
+     */
+    public function markChanged(): void
+    {
+        // A file rather than the cache driver, so a change made from the CLI (file cache) is
+        // seen by web requests using another driver such as APCu.
+        $file = $this->getScanFile(static::CHANGE_STAMP_FILE, '');
+        if ($file === null) {
+            return;
+        }
+
+        $tmp = $file . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        if (@file_put_contents($tmp, bin2hex(random_bytes(8))) === false || !@rename($tmp, $file)) {
+            @unlink($tmp);
+        }
+    }
+
+    /**
+     * The stamp markChanged() last wrote, or an empty string if there is none.
+     *
+     * @return string
+     */
+    protected function getChangeStamp(): string
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $dir = $locator->findResource('cache://compiled/pages', true, true);
+        $stamp = is_string($dir) ? @file_get_contents($dir . '/' . static::CHANGE_STAMP_FILE) : false;
+
+        return is_string($stamp) ? trim($stamp) : '';
+    }
+
+    /**
+     * @param array $pagesDirs
+     * @param string $method
+     * @return string
+     */
+    protected function getPagesHashKey(array $pagesDirs, string $method): string
+    {
+        return 'pages-hash-' . $method . '-' . md5(json_encode($pagesDirs) . $this->grav['config']->checksum());
+    }
+
+    /**
+     * @param array<string,int|false> $paths
+     * @return string
+     */
+    protected function hashScanPaths(array $paths): string
+    {
+        return hash('xxh128', serialize($paths));
+    }
+
+    /**
+     * @param string $name
+     * @param string $extension
+     * @return string|null
+     */
+    protected function getScanFile(string $name, string $extension = '.ser'): ?string
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $dir = $locator->findResource('cache://compiled/pages', true, true);
+        if (!is_string($dir) || (!is_dir($dir) && !@mkdir($dir, 0777, true) && !is_dir($dir))) {
+            return null;
+        }
+
+        return $dir . '/' . $name . $extension;
+    }
+
+    /**
+     * @param string $file
+     * @return array|null
+     */
+    protected function readScanFile(string $file): ?array
+    {
+        $raw = @file_get_contents($file);
+        $data = $raw ? @unserialize($raw, ['allowed_classes' => false]) : null;
+
+        return is_array($data) ? $data : null;
+    }
+
+    /**
+     * Write a scan file in one step, so a request reading it never sees a partial file.
+     *
+     * @param string $file
+     * @param array $data
+     * @return bool
+     */
+    protected function writeScanFile(string $file, array $data): bool
+    {
+        $tmp = $file . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        if (@file_put_contents($tmp, serialize($data)) === false || !@rename($tmp, $file)) {
+            @unlink($tmp);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Take an exclusive lock, waiting up to $timeout seconds for it.
+     *
+     * The lock is an flock on a file in cache/compiled/pages, so the operating system releases
+     * it when the process that holds it ends, even if that process crashed.
+     *
+     * @param string $name
+     * @param float $timeout Seconds to wait; 0 means do not wait.
+     * @param bool $waited Set to true if another process held the lock.
+     * @return resource|false|null The lock, false if it is busy, or null if locking is not available.
+     */
+    protected function acquireLock(string $name, float $timeout = 0, bool &$waited = false)
+    {
+        $file = $this->getScanFile($name, '.lock');
+        $handle = $file ? @fopen($file, 'c') : false;
+        if (!$handle) {
+            return null;
+        }
+
+        $deadline = microtime(true) + $timeout;
+        while (true) {
+            $wouldBlock = 0;
+            if (flock($handle, LOCK_EX | LOCK_NB, $wouldBlock)) {
+                return $handle;
+            }
+            if (!$wouldBlock) {
+                // The filesystem does not support locks: carry on without one.
+                fclose($handle);
+
+                return null;
+            }
+
+            $waited = true;
+            if (microtime(true) >= $deadline) {
+                fclose($handle);
+
+                return false;
+            }
+            usleep(25000);
+        }
+    }
+
+    /**
+     * @param resource|false|null $lock
+     * @return void
+     */
+    protected function releaseLock($lock): void
+    {
+        if (is_resource($lock)) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
     }
 
     /**

@@ -1444,6 +1444,12 @@ class Page implements PageInterface
             $directory->clearCache();
         }
 
+        // And the regular pages cache, without waiting for the change check.
+        $pages = Grav::instance()['pages'] ?? null;
+        if ($pages instanceof Pages) {
+            $pages->markChanged();
+        }
+
         $this->_original = null;
     }
 

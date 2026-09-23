@@ -1,3 +1,20 @@
+# v2.2.0
+## 09/22/2026
+
+1. [](#improved)
+    * Rebuilding the pages cache no longer writes a compiled file for every page, so the first request after a cache clear is much faster on large sites.
+    * A pages rebuild no longer loads a compiled file for every page into OPcache, so large sites stop pushing the rest of Grav's cached code out of memory.
+    * A pages rebuild reuses the page headers it read last time, so rebuilding after editing one page stays as quick as before.
+    * Checking whether pages changed now looks only at the page folders and files Grav already knows about instead of scanning the whole pages folder, which makes requests on large sites faster.
+    * Only one request at a time checks whether pages changed, and the others keep using the last result meanwhile.
+    * When the pages cache has to be rebuilt, one request rebuilds it and the others wait and use its result instead of all rebuilding at once.
+    * Saving or deleting a page through Grav now updates the pages cache on the next request instead of waiting for the change check, and plugins can do the same by calling `Pages::markChanged()`.
+    * That change notice is kept in a small file rather than the cache, so a page saved from the command line is picked up by the website even when the two use different cache drivers.
+1. [](#bugfix)
+    * Deleting or renaming a page folder is now picked up without clearing the cache.
+    * The `file` change check no longer counts files that only contain `.md` somewhere in their name, such as `page.md.bak`, or whose name merely ends in `yaml`.
+    * Searching Flex pages now matches a page's route as well as its title, slug and menu.
+
 # v2.1.11
 ## 09/22/2026
 

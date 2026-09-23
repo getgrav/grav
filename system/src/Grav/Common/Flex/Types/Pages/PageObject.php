@@ -315,6 +315,12 @@ class PageObject extends FlexPageObject
         $instance = parent::save();
         $variables = $this->onSave($variables);
 
+        // Let the regular pages cache pick up the change without waiting for the change check.
+        $pages = $grav['pages'] ?? null;
+        if ($pages instanceof Pages) {
+            $pages->markChanged();
+        }
+
         $this->onAfterSave($variables);
 
         // Backwards compatibility with older plugins.
@@ -334,6 +340,12 @@ class PageObject extends FlexPageObject
     public function delete()
     {
         $result = parent::delete();
+
+        // Let the regular pages cache pick up the change without waiting for the change check.
+        $pages = $this->getContainer()['pages'] ?? null;
+        if ($pages instanceof Pages) {
+            $pages->markChanged();
+        }
 
         // Backwards compatibility with older plugins.
         $fireEvents = $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
