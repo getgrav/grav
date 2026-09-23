@@ -35,7 +35,7 @@ class Pipeline extends PropertyObject
     protected const JS_MODULE_ASSET = 3;
 
     /** @const Regex to match CSS urls */
-    protected const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)|(@import)\s+([\'\"])(.*?)\4}';
+    protected const CSS_URL_REGEX = '{url\(\s*([\'\"]?)(.*?)\1\s*\)|(@import)\s+([\'\"])(.*?)\4}i';
 
     /** @const Regex to match JS imports */
     protected const JS_IMPORT_REGEX = '{import.+from\s?[\'|\"](.+?)[\'|\"]}';
@@ -293,7 +293,7 @@ class Pipeline extends PropertyObject
         // Find any css url() elements, grab the URLs and calculate an absolute path
         // Then replace the old url with the new one
         $file = (string)preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($dir, $local) {
-            $isImport = count($matches) > 3 && $matches[3] === '@import';
+            $isImport = count($matches) > 3 && strtolower($matches[3]) === '@import';
 
             if ($isImport) {
                 $old_url = $matches[5];
@@ -301,8 +301,10 @@ class Pipeline extends PropertyObject
                 $old_url = $matches[2];
             }
  
-            // Ensure link is not rooted to web server, a data URL, or to a remote host
-            if (preg_match(self::FIRST_FORWARDSLASH_REGEX, $old_url) || Utils::startsWith($old_url, 'data:') || $this->isRemoteLink($old_url)) {
+            // Ensure link is not rooted to web server, a same-document fragment
+            // (e.g. `url(#linear-gradient)` referencing an inline SVG element),
+            // a URL with a scheme (data:, blob:, about: and the like), or a remote host
+            if ($old_url === '' || preg_match(self::FIRST_FORWARDSLASH_REGEX, $old_url) || Utils::startsWith($old_url, '#') || preg_match('{^[a-z][a-z0-9+.-]*:}i', $old_url) || $this->isRemoteLink($old_url)) {
                 return $matches[0];
             }
 
