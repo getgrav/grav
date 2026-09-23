@@ -1582,6 +1582,10 @@ abstract class Utils
         $grav = Grav::instance();
 
         $username = isset($grav['user']) ? $grav['user']->username : '';
+        // A nonce is tied to the session, so a session that waits for its first write starts now.
+        if (isset($grav['session']) && $grav['session'] instanceof Session) {
+            $grav['session']->startPending();
+        }
         $token = session_id();
         $i = self::nonceTick();
 

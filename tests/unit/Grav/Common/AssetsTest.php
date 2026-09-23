@@ -593,7 +593,7 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         $this->assets->reset();
         $this->assets->setCssPipeline(true);
         $this->assets->config(['css_minify' => true]);
-        $this->assets->addCss('/tests/unit/data/assets/broken-modern-syntax.css');
+        $this->assets->addCss('/tests/unit/data/assets/broken-unterminated-string.css');
         $this->assets->addCss('/tests/unit/data/assets/valid.css');
 
         $css = $this->assets->css();
@@ -609,11 +609,14 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
         $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
 
-        self::assertStringContainsString('color: hsl(210 40%)', $bundled);
+        // An unterminated string ends at the line break. Minifying would join
+        // the lines and let it swallow the rules after it, so the file fails
+        // and the group keeps its line breaks.
+        self::assertStringContainsString('content: "unterminated;', $bundled);
         self::assertStringContainsString('color: blue', $bundled);
         self::assertLessThan(
             strpos($bundled, 'color: blue'),
-            strpos($bundled, 'color: hsl(210 40%)')
+            strpos($bundled, 'content: "unterminated;')
         );
     }
 
@@ -641,11 +644,88 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
         $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
 
-        // Minified, not the unminified fallback, and every colour intact.
-        self::assertStringContainsString('.rgb{color:#0a141e}', $bundled);
-        self::assertStringContainsString('.hsl{color:#3d668f}', $bundled);
-        self::assertStringContainsString('.alpha{color:rgb(10 20 30/50%)}', $bundled);
-        self::assertStringContainsString('.neg{color:#3d668f}', $bundled);
+        // Minified, not the unminified fallback, and every colour passed
+        // through exactly as written (#4305).
+        self::assertStringContainsString('.rgb{color:rgb(10 20 30)}', $bundled);
+        self::assertStringContainsString('.orange{color:rgb(255 128 0)}', $bundled);
+        self::assertStringContainsString('.percent{color:rgb(10% 20% 30%)}', $bundled);
+        self::assertStringContainsString('.gradient{background:linear-gradient(to right,rgb(10 20 30) 0%,rgb(255 128 0) 100%)}', $bundled);
+        self::assertStringContainsString('.hsl{color:hsl(210 40% 50%)}', $bundled);
+        self::assertStringContainsString('.alpha{color:rgb(10 20 30 / 50%)}', $bundled);
+        self::assertStringContainsString('.neg{color:hsl(-150 40% 40%)}', $bundled);
+    }
+
+    /**
+     * Each file is minified onto one line before @import is hoisted, so the
+     * hoisting has to stop at the import's own ';' whatever form the import
+     * takes, and leave strings and comments that mention @import alone. Only
+     * the first @charset survives, at the very top (#4330).
+     */
+    public function testPipelineHoistsCharsetAndImportsIntact(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/imports-first.css');
+        $this->assets->addCss('/tests/unit/data/assets/imports-second.css');
+
+        $css = $this->assets->css();
+
+        preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
+        $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
+
+        self::assertSame(
+            '@charset "UTF-8";' . "\n"
+            . '@import url(//fonts.example.com/css?family=Montserrat:400|Muli:300,400);' . "\n"
+            . '@import url("/tests/unit/data/assets/print.css") print;' . "\n"
+            . "\n"
+            . '.first{content:"a; b { c }"}' . "\n"
+            . '#chapter h3{font-family:"Muli","Helvetica","Tahoma",sans-serif}'
+            . '.second::before{content:"@import \'/not-an-import.css\';"}'
+            . '.third{color:red}' . "\n",
+            $bundled
+        );
+    }
+
+    public function testPipelineHoistsCharsetAndImportsWithoutMinify(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => false]);
+        $this->assets->addCss('/tests/unit/data/assets/imports-first.css');
+        $this->assets->addCss('/tests/unit/data/assets/imports-second.css');
+
+        $css = $this->assets->css();
+
+        preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
+        $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
+
+        self::assertStringStartsWith(
+            '@charset "UTF-8";' . "\n"
+            . '@import url(//fonts.example.com/css?family=Montserrat:400|Muli:300,400);' . "\n"
+            . '@import url("/tests/unit/data/assets/print.css") print;' . "\n\n",
+            $bundled
+        );
+        self::assertSame(1, substr_count($bundled, '@charset'));
+
+        // The commented-out import and the one inside a string stay put.
+        self::assertStringContainsString('/* @import "/commented-out.css"; */', $bundled);
+        self::assertStringContainsString('content: "@import \'/not-an-import.css\';";', $bundled);
+
+        // Every rule is intact and in its original order.
+        $order = [
+            'content: "a; b { c }";',
+            'font-family: "Muli", "Helvetica", "Tahoma", sans-serif;',
+            'content: "@import \'/not-an-import.css\';";',
+            'color: red;',
+        ];
+        $last = -1;
+        foreach ($order as $needle) {
+            $pos = strpos($bundled, $needle);
+            self::assertNotFalse($pos, $needle);
+            self::assertGreaterThan($last, $pos, $needle);
+            $last = $pos;
+        }
     }
 
     /**
@@ -1190,5 +1270,74 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertGreaterThan(0, (array) $this->assets->getCss());
         self::assertIsArray($this->assets->getJs());
         self::assertGreaterThan(0, (array) $this->assets->getJs());
+    }
+
+    /**
+     * The CSS pipeline runs cssRewrite() per file, minifies it, and then hoists
+     * @import to the top with moveImports(). Modern colour syntax and calc() inside
+     * an at-rule prelude have to come through all three steps intact.
+     */
+    public function testPipelineMinifiesModernCss(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/minify-modern.css', null, true);
+
+        $css = $this->assets->css();
+        self::assertMatchesRegularExpression('#<link href="/assets/[a-f0-9]+\.css"#', $css);
+
+        $files = glob(GRAV_ROOT . '/assets/*.css') ?: [];
+        self::assertCount(1, $files);
+        $out = file_get_contents($files[0]);
+
+        // @import is hoisted to the very top of the bundle, media qualifier intact.
+        self::assertStringStartsWith('@import "/tests/unit/data/assets/minify-imported.css" screen;', $out);
+
+        // Relative url() is rewritten before minification.
+        self::assertStringContainsString('url(/tests/unit/data/images/dot.png)', $out);
+
+        // Space-separated colour syntax survives (tubalmartin/cssmin threw on this).
+        self::assertStringContainsString('hsl(210 40% 50%)', $out);
+        self::assertStringContainsString('rgb(255 0 0 / 50%)', $out);
+        self::assertStringContainsString('oklch(62.8% 0.25 29.2)', $out);
+        self::assertStringContainsString('color-mix(in oklab,red 40%,blue)', $out);
+
+        // calc() keeps the whitespace around '+' in a rule body and in an at-rule prelude.
+        self::assertStringContainsString('calc(100% - 2rem)', $out);
+        self::assertStringContainsString('@media (min-width:calc(400px + 2rem))', $out);
+        self::assertStringContainsString('@media (min-width:calc(100px + 2rem))', $out);
+        self::assertStringContainsString('calc(100px + 1px)', $out);
+        self::assertStringContainsString('calc(300px + 1rem)', $out);
+
+        // Nesting and layer statements are passed through untouched.
+        self::assertStringContainsString('&:hover{color:blue}', $out);
+        self::assertStringContainsString('@layer base,components;', $out);
+
+        // Quoted strings keep their internal spacing and any comment markers,
+        // license comments survive, ordinary comments do not.
+        self::assertStringContainsString('content:"one, two: three"', $out);
+        self::assertStringContainsString('.greeting::before{content:"Hello, world"}', $out);
+        self::assertStringContainsString('.marker::before{content:"/* x */"}', $out);
+        self::assertStringContainsString('/*! minify-modern.css', $out);
+        self::assertStringNotContainsString('an ordinary comment', $out);
+
+        self::assertSame(substr_count($out, '{'), substr_count($out, '}'));
+    }
+
+    public function testInlinePipelineMinifiesModernCss(): void
+    {
+        $this->assets->reset();
+        $this->assets->setCssPipeline(true);
+        $this->assets->config(['css_minify' => true]);
+        $this->assets->addCss('/tests/unit/data/assets/minify-modern.css', null, true);
+
+        $css = $this->assets->css('head', ['loading' => 'inline']);
+
+        self::assertStringStartsWith('<style>', $css);
+        self::assertStringContainsString('hsl(210 40% 50%)', $css);
+        self::assertStringContainsString('calc(400px + 2rem)', $css);
+        self::assertStringContainsString('url(/tests/unit/data/images/dot.png)', $css);
+        self::assertStringNotContainsString('<link', $css);
     }
 }

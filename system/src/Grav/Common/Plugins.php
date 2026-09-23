@@ -18,6 +18,7 @@ use Grav\Events\PluginsLoadedEvent;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use SplFileInfo;
+use Grav\Common\Helpers\PluginAutoloader;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use function get_class;
 use function is_object;
@@ -33,6 +34,9 @@ class Plugins extends Iterator
 
     /** @var bool */
     private $plugins_initialized = false;
+
+    /** @var PluginAutoloader|null Index of the enabled plugins' Composer loaders, registered in front of them. */
+    private $autoloader;
 
     /**
      * Plugins constructor.
@@ -136,6 +140,7 @@ class Plugins extends Iterator
         /** @var EventDispatcher $events */
         $events = $grav['events'];
 
+        $loaders = [];
         foreach ($this->items as $instance) {
             // Register only enabled plugins.
             if ($config["plugins.{$instance->name}.enabled"] && $instance instanceof Plugin) {
@@ -152,6 +157,7 @@ class Plugins extends Iterator
                             // relative order between plugin loaders is preserved.
                             $autoloader->unregister();
                             $autoloader->register(false);
+                            $loaders[spl_object_id($autoloader)] = $autoloader;
                         }
                         $instance->setAutoloader($autoloader);
                     } catch (\Throwable $e) {
@@ -169,6 +175,13 @@ class Plugins extends Iterator
                 // Register event listeners.
                 $events->addSubscriber($instance);
             }
+        }
+
+        // Put one index of the plugin loaders in front of them, so a plugin class is looked up
+        // only in the loaders that could hold it instead of in each loader in turn.
+        if (count($loaders) > 1) {
+            $this->autoloader = new PluginAutoloader($loaders);
+            $this->autoloader->register();
         }
 
         // Plugins Loaded Event

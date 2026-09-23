@@ -17,7 +17,7 @@ use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
-use tubalmartin\CssMin\Minifier as CSSMinifier;
+use Wikimedia\Minify\CSSMin;
 use JShrink\Minifier as JSMinifier;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function array_key_exists;
@@ -42,6 +42,13 @@ class Pipeline extends PropertyObject
 
     /** @const Regex to match CSS sourcemap comments */
     protected const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
+
+    /**
+     * @const Regex matching, in order, a quoted CSS string, a bang-prefixed license comment, or
+     *        an ordinary comment. Strings come first so that comment markers inside a string are
+     *        never taken for a comment, and a quote inside a comment is never taken for a string.
+     */
+    protected const CSS_STRING_OR_COMMENT_REGEX = '~("(?:[^"\\\\\r\n]|\\\\(?:\r\n|.))*"|\'(?:[^\'\\\\\r\n]|\\\\(?:\r\n|.))*\')|(/\*!.*?\*/)|/\*.*?\*/~s';
 
     protected const FIRST_FORWARDSLASH_REGEX = '{^\/{1}\w}';
 
@@ -356,26 +363,6 @@ class Pipeline extends PropertyObject
     }
 
     /**
-     * Rewrite space-separated rgb()/hsl() colours to the comma form.
-     *
-     * tubalmartin/cssmin only understands the comma form. On rgb(10 20 30) it
-     * silently emits the invalid colour #0a, and on hsl(210 40% 50%) it throws.
-     * Only plain three-value forms are rewritten; anything with an alpha, a unit
-     * like deg, or var() is left alone, and cssmin leaves those untouched too.
-     *
-     * @param string $css
-     * @return string
-     */
-    private static function legacyColorSyntax(string $css): string
-    {
-        return (string) preg_replace(
-            '/(?<![\w-])(rgb|hsl)\(\s*(-?[\d.]+%?)\s+(-?[\d.]+%?)\s+(-?[\d.]+%?)\s*\)/i',
-            '$1($2,$3,$4)',
-            $css
-        );
-    }
-
-    /**
      * @param string $type
      * @return bool
      */
@@ -394,6 +381,64 @@ class Pipeline extends PropertyObject
         }
 
         return $minify;
+    }
+
+    /**
+     * Minify one CSS file.
+     *
+     * Wikimedia\Minify\CSSMin::minify() collapses whitespace and drops comments with plain
+     * regexes, so it does not know where a string starts or ends. Left to itself it would
+     * rewrite `content: "Hello, world"` to `content:"Hello,world"`, and it would empty out a
+     * string that happens to contain comment markers. Quoted strings are therefore lifted out
+     * first and put back afterwards, which also lets bang-prefixed license comments survive as
+     * they did under the previous minifier.
+     *
+     * Throws when the file can't be minified without changing its meaning, so the caller falls
+     * back to the unminified bundle.
+     *
+     * @param string $css
+     * @return string
+     * @throws \RuntimeException
+     */
+    private static function minifyCss(string $css): string
+    {
+        $preserved = [];
+
+        $stripped = preg_replace_callback(
+            self::CSS_STRING_OR_COMMENT_REGEX,
+            static function (array $matches) use (&$preserved): string {
+                $token = ($matches[1] ?? '') !== '' ? $matches[1] : ($matches[2] ?? '');
+                if ($token === '') {
+                    // An ordinary comment: drop it.
+                    return '';
+                }
+
+                $key = "\x01GRAVCSS" . count($preserved) . "\x01";
+                $preserved[$key] = $token;
+
+                return $key;
+            },
+            $css
+        );
+
+        // preg_replace_callback() returns null on a PCRE failure (backtrack limit and the like).
+        if ($stripped === null) {
+            throw new \RuntimeException('Could not scan the stylesheet: ' . preg_last_error_msg());
+        }
+
+        // Every well-formed string is lifted out by now, so a quote left over opens a string
+        // that never closes. Browsers end such a string at the line break; once minifying joins
+        // the lines it would swallow every rule after it instead.
+        if (strpbrk($stripped, '"\'') !== false) {
+            throw new \RuntimeException('Unterminated string');
+        }
+
+        $stripped = CSSMin::minify($stripped);
+        if (preg_last_error() !== PREG_NO_ERROR) {
+            throw new \RuntimeException('Could not minify the stylesheet: ' . preg_last_error_msg());
+        }
+
+        return $preserved === [] ? $stripped : strtr($stripped, $preserved);
     }
 
     /**
@@ -445,8 +490,7 @@ class Pipeline extends PropertyObject
             }
 
             try {
-                $file = (new CSSMinifier())->run(self::legacyColorSyntax($file));
-                $file = rtrim($file) . PHP_EOL;
+                $file = self::minifyCss($file) . PHP_EOL;
                 $buffer .= $file;
             } catch (\Throwable $e) {
                 $failed[$key] = $asset;

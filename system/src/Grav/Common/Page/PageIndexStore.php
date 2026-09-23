@@ -38,8 +38,17 @@ final class PageIndexStore
     /** @var string 'sqlite' or 'yetisql' */
     private $engine;
 
+    /**
+     * Keys per batched read. SQLite builds before 3.32 allow 999 bound
+     * parameters per statement, so stay well below that.
+     */
+    private const BATCH_SIZE = 500;
+
     /** @var object|null Prepared point-read statement, created on first read. */
     private $readStatement = null;
+
+    /** @var array<string,object> Prepared statements, reused for the life of the connection. */
+    private $statements = [];
 
     /**
      * @param object $pdo
@@ -192,6 +201,72 @@ final class PageIndexStore
     }
 
     /**
+     * Read the payloads of several pages at once, a batch of keys per query.
+     *
+     * Paths without a stored row are left out of the result.
+     *
+     * @param string[] $paths
+     * @return array<string,string> path => payload
+     */
+    public function readMany(array $paths): array
+    {
+        return $this->readBatched('pages', $paths);
+    }
+
+    /**
+     * Read the children lists of several parent paths at once.
+     *
+     * Parents without a stored entry are left out of the result.
+     *
+     * @param string[] $paths
+     * @return array<string,array> path => children list
+     */
+    public function readChildrenMany(array $paths): array
+    {
+        $result = [];
+        foreach ($this->readBatched('children', $paths) as $path => $payload) {
+            // Same rule as readSerializedRow(): the rows are plain arrays.
+            $value = @unserialize($payload, ['allowed_classes' => false]);
+            if (is_array($value)) {
+                $result[$path] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $table 'pages' or 'children'
+     * @param string[] $paths
+     * @return array<string,string> path => payload
+     */
+    private function readBatched(string $table, array $paths): array
+    {
+        $result = [];
+        $paths = array_values(array_unique(array_map('strval', $paths)));
+
+        try {
+            foreach (array_chunk($paths, self::BATCH_SIZE) as $chunk) {
+                $count = count($chunk);
+                $key = $table . ':' . $count;
+                $stmt = $this->statements[$key] ??= $this->pdo->prepare(
+                    "SELECT path, payload FROM {$table} WHERE path IN (" . implode(',', array_fill(0, $count, '?')) . ')'
+                );
+                $stmt->execute($chunk);
+                foreach ($stmt->fetchAll(\PDO::FETCH_NUM) as [$path, $payload]) {
+                    if (is_string($payload)) {
+                        $result[(string)$path] = $payload;
+                    }
+                }
+            }
+        } catch (Throwable $e) {
+            // Whatever was read stays usable; callers fall back to point reads for the rest.
+        }
+
+        return $result;
+    }
+
+    /**
      * Read all page payloads (used for full hydration, e.g. in admin listings).
      *
      * @return array<string,string> path => payload
@@ -221,7 +296,7 @@ final class PageIndexStore
     public function readRoute(string $route): ?string
     {
         try {
-            $stmt = $this->pdo->prepare('SELECT path FROM routes WHERE route = ?');
+            $stmt = $this->statements['route'] ??= $this->pdo->prepare('SELECT path FROM routes WHERE route = ?');
             $stmt->execute([$route]);
             $path = $stmt->fetchColumn();
 
@@ -282,7 +357,7 @@ final class PageIndexStore
     private function readSerializedRow(string $table, string $path): ?array
     {
         try {
-            $stmt = $this->pdo->prepare("SELECT payload FROM {$table} WHERE path = ?");
+            $stmt = $this->statements[$table] ??= $this->pdo->prepare("SELECT payload FROM {$table} WHERE path = ?");
             $stmt->execute([$path]);
             $payload = $stmt->fetchColumn();
             if (!is_string($payload)) {
@@ -437,6 +512,7 @@ final class PageIndexStore
             }
             $this->pdo = $connection;
             $this->readStatement = null;
+            $this->statements = [];
 
             return true;
         } catch (Throwable $e) {

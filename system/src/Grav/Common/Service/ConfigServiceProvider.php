@@ -10,6 +10,7 @@
 namespace Grav\Common\Service;
 
 use DirectoryIterator;
+use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\Config\CompiledBase;
 use Grav\Common\Config\CompiledBlueprints;
 use Grav\Common\Config\CompiledConfig;
@@ -60,6 +61,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
             if (!$config->get('system.strict_mode.yaml_compat', true)) {
                 YamlFile::globalSettings(['compat' => false, 'native' => true]);
             }
+            CompiledMarkdownFile::$nativeYaml = (bool) $config->get('system.pages.frontmatter.native_yaml', false);
 
             // The file lists used to build the configuration are validated before the
             // configuration itself is available, so the staleness tolerance they use is

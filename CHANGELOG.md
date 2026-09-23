@@ -1,9 +1,43 @@
+# v2.2.0
+## 09/22/2026
+
+1. [](#improved)
+    * Rebuilding the pages cache no longer writes a compiled file for every page, so the first request after a cache clear is much faster on large sites.
+    * A pages rebuild no longer loads a compiled file for every page into OPcache, so large sites stop pushing the rest of Grav's cached code out of memory.
+    * A pages rebuild reuses the page headers it read last time, so rebuilding after editing one page stays as quick as before.
+    * Checking whether pages changed now looks only at the page folders and files Grav already knows about instead of scanning the whole pages folder, which makes requests on large sites faster.
+    * Only one request at a time checks whether pages changed, and the others keep using the last result meanwhile.
+    * When the pages cache has to be rebuilt, one request rebuilds it and the others wait and use its result instead of all rebuilding at once.
+    * Saving or deleting a page through Grav now updates the pages cache on the next request instead of waiting for the change check, and plugins can do the same by calling `Pages::markChanged()`.
+    * That change notice is kept in a small file rather than the cache, so a page saved from the command line is picked up by the website even when the two use different cache drivers.
+    * A new `pages.frontmatter.native_yaml` setting reads page frontmatter with the much faster YAML extension when the server has it installed. It is off by default because the extension reads unquoted dates and `yes`/`no` differently.
+    * Translations are now prepared one language at a time, when a request first needs that language, so the first request after a cache clear no longer reads every language that core and the plugins ship.
+    * Editing a language file now rebuilds only that language instead of every language.
+    * The pages cache is smaller because it no longer keeps a second, raw copy of every page's frontmatter.
+    * Listing every page, which the sitemap and `@page.descendants` collections do, is several times faster on large sites.
+    * Page ETags are calculated with a much faster hash.
+    * Configuration and translation caches built by a request are loaded into OPcache after the response has been sent, instead of making that request wait.
+    * Rebuilding the pages cache after an edit no longer reads the pages and folders that did not change, so on large sites it takes about half the time it did before.
+    * With `pages.lazy_index` on, lists of pages such as menus, taxonomy pages, `@page.descendants` collections and the sitemap load their pages in a few batches instead of one at a time.
+    * `pages.lazy_index` now defaults to `auto`, which uses the page index on sites with 1,000 pages or more and the classic pages cache on smaller ones, so large sites load pages faster and use far less memory without any setup.
+    * Plugin classes load faster because Grav now asks only the plugin autoloaders that can have the class, in the same order as before.
+    * A modular page can set `cache_modules: true` to cache its modules' output, while modules with their own Twig or a form, logged-in visitors and form submissions are always rendered fresh.
+    * A new `session.lazy` setting, off by default, starts the session only when a visitor needs one, so anonymous page views can go out without a session cookie and be cached by a proxy or CDN.
+    * CSS minification now uses wikimedia/minify, which understands modern CSS and is about 15 to 25 times faster on real stylesheets.
+1. [](#bugfix)
+    * Deleting or renaming a page folder is now picked up without clearing the cache.
+    * The `file` change check no longer counts files that only contain `.md` somewhere in their name, such as `page.md.bak`, or whose name merely ends in `yaml`.
+    * Searching Flex pages now matches a page's route as well as its title, slug and menu.
+    * `calc()` inside `@media`, `@supports` and `@container` conditions keeps its spacing when CSS is minified, so browsers no longer drop those blocks.
+    * A stylesheet with a quote that is never closed is now served unminified instead of losing the rules that follow it.
+
 # v2.1.12
 ## 09/23/2026
 
 1. [](#bugfix)
     * SVG fills that point at a gradient on the same page, such as `fill: url(#linear-gradient)`, keep working with CSS pipelining on. Thanks @wakqasahmed [#2784](https://github.com/getgrav/grav/issues/2784)
     * CSS pipelining no longer breaks `url()` values that aren't file paths, such as `about:blank` or `blob:` links, and now correctly rewrites paths written as `URL(...)` or with spaces inside the brackets.
+
 
 # v2.1.11
 ## 09/23/2026

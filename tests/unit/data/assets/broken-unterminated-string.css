@@ -1,4 +1,4 @@
 .example {
-    color: hsl(210 40%);
+    content: "unterminated;
     width: calc(100% - 20px);
 }
