@@ -1383,20 +1383,66 @@ class Pages
      */
     public function all(?PageInterface $current = null)
     {
-        $all = new Collection();
-
         /** @var PageInterface $current */
         $current = $current ?: $this->root();
 
+        $items = [];
         if (!$current->root()) {
-            $all[$current->path()] = ['slug' => $current->slug()];
+            $items[$current->path()] = ['slug' => $current->slug()];
         }
 
-        foreach ($current->children() as $next) {
-            $all->append($this->all($next));
+        if (!$this->directory && $current instanceof Page) {
+            // Regular pages: walk the children index by path, depth first in children order,
+            // which is the order the recursive walk produced. Pages are not loaded just to find
+            // their children: the slug comes from the page when it is already in memory and
+            // from the children index otherwise.
+            $stack = [];
+            foreach (array_reverse($this->childrenOf((string)$current->path()), true) as $path => $info) {
+                $stack[] = [(string)$path, $info];
+            }
+
+            while ($stack) {
+                [$path, $info] = array_pop($stack);
+
+                $page = $this->instances[$path] ?? $this->index[$path] ?? null;
+                $slug = $page instanceof PageInterface ? $page->slug() : ($info['slug'] ?? null);
+                if ($slug === null) {
+                    $page = $this->get($path);
+                    $slug = $page ? $page->slug() : null;
+                }
+                $items[$path] = ['slug' => $slug];
+
+                foreach (array_reverse($this->childrenOf($path), true) as $childPath => $childInfo) {
+                    $stack[] = [(string)$childPath, $childInfo];
+                }
+            }
+        } else {
+            // Flex pages and other page types may not take their children from the children
+            // index, so ask each page for them, depth first like the regular walk.
+            $iterate = static function ($children): \Generator {
+                foreach ($children as $child) {
+                    yield $child;
+                }
+            };
+
+            $stack = [$iterate($current->children())];
+            while ($stack) {
+                $iterator = end($stack);
+                if (!$iterator->valid()) {
+                    array_pop($stack);
+                    continue;
+                }
+
+                $next = $iterator->current();
+                $iterator->next();
+                if ($next instanceof PageInterface) {
+                    $items[$next->path()] = ['slug' => $next->slug()];
+                    $stack[] = $iterate($next->children());
+                }
+            }
         }
 
-        return $all;
+        return new Collection($items, [], $this);
     }
 
     /**
@@ -2094,7 +2140,7 @@ class Pages
         $this->scan_paths = $check ? [] : null;
 
         // Page files skip the per-file compiled cache during the scan and reuse the headers parsed last time.
-        $headers_file = $this->getScanFile('frontmatter-' . md5(json_encode($pages_dirs) . $this->active_lang));
+        $headers_file = $this->getScanFile('frontmatter-' . md5(json_encode($pages_dirs) . $this->active_lang . (CompiledMarkdownFile::$nativeYaml ? '-native' : '')));
         $scanning = CompiledMarkdownFile::beginScan($headers_file ? ($this->readScanFile($headers_file) ?? []) : []);
         try {
             foreach ($pages_dirs as $dir) {
@@ -2133,6 +2179,15 @@ class Pages
         if ($cache_enabled) {
             /** @var Cache $cache */
             $cache = $this->grav['cache'];
+
+            // Leave the raw frontmatter text out of the cache. It is a second copy of the header
+            // and Page::frontmatter() reads it from the file when it is asked for. Clearing it
+            // here costs far less than a __sleep() on every page would.
+            foreach ($this->index as $page) {
+                if ($page instanceof Page) {
+                    $page->freeFrontmatter();
+                }
+            }
 
             // Store each page as its own row - along with the route, children, sort
             // and taxonomy maps - so warm requests hydrate only what they touch,

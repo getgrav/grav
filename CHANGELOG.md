@@ -10,6 +10,13 @@
     * When the pages cache has to be rebuilt, one request rebuilds it and the others wait and use its result instead of all rebuilding at once.
     * Saving or deleting a page through Grav now updates the pages cache on the next request instead of waiting for the change check, and plugins can do the same by calling `Pages::markChanged()`.
     * That change notice is kept in a small file rather than the cache, so a page saved from the command line is picked up by the website even when the two use different cache drivers.
+    * A new `pages.frontmatter.native_yaml` setting reads page frontmatter with the much faster YAML extension when the server has it installed. It is off by default because the extension reads unquoted dates and `yes`/`no` differently.
+    * Translations are now prepared one language at a time, when a request first needs that language, so the first request after a cache clear no longer reads every language that core and the plugins ship.
+    * Editing a language file now rebuilds only that language instead of every language.
+    * The pages cache is smaller because it no longer keeps a second, raw copy of every page's frontmatter.
+    * Listing every page, which the sitemap and `@page.descendants` collections do, is several times faster on large sites.
+    * Page ETags are calculated with a much faster hash.
+    * Configuration and translation caches built by a request are loaded into OPcache after the response has been sent, instead of making that request wait.
 1. [](#bugfix)
     * Deleting or renaming a page folder is now picked up without clearing the cache.
     * The `file` change check no longer counts files that only contain `.md` somewhere in their name, such as `page.md.bak`, or whose name merely ends in `yaml`.

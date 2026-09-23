@@ -401,6 +401,18 @@ form:
               validate:
                 type: commalist
 
+            pages.frontmatter.native_yaml:
+              type: toggle
+              label: PLUGIN_ADMIN.FRONTMATTER_NATIVE_YAML
+              help: PLUGIN_ADMIN.FRONTMATTER_NATIVE_YAML_HELP
+              highlight: 0
+              default: false
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
         languages:
           type: tab
           title: PLUGIN_ADMIN.LANGUAGES

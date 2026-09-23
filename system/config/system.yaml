@@ -124,6 +124,7 @@ pages:
   frontmatter:
     process_twig: false                          # Process Twig in frontmatter. Also gated by security.twig_content.process_enabled; when the gate is off, requested frontmatter Twig is blocked and reported in the Admin "Twig in Content" report.
     ignore_fields: ['form','forms']              # Fields that might contain Twig variables and should not be processed
+    native_yaml: false                           # Parse frontmatter with the faster libyaml extension when installed. Unquoted dates stay text and yes/no become true/false
 
 cache:
   enabled: true                                  # Set to true to enable caching

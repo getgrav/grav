@@ -524,8 +524,34 @@ class Page implements PageInterface
         if (!$this->frontmatter) {
             $this->header();
         }
+        // A page that comes from the pages cache has its header but not the frontmatter text,
+        // which is left out of the cache (see freeFrontmatter()), so read it from the file.
+        if ($this->frontmatter === null && $this->header) {
+            $file = $this->file();
+            if ($file) {
+                $this->frontmatter = (string)$file->frontmatter();
+                $file->free();
+            }
+        }
 
         return $this->frontmatter;
+    }
+
+    /**
+     * Drop the raw frontmatter text kept next to the parsed header.
+     *
+     * Pages calls this before it caches the pages: the text is a second copy of the header,
+     * and frontmatter() reads it back from the file the first time it is asked for. A page
+     * without a file keeps its text, as there is nothing to read it back from.
+     *
+     * @return void
+     * @internal
+     */
+    public function freeFrontmatter(): void
+    {
+        if ($this->name) {
+            $this->frontmatter = null;
+        }
     }
 
     /**
@@ -1334,7 +1360,7 @@ class Page implements PageInterface
         $scope = array_shift($path);
 
         if ($name === 'frontmatter') {
-            return $this->frontmatter;
+            return $this->frontmatter();
         }
 
         if ($scope === 'header') {

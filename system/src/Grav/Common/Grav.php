@@ -10,6 +10,7 @@
 namespace Grav\Common;
 
 use Composer\Autoload\ClassLoader;
+use Grav\Common\Config\CompiledBase;
 use Grav\Common\Config\Config;
 use Grav\Common\Config\Setup;
 use Grav\Common\Helpers\Exif;
@@ -318,7 +319,8 @@ class Grav extends Container
 
         // Handle ETag and If-None-Match headers.
         if ($response->getHeaderLine('ETag') === '1') {
-            $etag = md5($body);
+            // xxh128 gives the same 32 hex characters as md5 at a fraction of the cost on a large page.
+            $etag = hash('xxh128', (string)$body);
             $response = $response->withHeader('ETag', '"' . $etag . '"');
 
             $search = trim((string) $this['request']->getHeaderLine('If-None-Match'), '"');
@@ -545,7 +547,8 @@ class Grav extends Container
         // thing into memory, defeating the point of streaming, and file downloads
         // don't need a content ETag.
         if ($response->getHeaderLine('ETag') === '1' && !$this->isStreamedBody($body)) {
-            $etag = md5($body);
+            // xxh128 gives the same 32 hex characters as md5 at a fraction of the cost on a large page.
+            $etag = hash('xxh128', (string)$body);
             $response = $response->withHeader('ETag', '"' . $etag . '"');
 
             $search = trim((string) $this['request']->getHeaderLine('If-None-Match'), '"');
@@ -861,6 +864,10 @@ class Grav extends Container
 
         // Run any time consuming tasks.
         $this->fireEvent('onShutdown');
+
+        // Compile the configuration and language caches written by this request into OPcache
+        // now that the response is out.
+        CompiledBase::precompilePending();
     }
 
     /**

@@ -10,6 +10,7 @@
 namespace Grav\Common\File;
 
 use RocketTheme\Toolbox\File\MarkdownFile;
+use RocketTheme\Toolbox\File\YamlFile;
 use function count;
 use function function_exists;
 use function is_array;
@@ -28,6 +29,16 @@ class CompiledMarkdownFile extends MarkdownFile
      * @var array{previous: array<string,array>, current: array<string,array>, parsed: int}|null
      */
     private static $scan;
+
+    /**
+     * Parse frontmatter with libyaml when the yaml extension is installed (`system.pages.frontmatter.native_yaml`).
+     *
+     * Off by default: libyaml reads unquoted dates as strings and `yes`/`no` as booleans, which
+     * changes existing frontmatter where the Symfony parser has always been used.
+     *
+     * @var bool
+     */
+    public static $nativeYaml = false;
 
     /**
      * Start a pages scan.
@@ -72,6 +83,28 @@ class CompiledMarkdownFile extends MarkdownFile
         $changed = $scan['parsed'] > 0 || count($scan['current']) !== count($scan['previous']);
 
         return $scan['current'];
+    }
+
+    /**
+     * Get setting.
+     *
+     * With `system.pages.frontmatter.native_yaml` on, and unless the file sets `native` itself,
+     * frontmatter follows YamlFile::globalSettings() like the configuration files, so it is parsed
+     * with libyaml when the yaml extension is installed. The `compat` fallback keeps its markdown
+     * default (on), so a frontmatter that neither parser accepts still falls back to the
+     * compatibility parser instead of failing the page.
+     *
+     * @param string $setting
+     * @param mixed $default
+     * @return mixed
+     */
+    public function setting($setting, $default = null)
+    {
+        if ($setting === 'native' && self::$nativeYaml && !isset($this->settings['native'])) {
+            return YamlFile::globalSettings()['native'] ?? $default;
+        }
+
+        return parent::setting($setting, $default);
     }
 
     /**

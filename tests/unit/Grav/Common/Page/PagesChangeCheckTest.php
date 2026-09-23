@@ -5,6 +5,7 @@ use Grav\Common\Cache;
 use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -113,6 +114,32 @@ class PagesChangeCheckTest extends \PHPUnit\Framework\TestCase
         $this->writePage('03.about/default.md', 'About Us');
 
         self::assertSame('About Us', $this->request()->find('/about')->title());
+    }
+
+    public function testCachedPagesLeaveOutTheFrontmatterText(): void
+    {
+        $pages = $this->request();
+
+        $cached = null;
+        foreach ($this->cache->store as [$data]) {
+            if (is_array($data) && isset($data[1]) && is_array($data[1])) {
+                $cached = $data[1];
+            }
+        }
+        self::assertIsArray($cached, 'The pages index was cached');
+
+        $count = 0;
+        foreach ($cached as $page) {
+            if ($page instanceof Page) {
+                $count++;
+                self::assertArrayHasKey("\0*\0frontmatter", (array)$page);
+                self::assertNull(((array)$page)["\0*\0frontmatter"]);
+            }
+        }
+        self::assertGreaterThan(3, $count);
+
+        self::assertSame('title: About', $pages->find('/about')->frontmatter());
+        self::assertSame('title: About', $this->request()->find('/about')->frontmatter());
     }
 
     public function testAddedPageIsDetected(): void
