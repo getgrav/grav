@@ -1,3 +1,10 @@
+# v2.1.11
+## 09/23/2026
+
+1. [](#bugfix)
+    * Files under `.well-known/` are now served when running Grav with the built-in PHP server (`bin/grav server`), matching the shipped web server configs. Thanks @wakqasahmed [#4016](https://github.com/getgrav/grav/issues/4016)
+    * Themes whose stylesheets use `@import`, such as Learn2, look right again with CSS pipelining and minification on. 2.1.10 could move a block of the theme's styles to the top of the combined file along with the import. Thanks @Gazoo [#4330](https://github.com/getgrav/grav/issues/4330)
+
 # v2.1.10
 ## 09/22/2026
 

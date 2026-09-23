@@ -1,0 +1,7 @@
+@charset "UTF-8";
+@import url("//fonts.example.com/css?family=Muli:300,400|Inconsolata");
+@import 'print.css' print;
+.first { font-family: "Muli", "Helvetica", sans-serif; }
+.second::before { content: "a;b"; }
+#chapter h3 { font-family: "Muli", sans-serif; }
+.last { color: blue; }

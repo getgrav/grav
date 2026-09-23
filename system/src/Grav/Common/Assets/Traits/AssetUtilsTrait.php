@@ -126,14 +126,28 @@ trait AssetUtilsTrait
     }
 
     /**
-     * Moves @import statements to the top of the file per the CSS specification
+     * Moves @import statements to the top of the file per the CSS specification,
+     * with a single @charset ahead of them when any of the files declared one
+     *
+     * An @import is matched whether its URL is quoted or not (minifiers strip the
+     * quotes inside url()), and a match never runs past the statement's own
+     * semicolon or into a rule block, so no other CSS can be pulled along with it.
      *
      * @param  string $file the file containing the combined CSS files
      * @return string       the modified file with any @imports at the top of the file
      */
     protected function moveImports($file)
     {
-        $regex = '{@import.*?["\']([^"\']+)["\'].*?;}';
+        $charset = '';
+        $file = (string)preg_replace_callback('{@charset\s*(?:"[^"]*"|\'[^\']*\')\s*;}i', static function ($matches) use (&$charset) {
+            if ($charset === '') {
+                $charset = $matches[0] . "\n";
+            }
+
+            return '';
+        }, (string)$file);
+
+        $regex = '{@import\s*(?:url\(\s*(?:"[^"]*"|\'[^\']*\'|[^)"\']*)\s*\)|"[^"]*"|\'[^\']*\')[^;{}]*;}i';
 
         $imports = [];
 
@@ -143,7 +157,7 @@ trait AssetUtilsTrait
             return '';
         }, $file);
 
-        return implode("\n", $imports) . "\n\n" . $file;
+        return $charset . implode("\n", $imports) . "\n\n" . $file;
     }
 
     /**

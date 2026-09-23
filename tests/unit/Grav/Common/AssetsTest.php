@@ -643,9 +643,56 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
 
         // Minified, not the unminified fallback, and every colour intact.
         self::assertStringContainsString('.rgb{color:#0a141e}', $bundled);
-        self::assertStringContainsString('.hsl{color:#4d7fb3}', $bundled);
+        self::assertStringContainsString('.hsl{color:#3d668f}', $bundled);
         self::assertStringContainsString('.alpha{color:rgb(10 20 30/50%)}', $bundled);
-        self::assertStringContainsString('.neg{color:#4d7fb3}', $bundled);
+        self::assertStringContainsString('.neg{color:#3d668f}', $bundled);
+    }
+
+    /**
+     * A minified file's @import has no quotes left in url(), which the old
+     * import matcher needed, so it ran on to the next quote in the file and
+     * hoisted a slice of the rules along with it (#4330, learn2).
+     */
+    public function testCssMinificationHoistsImportsWithoutTakingRules(): void
+    {
+        foreach ([true, false] as $minify) {
+            $this->assets->reset();
+            $this->assets->setCssPipeline(true);
+            $this->assets->config(['css_minify' => $minify]);
+            $this->assets->addCss('/tests/unit/data/assets/import-base.css');
+            $this->assets->addCss('/tests/unit/data/assets/import-theme.css');
+
+            $css = $this->assets->css();
+
+            preg_match('#/assets/([a-f0-9]+)\.css#', $css, $matches);
+            $bundled = file_get_contents(GRAV_ROOT . '/assets/' . $matches[1] . '.css');
+            $label = $minify ? 'minified' : 'unminified';
+
+            self::assertStringStartsWith('@charset "UTF-8";', $bundled, $label);
+            self::assertSame(1, substr_count($bundled, '@charset'), $label);
+
+            // Both imports come first, and each is only its own statement.
+            $imports = [];
+            preg_match_all('/@import[^;]*;/', $bundled, $imports);
+            self::assertCount(2, $imports[0], $label);
+            foreach ($imports[0] as $import) {
+                self::assertStringNotContainsString('{', $import, $label);
+            }
+            $base = strpos($bundled, '.base');
+            self::assertLessThan($base, strrpos($bundled, '@import'), $label);
+
+            // Every rule stays whole and in its original order.
+            $order = [];
+            foreach (['.base', '.first', '.second', '#chapter h3', '.last'] as $selector) {
+                $pos = strpos($bundled, $selector);
+                self::assertNotFalse($pos, "$label: $selector");
+                $order[] = $pos;
+            }
+            $sorted = $order;
+            sort($sorted);
+            self::assertSame($sorted, $order, $label);
+            self::assertStringContainsString('a;b', $bundled, $label);
+        }
     }
 
     public function testClockworkScriptBypassesPipeline(): void
