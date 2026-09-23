@@ -218,6 +218,15 @@ trait ImageMediaTrait
 
             $this->quality = $quality;
 
+            // derivatives() creates each srcset alternative as its own Medium
+            // instance up front, so a quality() call chained afterwards (the
+            // documented usage) would otherwise only ever affect the base image.
+            foreach ($this->alternatives as $alternative) {
+                if (method_exists($alternative, 'quality')) {
+                    $alternative->quality($quality);
+                }
+            }
+
             return $this;
         }
 
@@ -237,6 +246,14 @@ trait ImageMediaTrait
         }
 
         $this->format = $format;
+
+        // See the comment in quality() above -- propagate to already-generated
+        // srcset alternatives for the same reason.
+        foreach ($this->alternatives as $alternative) {
+            if (method_exists($alternative, 'format')) {
+                $alternative->format($format);
+            }
+        }
 
         return $this;
     }
