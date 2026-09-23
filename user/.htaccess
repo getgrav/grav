@@ -8,7 +8,15 @@
 # that grant only `AllowOverride FileInfo` (getgrav/grav#4309).
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteOptions InheritDownBefore
+    # InheritDownBefore needs Apache 2.4.8 or newer. An older server rejects the whole
+    # file and answers 500 for everything under this folder (getgrav/grav-plugin-admin2#179),
+    # so it is only set where the server can take it. Older servers still apply the rules
+    # below, just not ahead of a subfolder's own RewriteEngine.
+    <IfModule mod_version.c>
+        <IfVersion >= 2.4.8>
+            RewriteOptions InheritDownBefore
+        </IfVersion>
+    </IfModule>
 
     RewriteRule ^(config|env)/ - [F,NC]
 
