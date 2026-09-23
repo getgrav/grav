@@ -34,3 +34,15 @@ form:
               help: PLUGIN_ADMIN.ORDER_DIR_HELP
               placeholder: desc
               size: small
+
+            header.cache_modules:
+              type: toggle
+              toggleable: true
+              label: PLUGIN_ADMIN.CACHE_MODULES
+              help: PLUGIN_ADMIN.CACHE_MODULES_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool

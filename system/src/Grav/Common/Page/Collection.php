@@ -36,6 +36,15 @@ class Collection extends Iterator implements PageCollectionInterface
     /** @var array */
     protected $params;
 
+    /** Pages loaded per query while a collection from the lazy page index is iterated. */
+    private const PREFETCH_WINDOW = 100;
+
+    /** @var string[]|null Item keys, kept to find the next pages to load while iterating. */
+    private $prefetchKeys;
+
+    /** @var array<string,int>|null Position of each key in $prefetchKeys. */
+    private $prefetchPositions;
+
     /**
      * Collection constructor.
      *
@@ -166,7 +175,32 @@ class Collection extends Iterator implements PageCollectionInterface
     {
         $current = parent::key();
 
+        // With the lazy page index, load this page and the next ones in one query
+        // instead of one query per page.
+        if ($this->pages->isLazilyIndexed($current)) {
+            $this->prefetchFrom($current);
+        }
+
         return $this->pages->get($current);
+    }
+
+    /**
+     * Load a window of pages starting at the given item, when they come from the lazy page index.
+     *
+     * @param string $path
+     * @return void
+     */
+    protected function prefetchFrom(string $path): void
+    {
+        if ($this->prefetchKeys === null || count($this->prefetchKeys) !== count($this->items) || !isset($this->prefetchPositions[$path])) {
+            $this->prefetchKeys = array_map('strval', array_keys($this->items));
+            $this->prefetchPositions = array_flip($this->prefetchKeys);
+        }
+
+        $position = $this->prefetchPositions[$path] ?? null;
+        if ($position !== null) {
+            $this->pages->prefetch(array_slice($this->prefetchKeys, $position, self::PREFETCH_WINDOW));
+        }
     }
 
     /**
@@ -349,6 +383,7 @@ class Collection extends Iterator implements PageCollectionInterface
         $end = $endDate ? Utils::date2timestamp($endDate) : null;
 
         $date_range = [];
+        $this->pages->prefetch(array_keys($this->items));
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
             if (!$page) {
@@ -384,6 +419,17 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     protected function filterByPageFlag(string $flag, bool $wanted)
     {
+        // Load in batches the pages the loop below has to ask directly.
+        $load = [];
+        foreach ($this->items as $path => $info) {
+            if (!is_array($info) || !array_key_exists($flag, $info)) {
+                $load[] = $path;
+            }
+        }
+        if ($load) {
+            $this->pages->prefetch($load);
+        }
+
         $filtered = [];
         foreach ($this->items as $path => $info) {
             // Trust the stored index flag only while the page is still lazy — that
@@ -508,6 +554,7 @@ class Collection extends Iterator implements PageCollectionInterface
         }
 
         $published = [];
+        $this->pages->prefetch(array_keys($this->items));
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
@@ -537,6 +584,7 @@ class Collection extends Iterator implements PageCollectionInterface
         }
 
         $published = [];
+        $this->pages->prefetch(array_keys($this->items));
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
@@ -598,6 +646,7 @@ class Collection extends Iterator implements PageCollectionInterface
     public function ofType($type)
     {
         $items = [];
+        $this->pages->prefetch(array_keys($this->items));
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
@@ -620,6 +669,7 @@ class Collection extends Iterator implements PageCollectionInterface
     public function ofOneOfTheseTypes($types)
     {
         $items = [];
+        $this->pages->prefetch(array_keys($this->items));
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
@@ -643,6 +693,7 @@ class Collection extends Iterator implements PageCollectionInterface
     {
         $items = [];
         $types = (array) $type;
+        $this->pages->prefetch(array_keys($this->items));
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
@@ -665,6 +716,7 @@ class Collection extends Iterator implements PageCollectionInterface
     public function ofOneOfTheseAccessLevels($accessLevels)
     {
         $items = [];
+        $this->pages->prefetch(array_keys($this->items));
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
@@ -713,6 +765,7 @@ class Collection extends Iterator implements PageCollectionInterface
     public function toExtendedArray()
     {
         $items  = [];
+        $this->pages->prefetch(array_keys($this->items));
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
 

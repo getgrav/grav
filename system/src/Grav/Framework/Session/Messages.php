@@ -23,6 +23,23 @@ class Messages implements \Serializable
     protected $messages = [];
     /** @var bool */
     protected $isCleared = false;
+    /** @var callable|null Called once, before the first message is added; not stored with the messages. */
+    private $onFirstAdd;
+
+    /**
+     * Run a callback once, right before the first message is added. A session that has not
+     * started yet uses it to start and store the messages only when there is something to keep.
+     *
+     * @param callable|null $callback
+     * @return $this
+     * @internal
+     */
+    public function onFirstAdd(?callable $callback): Messages
+    {
+        $this->onFirstAdd = $callback;
+
+        return $this;
+    }
 
     /**
      * Add message to the queue.
@@ -33,6 +50,12 @@ class Messages implements \Serializable
      */
     public function add(string $message, string $scope = 'default'): Messages
     {
+        if ($this->onFirstAdd) {
+            $callback = $this->onFirstAdd;
+            $this->onFirstAdd = null;
+            $callback($this);
+        }
+
         $key = md5($scope . '~' . $message);
         $item = ['message' => $message, 'scope' => $scope];
 

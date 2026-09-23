@@ -64,6 +64,9 @@ class Pages
     /** File in cache/compiled/pages holding the stamp that markChanged() bumps. */
     protected const CHANGE_STAMP_FILE = 'change-stamp.txt';
 
+    /** Page count from which system.pages.lazy_index: auto uses the lazy page index. */
+    protected const LAZY_INDEX_AUTO_PAGES = 1000;
+
     /** @var FlexDirectory|null */
     private $directory;
 
@@ -121,6 +124,12 @@ class Pages
     protected $sort_lazy = false;
     /** @var array<string,int|false>|null Folders and files the running rebuild has seen, with their modification times. */
     protected $scan_paths;
+    /** @var array<string,array>|null Folder listings the previous rebuild recorded: folder => [mtime, time recorded, entries]. */
+    protected $scan_folders_previous;
+    /** @var array<string,array>|null Folder listings the running rebuild records for the next one. */
+    protected $scan_folders;
+    /** @var int Time the running rebuild started. */
+    protected $scan_started = 0;
     /** @var bool True while this process rebuilds the pages, so a nested rebuild never waits for its own lock. */
     private static $rebuilding = false;
     /** @var Types|null */
@@ -459,6 +468,88 @@ class Pages
                 }
                 // Missing rows fall through to get(), which rebuilds the index.
             }
+        }
+    }
+
+    /**
+     * Load several lazily indexed pages with one query per batch instead of a
+     * query per page. Collections call this before they walk their pages.
+     *
+     * Does nothing unless the pages come from the lazy page index, and skips
+     * pages that are already loaded. Pages whose rows can't be read are left
+     * for get(), which rebuilds the index as it always has.
+     *
+     * @param iterable<string> $paths
+     * @return void
+     */
+    public function prefetch(iterable $paths): void
+    {
+        if (!$this->index_store) {
+            return;
+        }
+
+        $missing = [];
+        foreach ($paths as $path) {
+            $path = (string)$path;
+            if (($this->index[$path] ?? null) === true && !array_key_exists($path, $this->instances)) {
+                $missing[] = $path;
+            }
+        }
+        if (!$missing) {
+            return;
+        }
+
+        foreach ($this->index_store->readMany($missing) as $path => $payload) {
+            $page = @unserialize($payload);
+            if ($page instanceof PageInterface) {
+                $this->instances[$path] = $page;
+            }
+        }
+    }
+
+    /**
+     * True when the page at this path is in the lazy page index and has not
+     * been loaded yet, so reading it would cost a query.
+     *
+     * Always false when the pages come from the classic cache.
+     *
+     * @param string $path
+     * @return bool
+     */
+    public function isLazilyIndexed($path): bool
+    {
+        $path = (string)$path;
+
+        return ($this->index[$path] ?? null) === true && !array_key_exists($path, $this->instances);
+    }
+
+    /**
+     * Load the children lists of several folders with one query per batch,
+     * when children lists come from the lazy page index.
+     *
+     * @param string[] $paths
+     * @return void
+     */
+    protected function prefetchChildren(array $paths): void
+    {
+        if (!$this->children_lazy || !$this->index_store) {
+            return;
+        }
+
+        $missing = [];
+        foreach ($paths as $path) {
+            if (!array_key_exists($path, $this->children)) {
+                $missing[] = $path;
+            }
+        }
+        if (!$missing) {
+            return;
+        }
+
+        $rows = $this->index_store->readChildrenMany($missing);
+        foreach ($missing as $path) {
+            // Same as childrenOf(): a folder without a stored list has no children.
+            $this->children[$path] = $rows[$path] ?? [];
         }
     }
 
@@ -893,7 +984,9 @@ class Pages
                 }
                 break;
             case 'descendants':
-                $collection = $this->all($page)->remove($page->path())->pages();
+                // Keep the children index flags on each item, so the module and published
+                // filters that follow don't load every descendant to ask it.
+                $collection = (new Collection($this->allItems($page, true), [], $this))->remove($page->path())->pages();
                 break;
             default:
                 // Unknown type; return empty collection.
@@ -1383,15 +1476,45 @@ class Pages
      */
     public function all(?PageInterface $current = null)
     {
-        /** @var PageInterface $current */
-        $current = $current ?: $this->root();
+        return new Collection($this->allItems($current ?: $this->root(), false), [], $this);
+    }
 
+    /**
+     * The items of all(): the page and everything below it, depth first.
+     *
+     * With $withInfo each item keeps the flags and sort keys the children index
+     * holds for it (as children() collections do), so filters and sorts on the
+     * result don't have to load every page. all() itself keeps its items to the
+     * slug alone, as it always has.
+     *
+     * @param PageInterface $current
+     * @param bool $withInfo
+     * @return array<string,array>
+     */
+    protected function allItems(PageInterface $current, bool $withInfo): array
+    {
         $items = [];
         if (!$current->root()) {
             $items[$current->path()] = ['slug' => $current->slug()];
         }
 
         if (!$this->directory && $current instanceof Page) {
+            // With a lazy index, load the children lists a level at a time in batches
+            // instead of one query per folder during the walk below.
+            if ($this->children_lazy && $this->index_store) {
+                $level = [(string)$current->path()];
+                while ($level) {
+                    $this->prefetchChildren($level);
+                    $next = [];
+                    foreach ($level as $path) {
+                        foreach ($this->children[$path] ?? [] as $childPath => $info) {
+                            $next[] = (string)$childPath;
+                        }
+                    }
+                    $level = $next;
+                }
+            }
+
             // Regular pages: walk the children index by path, depth first in children order,
             // which is the order the recursive walk produced. Pages are not loaded just to find
             // their children: the slug comes from the page when it is already in memory and
@@ -1410,7 +1533,7 @@ class Pages
                     $page = $this->get($path);
                     $slug = $page ? $page->slug() : null;
                 }
-                $items[$path] = ['slug' => $slug];
+                $items[$path] = $withInfo && is_array($info) ? ['slug' => $slug] + $info : ['slug' => $slug];
 
                 foreach (array_reverse($this->childrenOf($path), true) as $childPath => $childInfo) {
                     $stack[] = [(string)$childPath, $childInfo];
@@ -1442,7 +1565,7 @@ class Pages
             }
         }
 
-        return new Collection($items, [], $this);
+        return $items;
     }
 
     /**
@@ -2139,19 +2262,32 @@ class Pages
         $check = $cache_enabled && $this->pages_cache_id && $method !== 'none' && $method !== 'off';
         $this->scan_paths = $check ? [] : null;
 
-        // Page files skip the per-file compiled cache during the scan and reuse the headers parsed last time.
-        $headers_file = $this->getScanFile('frontmatter-' . md5(json_encode($pages_dirs) . $this->active_lang . (CompiledMarkdownFile::$nativeYaml ? '-native' : '')));
-        $scanning = CompiledMarkdownFile::beginScan($headers_file ? ($this->readScanFile($headers_file) ?? []) : []);
+        // Page files skip the per-file compiled cache during the scan, and the scan reuses what the last one
+        // read where the files and folders are unchanged: the parsed header of each page file whose time and
+        // size are the same, and the listing of each folder whose time is the same. Every page is still built
+        // and every page event still fires; only the file reads and folder listings are skipped.
+        $state_file = $this->getScanFile('scan-' . md5(json_encode($pages_dirs) . $this->active_lang . (CompiledMarkdownFile::$nativeYaml ? '-native' : '')));
+        $state = $state_file ? ($this->readScanFile($state_file) ?? []) : [];
+        $scanning = CompiledMarkdownFile::beginScan((array)($state['headers'] ?? []), (array)($state['files'] ?? []));
+        $reuse = $scanning && $state_file;
+        if ($reuse) {
+            $this->scan_folders_previous = (array)($state['folders'] ?? []);
+            $this->scan_folders = [];
+            $this->scan_started = time();
+        }
         try {
             foreach ($pages_dirs as $dir) {
                 $this->recurse($dir);
             }
         } finally {
             if ($scanning) {
-                $headers = CompiledMarkdownFile::endScan($changed);
-                if ($changed && $headers_file) {
-                    $this->writeScanFile($headers_file, $headers);
+                $headers = CompiledMarkdownFile::endScan($changed, $files);
+                if ($reuse && ($changed || $files !== ($state['files'] ?? null) || $this->scan_folders !== $this->scan_folders_previous)) {
+                    $this->writeScanFile($state_file, ['headers' => $headers, 'files' => $files, 'folders' => $this->scan_folders]);
                 }
+            }
+            if ($reuse) {
+                $this->scan_folders = $this->scan_folders_previous = null;
             }
         }
 
@@ -2196,7 +2332,7 @@ class Pages
             $index = $this->index;
             $lazy = false;
             if ($this->pages_cache_id) {
-                $store = $this->index_store ?? $this->openIndexStore($pages_dirs);
+                $store = $this->lazyIndexEnabled(count($this->index)) ? ($this->index_store ?? $this->openIndexStore($pages_dirs)) : null;
                 if ($store && $store->rebuild($this->pages_cache_id, [
                     'pages' => $this->serializeIndex(),
                     'routes' => $this->routes,
@@ -2208,6 +2344,11 @@ class Pages
                     $lazy = true;
                     $index = array_fill_keys(array_keys($this->index), true);
                 }
+            }
+
+            if (!$lazy) {
+                // The pages this request built are all in memory; don't keep a store from an earlier load.
+                $this->index_store = null;
             }
 
             // save pages, routes, taxonomy, and sort to cache
@@ -2272,19 +2413,43 @@ class Pages
     }
 
     /**
-     * Open the per-page index store backing the lazy regular pages index.
-     * Returns null when not opted in, when Flex pages are active, or when no
-     * supported database engine (pdo_sqlite or YetiSQL) is available.
+     * Whether the regular pages use the lazy page index (system.pages.lazy_index).
      *
-     * The lazy index is an experimental opt-in (system.pages.lazy_index);
-     * without it the classic single-blob pages cache is used unchanged.
+     * true turns it on, false keeps the classic single-blob pages cache, and
+     * 'auto' (the default) turns it on for sites with at least LAZY_INDEX_AUTO_PAGES
+     * pages. $pageCount is the size of the index being built; null means an
+     * existing lazy cache is being opened, which 'auto' accepts as it is.
+     *
+     * @param int|null $pageCount
+     * @return bool
+     */
+    protected function lazyIndexEnabled(?int $pageCount = null): bool
+    {
+        if ($this->directory) {
+            return false;
+        }
+
+        $setting = $this->grav['config']->get('system.pages.lazy_index', 'auto');
+        if ($setting === 'auto') {
+            return $pageCount === null || $pageCount >= static::LAZY_INDEX_AUTO_PAGES;
+        }
+
+        return $setting && $setting !== 'false';
+    }
+
+    /**
+     * Open the per-page index store backing the lazy regular pages index.
+     * Returns null when the lazy index is off (see lazyIndexEnabled()), when
+     * Flex pages are active, or when no supported database engine (pdo_sqlite
+     * or YetiSQL) is available.
      *
      * @param array $pagesDirs
+     * @param int|null $pageCount
      * @return PageIndexStore|null
      */
-    protected function openIndexStore(array $pagesDirs): ?PageIndexStore
+    protected function openIndexStore(array $pagesDirs, ?int $pageCount = null): ?PageIndexStore
     {
-        if ($this->directory || !$this->grav['config']->get('system.pages.lazy_index', false)) {
+        if (!$this->lazyIndexEnabled($pageCount)) {
             return null;
         }
 
@@ -2303,6 +2468,45 @@ class Pages
     }
 
     /**
+     * List a folder for the pages scan: entry name => 'd' for folders, 'f' for everything else.
+     *
+     * Broken symlinks are left out. When the last scan recorded this folder with the same
+     * modification time, and the folder was not modified in the second that scan listed it,
+     * its listing is reused instead of reading the folder again: adding, removing or renaming
+     * an entry always changes the folder's time.
+     *
+     * @param string $directory
+     * @param int|false $time Folder modification time, taken before listing.
+     * @param bool $reused Set to true when the listing comes from the last scan.
+     * @return array<string,string>
+     */
+    protected function listFolder(string $directory, $time, bool &$reused = false): array
+    {
+        $reused = false;
+        $known = $this->scan_folders_previous[$directory] ?? null;
+        if ($time !== false && is_array($known) && ($known[0] ?? null) === $time && $time < ($known[1] ?? 0) && is_array($known[2] ?? null)) {
+            $reused = true;
+            $entries = $known[2];
+        } else {
+            $entries = [];
+            foreach (new FilesystemIterator($directory) as $file) {
+                // Skip broken symlinks.
+                if ($file->isLink() && $file->getRealPath() === false) {
+                    continue;
+                }
+                $entries[$file->getFilename()] = $file->isDir() ? 'd' : 'f';
+            }
+            $known = [$time, $this->scan_started, $entries];
+        }
+
+        if ($this->scan_folders !== null && $time !== false) {
+            $this->scan_folders[$directory] = $known;
+        }
+
+        return $entries;
+    }
+
+    /**
      * Recursive function to load & build page relationships.
      *
      * @param string    $directory
@@ -2318,8 +2522,9 @@ class Pages
 
         // Take the folder time before listing it, so an entry added during the scan still counts as a change.
         $scan = $this->scan_paths !== null ? (string)$this->check_method : null;
+        $folder_time = @filemtime($directory);
         if ($scan !== null) {
-            $this->scan_paths[$directory] = @filemtime($directory);
+            $this->scan_paths[$directory] = $folder_time;
         }
 
         /** @var Config $config */
@@ -2365,25 +2570,22 @@ class Pages
         $ignore_files = array_flip($this->ignore_files);
         $ignore_folders = array_flip($this->ignore_folders);
 
-        $iterator = new FilesystemIterator($directory);
-        foreach ($iterator as $file) {
-            $filename = $file->getFilename();
+        $reused = false;
+        foreach ($this->listFolder($directory, $folder_time, $reused) as $filename => $type) {
+            $filename = (string)$filename;
 
             // Ignore all hidden files if set.
             if ($this->ignore_hidden && $filename && str_starts_with($filename, '.')) {
                 continue;
             }
 
-            // Skip broken symlinks.
-            if ($file->isLink() && $file->getRealPath() === false) {
-                continue;
-            }
+            $pathname = $directory . DS . $filename;
 
             // Handle folders later.
-            if ($file->isDir()) {
+            if ($type === 'd') {
                 // But ignore all folders in ignore list.
                 if (!isset($ignore_folders[$filename])) {
-                    $folders[] = $file;
+                    $folders[] = $filename;
                 }
                 continue;
             }
@@ -2394,7 +2596,11 @@ class Pages
             }
 
             // Update last modified date to match the last updated file in the folder.
-            $modified = $file->getMTime();
+            $modified = @filemtime($pathname);
+            if ($modified === false) {
+                // A listing reused from the last scan can name a symlink that has broken since.
+                continue;
+            }
             if ($modified > $last_modified) {
                 $last_modified = $modified;
             }
@@ -2403,7 +2609,7 @@ class Pages
             if ($scan !== null && $scan !== 'folder') {
                 $lower = strtolower($filename);
                 if ($scan === 'hash' || str_ends_with($lower, '.md') || str_ends_with($lower, '.yaml')) {
-                    $this->scan_paths[$file->getPathname()] = $modified;
+                    $this->scan_paths[$pathname] = $modified;
                 }
             }
 
@@ -2414,7 +2620,7 @@ class Pages
                 $ext = substr($filename, $pos);
                 if (isset($page_extensions[$ext])) {
                     if ($page_found === null || $page_extensions[$ext] < $page_extensions[$page_extension]) {
-                        $page_found = $file;
+                        $page_found = $pathname;
                         $page_extension = $ext;
                     }
                 }
@@ -2423,7 +2629,7 @@ class Pages
 
         $content_exists = false;
         if ($parent && $page_found) {
-            $page->init($page_found, $page_extension);
+            $page->init(new SplFileInfo($page_found), $page_extension);
 
             $content_exists = true;
 
@@ -2433,20 +2639,23 @@ class Pages
         }
 
         // Now handle all the folders under the page.
-        /** @var FilesystemIterator $file */
-        foreach ($folders as $file) {
-            $filename = $file->getFilename();
-
+        foreach ($folders as $filename) {
             // if folder contains separator, continue
-            if (Utils::contains($file->getFilename(), $config->get('system.param_sep', ':'))) {
+            if (Utils::contains($filename, $config->get('system.param_sep', ':'))) {
+                continue;
+            }
+
+            $path = $directory . DS . $filename;
+
+            // A listing reused from the last scan can name a folder symlink that has broken since.
+            if ($reused && !is_dir($path)) {
                 continue;
             }
 
             if (!$page->path()) {
-                $page->path($file->getPath());
+                $page->path($directory);
             }
 
-            $path = $directory . DS . $filename;
             $child = $this->recurse($path, $page);
 
             if (preg_match('/^(\d+\.)_/', $filename)) {
@@ -2592,6 +2801,24 @@ class Pages
             $query = explode('|', str_replace('header.', '', $order_by), 2);
             $header_query = array_shift($query) ?? '';
             $header_default = array_shift($query);
+        }
+
+        // Load in batches the pages whose sort value isn't in the children index.
+        if ($this->index_store) {
+            $stored = match ($order_by) {
+                'title', 'date', 'modified', 'publish_date', 'slug', 'folder' => $order_by,
+                'unpublish_date' => null,
+                default => is_string($header_query) ? null : false,
+            };
+            if ($stored !== false) {
+                $load = [];
+                foreach ($pages as $key => $info) {
+                    if ($stored === null || !isset($info[$stored])) {
+                        $load[] = $key;
+                    }
+                }
+                $this->prefetch($load);
+            }
         }
 
         foreach ($pages as $key => $info) {

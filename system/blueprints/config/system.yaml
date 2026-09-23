@@ -826,15 +826,15 @@ form:
                 min: 0
 
             pages.lazy_index:
-              type: toggle
-              label: 'Lazy page index (experimental)'
-              help: 'Load pages, routes and taxonomy on demand from a per-page SQLite index instead of one large cache blob. Falls back to the classic cache automatically when no database engine is available.'
-              highlight: 0
+              type: select
+              size: small
+              label: PLUGIN_ADMIN.PAGES_LAZY_INDEX
+              help: PLUGIN_ADMIN.PAGES_LAZY_INDEX_HELP
+              default: auto
               options:
-                1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
-              validate:
-                type: bool
+                1: PLUGIN_ADMIN.YES
+                auto: PLUGIN_ADMIN.AUTO
 
             cache.driver:
               type: select
@@ -1715,6 +1715,18 @@ form:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
               default: true
+              validate:
+                type: bool
+
+            session.lazy:
+              type: toggle
+              label: PLUGIN_ADMIN.SESSION_LAZY
+              help: PLUGIN_ADMIN.SESSION_LAZY_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              default: false
               validate:
                 type: bool
 

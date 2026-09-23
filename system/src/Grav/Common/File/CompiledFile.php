@@ -39,7 +39,7 @@ trait CompiledFile
             if ($var === null && $this->raw === null && $this->content === null) {
                 // Read straight from the source, without reading or writing a compiled file.
                 if (!$this->usesCompiledCache()) {
-                    $this->content = (array)$this->decode($this->raw());
+                    $this->content = $this->readUncompiled();
 
                     return parent::content($var);
                 }
@@ -152,6 +152,16 @@ trait CompiledFile
     protected function usesCompiledCache(): bool
     {
         return true;
+    }
+
+    /**
+     * Read and decode the source file, for reads that skip the compiled cache.
+     *
+     * @return array
+     */
+    protected function readUncompiled(): array
+    {
+        return (array)$this->decode($this->raw());
     }
 
     /**

@@ -300,6 +300,82 @@ class PagesChangeCheckTest extends \PHPUnit\Framework\TestCase
         self::assertCount(1, $pruned, 'Headers no page uses any more are dropped');
     }
 
+    public function testRebuildDoesNotReadUnchangedFiles(): void
+    {
+        self::assertSame('Home', $this->request()->find('/home')->title());
+
+        // An unreadable file can only keep its title if the rebuild never opens it.
+        $home = $this->pagesDir . '/01.home/default.md';
+        chmod($home, 0);
+        try {
+            if (is_readable($home)) {
+                self::markTestSkipped('Running as a user that can read any file.');
+            }
+
+            $this->writePage('03.about/default.md', 'About Us');
+            $pages = $this->request();
+
+            self::assertSame('About Us', $pages->find('/about')->title());
+            self::assertSame('Home', $pages->find('/home')->title());
+        } finally {
+            chmod($home, 0644);
+        }
+    }
+
+    public function testReusedHeaderStillGivesTheFileText(): void
+    {
+        $this->request();
+        $this->writePage('03.about/default.md', 'About Us');
+
+        // A plugin reading a page's text while the pages are built gets the text from the file.
+        $seen = [];
+        $listener = function ($event) use (&$seen) {
+            $page = $event['page'];
+            if ($page->title() === 'Home') {
+                $seen = [$page->frontmatter(), trim((string)$page->rawMarkdown())];
+            }
+        };
+        $this->grav['events']->addListener('onPageProcessed', $listener);
+        $this->grav['config']->set('system.pages.events.page', true);
+        try {
+            $pages = $this->request();
+        } finally {
+            $this->grav['events']->removeListener('onPageProcessed', $listener);
+        }
+
+        self::assertSame(['title: Home', 'Home body'], $seen);
+        self::assertSame('title: Home', $pages->find('/home')->frontmatter());
+        self::assertSame('Home body', trim((string)$pages->find('/home')->rawMarkdown()));
+    }
+
+    public function testFileChangedInTheSecondItWasReadIsReadAgain(): void
+    {
+        // Written now, so the first scan reads it in the same second it was last changed.
+        $file = $this->pagesDir . '/03.about/default.md';
+        $this->writePage('03.about/default.md', 'About');
+        $time = filemtime($file);
+        self::assertSame('About', $this->request()->find('/about')->title());
+
+        // Same size and the same modification time: only the content tells them apart.
+        $this->writePage('03.about/default.md', 'Abuot');
+        touch($file, $time);
+        clearstatcache();
+        $this->grav['pages']->markChanged();
+
+        self::assertSame('Abuot', $this->request()->find('/about')->title());
+    }
+
+    public function testNewPageInAnUnchangedParentIsFound(): void
+    {
+        self::assertNull($this->request()->find('/blog/post-two'));
+
+        // The blog folder's own time changes; its parent's listing stays reusable.
+        $this->writePage('02.blog/post-two/item.md', 'Post Two');
+
+        self::assertSame('Post Two', $this->request()->find('/blog/post-two')->title());
+        self::assertSame('Post One', $this->request()->find('/blog/post-one')->title());
+    }
+
     public function testRebuildWaitsForTheLockThenRebuildsItself(): void
     {
         $pages = $this->newPages(0.3);

@@ -126,6 +126,8 @@ class SessionServiceProvider implements ServiceProviderInterface
 
             $session = new Session($options);
             $session->setAutoStart($enabled);
+            // The admin always needs its session; lazy start is for the site.
+            $session->setLazy(!$is_admin && (bool)$config->get('system.session.lazy', false));
 
             return $session;
         };
@@ -142,6 +144,16 @@ class SessionServiceProvider implements ServiceProviderInterface
 
             /** @var Session $session */
             $session = $c['session'];
+
+            // A session waiting for its first write: start it and keep the messages only once
+            // one is added, so showing (no) messages does not create a session.
+            if ($session instanceof Session && $session->isPending()) {
+                return (new Messages())->onFirstAdd(static function (Messages $messages) use ($session) {
+                    if (!$session->messages instanceof Messages) {
+                        $session->messages = $messages;
+                    }
+                });
+            }
 
             if (!$session->messages instanceof Messages) {
                 $session->messages = new Messages();

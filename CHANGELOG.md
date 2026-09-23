@@ -17,6 +17,12 @@
     * Listing every page, which the sitemap and `@page.descendants` collections do, is several times faster on large sites.
     * Page ETags are calculated with a much faster hash.
     * Configuration and translation caches built by a request are loaded into OPcache after the response has been sent, instead of making that request wait.
+    * Rebuilding the pages cache after an edit no longer reads the pages and folders that did not change, so on large sites it takes about half the time it did before.
+    * With `pages.lazy_index` on, lists of pages such as menus, taxonomy pages, `@page.descendants` collections and the sitemap load their pages in a few batches instead of one at a time.
+    * `pages.lazy_index` now defaults to `auto`, which uses the page index on sites with 1,000 pages or more and the classic pages cache on smaller ones, so large sites load pages faster and use far less memory without any setup.
+    * Plugin classes load faster because Grav now asks only the plugin autoloaders that can have the class, in the same order as before.
+    * A modular page can set `cache_modules: true` to cache its modules' output, while modules with their own Twig or a form, logged-in visitors and form submissions are always rendered fresh.
+    * A new `session.lazy` setting, off by default, starts the session only when a visitor needs one, so anonymous page views can go out without a session cookie and be cached by a proxy or CDN.
 1. [](#bugfix)
     * Deleting or renaming a page folder is now picked up without clearing the cache.
     * The `file` change check no longer counts files that only contain `.md` somewhere in their name, such as `page.md.bak`, or whose name merely ends in `yaml`.

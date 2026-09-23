@@ -10,6 +10,7 @@
 namespace Grav\Common\Page;
 
 use Exception;
+use Grav\Common\Assets;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Page\Markdown\MarkdownOutput;
@@ -30,6 +31,7 @@ use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\Security;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Uri;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
 use Grav\Framework\Flex\Flex;
@@ -37,6 +39,7 @@ use InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
 use RuntimeException;
 use SplFileInfo;
+use Throwable;
 use function dirname;
 use function in_array;
 use function is_array;
@@ -578,8 +581,10 @@ class Page implements PageInterface
             $file = $this->file();
             if ($file) {
                 try {
-                    $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
+                    // A pages rebuild can reuse the header of an unchanged file without reading it;
+                    // frontmatter() then reads the text from the file if anything asks for it.
+                    $this->frontmatter = $file instanceof CompiledMarkdownFile && $file->isHeaderOnly() ? null : $file->frontmatter();
 
                     if (!Utils::isAdminPlugin()) {
                         // If there's a `frontmatter.yaml` file merge that in with the page header
@@ -1055,7 +1060,7 @@ class Page implements PageInterface
                     }
 
                     if ($process_twig) {
-                        $this->processTwig();
+                        $this->processModuleTwig((bool)$cache_enable);
                     }
                 }
             } else {
@@ -1242,6 +1247,143 @@ class Page implements PageInterface
         /** @var Twig $twig */
         $twig = Grav::instance()['twig'];
         $this->content = $twig->processPage($this, $this->content);
+    }
+
+    /**
+     * Run the Twig pass of the content, reusing a cached module render where the modular page allows it.
+     *
+     * A module's Twig pass renders its body and its theme template, so its output can depend on
+     * the visitor, and it is never cached by default (GHSA-pp89-h475-7gj6). A modular page whose
+     * modules render the same for everyone can set `cache_modules: true` in its header; see
+     * moduleOutputCacheId() for the modules and requests that are still rendered every time.
+     *
+     * @param bool $cache_enable
+     * @return void
+     */
+    private function processModuleTwig(bool $cache_enable): void
+    {
+        $cache_id = $cache_enable ? $this->moduleOutputCacheId() : null;
+        if ($cache_id === null) {
+            $this->processTwig();
+
+            return;
+        }
+
+        $grav = Grav::instance();
+
+        /** @var Cache $cache */
+        $cache = $grav['cache'];
+        /** @var Twig $twig */
+        $twig = $grav['twig'];
+
+        try {
+            $template = $twig->getPageTwigTemplate($this);
+        } catch (Throwable) {
+            $this->processTwig();
+
+            return;
+        }
+
+        /** @var Assets $assets */
+        $assets = $grav['assets'];
+
+        $cached = $cache->fetch($cache_id);
+        if (is_array($cached) && isset($cached['content'], $cached['time']) && is_string($cached['content'])
+            && is_array($cached['assets'] ?? null) && $assets->canReplay($cached['assets'])
+            && $this->moduleTemplateIsFresh($twig, $template, (int)$cached['time'])
+        ) {
+            // Add the assets the module added when it rendered, in the same order.
+            $assets->replay($cached['assets']);
+            $this->content = $cached['content'];
+
+            return;
+        }
+
+        $keys = $assets->getAssetKeys();
+        $time = time();
+
+        $assets->startRecording();
+        try {
+            $this->processTwig();
+        } finally {
+            $added = $assets->stopRecording();
+        }
+
+        // Additions are replayed on a cache hit; a render that removed assets is not cached.
+        if (!array_diff($keys, $assets->getAssetKeys()) && $assets->canReplay($added)) {
+            $cache->save($cache_id, ['content' => $this->content, 'time' => $time, 'assets' => $added]);
+        }
+    }
+
+    /**
+     * Cache id for this module's rendered output, or null when it has to render on every request.
+     *
+     * The output is cached only when all of these hold:
+     * - the modular page that holds the module sets `cache_modules: true`;
+     * - neither page sets `never_cache_twig`, and neither has a form or an access rule;
+     * - the module body has no Twig of its own (it is request-aware even in the sandbox);
+     * - the request is a GET or HEAD from a visitor who is not logged in, so a logged-in
+     *   render is never stored and never served.
+     * The id covers the page and config (as the page content cache does), the language and the
+     * whole request URL, so pages that read the query or URL params keep one entry per URL.
+     * A stored render is used only while the module's template file is older than it; partials
+     * that template includes are not checked, so editing only a partial needs a cache clear.
+     *
+     * @return string|null
+     */
+    private function moduleOutputCacheId(): ?string
+    {
+        if (!$this->isModule()) {
+            return null;
+        }
+
+        $parent = $this->parent();
+        if (!$parent instanceof PageInterface || ($parent->header()->cache_modules ?? false) !== true) {
+            return null;
+        }
+
+        foreach ([$this->header(), $parent->header()] as $header) {
+            if (!empty($header->never_cache_twig) || isset($header->form) || isset($header->forms) || isset($header->access) || isset($header->login)) {
+                return null;
+            }
+        }
+
+        $body = (string)$this->content;
+        if (str_contains($body, '{{') || str_contains($body, '{%') || str_contains($body, '{#')) {
+            return null;
+        }
+
+        $grav = Grav::instance();
+        $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+        if ($method !== 'GET' && $method !== 'HEAD') {
+            return null;
+        }
+
+        $user = isset($grav['user']) ? $grav['user'] : null;
+        if ($user instanceof UserInterface && $user->authenticated) {
+            return null;
+        }
+
+        /** @var Uri $uri */
+        $uri = $grav['uri'];
+
+        // The request URI as sent: path, URL params, extension and query string.
+        return md5('module-output' . $this->getPageContentCacheKey($grav['config']) . '|' . $parent->path() . '|' . $grav['language']->getActive() . '|' . $uri->base() . '|' . $uri->uri());
+    }
+
+    /**
+     * @param Twig $twig
+     * @param string $template
+     * @param int $time
+     * @return bool
+     */
+    private function moduleTemplateIsFresh(Twig $twig, string $template, int $time): bool
+    {
+        try {
+            return $twig->twig()->getLoader()->isFresh($template, $time);
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     /**
