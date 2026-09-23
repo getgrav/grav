@@ -200,6 +200,9 @@ trait ImageMediaTrait
                 $derivative->resize($width, $height);
                 $derivative->set('width', $width);
                 $derivative->set('height', $height);
+                if ($base->format !== 'guess') {
+                    $derivative->format($base->format);
+                }
 
                 // A derivative is this image at another width, so it takes the
                 // format and quality already set here. Without this the result
