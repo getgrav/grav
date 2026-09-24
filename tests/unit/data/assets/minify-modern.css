@@ -1,0 +1,51 @@
+/*! minify-modern.css - license header that must survive */
+@import "minify-imported.css" screen;
+
+/* an ordinary comment that must be stripped */
+:root {
+    --brand: hsl(210 40% 50%);
+    --accent: oklch(62.8% 0.25 29.2);
+}
+
+.modern {
+    color: hsl(210 40% 50%);
+    background: rgb(255 0 0 / 50%);
+    border-color: color-mix(in oklab, red 40%, blue);
+    width: calc(100% - 2rem);
+    background-image: url(../images/dot.png);
+}
+
+.modern::after {
+    content: "one, two: three";
+}
+
+.nested {
+    color: red;
+    &:hover { color: blue; }
+}
+
+@media (min-width: calc(400px + 2rem)) {
+    .modern { padding: 1rem; }
+}
+
+@supports (width: calc(100px + 1px)) {
+    .modern { gap: 1px; }
+}
+
+@container (min-width: calc(300px + 1rem)) {
+    .modern { gap: 2px; }
+}
+
+@layer base, components;
+
+@media (min-width: calc(100px + 2rem)) {
+    .modern { margin: 0; }
+}
+
+.greeting::before {
+    content: "Hello, world";
+}
+
+.marker::before {
+    content: "/* x */";
+}

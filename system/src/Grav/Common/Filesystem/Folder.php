@@ -90,7 +90,8 @@ abstract class Folder
                 $directory = new RecursiveDirectoryIterator($path, $flags);
             }
             $recursive = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST);
-            $iterator = new RegexIterator($recursive, '/^.+\.'.$extensions.'$/i');
+            // Group the alternatives: without it, 'md|yaml' matched any path containing '.md' or ending in 'yaml'.
+            $iterator = new RegexIterator($recursive, '/^.+\.(?:' . $extensions . ')$/i');
 
             /** @var RecursiveDirectoryIterator $file */
             foreach ($iterator as $file) {

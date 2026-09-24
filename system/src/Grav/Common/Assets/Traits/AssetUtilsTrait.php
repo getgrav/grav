@@ -126,38 +126,53 @@ trait AssetUtilsTrait
     }
 
     /**
-     * Moves @import statements to the top of the file per the CSS specification,
-     * with a single @charset ahead of them when any of the files declared one
+     * Moves @import statements to the top of the file per the CSS specification, and keeps a
+     * single @charset in front of them.
      *
-     * An @import is matched whether its URL is quoted or not (minifiers strip the
-     * quotes inside url()), and a match never runs past the statement's own
-     * semicolon or into a rule block, so no other CSS can be pulled along with it.
+     * The buffer is scanned for strings and comments as well, so an @import written inside a
+     * string or a comment is left where it is, and an @import only ever runs to its own `;`.
+     * It never reaches across a `{`, a `}` or into the next rule, which matters once the files
+     * have been minified onto one line each. Quoted, url() and unquoted url() forms are all
+     * understood, with or without a media query, layer() or supports() after them. Only the
+     * first @charset is kept, because anywhere but the very start of a stylesheet it's invalid.
      *
      * @param  string $file the file containing the combined CSS files
-     * @return string       the modified file with any @imports at the top of the file
+     * @return string       the modified file with any @charset and @imports at the top of the file
      */
     protected function moveImports($file)
     {
-        $charset = '';
-        $file = (string)preg_replace_callback('{@charset\s*(?:"[^"]*"|\'[^\']*\')\s*;}i', static function ($matches) use (&$charset) {
-            if ($charset === '') {
-                $charset = $matches[0] . "\n";
+        $string = '"(?:[^"\\\\\r\n]|\\\\(?:\r\n|.))*"|\'(?:[^\'\\\\\r\n]|\\\\(?:\r\n|.))*\'';
+        $regex = '~(' . $string . '|/\*.*?\*/)'
+            . '|(@charset\s*(?:' . $string . ')\s*;)'
+            . '|(@import\s*(?:url\(\s*(?:' . $string . '|[^)"\'\s]*)\s*\)|' . $string . ')(?:' . $string . '|[^;{}"\'])*;)~is';
+
+        $charset = null;
+        $imports = [];
+
+        $result = preg_replace_callback($regex, static function ($matches) use (&$charset, &$imports) {
+            if (($matches[2] ?? '') !== '') {
+                $charset ??= $matches[2];
+            } elseif (($matches[3] ?? '') !== '') {
+                $imports[] = trim($matches[3]);
+            } else {
+                // A string or a comment: leave it untouched.
+                return $matches[0];
             }
 
             return '';
-        }, (string)$file);
+        }, (string) $file);
 
-        $regex = '{@import\s*(?:url\(\s*(?:"[^"]*"|\'[^\']*\'|[^)"\']*)\s*\)|"[^"]*"|\'[^\']*\')[^;{}]*;}i';
+        // On a PCRE failure leave the buffer as it was rather than lose it.
+        if ($result === null) {
+            return (string) $file;
+        }
 
-        $imports = [];
+        $head = $imports;
+        if ($charset !== null) {
+            array_unshift($head, $charset);
+        }
 
-        $file = (string)preg_replace_callback($regex, static function ($matches) use (&$imports) {
-            $imports[] = $matches[0];
-
-            return '';
-        }, $file);
-
-        return $charset . implode("\n", $imports) . "\n\n" . $file;
+        return implode("\n", $head) . "\n\n" . $result;
     }
 
     /**

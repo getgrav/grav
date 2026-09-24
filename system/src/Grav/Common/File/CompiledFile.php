@@ -37,6 +37,13 @@ trait CompiledFile
             $filename = $this->filename;
             // If nothing has been loaded, attempt to get pre-compiled version of the file first.
             if ($var === null && $this->raw === null && $this->content === null) {
+                // Read straight from the source, without reading or writing a compiled file.
+                if (!$this->usesCompiledCache()) {
+                    $this->content = $this->readUncompiled();
+
+                    return parent::content($var);
+                }
+
                 $key = md5($filename);
                 $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
                 $cacheFilename = $file->filename();
@@ -135,6 +142,26 @@ trait CompiledFile
         }
 
         return parent::content($var);
+    }
+
+    /**
+     * Tell whether reads go through the compiled cache file (cache/compiled/files).
+     *
+     * @return bool
+     */
+    protected function usesCompiledCache(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Read and decode the source file, for reads that skip the compiled cache.
+     *
+     * @return array
+     */
+    protected function readUncompiled(): array
+    {
+        return (array)$this->decode($this->raw());
     }
 
     /**
@@ -273,9 +300,6 @@ trait CompiledFile
 
             return;
         }
-
-        // Touch the directory as well, thus marking it modified.
-        @touch(dirname($cacheFilename));
 
         // Invalidate old bytecode; the decoded data is already available to this request.
         // Let OPcache compile the new file when a later request actually includes it.

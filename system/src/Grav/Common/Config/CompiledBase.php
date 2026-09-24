@@ -51,6 +51,9 @@ abstract class CompiledBase
     /** @var mixed  Configuration object. */
     protected $object;
 
+    /** @var array<string,true> Compiled files waiting to be compiled into OPcache at shutdown. */
+    private static $precompile = [];
+
     /**
      * @param  string $cacheFolder  Cache folder to be used.
      * @param  array  $files  List of files as returned from ConfigFileFinder class.
@@ -234,6 +237,29 @@ abstract class CompiledBase
      */
     protected function saveCompiledFile($filename)
     {
+        $saved = $this->writeCompiledFile($filename, fn() => [
+            '@class' => static::class,
+            'timestamp' => time(),
+            'checksum' => $this->checksum(),
+            'files' => $this->files,
+            'data' => $this->getState()
+        ]);
+
+        if ($saved) {
+            $this->modified();
+        }
+    }
+
+    /**
+     * Write a compiled PHP file unless another process is already writing it.
+     *
+     * @param string $filename
+     * @param callable(): array $payload Builds the data to store, called only once the lock is held.
+     * @return bool True if the file was written.
+     * @internal
+     */
+    protected function writeCompiledFile(string $filename, callable $payload): bool
+    {
         $file = PhpFile::instance($filename);
 
         // Attempt to lock the file for writing.
@@ -245,16 +271,8 @@ abstract class CompiledBase
 
         if ($file->locked() === false) {
             // File was already locked by another process.
-            return;
+            return false;
         }
-
-        $cache = [
-            '@class' => static::class,
-            'timestamp' => time(),
-            'checksum' => $this->checksum(),
-            'files' => $this->files,
-            'data' => $this->getState()
-        ];
 
         // The compiled file is a cache and can always be rebuilt from the source
         // YAML. If it cannot be written we serve the request from the freshly
@@ -263,19 +281,21 @@ abstract class CompiledBase
         // plugin exist, so an exception here 500s every route including /admin
         // and leaves no in-browser way back. (#4260)
         try {
-            $file->save($cache);
+            $file->save($payload());
             $file->unlock();
 
             $this->preloadOpcodeCache($file);
 
             $file->free();
 
-            $this->modified();
+            return true;
         } catch (Throwable $e) {
             static::logCacheWriteFailure($filename, $e->getMessage());
 
             $file->unlock();
             $file->free();
+
+            return false;
         }
     }
 
@@ -335,6 +355,11 @@ abstract class CompiledBase
 
     /**
      * Ensure compiled cache file is primed into OPcache when available.
+     *
+     * The old bytecode is invalidated straight away, so no request can run a stale copy. The
+     * new file is compiled into OPcache by precompilePending(), which Grav calls at shutdown
+     * after the response has been sent, instead of in the middle of the request that built it.
+     * If shutdown does not run, the first request that includes the file compiles it.
      */
     protected function preloadOpcodeCache(PhpFile $file): void
     {
@@ -351,7 +376,25 @@ abstract class CompiledBase
         @opcache_invalidate($filename, true);
 
         if (function_exists('opcache_compile_file')) {
-            @opcache_compile_file($filename);
+            self::$precompile[$filename] = true;
+        }
+    }
+
+    /**
+     * Compile the compiled files written during this request into OPcache.
+     *
+     * @return void
+     */
+    public static function precompilePending(): void
+    {
+        $files = self::$precompile;
+        self::$precompile = [];
+
+        foreach (array_keys($files) as $filename) {
+            if (is_file($filename)) {
+                // Silence errors for restricted functions while keeping best effort behavior.
+                @opcache_compile_file($filename);
+            }
         }
     }
 

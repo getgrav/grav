@@ -16,6 +16,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Debugger;
+use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Flex\Types\Pages\PageCollection;
 use Grav\Common\Flex\Types\Pages\PageIndex;
@@ -57,6 +58,15 @@ use function md5;
  */
 class Pages
 {
+    /** Seconds a request waits for another request to finish rebuilding the pages before it rebuilds them itself. */
+    protected const REBUILD_LOCK_TIMEOUT = 15;
+
+    /** File in cache/compiled/pages holding the stamp that markChanged() bumps. */
+    protected const CHANGE_STAMP_FILE = 'change-stamp.txt';
+
+    /** Page count from which system.pages.lazy_index: auto uses the lazy page index. */
+    protected const LAZY_INDEX_AUTO_PAGES = 1000;
+
     /** @var FlexDirectory|null */
     private $directory;
 
@@ -112,6 +122,16 @@ class Pages
     protected $children_lazy = false;
     /** @var bool Sort orders live in the index store; $this->sort only overlays runtime-built orders and memoized reads. */
     protected $sort_lazy = false;
+    /** @var array<string,int|false>|null Folders and files the running rebuild has seen, with their modification times. */
+    protected $scan_paths;
+    /** @var array<string,array>|null Folder listings the previous rebuild recorded: folder => [mtime, time recorded, entries]. */
+    protected $scan_folders_previous;
+    /** @var array<string,array>|null Folder listings the running rebuild records for the next one. */
+    protected $scan_folders;
+    /** @var int Time the running rebuild started. */
+    protected $scan_started = 0;
+    /** @var bool True while this process rebuilds the pages, so a nested rebuild never waits for its own lock. */
+    private static $rebuilding = false;
     /** @var Types|null */
     protected static $types;
     /** @var string|null */
@@ -448,6 +468,88 @@ class Pages
                 }
                 // Missing rows fall through to get(), which rebuilds the index.
             }
+        }
+    }
+
+    /**
+     * Load several lazily indexed pages with one query per batch instead of a
+     * query per page. Collections call this before they walk their pages.
+     *
+     * Does nothing unless the pages come from the lazy page index, and skips
+     * pages that are already loaded. Pages whose rows can't be read are left
+     * for get(), which rebuilds the index as it always has.
+     *
+     * @param iterable<string> $paths
+     * @return void
+     */
+    public function prefetch(iterable $paths): void
+    {
+        if (!$this->index_store) {
+            return;
+        }
+
+        $missing = [];
+        foreach ($paths as $path) {
+            $path = (string)$path;
+            if (($this->index[$path] ?? null) === true && !array_key_exists($path, $this->instances)) {
+                $missing[] = $path;
+            }
+        }
+        if (!$missing) {
+            return;
+        }
+
+        foreach ($this->index_store->readMany($missing) as $path => $payload) {
+            $page = @unserialize($payload);
+            if ($page instanceof PageInterface) {
+                $this->instances[$path] = $page;
+            }
+        }
+    }
+
+    /**
+     * True when the page at this path is in the lazy page index and has not
+     * been loaded yet, so reading it would cost a query.
+     *
+     * Always false when the pages come from the classic cache.
+     *
+     * @param string $path
+     * @return bool
+     */
+    public function isLazilyIndexed($path): bool
+    {
+        $path = (string)$path;
+
+        return ($this->index[$path] ?? null) === true && !array_key_exists($path, $this->instances);
+    }
+
+    /**
+     * Load the children lists of several folders with one query per batch,
+     * when children lists come from the lazy page index.
+     *
+     * @param string[] $paths
+     * @return void
+     */
+    protected function prefetchChildren(array $paths): void
+    {
+        if (!$this->children_lazy || !$this->index_store) {
+            return;
+        }
+
+        $missing = [];
+        foreach ($paths as $path) {
+            if (!array_key_exists($path, $this->children)) {
+                $missing[] = $path;
+            }
+        }
+        if (!$missing) {
+            return;
+        }
+
+        $rows = $this->index_store->readChildrenMany($missing);
+        foreach ($missing as $path) {
+            // Same as childrenOf(): a folder without a stored list has no children.
+            $this->children[$path] = $rows[$path] ?? [];
         }
     }
 
@@ -882,7 +984,9 @@ class Pages
                 }
                 break;
             case 'descendants':
-                $collection = $this->all($page)->remove($page->path())->pages();
+                // Keep the children index flags on each item, so the module and published
+                // filters that follow don't load every descendant to ask it.
+                $collection = (new Collection($this->allItems($page, true), [], $this))->remove($page->path())->pages();
                 break;
             default:
                 // Unknown type; return empty collection.
@@ -1372,20 +1476,96 @@ class Pages
      */
     public function all(?PageInterface $current = null)
     {
-        $all = new Collection();
+        return new Collection($this->allItems($current ?: $this->root(), false), [], $this);
+    }
 
-        /** @var PageInterface $current */
-        $current = $current ?: $this->root();
-
+    /**
+     * The items of all(): the page and everything below it, depth first.
+     *
+     * With $withInfo each item keeps the flags and sort keys the children index
+     * holds for it (as children() collections do), so filters and sorts on the
+     * result don't have to load every page. all() itself keeps its items to the
+     * slug alone, as it always has.
+     *
+     * @param PageInterface $current
+     * @param bool $withInfo
+     * @return array<string,array>
+     */
+    protected function allItems(PageInterface $current, bool $withInfo): array
+    {
+        $items = [];
         if (!$current->root()) {
-            $all[$current->path()] = ['slug' => $current->slug()];
+            $items[$current->path()] = ['slug' => $current->slug()];
         }
 
-        foreach ($current->children() as $next) {
-            $all->append($this->all($next));
+        if (!$this->directory && $current instanceof Page) {
+            // With a lazy index, load the children lists a level at a time in batches
+            // instead of one query per folder during the walk below.
+            if ($this->children_lazy && $this->index_store) {
+                $level = [(string)$current->path()];
+                while ($level) {
+                    $this->prefetchChildren($level);
+                    $next = [];
+                    foreach ($level as $path) {
+                        foreach ($this->children[$path] ?? [] as $childPath => $info) {
+                            $next[] = (string)$childPath;
+                        }
+                    }
+                    $level = $next;
+                }
+            }
+
+            // Regular pages: walk the children index by path, depth first in children order,
+            // which is the order the recursive walk produced. Pages are not loaded just to find
+            // their children: the slug comes from the page when it is already in memory and
+            // from the children index otherwise.
+            $stack = [];
+            foreach (array_reverse($this->childrenOf((string)$current->path()), true) as $path => $info) {
+                $stack[] = [(string)$path, $info];
+            }
+
+            while ($stack) {
+                [$path, $info] = array_pop($stack);
+
+                $page = $this->instances[$path] ?? $this->index[$path] ?? null;
+                $slug = $page instanceof PageInterface ? $page->slug() : ($info['slug'] ?? null);
+                if ($slug === null) {
+                    $page = $this->get($path);
+                    $slug = $page ? $page->slug() : null;
+                }
+                $items[$path] = $withInfo && is_array($info) ? ['slug' => $slug] + $info : ['slug' => $slug];
+
+                foreach (array_reverse($this->childrenOf($path), true) as $childPath => $childInfo) {
+                    $stack[] = [(string)$childPath, $childInfo];
+                }
+            }
+        } else {
+            // Flex pages and other page types may not take their children from the children
+            // index, so ask each page for them, depth first like the regular walk.
+            $iterate = static function ($children): \Generator {
+                foreach ($children as $child) {
+                    yield $child;
+                }
+            };
+
+            $stack = [$iterate($current->children())];
+            while ($stack) {
+                $iterator = end($stack);
+                if (!$iterator->valid()) {
+                    array_pop($stack);
+                    continue;
+                }
+
+                $next = $iterator->current();
+                $iterator->next();
+                if ($next instanceof PageInterface) {
+                    $items[$next->path()] = ['slug' => $next->slug()];
+                    $stack[] = $iterate($next->children());
+                }
+            }
         }
 
-        return $all;
+        return $items;
     }
 
     /**
@@ -1927,9 +2107,6 @@ class Pages
         /** @var Config $config */
         $config = $this->grav['config'];
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
-
         /** @var Language $language */
         $language = $this->grav['language'];
 
@@ -1939,55 +2116,106 @@ class Pages
         $this->active_lang = $language->getActive();
 
         if ($config->get('system.cache.enabled')) {
-            /** @var Language $language */
-            $language = $this->grav['language'];
-
             $interval = (int)$config->get('system.cache.check.interval', 0);
-            $hash = $this->resolvePagesHash($pages_dirs, $interval, (string)$this->check_method);
-
-            $this->simple_pages_hash = json_encode($pages_dirs) . $hash . $config->checksum();
-            $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive());
+            $method = (string)$this->check_method;
+            $this->setPagesCacheId($pages_dirs, $this->resolvePagesHash($pages_dirs, $interval, $method));
 
             /** @var Cache $cache */
             $cache = $this->grav['cache'];
-            $cached = $cache->fetch($this->pages_cache_id);
-            if ($cached && $this->getVersion() === $cached[0]) {
-                // A lazy index stores true-markers instead of Page objects; the pages
-                // themselves live in the per-page index store and hydrate on access.
-                $lazy = !empty($cached[6]);
-                $store = $lazy ? $this->openIndexStore($pages_dirs) : null;
-
-                if (!$lazy || ($store && $store->isValid($this->pages_cache_id))) {
-                    $this->index_store = $store;
-                    [, $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
-
-                    /** @var Taxonomy $taxonomy */
-                    $taxonomy = $this->grav['taxonomy'];
-                    if ($lazy) {
-                        // Routes, children lists, sort orders and the taxonomy map
-                        // live in the index store and load on first use.
-                        $this->routes_lazy = true;
-                        $this->children_lazy = true;
-                        $this->sort_lazy = true;
-                        $taxonomy->setLoader(
-                            fn() => $this->index_store ? $this->index_store->readTaxonomy() : [],
-                            fn(string $type, string $value) => $this->index_store ? $this->index_store->readTaxonomyValue($type, $value) : [],
-                            $language->getLanguage()
-                        );
-                    } else {
-                        $taxonomy->taxonomy($taxonomy_map);
-                    }
-
-                    return;
-                }
+            if ($this->loadCachedPages($cache, $pages_dirs)) {
+                return;
             }
 
-            $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
-        } else {
-            $this->grav['debugger']->addMessage('Page cache disabled, rebuilding pages..');
+            // Only one request rebuilds at a time. The others wait for it and then read the
+            // cache it wrote; if it takes too long, they rebuild the pages themselves.
+            $waited = false;
+            $lock = self::$rebuilding ? null : $this->acquireLock('rebuild-' . md5(json_encode($pages_dirs) . $this->active_lang), static::REBUILD_LOCK_TIMEOUT, $waited);
+            $rebuilding = self::$rebuilding;
+            self::$rebuilding = true;
+            try {
+                if ($waited) {
+                    $this->setPagesCacheId($pages_dirs, $this->resolvePagesHash($pages_dirs, $interval, $method));
+                    if ($this->loadCachedPages($cache, $pages_dirs)) {
+                        return;
+                    }
+                }
+
+                $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
+                $this->resetPages($pages_dirs);
+            } finally {
+                self::$rebuilding = $rebuilding;
+                $this->releaseLock($lock);
+            }
+
+            return;
         }
 
+        $this->grav['debugger']->addMessage('Page cache disabled, rebuilding pages..');
         $this->resetPages($pages_dirs);
+    }
+
+    /**
+     * Load the pages index from the cache entry for the current pages cache id.
+     *
+     * @param Cache $cache
+     * @param array $pages_dirs
+     * @return bool True if the cached index was used.
+     */
+    protected function loadCachedPages(Cache $cache, array $pages_dirs): bool
+    {
+        $cached = $cache->fetch($this->pages_cache_id);
+        if (!$cached || $this->getVersion() !== $cached[0]) {
+            return false;
+        }
+
+        // A lazy index stores true-markers instead of Page objects; the pages
+        // themselves live in the per-page index store and hydrate on access.
+        $lazy = !empty($cached[6]);
+        $store = $lazy ? $this->openIndexStore($pages_dirs) : null;
+        if ($lazy && !($store && $store->isValid($this->pages_cache_id))) {
+            return false;
+        }
+
+        $this->index_store = $store;
+        [, $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
+
+        /** @var Taxonomy $taxonomy */
+        $taxonomy = $this->grav['taxonomy'];
+        if ($lazy) {
+            /** @var Language $language */
+            $language = $this->grav['language'];
+
+            // Routes, children lists, sort orders and the taxonomy map
+            // live in the index store and load on first use.
+            $this->routes_lazy = true;
+            $this->children_lazy = true;
+            $this->sort_lazy = true;
+            $taxonomy->setLoader(
+                fn() => $this->index_store ? $this->index_store->readTaxonomy() : [],
+                fn(string $type, string $value) => $this->index_store ? $this->index_store->readTaxonomyValue($type, $value) : [],
+                $language->getLanguage()
+            );
+        } else {
+            $taxonomy->taxonomy($taxonomy_map);
+        }
+
+        return true;
+    }
+
+    /**
+     * Set the pages cache id from the pages hash, the change stamp, the configuration and the language.
+     *
+     * @param array $pages_dirs
+     * @param string|int $hash
+     * @return void
+     */
+    protected function setPagesCacheId(array $pages_dirs, $hash): void
+    {
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        $this->simple_pages_hash = json_encode($pages_dirs) . $hash . $this->getChangeStamp() . $this->grav['config']->checksum();
+        $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive());
     }
 
     protected function getPagesPaths(): array
@@ -2025,17 +2253,77 @@ class Pages
         $taxonomy = $this->grav['taxonomy'];
         $taxonomy->setLoader(null);
 
-        foreach ($pages_dirs as $dir) {
-            $this->recurse($dir);
+        /** @var Config $config */
+        $config = $this->grav['config'];
+        $cache_enabled = (bool)$config->get('system.cache.enabled');
+        $method = (string)$this->check_method;
+
+        // Record what the scan sees, so the change check can stat these paths instead of walking the tree.
+        $check = $cache_enabled && $this->pages_cache_id && $method !== 'none' && $method !== 'off';
+        $this->scan_paths = $check ? [] : null;
+
+        // Page files skip the per-file compiled cache during the scan, and the scan reuses what the last one
+        // read where the files and folders are unchanged: the parsed header of each page file whose time and
+        // size are the same, and the listing of each folder whose time is the same. Every page is still built
+        // and every page event still fires; only the file reads and folder listings are skipped.
+        $state_file = $this->getScanFile('scan-' . md5(json_encode($pages_dirs) . $this->active_lang . (CompiledMarkdownFile::$nativeYaml ? '-native' : '')));
+        $state = $state_file ? ($this->readScanFile($state_file) ?? []) : [];
+        $scanning = CompiledMarkdownFile::beginScan((array)($state['headers'] ?? []), (array)($state['files'] ?? []));
+        $reuse = $scanning && $state_file;
+        if ($reuse) {
+            $this->scan_folders_previous = (array)($state['folders'] ?? []);
+            $this->scan_folders = [];
+            $this->scan_started = time();
+        }
+        try {
+            foreach ($pages_dirs as $dir) {
+                $this->recurse($dir);
+            }
+        } finally {
+            if ($scanning) {
+                $headers = CompiledMarkdownFile::endScan($changed, $files);
+                if ($reuse && ($changed || $files !== ($state['files'] ?? null) || $this->scan_folders !== $this->scan_folders_previous)) {
+                    $this->writeScanFile($state_file, ['headers' => $headers, 'files' => $files, 'folders' => $this->scan_folders]);
+                }
+            }
+            if ($reuse) {
+                $this->scan_folders = $this->scan_folders_previous = null;
+            }
         }
 
         $this->buildRoutes();
         $this->enrichChildrenIndex();
 
+        if ($this->scan_paths !== null) {
+            // Cache the pages under the hash of what the scan saw rather than the hash the request
+            // started with, so a cached index always matches the tree it was built from. Without
+            // a saved scan state the next check could not reproduce that hash, so keep the old one.
+            $hash = $this->hashScanPaths($this->scan_paths);
+            $state_file = $this->getScanFile('check-' . md5(json_encode($pages_dirs) . $method));
+            if ($state_file && $this->writeScanFile($state_file, ['hash' => $hash, 'paths' => $this->scan_paths])) {
+                $interval = (int)$config->get('system.cache.check.interval', 0);
+                if ($interval > 0) {
+                    $this->grav['cache']->save($this->getPagesHashKey($pages_dirs, $method), $hash, $interval);
+                }
+
+                $this->setPagesCacheId($pages_dirs, $hash);
+            }
+            $this->scan_paths = null;
+        }
+
         // cache if needed
-        if ($this->grav['config']->get('system.cache.enabled')) {
+        if ($cache_enabled) {
             /** @var Cache $cache */
             $cache = $this->grav['cache'];
+
+            // Leave the raw frontmatter text out of the cache. It is a second copy of the header
+            // and Page::frontmatter() reads it from the file when it is asked for. Clearing it
+            // here costs far less than a __sleep() on every page would.
+            foreach ($this->index as $page) {
+                if ($page instanceof Page) {
+                    $page->freeFrontmatter();
+                }
+            }
 
             // Store each page as its own row - along with the route, children, sort
             // and taxonomy maps - so warm requests hydrate only what they touch,
@@ -2044,7 +2332,7 @@ class Pages
             $index = $this->index;
             $lazy = false;
             if ($this->pages_cache_id) {
-                $store = $this->index_store ?? $this->openIndexStore($pages_dirs);
+                $store = $this->lazyIndexEnabled(count($this->index)) ? ($this->index_store ?? $this->openIndexStore($pages_dirs)) : null;
                 if ($store && $store->rebuild($this->pages_cache_id, [
                     'pages' => $this->serializeIndex(),
                     'routes' => $this->routes,
@@ -2056,6 +2344,11 @@ class Pages
                     $lazy = true;
                     $index = array_fill_keys(array_keys($this->index), true);
                 }
+            }
+
+            if (!$lazy) {
+                // The pages this request built are all in memory; don't keep a store from an earlier load.
+                $this->index_store = null;
             }
 
             // save pages, routes, taxonomy, and sort to cache
@@ -2120,19 +2413,43 @@ class Pages
     }
 
     /**
-     * Open the per-page index store backing the lazy regular pages index.
-     * Returns null when not opted in, when Flex pages are active, or when no
-     * supported database engine (pdo_sqlite or YetiSQL) is available.
+     * Whether the regular pages use the lazy page index (system.pages.lazy_index).
      *
-     * The lazy index is an experimental opt-in (system.pages.lazy_index);
-     * without it the classic single-blob pages cache is used unchanged.
+     * true turns it on, false keeps the classic single-blob pages cache, and
+     * 'auto' (the default) turns it on for sites with at least LAZY_INDEX_AUTO_PAGES
+     * pages. $pageCount is the size of the index being built; null means an
+     * existing lazy cache is being opened, which 'auto' accepts as it is.
+     *
+     * @param int|null $pageCount
+     * @return bool
+     */
+    protected function lazyIndexEnabled(?int $pageCount = null): bool
+    {
+        if ($this->directory) {
+            return false;
+        }
+
+        $setting = $this->grav['config']->get('system.pages.lazy_index', 'auto');
+        if ($setting === 'auto') {
+            return $pageCount === null || $pageCount >= static::LAZY_INDEX_AUTO_PAGES;
+        }
+
+        return $setting && $setting !== 'false';
+    }
+
+    /**
+     * Open the per-page index store backing the lazy regular pages index.
+     * Returns null when the lazy index is off (see lazyIndexEnabled()), when
+     * Flex pages are active, or when no supported database engine (pdo_sqlite
+     * or YetiSQL) is available.
      *
      * @param array $pagesDirs
+     * @param int|null $pageCount
      * @return PageIndexStore|null
      */
-    protected function openIndexStore(array $pagesDirs): ?PageIndexStore
+    protected function openIndexStore(array $pagesDirs, ?int $pageCount = null): ?PageIndexStore
     {
-        if ($this->directory || !$this->grav['config']->get('system.pages.lazy_index', false)) {
+        if (!$this->lazyIndexEnabled($pageCount)) {
             return null;
         }
 
@@ -2151,6 +2468,45 @@ class Pages
     }
 
     /**
+     * List a folder for the pages scan: entry name => 'd' for folders, 'f' for everything else.
+     *
+     * Broken symlinks are left out. When the last scan recorded this folder with the same
+     * modification time, and the folder was not modified in the second that scan listed it,
+     * its listing is reused instead of reading the folder again: adding, removing or renaming
+     * an entry always changes the folder's time.
+     *
+     * @param string $directory
+     * @param int|false $time Folder modification time, taken before listing.
+     * @param bool $reused Set to true when the listing comes from the last scan.
+     * @return array<string,string>
+     */
+    protected function listFolder(string $directory, $time, bool &$reused = false): array
+    {
+        $reused = false;
+        $known = $this->scan_folders_previous[$directory] ?? null;
+        if ($time !== false && is_array($known) && ($known[0] ?? null) === $time && $time < ($known[1] ?? 0) && is_array($known[2] ?? null)) {
+            $reused = true;
+            $entries = $known[2];
+        } else {
+            $entries = [];
+            foreach (new FilesystemIterator($directory) as $file) {
+                // Skip broken symlinks.
+                if ($file->isLink() && $file->getRealPath() === false) {
+                    continue;
+                }
+                $entries[$file->getFilename()] = $file->isDir() ? 'd' : 'f';
+            }
+            $known = [$time, $this->scan_started, $entries];
+        }
+
+        if ($this->scan_folders !== null && $time !== false) {
+            $this->scan_folders[$directory] = $known;
+        }
+
+        return $entries;
+    }
+
+    /**
      * Recursive function to load & build page relationships.
      *
      * @param string    $directory
@@ -2163,6 +2519,13 @@ class Pages
     {
         $directory = rtrim($directory, DS);
         $page = new Page;
+
+        // Take the folder time before listing it, so an entry added during the scan still counts as a change.
+        $scan = $this->scan_paths !== null ? (string)$this->check_method : null;
+        $folder_time = @filemtime($directory);
+        if ($scan !== null) {
+            $this->scan_paths[$directory] = $folder_time;
+        }
 
         /** @var Config $config */
         $config = $this->grav['config'];
@@ -2207,25 +2570,22 @@ class Pages
         $ignore_files = array_flip($this->ignore_files);
         $ignore_folders = array_flip($this->ignore_folders);
 
-        $iterator = new FilesystemIterator($directory);
-        foreach ($iterator as $file) {
-            $filename = $file->getFilename();
+        $reused = false;
+        foreach ($this->listFolder($directory, $folder_time, $reused) as $filename => $type) {
+            $filename = (string)$filename;
 
             // Ignore all hidden files if set.
             if ($this->ignore_hidden && $filename && str_starts_with($filename, '.')) {
                 continue;
             }
 
-            // Skip broken symlinks.
-            if ($file->isLink() && $file->getRealPath() === false) {
-                continue;
-            }
+            $pathname = $directory . DS . $filename;
 
             // Handle folders later.
-            if ($file->isDir()) {
+            if ($type === 'd') {
                 // But ignore all folders in ignore list.
                 if (!isset($ignore_folders[$filename])) {
-                    $folders[] = $file;
+                    $folders[] = $filename;
                 }
                 continue;
             }
@@ -2236,9 +2596,21 @@ class Pages
             }
 
             // Update last modified date to match the last updated file in the folder.
-            $modified = $file->getMTime();
+            $modified = @filemtime($pathname);
+            if ($modified === false) {
+                // A listing reused from the last scan can name a symlink that has broken since.
+                continue;
+            }
             if ($modified > $last_modified) {
                 $last_modified = $modified;
+            }
+
+            // The folder method checks folders only; hash checks every file; file checks pages and YAML.
+            if ($scan !== null && $scan !== 'folder') {
+                $lower = strtolower($filename);
+                if ($scan === 'hash' || str_ends_with($lower, '.md') || str_ends_with($lower, '.yaml')) {
+                    $this->scan_paths[$pathname] = $modified;
+                }
             }
 
             // Page is the one that matches to $page_extensions list with the lowest index number.
@@ -2248,7 +2620,7 @@ class Pages
                 $ext = substr($filename, $pos);
                 if (isset($page_extensions[$ext])) {
                     if ($page_found === null || $page_extensions[$ext] < $page_extensions[$page_extension]) {
-                        $page_found = $file;
+                        $page_found = $pathname;
                         $page_extension = $ext;
                     }
                 }
@@ -2257,7 +2629,7 @@ class Pages
 
         $content_exists = false;
         if ($parent && $page_found) {
-            $page->init($page_found, $page_extension);
+            $page->init(new SplFileInfo($page_found), $page_extension);
 
             $content_exists = true;
 
@@ -2267,20 +2639,23 @@ class Pages
         }
 
         // Now handle all the folders under the page.
-        /** @var FilesystemIterator $file */
-        foreach ($folders as $file) {
-            $filename = $file->getFilename();
-
+        foreach ($folders as $filename) {
             // if folder contains separator, continue
-            if (Utils::contains($file->getFilename(), $config->get('system.param_sep', ':'))) {
+            if (Utils::contains($filename, $config->get('system.param_sep', ':'))) {
+                continue;
+            }
+
+            $path = $directory . DS . $filename;
+
+            // A listing reused from the last scan can name a folder symlink that has broken since.
+            if ($reused && !is_dir($path)) {
                 continue;
             }
 
             if (!$page->path()) {
-                $page->path($file->getPath());
+                $page->path($directory);
             }
 
-            $path = $directory . DS . $filename;
             $child = $this->recurse($path, $page);
 
             if (preg_match('/^(\d+\.)_/', $filename)) {
@@ -2426,6 +2801,24 @@ class Pages
             $query = explode('|', str_replace('header.', '', $order_by), 2);
             $header_query = array_shift($query) ?? '';
             $header_default = array_shift($query);
+        }
+
+        // Load in batches the pages whose sort value isn't in the children index.
+        if ($this->index_store) {
+            $stored = match ($order_by) {
+                'title', 'date', 'modified', 'publish_date', 'slug', 'folder' => $order_by,
+                'unpublish_date' => null,
+                default => is_string($header_query) ? null : false,
+            };
+            if ($stored !== false) {
+                $load = [];
+                foreach ($pages as $key => $info) {
+                    if ($stored === null || !isset($info[$stored])) {
+                        $load[] = $key;
+                    }
+                }
+                $this->prefetch($load);
+            }
         }
 
         foreach ($pages as $key => $info) {
@@ -2581,7 +2974,18 @@ class Pages
     }
 
     /**
-     * Resolve filesystem hash for pages with optional throttling to avoid expensive scans every request.
+     * Resolve the hash that tells whether the pages changed since they were cached.
+     *
+     * The check stats the folders and files the last rebuild saw instead of walking the whole
+     * tree. A folder's time changes when an entry is added, removed or renamed in it, and a
+     * file's time when it is edited, so this finds deleted and renamed pages as well as edits.
+     * The result is kept for `system.cache.check.interval` seconds, and while one request
+     * checks, the others keep using the last result.
+     *
+     * @param array $pagesDirs
+     * @param int $interval
+     * @param string $method
+     * @return string|int
      */
     protected function resolvePagesHash(array $pagesDirs, int $interval, string $method): string|int
     {
@@ -2589,36 +2993,213 @@ class Pages
             return 0;
         }
 
-        $resolver = static function () use ($pagesDirs, $method) {
-            return match ($method) {
-                'folder' => Folder::lastModifiedFolder($pagesDirs),
-                'hash' => Folder::hashAllFiles($pagesDirs),
-                default => Folder::lastModifiedFile($pagesDirs),
-            };
-        };
-
-        if ($interval <= 0) {
-            return $resolver();
-        }
-
         /** @var Cache $cache */
         $cache = $this->grav['cache'];
-        if (!$cache) {
-            return $resolver();
+        $cacheKey = $this->getPagesHashKey($pagesDirs, $method);
+        if ($interval > 0) {
+            $cached = $cache->fetch($cacheKey);
+            if ($cached !== false) {
+                return $cached;
+            }
         }
 
-        $configChecksum = $this->grav['config']->checksum();
-        $cacheKey = 'pages-hash-' . $method . '-' . md5(json_encode($pagesDirs) . $configChecksum);
+        $key = md5(json_encode($pagesDirs) . $method);
+        $file = $this->getScanFile('check-' . $key);
+        $state = $file ? $this->readScanFile($file) : null;
+        $known = isset($state['hash'], $state['paths']) && is_array($state['paths']);
 
-        $cached = $cache->fetch($cacheKey);
-        if ($cached !== false) {
-            return $cached;
+        $lock = $interval > 0 ? $this->acquireLock('check-' . $key) : null;
+        if ($lock === false && $known) {
+            return $state['hash'];
         }
 
-        $hash = $resolver();
-        $cache->save($cacheKey, $hash, $interval);
+        try {
+            if ($known) {
+                clearstatcache();
+                $current = [];
+                $changed = false;
+                foreach ($state['paths'] as $path => $modified) {
+                    $current[$path] = $now = @filemtime($path);
+                    if ($now !== $modified) {
+                        $changed = true;
+                    }
+                }
+                $hash = $changed ? $this->hashScanPaths($current) : $state['hash'];
+            } else {
+                // Nothing scanned yet (or the scan state cannot be saved): walk the tree. A
+                // rebuild records the paths it sees, and later checks only stat those.
+                $hash = match ($method) {
+                    'folder' => Folder::lastModifiedFolder($pagesDirs),
+                    'hash' => Folder::hashAllFiles($pagesDirs),
+                    default => Folder::lastModifiedFile($pagesDirs),
+                };
+            }
+
+            if ($interval > 0) {
+                $cache->save($cacheKey, $hash, $interval);
+            }
+        } finally {
+            $this->releaseLock($lock);
+        }
 
         return $hash;
+    }
+
+    /**
+     * Tell Grav that page files changed, so the next request rebuilds the pages cache instead of
+     * waiting for the change check to notice. Call it after saving, moving or deleting pages.
+     *
+     * @return void
+     */
+    public function markChanged(): void
+    {
+        // A file rather than the cache driver, so a change made from the CLI (file cache) is
+        // seen by web requests using another driver such as APCu.
+        $file = $this->getScanFile(static::CHANGE_STAMP_FILE, '');
+        if ($file === null) {
+            return;
+        }
+
+        $tmp = $file . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        if (@file_put_contents($tmp, bin2hex(random_bytes(8))) === false || !@rename($tmp, $file)) {
+            @unlink($tmp);
+        }
+    }
+
+    /**
+     * The stamp markChanged() last wrote, or an empty string if there is none.
+     *
+     * @return string
+     */
+    protected function getChangeStamp(): string
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $dir = $locator->findResource('cache://compiled/pages', true, true);
+        $stamp = is_string($dir) ? @file_get_contents($dir . '/' . static::CHANGE_STAMP_FILE) : false;
+
+        return is_string($stamp) ? trim($stamp) : '';
+    }
+
+    /**
+     * @param array $pagesDirs
+     * @param string $method
+     * @return string
+     */
+    protected function getPagesHashKey(array $pagesDirs, string $method): string
+    {
+        return 'pages-hash-' . $method . '-' . md5(json_encode($pagesDirs) . $this->grav['config']->checksum());
+    }
+
+    /**
+     * @param array<string,int|false> $paths
+     * @return string
+     */
+    protected function hashScanPaths(array $paths): string
+    {
+        return hash('xxh128', serialize($paths));
+    }
+
+    /**
+     * @param string $name
+     * @param string $extension
+     * @return string|null
+     */
+    protected function getScanFile(string $name, string $extension = '.ser'): ?string
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $dir = $locator->findResource('cache://compiled/pages', true, true);
+        if (!is_string($dir) || (!is_dir($dir) && !@mkdir($dir, 0777, true) && !is_dir($dir))) {
+            return null;
+        }
+
+        return $dir . '/' . $name . $extension;
+    }
+
+    /**
+     * @param string $file
+     * @return array|null
+     */
+    protected function readScanFile(string $file): ?array
+    {
+        $raw = @file_get_contents($file);
+        $data = $raw ? @unserialize($raw, ['allowed_classes' => false]) : null;
+
+        return is_array($data) ? $data : null;
+    }
+
+    /**
+     * Write a scan file in one step, so a request reading it never sees a partial file.
+     *
+     * @param string $file
+     * @param array $data
+     * @return bool
+     */
+    protected function writeScanFile(string $file, array $data): bool
+    {
+        $tmp = $file . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        if (@file_put_contents($tmp, serialize($data)) === false || !@rename($tmp, $file)) {
+            @unlink($tmp);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Take an exclusive lock, waiting up to $timeout seconds for it.
+     *
+     * The lock is an flock on a file in cache/compiled/pages, so the operating system releases
+     * it when the process that holds it ends, even if that process crashed.
+     *
+     * @param string $name
+     * @param float $timeout Seconds to wait; 0 means do not wait.
+     * @param bool $waited Set to true if another process held the lock.
+     * @return resource|false|null The lock, false if it is busy, or null if locking is not available.
+     */
+    protected function acquireLock(string $name, float $timeout = 0, bool &$waited = false)
+    {
+        $file = $this->getScanFile($name, '.lock');
+        $handle = $file ? @fopen($file, 'c') : false;
+        if (!$handle) {
+            return null;
+        }
+
+        $deadline = microtime(true) + $timeout;
+        while (true) {
+            $wouldBlock = 0;
+            if (flock($handle, LOCK_EX | LOCK_NB, $wouldBlock)) {
+                return $handle;
+            }
+            if (!$wouldBlock) {
+                // The filesystem does not support locks: carry on without one.
+                fclose($handle);
+
+                return null;
+            }
+
+            $waited = true;
+            if (microtime(true) >= $deadline) {
+                fclose($handle);
+
+                return false;
+            }
+            usleep(25000);
+        }
+    }
+
+    /**
+     * @param resource|false|null $lock
+     * @return void
+     */
+    protected function releaseLock($lock): void
+    {
+        if (is_resource($lock)) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
     }
 
     /**

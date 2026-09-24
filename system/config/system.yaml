@@ -40,7 +40,7 @@ home:
 pages:
   type: regular                                  # EXPERIMENTAL: Page type: regular or flex
   dirs: ['page://']                              # Advanced functionality, allows for multiple page paths
-  lazy_index: false                              # EXPERIMENTAL opt-in: hydrate pages, routes and taxonomy on demand from a per-page index (SQLite/YetiSQL) instead of one big cache blob; falls back automatically when unavailable
+  lazy_index: auto                               # Load pages, routes and taxonomy on demand from a per-page index (SQLite/YetiSQL) instead of one big cache blob: true, false, or auto (on for sites with 1,000 pages or more). Falls back to the blob automatically when no database engine is available
   theme: quark2                                  # Default theme (defaults to "quark2" theme)
   order:
     by: default                                  # Order pages by "default", "alpha" or "date"
@@ -124,6 +124,7 @@ pages:
   frontmatter:
     process_twig: false                          # Process Twig in frontmatter. Also gated by security.twig_content.process_enabled; when the gate is off, requested frontmatter Twig is blocked and reported in the Admin "Twig in Content" report.
     ignore_fields: ['form','forms']              # Fields that might contain Twig variables and should not be processed
+    native_yaml: false                           # Parse frontmatter with the faster libyaml extension when installed. Unquoted dates stay text and yes/no become true/false
 
 cache:
   enabled: true                                  # Set to true to enable caching
@@ -227,6 +228,7 @@ media:
 session:
   enabled: true                                  # Enable Session support
   initialize: true                               # Initialize session from Grav (if false, plugin needs to start the session)
+  lazy: false                                    # Start the session only when the request brings a session cookie or something is stored in the session (a login, a form, a message). Anonymous page views then send no session cookie (unless a plugin stores something on every view), so a proxy or CDN can cache them. Opt-in: data a plugin writes straight to $_SESSION, or after the response was sent, is not kept for a visitor without a session
   read_and_close: false                          # Release the session lock right after the initial read (read-only start); the first write re-acquires it. Lets requests sharing a session id run concurrently instead of serializing on PHP's per-session lock. Opt-in: read-modify-write across a request is no longer atomic.
   timeout: 1800                                  # Timeout in seconds
   name: grav-site                                # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name. A `__Secure-` prefix requires HTTPS; a `__Host-` prefix additionally forces no cookie domain and a site-wide path

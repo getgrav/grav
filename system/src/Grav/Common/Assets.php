@@ -108,6 +108,113 @@ class Assets extends PropertyObject
     protected $timestamp;
     /** @var array Keeping track for order counts (for sorting) */
     protected $order = [];
+    /** @var array[] Assets added while recording (see startRecording()), one list per recording in progress. */
+    protected $recording = [];
+    /** @var int Depth of addType() calls, so only the outermost call of an addition is recorded. */
+    protected $addDepth = 0;
+
+    /**
+     * Start recording the assets added from now on, so they can be added again later without
+     * running the code that added them. Page uses it for modules whose output it caches.
+     *
+     * @return void
+     * @internal
+     */
+    public function startRecording(): void
+    {
+        $this->recording[] = [];
+    }
+
+    /**
+     * Stop recording and return the additions recorded since startRecording().
+     *
+     * @return array<int,array{0:string,1:string,2:string|string[],3:array}>
+     * @internal
+     */
+    public function stopRecording(): array
+    {
+        $recorded = array_pop($this->recording) ?? [];
+
+        // A recording inside another one: the outer render made these additions too.
+        if ($this->recording) {
+            $outer = array_key_last($this->recording);
+            $this->recording[$outer] = array_merge($this->recording[$outer], $recorded);
+        }
+
+        return $recorded;
+    }
+
+    /**
+     * Add again the assets returned by stopRecording(), in the same order and with the same
+     * options, so the asset list ends up as if the recorded code had run again.
+     *
+     * @param array $recorded
+     * @return void
+     * @internal
+     */
+    public function replay(array $recorded): void
+    {
+        foreach ($recorded as $call) {
+            if ($this->isReplayable($call)) {
+                $this->addType($call[0], $call[1], $call[2], $call[3]);
+            }
+        }
+    }
+
+    /**
+     * Whether every recorded addition can be replayed. The calls come back from the cache, so
+     * only the asset types Assets itself adds are ever created from them.
+     *
+     * @param array $recorded
+     * @return bool
+     * @internal
+     */
+    public function canReplay(array $recorded): bool
+    {
+        foreach ($recorded as $call) {
+            if (!$this->isReplayable($call)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param mixed $call
+     * @return bool
+     */
+    private function isReplayable($call): bool
+    {
+        $types = [
+            static::LINK_TYPE => static::LINK_COLLECTION,
+            static::CSS_TYPE => static::CSS_COLLECTION,
+            static::INLINE_CSS_TYPE => static::CSS_COLLECTION,
+            static::JS_TYPE => static::JS_COLLECTION,
+            static::INLINE_JS_TYPE => static::JS_COLLECTION,
+            static::JS_MODULE_TYPE => static::JS_MODULE_COLLECTION,
+            static::INLINE_JS_MODULE_TYPE => static::JS_MODULE_COLLECTION,
+        ];
+
+        return is_array($call) && count($call) === 4 && is_string($call[1]) && ($types[$call[1]] ?? null) === $call[0]
+            && (is_string($call[2]) || is_array($call[2])) && is_array($call[3]);
+    }
+
+    /**
+     * Keys of every asset currently added, to tell whether code removed any.
+     *
+     * @return string[]
+     * @internal
+     */
+    public function getAssetKeys(): array
+    {
+        return array_merge(
+            array_keys($this->assets_link),
+            array_keys($this->assets_css),
+            array_keys($this->assets_js),
+            array_keys($this->assets_js_module)
+        );
+    }
 
     /**
      * Initialization called in the Grav lifecycle to initialize the Assets with appropriate configuration
@@ -229,6 +336,27 @@ class Assets extends PropertyObject
      * @return $this
      */
     protected function addType($collection, $type, $asset, $options)
+    {
+        if ($this->recording && $this->addDepth === 0) {
+            $this->recording[array_key_last($this->recording)][] = [$collection, $type, $asset, $options];
+        }
+
+        $this->addDepth++;
+        try {
+            return $this->addTypeNow($collection, $type, $asset, $options);
+        } finally {
+            $this->addDepth--;
+        }
+    }
+
+    /**
+     * @param string $collection
+     * @param string $type
+     * @param string|string[] $asset
+     * @param array $options
+     * @return $this
+     */
+    private function addTypeNow($collection, $type, $asset, $options)
     {
         if (is_array($asset)) {
             foreach ($asset as $index => $location) {
