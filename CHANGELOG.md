@@ -1,5 +1,5 @@
 # v2.2.0
-## 09/22/2026
+## 09/24/2026
 
 1. [](#improved)
     * Rebuilding the pages cache no longer writes a compiled file for every page, so the first request after a cache clear is much faster on large sites.
