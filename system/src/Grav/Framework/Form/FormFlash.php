@@ -78,8 +78,11 @@ class FormFlash implements FormFlashInterface
         }
 
         $this->id = $config['id'] ?? '';
-        $this->sessionId = $config['session_id'] ?? '';
-        $this->uniqueId = $config['unique_id'] ?? '';
+        // Session and unique ids build the flash folder (tmp://forms/<sessionId>/<uniqueId>), and the
+        // unique id arrives from the request (__unique_form_id__). Anything outside a strict allowlist
+        // blanks out, which disables flash storage for the request instead of writing outside tmp://forms.
+        $this->sessionId = self::sanitizeId($config['session_id'] ?? '');
+        $this->uniqueId = self::sanitizeId($config['unique_id'] ?? '');
 
         $this->setUser($config['user'] ?? null);
 
@@ -489,6 +492,24 @@ class FormFlash implements FormFlashInterface
     public function getTmpDir(): string
     {
         return $this->folder && $this->uniqueId ? "{$this->folder}/{$this->uniqueId}" : '';
+    }
+
+    /**
+     * Gate for identifiers used in filesystem paths. Accepts the character set produced by PHP session ids
+     * and Grav's form unique-id generators (alphanumerics, comma, underscore, hyphen). Anything else,
+     * including empty or non-string values, collapses to an empty string, which makes save(), delete()
+     * and getTmpDir() no-ops.
+     *
+     * @param mixed $id
+     * @return string
+     */
+    private static function sanitizeId($id): string
+    {
+        if (!is_string($id) || $id === '') {
+            return '';
+        }
+
+        return preg_match('/^[A-Za-z0-9,_-]{1,64}$/', $id) ? $id : '';
     }
 
     /**

@@ -1,3 +1,9 @@
+# v1.7.53.4
+## 09/24/2026
+
+1. [](#bugfix)
+    * [security] A form's upload area could be pointed at a folder outside its temporary storage by tampering with the hidden form id, letting an unauthenticated visitor drop a file elsewhere under the site. The id is now rejected unless it matches the expected characters. Backport of the Grav 2.0 fix ([GHSA-hmcx-ch82-3fv2](https://github.com/getgrav/grav/security/advisories/GHSA-hmcx-ch82-3fv2), CVE-2026-42608)
+
 # v1.7.53.3
 ## 08/31/2026
 
