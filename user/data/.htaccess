@@ -5,23 +5,13 @@
 # policy despite the same risk on this user-writable folder.
 # Defense-in-depth backup for the rules in the site root .htaccess.
 #
-# mod_rewrite, not `Require`: `Require` is AuthConfig-class and returns 500 for
-# this whole folder on a host that grants only `AllowOverride FileInfo`, which
-# is all the root .htaccess has ever needed (getgrav/grav#4309, #4311).
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    # InheritDownBefore needs Apache 2.4.8 or newer. An older server rejects the whole
-    # file and answers 500 for everything under this folder (getgrav/grav-plugin-admin2#179),
-    # so it is only set where the server can take it. Older servers still apply the rules
-    # below, just not ahead of a subfolder's own RewriteEngine.
-    <IfModule mod_version.c>
-        <IfVersion >= 2.4.8>
-            RewriteOptions InheritDownBefore
-        </IfVersion>
-    </IfModule>
-
-    # REQUEST_URI is the whole original path; the rule pattern only sees the
-    # path below this folder, so the exception is written as a condition.
-    RewriteCond %{REQUEST_URI} !\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf|woff2|woff|ttf|otf|eot|css|js)$ [NC]
-    RewriteRule .* - [F]
+# mod_alias, not `Require` or mod_rewrite. `Require` is AuthConfig-class and
+# returns 500 for this whole folder on a host that grants only `AllowOverride
+# FileInfo` (getgrav/grav#4309, #4311). mod_alias is FileInfo-class, leaves the
+# root's rewrite rules in force here, and merges into subfolders, so a subfolder
+# with its own RewriteEngine cannot switch it off.
+#
+# Keep the extension list in sync with the root's user/data rule.
+<IfModule mod_alias.c>
+    RedirectMatch 403 (?i)^(?!.*\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf|woff2|woff|ttf|otf|eot|css|js)$)
 </IfModule>

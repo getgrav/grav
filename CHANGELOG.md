@@ -1,3 +1,9 @@
+# v2.2.1
+## 09/25/2026
+
+1. [](#bugfix)
+    * The `.htaccess` files under `user/` no longer use mod_rewrite, so hosts that broke on them, such as some shared Apache setups, serve the admin, theme files and images again. Upgrading replaces the copies Grav wrote and leaves edited ones alone ([#4309](https://github.com/getgrav/grav/issues/4309))
+
 # v2.2.0
 ## 09/24/2026
 
