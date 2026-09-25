@@ -12,11 +12,12 @@
  * per-directory rewrite strips the directory prefix before matching
  * (getgrav/grav#4236).
  *
- * `RewriteOptions InheritDownBefore` is the fix: it pushes these rules down into
- * every subdirectory and runs them BEFORE whatever that subdirectory declares, so
- * a package's own .htaccess cannot switch them off. Everything written here is
- * FileInfo-class — `Require` is AuthConfig-class and returns 500 for the whole
+ * The file written here uses mod_alias, whose rules merge into subdirectories
+ * instead of being replaced, so a package's own .htaccess cannot switch them off.
+ * It holds no rewrite rules, so the root's keep covering user/. Everything in it
+ * is FileInfo-class: `Require` is AuthConfig-class and returns 500 for the whole
  * user/ tree on a host granting only `AllowOverride FileInfo` (getgrav/grav#4309).
+ * Until 2.2.1 this wrote a mod_rewrite version; the 2.2.1 migration replaces it.
  * New installs ship the file; `user` and `.htaccess` are both in the installer
  * `$ignores` list, so this postflight is how existing installs get it.
  *
@@ -42,55 +43,24 @@ return [
             // along with the `^(user)/...` rules in the site root .htaccess.
             $contents = <<<'HTACCESS'
             # Defense-in-depth backup for the `^(user)/...` rules in the site root .htaccess.
-            # Keep the folder and extension lists in sync with them.
             #
-            # InheritDownBefore pushes these rules down into every subdirectory and runs them
-            # first, so a plugin or theme shipping its own RewriteEngine cannot switch them
-            # off (getgrav/grav#4236). Everything here is deliberately FileInfo-class:
-            # `Require` is AuthConfig-class and returns 500 for the whole user/ tree on hosts
-            # that grant only `AllowOverride FileInfo` (getgrav/grav#4309).
-            <IfModule mod_rewrite.c>
-                RewriteEngine On
-                RewriteOptions InheritDownBefore
-
-                RewriteRule ^(config|env)/ - [F,NC]
-
-                # The same two exceptions the site root makes: avatar images under
-                # user/accounts (`avatars/<file>` for flatfile accounts, `<username>/<file>`
-                # for Flex folder storage) and public asset uploads under user/data are
-                # served; everything else in both folders is denied. The conditions read
-                # REQUEST_URI, which is the whole original path, so they are written exactly
-                # as they are in the root — a per-directory rule only sees the path below
-                # this folder. Keep all three copies in sync.
-                RewriteCond %{REQUEST_URI} !/user/accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$ [NC]
-                RewriteRule ^accounts/ - [F,NC]
-                RewriteCond %{REQUEST_URI} !\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf|woff2|woff|ttf|otf|eot|css|js)$ [NC]
-                RewriteRule ^data/ - [F,NC]
-                RewriteRule (?i)\.(txt|md|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ - [F]
-
-                # `(^|/)`, not `^`: paths are relative to whichever folder the rules run in.
-                RewriteRule (?i)(^|/)\. - [F]
-
-                # The site root's front-controller rule no longer reaches us. `../index.php`,
-                # not `/index.php`, or a subdirectory install lands on the wrong one.
-                RewriteCond %{REQUEST_FILENAME} !-f
-                RewriteCond %{REQUEST_FILENAME} !-d
-                RewriteRule . ../index.php [L]
-            </IfModule>
-
-            # Backstop for the rules above. A subfolder that turns RewriteEngine on with
-            # `RewriteOptions Inherit` and then ends its own rules with an unconditional [L]
-            # never reaches them, because the inherited rules run last and [L] stops first.
-            # mod_alias is FileInfo-class like mod_rewrite, but it sits outside the rewrite
-            # pipeline and its rules merge into subdirectories instead of replacing what is
-            # there, so no [L] can reach past this. It only covers the file types, which is
-            # the case that matters: third-party packages, the ones that ship an .htaccess
-            # of their own (getgrav/grav#4236), install into user/plugins and user/themes.
+            # mod_alias only, never mod_rewrite. An .htaccess that turns RewriteEngine on
+            # replaces the root's rewrite rules for its folder and everything beneath it, so
+            # a rewrite ruleset here would have to restate the root's and route missing files
+            # back to index.php itself, and every host quirk in that path would break the
+            # whole user/ tree (getgrav/grav#4309, getgrav/grav-plugin-admin2#179). With no
+            # RewriteEngine here, the root rules keep covering user/ exactly as they always
+            # have. mod_alias sits outside the rewrite pipeline and its rules merge into
+            # subdirectories instead of being replaced, so a plugin or theme that ships its
+            # own RewriteEngine cannot switch these off (getgrav/grav#4236). It is
+            # FileInfo-class like mod_rewrite, so it needs nothing more from AllowOverride
+            # than the root .htaccess already does.
             #
             # Deliberately unanchored. These rules only run for requests that resolve into
             # this folder, which is what scopes them, and matching the tail rather than a
             # leading /user/ keeps them correct for a Grav installed in a subdirectory.
-            # Keep the extension list in sync with the rule above.
+            # Keep the extension list in sync with the `^(user)/(.*)\.(...)` rule in the
+            # site root .htaccess.
             <IfModule mod_alias.c>
                 RedirectMatch 403 (?i)\.(txt|md|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
                 RedirectMatch 403 (?i)(^|/)\.
