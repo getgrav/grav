@@ -1,3 +1,9 @@
+# v2.2.2
+## 09/25/2026
+
+1. [](#bugfix)
+    * Commands run by the scheduler, such as a plugin's `bin/plugin` worker, now run in the same environment as the scheduler, so a site started with `bin/grav scheduler --env <host>` no longer runs its jobs without the settings in `user/env/<host>/config`.
+
 # v2.2.1
 ## 09/25/2026
 
