@@ -130,10 +130,12 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
     #[\ReturnTypeWillChange]
     public function __clone()
     {
-        // Alternatives get the querystring too, so a copy needs its own.
+        // Alternatives get the querystring too, so a copy needs its own. A cached
+        // thumbnail still points at the original as its parent.
         foreach ($this->alternatives as $width => $alternative) {
             $this->alternatives[$width] = clone $alternative;
         }
+        $this->_thumbnail = null;
     }
 
     /**

@@ -84,8 +84,11 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
             '|<img alt="Sample Image" src="\/images\/.*-sample-image.jpe?g\" data-src="sample-image\.jpg\?cropZoom=300,300" \/>|',
             Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=300,300" alt="Sample Image" />', $this->page)
         );
+        // Each embed starts from the untouched original (getgrav/grav#3567), so
+        // an embed without image actions serves the original file even after
+        // an earlier embed of the same image was cropped.
         self::assertMatchesRegularExpression(
-            '|<img alt="Sample Image" class="foo" src="\/images\/.*-sample-image.jpe?g\" data-src="sample-image\.jpg\?classes=foo" \/>|',
+            '|<img alt="Sample Image" class="foo" src="[^"]*/02\.item2-2/sample-image\.jpg" data-src="sample-image\.jpg\?classes=foo" \/>|',
             Excerpts::processImageHtml('<img src="sample-image.jpg?classes=foo" alt="Sample Image" />', $this->page)
         );
     }
@@ -326,6 +329,19 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
         } finally {
             @unlink($fixturePath);
         }
+    }
+
+    public function testReusedImageDoesNotShareAThumbnailCreatedBeforehand(): void
+    {
+        // A lightbox rendered from Twig caches a thumbnail on the page's medium
+        // whose parent is that medium. Copies must not inherit it.
+        $this->page->media()['sample-image.jpg']->lightbox()->html();
+
+        Excerpts::processImageHtml('<img src="sample-image.jpg?lightbox&q1=1" alt="Sample Image" />', $this->page);
+        $second = Excerpts::processImageHtml('<img src="sample-image.jpg?lightbox&q2=2" alt="Sample Image" />', $this->page);
+
+        self::assertStringContainsString('q2=2', $second);
+        self::assertStringNotContainsString('q1=1', $second);
     }
 
     public function testReusedVectorImageOnlyCarriesItsOwnQueryParams(): void
