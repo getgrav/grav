@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * Commands run by the scheduler, such as a plugin's `bin/plugin` worker, now run in the same environment as the scheduler, so a site started with `bin/grav scheduler --env <host>` no longer runs its jobs without the settings in `user/env/<host>/config`.
     * With `pages.media_route_urls` enabled, page files whose names contain a space or an accented character, such as `foo bar.pdf` or `bär.png`, no longer return a 404 ([#4332](https://github.com/getgrav/grav/issues/4332))
+    * An image used more than once in Markdown no longer picks up the query parameters, `#fragment` or style of the earlier uses, and keeps its retina `srcset` after an earlier use was cropped or resized. Thanks @wakqasahmed ([#3567](https://github.com/getgrav/grav/issues/3567), [#4333](https://github.com/getgrav/grav/pull/4333))
 
 # v2.2.1
 ## 09/25/2026

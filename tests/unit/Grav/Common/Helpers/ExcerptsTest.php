@@ -362,6 +362,55 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
         }
     }
 
+    public function testReusedImageDoesNotCarryAnEarlierFragmentOrStyle(): void
+    {
+        // The querystring was not the only thing an embed left on the shared
+        // medium: a #fragment and ?style= were kept for every later embed too.
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        Excerpts::processImageHtml('<img src="sample-image.jpg#frag" alt="Sample Image" />', $this->page);
+        Excerpts::processImageHtml('<img src="sample-image.jpg?style=border:1px" alt="Sample Image" />', $this->page);
+        $plain = Excerpts::processImageHtml('<img src="sample-image.jpg" alt="Sample Image" />', $this->page);
+
+        self::assertStringNotContainsString('#frag', $plain);
+        self::assertStringNotContainsString('border', $plain);
+    }
+
+    public function testUnmodifiedEmbedKeepsItsSrcsetAfterACroppedOne(): void
+    {
+        // reset() drops the alternatives once an image action has opened the
+        // image, so every later embed of the shared medium lost its srcset.
+        $folder = GRAV_ROOT . '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/';
+        $fixturePath = $folder . 'sample-image@2x.jpg';
+        copy($folder . 'sample-image.jpg', $fixturePath);
+
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        try {
+            Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=100,100" alt="Sample Image" />', $this->page);
+            $plain = Excerpts::processImageHtml('<img src="sample-image.jpg" alt="Sample Image" />', $this->page);
+
+            self::assertStringContainsString('sample-image@2x.jpg', $plain);
+        } finally {
+            @unlink($fixturePath);
+            $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+        }
+    }
+
+    public function testMarkdownEmbedsLeaveThePageMediumUntouched(): void
+    {
+        // A template rendering page.media after the content must get the
+        // original file, not whatever the last Markdown embed left behind.
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        Excerpts::processImageHtml('<img src="sample-image.jpg?foo=1" alt="Sample Image" />', $this->page);
+        Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=100,100#x" alt="Sample Image" />', $this->page);
+
+        $html = (string) $this->page->media()['sample-image.jpg']->html();
+
+        self::assertMatchesRegularExpression('| src="[^"]*/02\.item2-2/sample-image\.jpg"|', $html);
+    }
+
     public function testMediaExtensionArmDoesNotCaptureRealSchemes(): void
     {
         // The media-extension check must never reinterpret a genuine protocol as
