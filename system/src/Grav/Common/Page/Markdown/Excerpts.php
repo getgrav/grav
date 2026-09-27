@@ -233,9 +233,10 @@ class Excerpts
 
         // If there is a media file that matches the path referenced..
         if ($media && $filename && isset($media[$filename])) {
-            // Get the medium object.
+            // Work on a copy: the page's medium is shared by every embed of the
+            // file, and actions like the querystring outlive reset().
             /** @var Medium $medium */
-            $medium = $media[$filename];
+            $medium = $media[$filename]->copy();
 
             // Process operations
             $medium = $this->processMediaActions($medium, $url_parts);
