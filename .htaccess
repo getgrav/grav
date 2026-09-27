@@ -95,6 +95,18 @@ RewriteRule ^(LICENSE\.txt|composer\.lock|composer\.json|\.htaccess)$ error [F,N
 
 </IfModule>
 
+# Begin - Cache hashed bundles
+# Files under a `_app/immutable/` folder (the Admin panel and other SvelteKit-based
+# plugins) carry a content hash in their name, so the name changes whenever the
+# file does and browsers can keep them for a year without asking again. Guarded,
+# so a host without mod_headers skips it, and it needs nothing more from
+# AllowOverride than the rewrite rules above (FileInfo). A missing file is
+# rewritten to index.php first, so Grav's 404 never gets the long lifetime.
+<IfModule mod_headers.c>
+    Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_URI} =~ m#/_app/immutable/#"
+</IfModule>
+# End - Cache hashed bundles
+
 # Begin - Prevent Browsing and Set Default Resources
 Options -Indexes
 DirectoryIndex index.php index.html index.htm
