@@ -72,7 +72,13 @@ trait MediaFileTrait
             $this->reset();
         }
 
-        return $this->get('url') ?? $this->get('filepath');
+        // The file on disk wins over a `url` override. The override (the page
+        // route from `pages.media_route_urls`, or a media proxy) is where the file
+        // is linked, not where it is: `Grav::fallbackUrl()` serves the file from
+        // here, so returning the override 404'd every name that URL-encodes.
+        // Media with no local file (an external URL) still returns the URL.
+        // getgrav/grav#4332.
+        return $this->get('filepath') ?? $this->get('url');
     }
 
     /**

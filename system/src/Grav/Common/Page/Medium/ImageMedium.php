@@ -203,8 +203,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         // the same file in the request. getgrav/grav#4298.
         $url = $this->transformed ? null : $this->get('url');
         if ($url) {
-            // The original on disk, for auto_sizes to measure. saveImage() hands
-            // back the override itself when no image is open, which is a URL.
+            // The original on disk, for auto_sizes to measure.
             $this->saved_image_path = $this->get('filepath');
 
             if ($reset) {

@@ -1069,7 +1069,16 @@ class Grav extends Container
                 if (in_array(ltrim((string) $extension, '.'), $config->get('system.media.unsupported_inline_types', []), true)) {
                     $download = false;
                 }
-                Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);
+                // The basename is still percent-encoded, so decode it the way the
+                // media lookup above does, or a file that is not in the media
+                // collection (a retina `@2x` file) 404s when its name has a space
+                // or a non-ASCII character. Decoding can yield a `/` from `%2F`,
+                // so anything that is not a bare file name is refused.
+                // getgrav/grav#4332.
+                $filename = rawurldecode((string) $uri->basename());
+                if ($filename !== '' && strpbrk($filename, "/\\\0") === false) {
+                    Utils::download($page->path() . DIRECTORY_SEPARATOR . $filename, $download);
+                }
             }
         }
 
