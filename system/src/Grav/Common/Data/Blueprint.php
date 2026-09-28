@@ -9,8 +9,11 @@
 
 namespace Grav\Common\Data;
 
+use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use Grav\Common\Security;
+use Grav\Common\Twig\Sandbox\SandboxConfig;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\Blueprints\BlueprintForm;
@@ -310,6 +313,21 @@ class Blueprint extends BlueprintForm
             $incoming = (array) $extends;
         }
 
+        // A source we do not trust must not use a subtree-relocating merge action to
+        // move a `data-*@` directive to a key the pre-merge attribution can't see.
+        // The vendor deepMerge() honours `replace-name@` by relocating the whole
+        // field — directive and all — to `$head['name']`, a top-level key that
+        // dynamicPathsOf() never enumerates because it probes the incoming array
+        // with deepInit() alone (no relocation). init() would then fall back to this
+        // blueprint's own file trust for that key and skip the allowlist. Strip the
+        // relocation from untrusted input before the merge; nothing page-authored
+        // has cause to rename a file-defined field, and the directive it carries is
+        // still merged in place and attributed untrusted.
+        if (!$incomingTrust) {
+            $incoming = self::stripRelocatingActions($incoming);
+            $extends = $incoming;
+        }
+
         $paths = $this->dynamicPathsOf($incoming);
 
         if (null === $paths) {
@@ -327,6 +345,35 @@ class Blueprint extends BlueprintForm
         $this->deepInit($this->items);
 
         return $this;
+    }
+
+    /**
+     * Recursively remove subtree-relocating merge actions (`replace-name@`) from a
+     * blueprint array. Applied to untrusted input by {@see self::extend()} so it
+     * cannot relocate a `data-*@` directive to a key the trust attribution never
+     * saw, which would let it inherit this blueprint's file trust and skip the
+     * dynamic-callable allowlist. Mirrors the key parsing in the vendor
+     * BlueprintForm::deepMerge().
+     *
+     * @param array $items
+     * @return array
+     */
+    private static function stripRelocatingActions(array $items): array
+    {
+        foreach ($items as $key => $value) {
+            if (is_string($key) && str_contains($key, '@')) {
+                $parts = explode('-', (string) preg_replace('/^(@*)?([^@]+)(@\d*)?$/', '\2', $key), 2);
+                if (($parts[0] ?? '') === 'replace' && ($parts[1] ?? '') === 'name') {
+                    unset($items[$key]);
+                    continue;
+                }
+            }
+            if (is_array($value)) {
+                $items[$key] = self::stripRelocatingActions($value);
+            }
+        }
+
+        return $items;
     }
 
     /**
@@ -495,6 +542,12 @@ class Blueprint extends BlueprintForm
             $types = Grav::instance()['plugins']->formFieldTypes;
 
             $this->blueprintSchema = new BlueprintSchema;
+            // The schema re-reads every `*@` directive left in $this->items and
+            // resolves it a second time, outside init() and so outside the
+            // per-directive provenance init() enforces. It only sees one flag, so
+            // hand it the strictest: any page-authored directive makes the whole
+            // schema untrusted. Directives init() already resolved keep their value.
+            $this->blueprintSchema->setTrusted($this->trusted && !in_array(false, $this->dynamicTrust, true));
 
             if ($types) {
                 $this->blueprintSchema->setTypes($types);
@@ -799,8 +852,8 @@ class Blueprint extends BlueprintForm
         }
 
         $default = $field[$property] ?? null;
-        $config = Grav::instance()['config']->get($value, $default);
-        if (!empty($field['value_only'])) {
+        $config = self::readDynamicConfig((string) $value, $default, (bool)($call['trusted'] ?? false));
+        if (!empty($field['value_only']) && is_array($config)) {
             $config = array_combine($config, $config);
         }
 
@@ -813,6 +866,37 @@ class Blueprint extends BlueprintForm
                 $field[$property] = $config;
             }
         }
+    }
+
+    /**
+     * Read the config path a `config-*@` directive names.
+     *
+     * A directive from a blueprint file, or from PHP that declared itself the
+     * author, reads the raw config. A page-authored one (a form in page
+     * frontmatter, FlexForm, FlexDirectoryForm) reads through the same redacting
+     * facade sandboxed page Twig gets, so a page editor cannot copy
+     * `plugins.*`, `security.*` or the other credential paths in
+     * `security.twig_sandbox.config_denied_paths` into a field value that the
+     * form then prints to every visitor.
+     *
+     * Shared by {@see Blueprint::dynamicConfig} and
+     * {@see BlueprintSchema::dynamicConfig}.
+     *
+     * @param string $path
+     * @param mixed $default
+     * @param bool $trusted
+     * @return mixed
+     */
+    public static function readDynamicConfig(string $path, mixed $default, bool $trusted): mixed
+    {
+        /** @var Config $config */
+        $config = Grav::instance()['config'];
+
+        if ($trusted) {
+            return $config->get($path, $default);
+        }
+
+        return (new SandboxConfig($config, Security::effectiveConfigDeniedPaths($config)))->get($path, $default);
     }
 
     /**
