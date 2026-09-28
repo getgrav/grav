@@ -281,21 +281,25 @@ class Security
         // does when it decodes the same bytes, so the detector goes on to inspect
         // the markup the parser will actually build, and no new false positives
         // appear for legitimately mis-encoded content.
-        if (!preg_match('//u', $string)) {
-            $previous = mb_substitute_character();
-            mb_substitute_character(0xFFFD);
-            $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
-            mb_substitute_character($previous);
-        }
+        $string = static::toValidUtf8($string);
 
         // Keep a copy of the original string before cleaning up
         $orig = $string;
 
-        // URL decode
-        $string = urldecode($string);
+        // URL decode. `%ff` decodes to a raw byte that is not valid UTF-8, which
+        // would blank the string at the next /u call, so normalize again here:
+        // the up-front pass only covers bytes that were in the input.
+        $string = static::toValidUtf8(urldecode($string));
 
-        // Convert Hexadecimals
-        $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', static fn($m) => chr(hexdec((string) $m[2])), $string);
+        // Convert Hexadecimals. A hex reference names a code point, not a byte:
+        // chr() turned `&#xff;` into a lone 0xFF byte, which blanked the decoded
+        // copy the same way and hid the scheme it had just decoded.
+        $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', static function ($m) {
+            $hex = ltrim((string) $m[2], '0');
+            $char = strlen($hex) <= 6 ? mb_chr((int) hexdec($hex === '' ? '0' : $hex), 'UTF-8') : false;
+
+            return $char === false ? "\u{FFFD}" : $char;
+        }, $string);
 
         // Clean up entities
         $string = preg_replace('!(&#[0-9]+);?!u', '$1;', $string);
@@ -333,9 +337,15 @@ class Security
         // `data:below`. Nothing is lost: a scheme that survives that strip is
         // sitting in a URL position, so what precedes it is a real delimiter
         // (`"`, `'`, `=`, `(`, `<`, `,`) or the start of the string — never a
-        // space or the end of a sentence. Bare `javascript: alert(1)` in running
-        // text is still caught on the other two subjects.
+        // space or the end of a sentence.
         $protocol_url_regex = '#(?<![a-z0-9\s.])(' . $protocol_alt . ')(:|\&\#58)\S.*?#iUu';
+
+        // The `\S` guard above keeps prose like "metadata: value" out, but a
+        // browser happily runs `href="javascript: alert(1)"`: the space is part
+        // of the script body, not the scheme. Inside an attribute value (right
+        // after `=`, optionally quoted) there is no prose to protect, so accept
+        // whitespace after the colon there.
+        $protocol_attr_regex = '#=\s*[\"\'`]?\s*(' . $protocol_alt . ')(:|\&\#58)\s+\S#iu';
 
         // Set the patterns we'll test against
         $patterns = [
@@ -437,7 +447,7 @@ class Security
                     // Uses the URL-parser-faithful strip instead of the
                     // all-whitespace one, which invented `data:`/`feed:` hits in
                     // plain prose. See $url_stripped and $protocol_url_regex.
-                    if (static::patternMatches($regex, (string) $string) || static::patternMatches($protocol_url_regex, (string) $url_stripped) || static::patternMatches($regex, $orig)) {
+                    if (static::patternMatches($regex, (string) $string) || static::patternMatches($protocol_url_regex, (string) $url_stripped) || static::patternMatches($protocol_attr_regex, (string) $url_stripped) || static::patternMatches($regex, $orig)) {
                         return $name;
                     }
                 } else {
@@ -492,6 +502,26 @@ class Security
         }
 
         return true;
+    }
+
+    /**
+     * Replace invalid UTF-8 with U+FFFD, as a browser does when it decodes the
+     * same bytes. Every detector pattern is /u, and PCRE will not run a /u
+     * pattern (or a /u preg_replace) on invalid UTF-8, so this has to hold after
+     * every decode step that can produce raw bytes, not only on the input.
+     */
+    private static function toValidUtf8(string $string): string
+    {
+        if (preg_match('//u', $string)) {
+            return $string;
+        }
+
+        $previous = mb_substitute_character();
+        mb_substitute_character(0xFFFD);
+        $string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+        mb_substitute_character($previous);
+
+        return $string;
     }
 
     /**

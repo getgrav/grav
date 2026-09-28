@@ -302,6 +302,8 @@ class DetectXssTest extends \PHPUnit\Framework\TestCase
             ["See the data:\nbelow", 'bare "data:" at end of line, next line glued by the URL strip'],
             ["Foo bar.\ndata: baz", 'sentence break before a bare "data:"'],
             ['Errata: none. Stratadata: none.', 'two words ending in a protocol name'],
+            ['Numbers (data: 2024) show a trend.', 'bare "data:" plus a space after an opening parenthesis'],
+            ['Learn javascript: a practical guide', 'bare "javascript:" plus a space in running text'],
         ];
     }
 
@@ -339,6 +341,12 @@ class DetectXssTest extends \PHPUnit\Framework\TestCase
             ['<a href=\'vbscript:msgbox(1)\'>x</a>', 'vbscript: scheme'],
             ['url(javascript:alert(1))', 'scheme inside a CSS url()'],
             ['[link](javascript:alert(1))', 'scheme as a markdown link target'],
+            ['<a href="javascript: alert(1)">x</a>', 'space after the colon in an attribute value'],
+            ["<a href='vbscript: msgbox(1)'>x</a>", 'space after the colon, single-quoted vbscript'],
+            ['<a href="javascript&#x3a; alert(1)">x</a>', 'hex-entity colon followed by a space'],
+            ['<a href="javascript&#x3a;alert(1)">x</a> &#xff;', 'hex-entity colon with a hex reference above 0x7F elsewhere'],
+            ['<a href="javascript&#x3a;alert(1)">x</a> %ff', 'hex-entity colon with a percent-encoded invalid byte elsewhere'],
+            ['<a href="&#x6a;avascript:alert(1)">x</a> \\xff;', 'hex-escaped first character with a backslash-hex byte elsewhere'],
         ];
     }
 }
