@@ -15,6 +15,7 @@
     * The private key file `user/config/security-private.php` is now created readable only by the site's own user, instead of being locked down a moment after it is written. Thanks @shxtterme
     * Modular sections on Flex-stored pages now re-run their Twig on every request, the same as regular pages already did, so one visitor's output is never reused for another.
     * On Apache, the file-type rules for `images/`, `assets/`, `user/`, `system/` and `vendor/` now also apply when a path follows the file name. Upgrading adds the rule to an existing site's `.htaccess`. Thanks @ma4ter
+    * [security] With image URL actions turned on, the image pixel limit now measures the image each resize actually produces, including one-dimension, percentage and zoomCrop resizes. Thanks @manus-pi
 
 # v2.2.1
 ## 09/25/2026
