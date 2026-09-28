@@ -5,6 +5,8 @@
     * The `.htaccess` and Caddy configs now let browsers keep the Admin panel's bundled files for a year, since their names change whenever they do. On Apache, copy the new block from `webserver-configs/htaccess.txt` into an existing site's `.htaccess` to get it ([getgrav/grav-plugin-admin2#181](https://github.com/getgrav/grav-plugin-admin2/issues/181))
 2. [](#bugfix)
     * Upgrading Grav from the admin on Windows, for example under Laragon, no longer deletes `index.php` and leaves the site showing a 404 page ([forum](https://getgrav.org/forum/general/laragon-grav-update-issue-t9436))
+    * An upgrade no longer blocks most of the Twig sandbox, such as `date`, `max` and `batch`, on sites whose `security.twig_sandbox` lists only add entries. Sites an earlier upgrade already did this to get those defaults back.
+    * A fresh install now records the current upgrade level, so its first upgrade no longer reruns fixes meant for older installs.
     * [security] Updated the bundled DOM sanitizer to 1.0.18, which closes several ways a crafted stylesheet could hide an external resource reference using CSS escapes, such as a backslash-newline line continuation ([GHSA-94fv-h7hv-365q](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-94fv-h7hv-365q)).
     * Commands run by the scheduler, such as a plugin's `bin/plugin` worker, now run in the same environment as the scheduler, so a site started with `bin/grav scheduler --env <host>` no longer runs its jobs without the settings in `user/env/<host>/config`.
     * With `pages.media_route_urls` enabled, page files whose names contain a space or an accented character, such as `foo bar.pdf` or `bär.png`, no longer return a 404 ([#4332](https://github.com/getgrav/grav/issues/4332))

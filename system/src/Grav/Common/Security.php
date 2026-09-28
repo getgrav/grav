@@ -840,14 +840,25 @@ class Security
      * old effective set with zero behaviour change: anything that was blocked
      * before stays blocked, anything allowed before stays allowed.
      *
+     * A list written for the additive model is not a replacement list, and must
+     * not be read as one: denying every default it omits would block most of
+     * the sandbox. That happens whenever this runs after the move, which it does
+     * on a site's first upgrade when its versions.yaml predates it (a fresh
+     * install recorded a stale GRAV_SCHEMA, and a site migrated from 1.7 carries
+     * its 1.7 schema). A replacement list was the defaults with some removed, so
+     * it is made of defaults; an additive list is made of additions. A list whose
+     * entries are mostly not defaults is therefore skipped. Pass false for
+     * $skipAdditionLists to get the plan the older, unguarded planner made.
+     *
      * Pure and side-effect free so the installer step stays thin and this is
      * unit-testable. Returns only the `denied_*` keys that need entries; a site
      * that never customised the allowlists yields an empty array (no-op).
      *
      * @param array<string,mixed> $userSandbox The user's `security.twig_sandbox` subtree.
+     * @param bool $skipAdditionLists Leave lists made mostly of non-defaults alone.
      * @return array<string, array<int,mixed>> denied_<type> => additions.
      */
-    public static function planSandboxDefaultsMigration(array $userSandbox): array
+    public static function planSandboxDefaultsMigration(array $userSandbox, bool $skipAdditionLists = true): array
     {
         $out = [];
         $defaults = SandboxDefaults::all();
@@ -857,6 +868,9 @@ class Security
                 continue; // list untouched → additive default already reproduces it
             }
             $userSet = self::lowerSet($userSandbox["allowed_{$type}"]);
+            if ($skipAdditionLists && self::isAdditionsList(array_keys($userSet), array_keys(self::lowerSet($defaults[$type])))) {
+                continue;
+            }
             $missing = [];
             foreach ($defaults[$type] as $member) {
                 if (!isset($userSet[strtolower($member)])) {
@@ -874,6 +888,9 @@ class Security
             }
             $defMap = self::normalizeMethodsMap($defaults[$type], $lowercase);
             $userMap = self::normalizeMethodsMap($userSandbox["allowed_{$type}"], $lowercase);
+            if ($skipAdditionLists && self::isAdditionsList(self::flattenMethodsMap($userMap), self::flattenMethodsMap($defMap))) {
+                continue;
+            }
             $rows = [];
             foreach ($defMap as $class => $defMembers) {
                 $missing = array_values(array_diff($defMembers, $userMap[$class] ?? []));
@@ -883,6 +900,35 @@ class Security
             }
             if ($rows) {
                 $out["denied_{$type}"] = $rows;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Whether more of a list's entries are additions than defaults.
+     *
+     * @param string[] $members
+     * @param string[] $defaults
+     */
+    private static function isAdditionsList(array $members, array $defaults): bool
+    {
+        $known = count(array_intersect($members, $defaults));
+
+        return count($members) - $known > $known;
+    }
+
+    /**
+     * @param array<string,string[]> $map class => members
+     * @return string[] `class::member` entries
+     */
+    private static function flattenMethodsMap(array $map): array
+    {
+        $out = [];
+        foreach ($map as $class => $members) {
+            foreach ($members as $member) {
+                $out[] = $class . '::' . $member;
             }
         }
 
