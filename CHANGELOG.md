@@ -13,6 +13,7 @@
     * An image used more than once in Markdown no longer picks up the query parameters, `#fragment` or style of the earlier uses, and keeps its retina `srcset` after an earlier use was cropped or resized. Thanks @wakqasahmed ([#3567](https://github.com/getgrav/grav/issues/3567), [#4333](https://github.com/getgrav/grav/pull/4333))
     * The content XSS check now also flags a `javascript:` link with a space after the colon, and no longer misses a link when the text elsewhere contains an encoded character it could not decode. Thanks @manus-pi
     * The private key file `user/config/security-private.php` is now created readable only by the site's own user, instead of being locked down a moment after it is written. Thanks @shxtterme
+    * Modular sections on Flex-stored pages now re-run their Twig on every request, the same as regular pages already did, so one visitor's output is never reused for another.
 
 # v2.2.1
 ## 09/25/2026
