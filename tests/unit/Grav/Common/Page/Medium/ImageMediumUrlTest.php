@@ -113,4 +113,39 @@ class ImageMediumUrlTest extends \Codeception\Test\Unit
 
         $this->assertSame((string)$this->grav['uri']->base() . '/item2/item2-2/existing-file.zip', $medium->url(true, true));
     }
+
+    /**
+     * getgrav/grav#4332: `path()` is where the file is on disk. A `url` override
+     * (the page route from `pages.media_route_urls`) must not replace it, or
+     * `Grav::fallbackUrl()` cannot find the file it is asked to serve.
+     *
+     * @dataProvider mediaFiles
+     */
+    public function testPathIgnoresTheUrlOverride(string $file, string $override): void
+    {
+        $medium = MediumFactory::fromFile(GRAV_ROOT . '/' . $file);
+        $this->assertNotNull($medium);
+        $medium->set('url', $override);
+
+        $this->assertSame(GRAV_ROOT . '/' . $file, $medium->path());
+        $this->assertFileExists($medium->path());
+        // The link is still the override.
+        $this->assertSame($override, $medium->url());
+    }
+
+    public static function mediaFiles(): array
+    {
+        return [
+            'image' => ['tests/fake/nested-site/user/pages/01.item1/home-sample-image.jpg', '/item1/home-sample-image.jpg'],
+            'file' => ['tests/fake/nested-site/user/pages/02.item2/02.item2-2/existing-file.zip', '/item2/item2-2/existing-file.zip'],
+        ];
+    }
+
+    public function testPathFallsBackToTheUrlForMediaWithoutAFile(): void
+    {
+        // External media (no file on disk) keeps returning its URL.
+        $medium = new \Grav\Common\Page\Medium\Medium(['url' => 'https://cdn.example.com/report.pdf']);
+
+        $this->assertSame('https://cdn.example.com/report.pdf', $medium->path());
+    }
 }

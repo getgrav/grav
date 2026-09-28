@@ -84,8 +84,11 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
             '|<img alt="Sample Image" src="\/images\/.*-sample-image.jpe?g\" data-src="sample-image\.jpg\?cropZoom=300,300" \/>|',
             Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=300,300" alt="Sample Image" />', $this->page)
         );
+        // Each embed starts from the untouched original (getgrav/grav#3567), so
+        // an embed without image actions serves the original file even after
+        // an earlier embed of the same image was cropped.
         self::assertMatchesRegularExpression(
-            '|<img alt="Sample Image" class="foo" src="\/images\/.*-sample-image.jpe?g\" data-src="sample-image\.jpg\?classes=foo" \/>|',
+            '|<img alt="Sample Image" class="foo" src="[^"]*/02\.item2-2/sample-image\.jpg" data-src="sample-image\.jpg\?classes=foo" \/>|',
             Excerpts::processImageHtml('<img src="sample-image.jpg?classes=foo" alt="Sample Image" />', $this->page)
         );
     }
@@ -290,6 +293,122 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
             '<img loading="lazy" decoding="async" fetchpriority="high"',
             Excerpts::processImageHtml('<img src="sample-image.jpg" alt="Sample Image" />', $this->page)
         );
+    }
+
+    /**
+     * getgrav/grav#3567: every embed of a file shares one medium, so the
+     * querystring from an earlier embed must not leak into the next one.
+     */
+    public function testReusedImageOnlyCarriesItsOwnQueryParams(): void
+    {
+        $first = Excerpts::processImageHtml('<img src="sample-image.jpg?foobar=asdasd" alt="Sample Image" />', $this->page);
+        $second = Excerpts::processImageHtml('<img src="sample-image.jpg?preset=foobar" alt="Sample Image" />', $this->page);
+        $third = Excerpts::processImageHtml('<img src="sample-image.jpg?preset=test" alt="Sample Image" />', $this->page);
+        $plain = Excerpts::processImageHtml('<img src="sample-image.jpg" alt="Sample Image" />', $this->page);
+
+        self::assertMatchesRegularExpression('| src="[^"]*sample-image\.jpg\?foobar=asdasd"|', $first);
+        self::assertMatchesRegularExpression('| src="[^"]*sample-image\.jpg\?preset=foobar"|', $second);
+        self::assertMatchesRegularExpression('| src="[^"]*sample-image\.jpg\?preset=test"|', $third);
+        self::assertMatchesRegularExpression('| src="[^"?]*sample-image\.jpg"|', $plain);
+    }
+
+    public function testReusedImageAlternativesOnlyCarryTheirOwnQueryParams(): void
+    {
+        $folder = GRAV_ROOT . '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/';
+        $fixturePath = $folder . 'sample-image@2x.jpg';
+        copy($folder . 'sample-image.jpg', $fixturePath);
+
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        try {
+            Excerpts::processImageHtml('<img src="sample-image.jpg?foo=1" alt="Sample Image" />', $this->page);
+            $second = Excerpts::processImageHtml('<img src="sample-image.jpg?bar=2" alt="Sample Image" />', $this->page);
+
+            self::assertStringContainsString('srcset=', $second);
+            self::assertStringNotContainsString('foo=1', $second);
+        } finally {
+            @unlink($fixturePath);
+        }
+    }
+
+    public function testReusedImageDoesNotShareAThumbnailCreatedBeforehand(): void
+    {
+        // A lightbox rendered from Twig caches a thumbnail on the page's medium
+        // whose parent is that medium. Copies must not inherit it.
+        $this->page->media()['sample-image.jpg']->lightbox()->html();
+
+        Excerpts::processImageHtml('<img src="sample-image.jpg?lightbox&q1=1" alt="Sample Image" />', $this->page);
+        $second = Excerpts::processImageHtml('<img src="sample-image.jpg?lightbox&q2=2" alt="Sample Image" />', $this->page);
+
+        self::assertStringContainsString('q2=2', $second);
+        self::assertStringNotContainsString('q1=1', $second);
+    }
+
+    public function testReusedVectorImageOnlyCarriesItsOwnQueryParams(): void
+    {
+        $fixturePath = GRAV_ROOT . '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-vector.svg';
+        file_put_contents($fixturePath, '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"></svg>');
+
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        try {
+            $first = Excerpts::processImageHtml('<img src="sample-vector.svg?foo=1" alt="Sample Vector" />', $this->page);
+            $second = Excerpts::processImageHtml('<img src="sample-vector.svg?bar=2" alt="Sample Vector" />', $this->page);
+
+            self::assertMatchesRegularExpression('| src="[^"]*sample-vector\.svg\?foo=1"|', $first);
+            self::assertMatchesRegularExpression('| src="[^"]*sample-vector\.svg\?bar=2"|', $second);
+        } finally {
+            @unlink($fixturePath);
+        }
+    }
+
+    public function testReusedImageDoesNotCarryAnEarlierFragmentOrStyle(): void
+    {
+        // The querystring was not the only thing an embed left on the shared
+        // medium: a #fragment and ?style= were kept for every later embed too.
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        Excerpts::processImageHtml('<img src="sample-image.jpg#frag" alt="Sample Image" />', $this->page);
+        Excerpts::processImageHtml('<img src="sample-image.jpg?style=border:1px" alt="Sample Image" />', $this->page);
+        $plain = Excerpts::processImageHtml('<img src="sample-image.jpg" alt="Sample Image" />', $this->page);
+
+        self::assertStringNotContainsString('#frag', $plain);
+        self::assertStringNotContainsString('border', $plain);
+    }
+
+    public function testUnmodifiedEmbedKeepsItsSrcsetAfterACroppedOne(): void
+    {
+        // reset() drops the alternatives once an image action has opened the
+        // image, so every later embed of the shared medium lost its srcset.
+        $folder = GRAV_ROOT . '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/';
+        $fixturePath = $folder . 'sample-image@2x.jpg';
+        copy($folder . 'sample-image.jpg', $fixturePath);
+
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        try {
+            Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=100,100" alt="Sample Image" />', $this->page);
+            $plain = Excerpts::processImageHtml('<img src="sample-image.jpg" alt="Sample Image" />', $this->page);
+
+            self::assertStringContainsString('sample-image@2x.jpg', $plain);
+        } finally {
+            @unlink($fixturePath);
+            $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+        }
+    }
+
+    public function testMarkdownEmbedsLeaveThePageMediumUntouched(): void
+    {
+        // A template rendering page.media after the content must get the
+        // original file, not whatever the last Markdown embed left behind.
+        $this->page->media(new Media($this->page->getMediaFolder(), $this->page->getMediaOrder()));
+
+        Excerpts::processImageHtml('<img src="sample-image.jpg?foo=1" alt="Sample Image" />', $this->page);
+        Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=100,100#x" alt="Sample Image" />', $this->page);
+
+        $html = (string) $this->page->media()['sample-image.jpg']->html();
+
+        self::assertMatchesRegularExpression('| src="[^"]*/02\.item2-2/sample-image\.jpg"|', $html);
     }
 
     public function testMediaExtensionArmDoesNotCaptureRealSchemes(): void

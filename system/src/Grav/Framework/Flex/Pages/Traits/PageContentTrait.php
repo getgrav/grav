@@ -709,8 +709,9 @@ trait PageContentTrait
         // Editor-authored content Twig is request-aware even inside the sandbox, and
         // the render cache below is keyed on the page key and the config checksum
         // only, with no session or request dimension. Cache the markdown, re-run the
-        // Twig every request. Mirrors Page::content(). (GHSA-pp89-h475-7gj6)
-        if ($process_twig && !$this->isModule()) {
+        // Twig every request, including editor-authored module bodies. Mirrors
+        // Page::content(). (GHSA-pp89-h475-7gj6)
+        if ($process_twig) {
             $never_cache_twig = true;
         }
 

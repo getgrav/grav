@@ -640,6 +640,17 @@ class Scheduler
      */
     public function getOverrideEnvironment(): ?string
     {
+        return static::resolveOverrideEnvironment();
+    }
+
+    /**
+     * The rule behind getOverrideEnvironment(), static so a Job can apply it to the commands it
+     * starts without being handed the scheduler.
+     *
+     * @return string|null
+     */
+    public static function resolveOverrideEnvironment(): ?string
+    {
         $environment = Setup::$environment;
         if (!is_string($environment) || in_array($environment, ['', 'cli', 'unknown'], true)) {
             return null;

@@ -77,6 +77,8 @@ root * .
 }
 ## End - Security
 
+@immutable path_regexp (?i)/_app/immutable/
+
 route {
 	respond @denied_dirs 403
 	respond @denied_user_config 403
@@ -91,6 +93,12 @@ route {
 
 	# global rewrite should come last.
 	try_files {path} {path}/ /index.php?_url={uri}&{query}
+
+	# Content-hashed bundles (the Admin panel and other SvelteKit-based plugins)
+	# can be cached for a year: the name changes whenever the file does. After
+	# try_files on purpose, so a missing chunk has been rewritten to index.php
+	# by now and Grav's 404 doesn't match.
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
 
 	php_fastcgi 127.0.0.1:9000
 	file_server

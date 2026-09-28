@@ -287,6 +287,25 @@ class SandboxDefaultsMergeTest extends \PHPUnit\Framework\TestCase
         self::assertNotContains('Grav\Common\Taxonomy', $classes, 'kept class not denied');
     }
 
+    public function testMigration_AdditionsListIsNotReadAsAReplacement(): void
+    {
+        // Written for the additive model (a plugin's function, or what the
+        // migrate-grav wizard found in page content). Reading it as a
+        // replacement list would deny nearly every default.
+        $plan = Security::planSandboxDefaultsMigration([
+            'allowed_functions' => ['unite_gallery', 'my_shortcode_fn', 'date'],
+            'allowed_filters' => ['my_filter'],
+            'allowed_methods' => [['class' => 'Grav\Common\Page\Pages', 'methods' => 'mycustomfinder, anotherone']],
+        ]);
+        self::assertSame([], $plan);
+    }
+
+    public function testMigration_UnguardedPlanStillAvailableForTheRepair(): void
+    {
+        $plan = Security::planSandboxDefaultsMigration(['allowed_filters' => ['my_filter']], false);
+        self::assertContains('escape', $plan['denied_filters']);
+    }
+
     /**
      * End-to-end: a tightened site's OLD effective policy (replace-merge of its
      * own list) must equal its NEW effective policy (defaults ∪ its list − the

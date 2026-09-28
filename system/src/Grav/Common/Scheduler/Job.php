@@ -328,6 +328,27 @@ class Job
     }
 
     /**
+     * Environment variables for the command's process, on top of the ones it inherits.
+     *
+     * The generated cron line names the environment with --env so the scheduler loads
+     * user/env/<host>/config (#4248), but the commands it then started did not inherit it: a
+     * Grav CLI command with nothing pinning its environment resolves to 'cli', and everything
+     * defined only in the host's config (base URL, mail settings, plugin config) silently did
+     * not apply to it. The scheduler's environment is passed on as GRAV_ENVIRONMENT, which
+     * Setup reads when no --env is given, so it reaches any Grav CLI process the job starts,
+     * however it is started. An --env in the job's own arguments still wins, and nothing is set
+     * when the scheduler itself has no override environment, same as the cron line.
+     *
+     * @return array|null Null to inherit the current environment unchanged
+     */
+    private function processEnvironment(): ?array
+    {
+        $environment = Scheduler::resolveOverrideEnvironment();
+
+        return null !== $environment ? ['GRAV_ENVIRONMENT' => $environment] : null;
+    }
+
+    /**
      * Resolve a command against the Grav install, so a job can name `bin/grav` the way the
      * documentation does.
      *
@@ -552,8 +573,8 @@ class Job
                 return false;
             }
 
-            $process = new Process($command);
-            
+            $process = new Process($command, null, $this->processEnvironment());
+
             // Apply timeout if set (modern feature)
             if ($this->timeout > 0) {
                 $process->setTimeout($this->timeout);
