@@ -1,3 +1,9 @@
+# v1.7.53.5
+## 09/27/2026
+
+1. [](#bugfix)
+    * [security] Updated the bundled DOM sanitizer from 1.0.11 to 1.0.18, bringing the fixes from the 2.x line for sanitized SVG and HTML: CSS comments, escapes, line continuations and `image-set()` can no longer hide external resource references in stylesheets, `style` attributes or SVG presentation attributes; `javascript:` and non-image `data:` URLs are rejected in every URL attribute, not only `href`; and XML processing instructions and SVG animations can no longer bring back markup or links the sanitizer removed ([GHSA-jfrr-ch68-f2w9](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-jfrr-ch68-f2w9), [GHSA-ww22-4mqv-x5w3](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-ww22-4mqv-x5w3), [GHSA-wcj2-r6vg-rm97](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-wcj2-r6vg-rm97), [GHSA-mrpv-6x26-mf6c](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-mrpv-6x26-mf6c), [GHSA-cjfg-j8jp-5xvc](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-cjfg-j8jp-5xvc), [GHSA-4hr3-f334-mcr4](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-4hr3-f334-mcr4), [GHSA-7x4f-fj83-6xfw](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-7x4f-fj83-6xfw), [GHSA-94fv-h7hv-365q](https://github.com/rhukster/dom-sanitizer/security/advisories/GHSA-94fv-h7hv-365q))
+
 # v1.7.53.4
 ## 09/24/2026
 
