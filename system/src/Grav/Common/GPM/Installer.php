@@ -556,8 +556,7 @@ class Installer
                     }
                 }
             } else {
-                @unlink($path);
-                @copy($file->getPathname(), $path);
+                self::replaceFile($file->getPathname(), $path);
             }
         }
 
@@ -569,6 +568,48 @@ class Installer
         }
 
         return true;
+    }
+
+    /**
+     * Replace a file without deleting the original first, so a failed replace keeps the old copy.
+     *
+     * Unlinking first loses index.php on Windows: the request running the upgrade
+     * holds it open, so the unlink is only pending, the copy onto the pending name
+     * fails, and the file vanishes when the request ends. Kept in step with
+     * Grav\Installer\Install::replaceFile(), which is the copy that runs during a
+     * core upgrade.
+     *
+     * @param string $source
+     * @param string $target
+     * @return bool False when the original was left in place.
+     */
+    public static function replaceFile(string $source, string $target): bool
+    {
+        // Replace a symlink (bin/grav sandbox) with the file itself; never write through it.
+        if (is_link($target)) {
+            $link = readlink($target);
+            @unlink($target);
+            if (@copy($source, $target)) {
+                return true;
+            }
+            if ($link !== false) {
+                @symlink($link, $target);
+            }
+
+            return false;
+        }
+
+        // Write beside the target and rename over it, which swaps it in atomically.
+        $tmp = dirname($target) . DS . '.' . basename($target) . '.' . uniqid('', false) . '.tmp';
+        if (@copy($source, $tmp)) {
+            if (@rename($tmp, $target)) {
+                return true;
+            }
+            @unlink($tmp);
+        }
+
+        // Windows refuses the rename while the target is open; overwriting it in place may still work.
+        return @copy($source, $target);
     }
 
     /**
