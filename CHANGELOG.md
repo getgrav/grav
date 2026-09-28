@@ -1,5 +1,5 @@
 # v2.2.2
-## 09/27/2026
+## 09/28/2026
 
 1. [](#improved)
     * The `.htaccess` and Caddy configs now let browsers keep the Admin panel's bundled files for a year, since their names change whenever they do. On Apache, copy the new block from `webserver-configs/htaccess.txt` into an existing site's `.htaccess` to get it ([getgrav/grav-plugin-admin2#181](https://github.com/getgrav/grav-plugin-admin2/issues/181))
