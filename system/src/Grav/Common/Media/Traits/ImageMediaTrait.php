@@ -73,6 +73,65 @@ trait ImageMediaTrait
     /** @var string */
     protected $sizes = '100vw';
 
+    /**
+     * The canvas a URL resize action allocates, and the size it leaves the image at.
+     *
+     * The query-string numbers are not the canvas. A single dimension or a
+     * percentage is derived from the current aspect ratio (`forceResize=46000`
+     * on a square source is 46000x46000), and zoomCrop() enlarges to cover the
+     * box before it crops (`zoomCrop=46000,1` also builds 46000x46000), so a
+     * ceiling on width*height of the request lets both through.
+     *
+     * Floats, so an absurd request cannot overflow an int. Returns null when a
+     * dimension is not a whole number or a percentage.
+     *
+     * @param string $action One of $magic_resize_actions
+     * @param array $args The comma-separated query arguments
+     * @param int $width Current image width
+     * @param int $height Current image height
+     * @return array{0:float,1:float,2:float}|null [canvas pixels, resulting width, resulting height]
+     */
+    public static function urlResizeCanvas(string $action, array $args, int $width, int $height): ?array
+    {
+        $positions = static::$magic_resize_actions[$action] ?? null;
+        if ($positions === null || $width < 1 || $height < 1) {
+            return null;
+        }
+
+        $count = count($positions);
+        $w = $args[$positions[$count - 2]] ?? null;
+        $h = $args[$positions[$count - 1]] ?? null;
+
+        if ($h === null && preg_match('/^(\d+(?:\.\d+)?)%$/', (string) $w, $matches)) {
+            $w = $width * (float) $matches[1] / 100;
+            $h = $height * (float) $matches[1] / 100;
+        } else {
+            foreach ([$w, $h] as $value) {
+                if ($value !== null && !ctype_digit((string) $value)) {
+                    return null;
+                }
+            }
+            $w = (float) $w;
+            $h = (float) $h;
+        }
+
+        if ($w <= 0 && $h <= 0) {
+            [$w, $h] = [(float) $width, (float) $height];
+        } elseif ($h <= 0) {
+            $h = ceil($w * $height / $width);
+        } elseif ($w <= 0) {
+            $w = ceil($h * $width / $height);
+        }
+
+        $pixels = $w * $h;
+        if ($action === 'zoomCrop') {
+            $scale = max($w / $width, $h / $height);
+            $pixels = max($pixels, ceil($width * $scale) * ceil($height * $scale));
+        }
+
+        return [$pixels, $w, $h];
+    }
+
 
     /**
      * Allows the ability to override the image's pretty name stored in cache

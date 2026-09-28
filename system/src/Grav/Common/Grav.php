@@ -805,24 +805,29 @@ class Grav extends Container
                 // developer-controlled arguments and are unaffected by this toggle.
                 if ($config->get('system.images.url_actions', false)) {
                     $max_pixels = (int) $config->get('system.images.max_pixels', 25000000);
+                    // Only raster images allocate a canvas. Track their size
+                    // through the chain of actions, so each one is measured
+                    // against what the previous ones left.
+                    $raster = $medium instanceof ImageMedium;
+                    $size = $raster ? @getimagesize((string) $medium->get('filepath')) : false;
+                    $width = (int) ($size[0] ?? 0);
+                    $height = (int) ($size[1] ?? 0);
                     foreach ($uri->query(null, true) as $action => $params) {
                         if (in_array($action, ImageMedium::$magic_actions, true)) {
                             $args = explode(',', (string) $params);
-                            // Reject request-derived resize dimensions above the
-                            // total-pixel ceiling. The GD/Imagick output buffer is
-                            // allocated as width*height*4 bytes outside PHP's
-                            // memory_limit, so an unbounded request exhausts RAM.
-                            // The output width/height are the last two positions in
-                            // each $magic_resize_actions entry (crop is x,y,w,h).
-                            if ($max_pixels > 0 && isset(ImageMedium::$magic_resize_actions[$action])) {
-                                $positions = ImageMedium::$magic_resize_actions[$action];
-                                $w_pos = $positions[count($positions) - 2] ?? null;
-                                $h_pos = $positions[count($positions) - 1] ?? null;
-                                $width = ($w_pos !== null && isset($args[$w_pos]) && is_numeric($args[$w_pos])) ? (int) $args[$w_pos] : 0;
-                                $height = ($h_pos !== null && isset($args[$h_pos]) && is_numeric($args[$h_pos])) ? (int) $args[$h_pos] : 0;
-                                if ($width > 0 && $height > 0 && ($width * $height) > $max_pixels) {
+                            // Reject resize actions whose canvas is above the
+                            // total-pixel ceiling. The GD/Imagick buffer is allocated
+                            // as width*height*4 bytes outside PHP's memory_limit, so
+                            // an unbounded request exhausts RAM. The canvas is
+                            // measured, not the query numbers: `forceResize=46000`
+                            // and `zoomCrop=46000,1` both allocate 46000x46000.
+                            if ($max_pixels > 0 && $raster && isset(ImageMedium::$magic_resize_actions[$action])) {
+                                $canvas = ImageMedium::urlResizeCanvas($action, $args, $width, $height);
+                                if ($canvas === null || $canvas[0] > $max_pixels) {
                                     return false;
                                 }
+                                $width = (int) $canvas[1];
+                                $height = (int) $canvas[2];
                             }
                             call_user_func_array([&$medium, $action], $args);
                         }
