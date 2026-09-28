@@ -17,7 +17,8 @@
     * On Apache, the file-type rules for `images/`, `assets/`, `user/`, `system/` and `vendor/` now also apply when a path follows the file name. Upgrading adds the rule to an existing site's `.htaccess`. Thanks @ma4ter
     * [security] With image URL actions turned on, the image pixel limit now measures the image each resize actually produces, including one-dimension, percentage and zoomCrop resizes. Thanks @manus-pi
     * [security] A form defined in page frontmatter now reads `config-*@` values through the same filter as page Twig, so it can only show configuration that page Twig may read. Thanks @manus-use and @Hama1cco
-    * [security] Dynamic-data directives in page-authored forms now go through the allowed-callable check everywhere they are resolved, including form defaults and validation and fields renamed while a form is merged. Thanks @manus-use
+    * [security] Dynamic-data directives in a form defined in page frontmatter now go through the allowed-callable check when the form builds its defaults and validates, not only when it first loads.
+    * [security] Renaming a field while a page-authored Flex form is merged no longer lets it skip the allowed-callable check. Thanks @manus-use
 
 # v2.2.1
 ## 09/25/2026
