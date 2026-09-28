@@ -2177,9 +2177,17 @@ class Security
             Folder::create($dir);
         }
 
-        // Atomic write: stage to a temp file, fsync via rename.
+        // Atomic write: stage to a temp file, fsync via rename. The temp file is
+        // created under a 0077 umask so it is never readable by other users, not
+        // even between the write and the chmod() below.
         $tmp = $path . '.tmp';
-        if (@file_put_contents($tmp, $contents, LOCK_EX) === false) {
+        $umask = umask(0077);
+        try {
+            $written = @file_put_contents($tmp, $contents, LOCK_EX);
+        } finally {
+            umask($umask);
+        }
+        if ($written === false) {
             throw new RuntimeException('Failed to write nonce key file');
         }
         @chmod($tmp, 0600);
