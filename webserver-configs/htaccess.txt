@@ -84,6 +84,11 @@ RewriteRule ^(images|assets)/(.*)\.(php|php2|php3|php4|php5|php7|php8|phar|phtml
 RewriteRule ^(system|vendor)/(.*)\.(txt|xml|md|html|htm|shtml|shtm|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ error [F,NC]
 # Block access to specific file types for these user folders
 RewriteRule ^(user)/(.*)\.(txt|md|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ error [F,NC]
+# A script followed by a path (`file.php/x`) still runs as `file.php`, so refuse any
+# request in these folders that maps to a file with a path after it
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{PATH_INFO} ^/
+RewriteRule ^(images|assets|system|vendor|user)/ error [F,NC]
 # Block all direct access to .md files (a page route ending in .md is not a file, so Grav's Markdown output still works):
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule \.md$ error [F,NC]

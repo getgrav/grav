@@ -14,6 +14,7 @@
     * The content XSS check now also flags a `javascript:` link with a space after the colon, and no longer misses a link when the text elsewhere contains an encoded character it could not decode. Thanks @manus-pi
     * The private key file `user/config/security-private.php` is now created readable only by the site's own user, instead of being locked down a moment after it is written. Thanks @shxtterme
     * Modular sections on Flex-stored pages now re-run their Twig on every request, the same as regular pages already did, so one visitor's output is never reused for another.
+    * On Apache, the file-type rules for `images/`, `assets/`, `user/`, `system/` and `vendor/` now also apply when a path follows the file name. Upgrading adds the rule to an existing site's `.htaccess`. Thanks @ma4ter
 
 # v2.2.1
 ## 09/25/2026
