@@ -1,3 +1,9 @@
+# v2.2.3
+## 09/28/2026
+
+1. [](#improved)
+    * Theme and plugin templates no longer carry the Twig sandbox's runtime checks, which only ever apply to Twig in page content, so pages render faster (about a third less Twig time on a busy template). Twig in page content, and any template rendered with the sandbox switched on, is checked exactly as before.
+
 # v2.2.2
 ## 09/28/2026
 

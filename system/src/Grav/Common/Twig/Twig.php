@@ -297,11 +297,18 @@ class Twig
             // we don't need to toggle the sandbox around specific render calls,
             // and {% include %}ing a theme partial from editor content is safe.
             if ($config->get('security.twig_sandbox.enabled', true)) {
-                $this->twig->addExtension(new SandboxExtension(
+                $sandbox = new SandboxExtension(
                     Security::buildTwigSandboxPolicy(),
                     false,
                     new GravSourcePolicy()
-                ));
+                );
+                $this->twig->addExtension($sandbox);
+                // GravSourcePolicy decides from the template name alone, so theme
+                // and plugin files on disk can compile without the per-print
+                // sandbox checks they would never trigger anyway.
+                if ($this->twig instanceof TwigEnvironment) {
+                    $this->twig->setSourceSandbox($sandbox);
+                }
             }
 
             /** @var Debugger $debugger */
