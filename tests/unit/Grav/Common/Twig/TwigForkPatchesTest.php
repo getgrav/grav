@@ -31,8 +31,8 @@ use Twig\Sandbox\SecurityPolicy;
  *    so the definition does not also render where it was declared.
  * 4. Compile-time source sandboxing: a source policy implementing
  *    CompileTimeSourcePolicyInterface (GravSourcePolicy does) lets trusted
- *    templates compile with no sandbox checks, plus a guard that refuses to
- *    render them while the sandbox is switched on.
+ *    templates compile with no sandbox checks, plus a guard that hands a render
+ *    while the sandbox is switched on over to the fully checked variant.
  *
  * The behaviour that hangs off (2) and (3) is covered in depth by
  * TwigConditionalBlockTest and DeferredExtensionTest, and (4) by
@@ -152,7 +152,8 @@ TWIG,
     /**
      * Divergence 4. Losing the interface is loud (GravSourcePolicy no longer
      * loads), but losing the guard is silent: a trusted template loaded earlier
-     * would run unchecked inside a sandboxed render. Pin both, plus the class
+     * would run unchecked inside a sandboxed render instead of handing over to
+     * its checked variant. Pin both, plus the class
      * name suffix that keeps the two compiled forms apart.
      */
     public function testTrustedTemplatesCompileWithoutChecksButKeepTheGuard(): void
@@ -169,6 +170,7 @@ TWIG,
             $code = $env->compileSource($env->getLoader()->getSourceContext('t.twig'));
 
             self::assertStringNotContainsString('checkSecurity', $code);
+            self::assertStringContainsString('public function ensureSecurityCheckedOrHandOver()', $code);
             self::assertStringContainsString('cannot be rendered while the sandbox is enabled', $code);
             self::assertStringEndsWith('_sourced', $env->getTemplateClass('t.twig'));
         } finally {

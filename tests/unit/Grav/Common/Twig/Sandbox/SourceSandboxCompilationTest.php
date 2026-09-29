@@ -172,7 +172,9 @@ class SourceSandboxCompilationTest extends TestCase
 
         self::assertStringNotContainsString('ensureToStringAllowed', $code);
         self::assertStringNotContainsString('checkSecurity', $code);
-        // Only the guard that refuses to run under a sandboxed render remains.
+        // Only the guard remains: it hands a sandboxed render over to the fully
+        // checked variant of the template, and throws on any path that did not.
+        self::assertStringContainsString('public function ensureSecurityCheckedOrHandOver(): ?\\Twig\\Template', $code);
         self::assertStringContainsString('public function ensureSecurityChecked(): void', $code);
         self::assertStringContainsString('if ($this->sandbox->isSandboxed()) {', $code);
 
@@ -377,18 +379,121 @@ class SourceSandboxCompilationTest extends TestCase
     }
 
     /**
-     * A trusted template loaded before the sandbox was switched on has no checks
-     * of its own, so it refuses to render inside the sandbox instead.
+     * A trusted template loaded before the sandbox was switched on (here handed to
+     * a sandboxed include as a TemplateWrapper) has no checks of its own, so it
+     * renders as its fully checked variant instead: the same output as before the
+     * change, where every template carried the runtime checks.
      */
-    public function testPreloadedTrustedTemplate_RefusesToRenderInsideTheSandbox(): void
+    public function testPreloadedTrustedTemplate_RendersCheckedInsideTheSandbox(): void
     {
         $this->writeTemplate('outer.html.twig', '{{ include(wrapper, sandboxed = true) }}');
-        $env = $this->env();
-        $wrapper = $env->load('partials/plain.html.twig');
+        $this->writeTemplate('outer_tag.html.twig', '{% sandbox %}{% include wrapper %}{% endsandbox %}');
 
-        $this->expectException(SecurityError::class);
-        $this->expectExceptionMessage('cannot be rendered while the sandbox is enabled');
-        @$env->render('outer.html.twig', ['wrapper' => $wrapper, 'name' => 'grav']);
+        foreach (['outer.html.twig', 'outer_tag.html.twig'] as $outer) {
+            foreach (['partials/plain.html.twig', 'partials/probe.html.twig', 'partials/child.html.twig'] as $name) {
+                $render = static fn (Environment $env) => @$env->render($outer, ['wrapper' => $env->load($name), 'name' => 'grav', 'probe' => 'ok']);
+                $expected = $this->assertSameAsBefore("$outer $name", $render);
+                self::assertNotSame('', $expected);
+            }
+        }
+
+        $env = $this->env();
+        self::assertSame('<main>[ok]</main>', @$env->render('outer.html.twig', ['wrapper' => $env->load('partials/child.html.twig'), 'probe' => 'ok']));
+    }
+
+    /**
+     * @dataProvider preloadedDisallowedProvider
+     */
+    public function testPreloadedTrustedTemplate_KeepsDisallowedAccessBlocked(string $code, array $context, string $error): void
+    {
+        $this->writeTemplate('outer.html.twig', '{{ include(wrapper, sandboxed = true) }}');
+        $this->writeTemplate('partials/disallowed.html.twig', $code);
+        $context = array_map(static fn ($value) => \is_callable($value) ? $value() : $value, $context);
+
+        // Outside the sandbox the trusted template runs unchecked, as always.
+        $this->env()->render('partials/disallowed.html.twig', $context);
+
+        $this->assertSameAsBefore($code, static fn (Environment $env) => @$env->render('outer.html.twig', ['wrapper' => $env->load('partials/disallowed.html.twig')] + $context), $error);
+    }
+
+    public static function preloadedDisallowedProvider(): array
+    {
+        return [
+            'method' => ["{{ cfg.set('a', 'b') ? 'y' : 'n' }}", ['cfg' => static fn () => new \Grav\Common\Config\Config([])], SecurityNotAllowedMethodError::class],
+            'property' => ['{{ probe.secret }}', ['probe' => static fn () => new SourceSandboxProbe()], SecurityNotAllowedPropertyError::class],
+            'filter' => ['{{ "<b>x</b>"|raw }}', [], SecurityNotAllowedFilterError::class],
+            'function' => ["{{ constant('PHP_VERSION') }}", [], SecurityNotAllowedFunctionError::class],
+            '__toString' => ['{{ probe }}', ['probe' => static fn () => new SourceSandboxProbe()], SecurityNotAllowedMethodError::class],
+            'through the parent' => ["{% extends 'partials/base.html.twig' %}{% block body %}{{ probe.secret }}{% endblock %}", ['probe' => static fn () => new SourceSandboxProbe()], SecurityNotAllowedPropertyError::class],
+        ];
+    }
+
+    /**
+     * Macros and blocks of a preloaded trusted template, reached from inside a
+     * sandboxed include, run from the checked variant too.
+     */
+    public function testPreloadedTrustedMacrosAndBlocks_RunCheckedInsideTheSandbox(): void
+    {
+        $this->writeTemplate('partials/macros.html.twig', '{% macro show(v) %}<{{ v }}>{% endmacro %}');
+        $this->writeTemplate('partials/macro_child.html.twig', "{% extends 'partials/macros.html.twig' %}");
+        $this->writeTemplate('partials/call_macro.html.twig', '{% import wrapper as m %}{{ m.show(probe) }}');
+        $this->writeTemplate('partials/call_block.html.twig', "{{ block('body', wrapper) }}");
+        $this->writeTemplate('outer_macro.html.twig', "{{ include('partials/call_macro.html.twig', sandboxed = true) }}");
+        $this->writeTemplate('outer_block.html.twig', "{{ include('partials/call_block.html.twig', sandboxed = true) }}");
+
+        foreach (['outer_macro.html.twig' => ['partials/macros.html.twig', 'partials/macro_child.html.twig'], 'outer_block.html.twig' => ['partials/child.html.twig']] as $outer => $names) {
+            foreach ($names as $name) {
+                $this->assertSameAsBefore("$outer $name", static fn (Environment $env) => @$env->render($outer, ['wrapper' => $env->load($name), 'probe' => 'ok']));
+                $this->assertSameAsBefore("$outer $name", static fn (Environment $env) => @$env->render($outer, ['wrapper' => $env->load($name), 'probe' => new SourceSandboxProbe()]), SecurityNotAllowedMethodError::class);
+            }
+        }
+
+        $env = $this->env();
+        self::assertSame('<ok>', @$env->render('outer_macro.html.twig', ['wrapper' => $env->load('partials/macro_child.html.twig'), 'probe' => 'ok']));
+        self::assertSame('[ok]', @$env->render('outer_block.html.twig', ['wrapper' => $env->load('partials/child.html.twig'), 'probe' => 'ok']));
+    }
+
+    /**
+     * With the sandbox off, a trusted template never loads its checked variant.
+     */
+    public function testTrustedTemplate_NeverLoadsTheCheckedVariantWithTheSandboxOff(): void
+    {
+        $env = $this->env();
+        $template = $env->load('partials/child.html.twig');
+        self::assertNull($template->unwrap($env)->ensureSecurityCheckedOrHandOver());
+        self::assertSame('<main>[x]</main>', $template->render(['probe' => 'x']));
+        self::assertSame('[x]', $template->renderBlock('body', ['probe' => 'x']));
+
+        $checker = $env->getExtension(SandboxExtension::class)->getChecker();
+        $checker->setSandboxed(true);
+        try {
+            $class = $env->getTemplateClass('partials/child.html.twig');
+        } finally {
+            $checker->setSandboxed(false);
+        }
+        self::assertStringEndsWith('_sandboxed', $class);
+        self::assertFalse(class_exists($class, false));
+    }
+
+    /**
+     * The guard still throws for any path that does not hand over to the checked
+     * variant, so a path Twig adds later fails closed instead of running unchecked.
+     */
+    public function testPreloadedTrustedTemplate_GuardStillThrowsAsTheBackstop(): void
+    {
+        $env = $this->env();
+        $template = $env->load('partials/plain.html.twig')->unwrap($env);
+        $checker = $env->getExtension(SandboxExtension::class)->getChecker();
+
+        $template->ensureSecurityChecked();
+        $checker->setSandboxed(true);
+        try {
+            $this->expectException(SecurityError::class);
+            $this->expectExceptionMessage('cannot be rendered while the sandbox is enabled');
+            $template->ensureSecurityChecked();
+        } finally {
+            $checker->setSandboxed(false);
+        }
     }
 
     // =========================================================================
@@ -445,6 +550,32 @@ class SourceSandboxCompilationTest extends TestCase
         $env->addExtension(@new SandboxExtension(Security::buildTwigSandboxPolicy(), false, $sourceSandbox ? $policy : new LegacySourcePolicy($policy)));
 
         return $env;
+    }
+
+    /**
+     * Runs $render against the source-sandboxed environment and the legacy one
+     * (every template carries the runtime checks, as before this change) and
+     * asserts both give the same output, or both fail with $error.
+     *
+     * @param callable(Environment): string $render
+     * @param class-string<SecurityError>|null $error
+     * @return string|null The output, when there is one.
+     */
+    private function assertSameAsBefore(string $message, callable $render, ?string $error = null): ?string
+    {
+        $results = [];
+        foreach ([false, true] as $sourceSandbox) {
+            try {
+                $results[] = ['output', $render($this->env([], $sourceSandbox))];
+            } catch (SecurityError $e) {
+                $results[] = ['error', get_class($e)];
+            }
+        }
+
+        self::assertSame($results[0], $results[1], $message);
+        self::assertSame($error === null ? ['output', $results[1][1]] : ['error', $error], $results[1], $message);
+
+        return $error === null ? $results[1][1] : null;
     }
 
     private function writeTemplate(string $name, string $code): void

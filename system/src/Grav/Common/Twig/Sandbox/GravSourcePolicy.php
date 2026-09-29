@@ -34,7 +34,8 @@ use Twig\Source;
  * print and attribute access. Twig keeps the full checks for anything compiled
  * while the sandbox is switched on (`{% sandbox %}`, sandboxed includes), for
  * templates that use the `{% sandbox %}` tag, and gives a trusted template a
- * guard that refuses to render it inside a sandboxed render. The decision is
+ * guard that renders its fully checked variant instead when it is reached
+ * inside a sandboxed render. The decision is
  * baked into compiled templates, so if these rules change, the compiled Twig
  * cache must be cleared.
  */
