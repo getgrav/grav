@@ -296,6 +296,9 @@ class Twig
             // are sandboxed; theme files on disk are always trusted. This means
             // we don't need to toggle the sandbox around specific render calls,
             // and {% include %}ing a theme partial from editor content is safe.
+            // GravSourcePolicy also makes that decision at compile time (a
+            // getgrav/Twig fork feature), so theme and plugin files compile
+            // without any sandbox checks at all.
             if ($config->get('security.twig_sandbox.enabled', true)) {
                 $this->twig->addExtension(new SandboxExtension(
                     Security::buildTwigSandboxPolicy(),
