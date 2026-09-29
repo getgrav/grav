@@ -11,13 +11,9 @@ namespace Grav\Common\Twig;
 
 use ReflectionClass;
 use Twig\Environment;
-use Twig\Error\LoaderError;
 use Twig\Extension\EscaperExtension;
 use Twig\Extension\ExtensionInterface;
-use Twig\Loader\ExistsLoaderInterface;
-use Twig\Loader\LoaderInterface;
 use Twig\Runtime\EscaperRuntime;
-use Twig\Template;
 use Twig\TemplateWrapper;
 
 /**
@@ -70,6 +66,14 @@ class TwigEnvironment extends Environment
     /**
      * @inheritDoc
      *
+     * Upstream already skips missing names in a list without throwing (the
+     * reason Grav first overrode this method, back on Twig 1) and checks that a
+     * Template or TemplateWrapper belongs to this environment. The one thing
+     * left here is a single Template passed on its own: upstream sends it
+     * through load(), which hands the bare Template back against its
+     * TemplateWrapper return type and fails with a TypeError. Wrapping every
+     * name in a list sends it through the ownership check and back as a
+     * TemplateWrapper instead.
      */
     public function resolveTemplate($names): TemplateWrapper
     {
@@ -77,28 +81,6 @@ class TwigEnvironment extends Environment
             $names = [$names];
         }
 
-        $count = \count($names);
-        foreach ($names as $name) {
-            if ($name instanceof Template) {
-                return $name;
-            }
-            if ($name instanceof TemplateWrapper) {
-                return $name;
-            }
-
-            // Optimization: Avoid throwing an exception when it would be ignored anyway.
-            if (1 !== $count) {
-                /** @var LoaderInterface|ExistsLoaderInterface $loader */
-                $loader = $this->getLoader();
-                if (!$loader->exists($name)) {
-                    continue;
-                }
-            }
-
-            // Throws LoaderError: Unable to find template "%s".
-            return $this->load($name);
-        }
-
-        throw new LoaderError(sprintf('Unable to find one of the following templates: "%s".', implode('", "', $names)));
+        return parent::resolveTemplate($names);
     }
 }
