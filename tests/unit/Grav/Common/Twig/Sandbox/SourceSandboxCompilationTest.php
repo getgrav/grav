@@ -11,11 +11,14 @@ use Twig\Extension\StringLoaderExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
 use Twig\Loader\FilesystemLoader;
+use Twig\Sandbox\CompileTimeSourcePolicyInterface;
 use Twig\Sandbox\SecurityError;
 use Twig\Sandbox\SecurityNotAllowedFilterError;
 use Twig\Sandbox\SecurityNotAllowedFunctionError;
 use Twig\Sandbox\SecurityNotAllowedMethodError;
 use Twig\Sandbox\SecurityNotAllowedPropertyError;
+use Twig\Sandbox\SourcePolicyInterface;
+use Twig\Source;
 
 /**
  * Trusted disk templates compile without the Twig sandbox's runtime checks,
@@ -24,8 +27,10 @@ use Twig\Sandbox\SecurityNotAllowedPropertyError;
  *
  * Every environment here is wired the way Twig::init() wires Grav's: an
  * ArrayLoader for string templates chained in front of a FilesystemLoader, and
- * a SandboxExtension driven by GravSourcePolicy. The "legacy" environment is
- * the same wiring without TwigEnvironment::setSourceSandbox(), which is how
+ * a SandboxExtension driven by GravSourcePolicy. The compile-time decision is a
+ * getgrav/Twig fork feature (Twig\Sandbox\CompileTimeSourcePolicyInterface),
+ * which GravSourcePolicy opts into. The "legacy" environment hands the extension
+ * the same decisions through a plain SourcePolicyInterface instead, which is how
  * every template compiled before this change.
  */
 class SourceSandboxCompilationTest extends TestCase
@@ -55,6 +60,7 @@ class SourceSandboxCompilationTest extends TestCase
         $this->writeTemplate('partials/child.html.twig', "{% extends 'partials/base.html.twig' %}{% block body %}[{{ probe }}]{% endblock %}");
         $this->writeTemplate('partials/base.html.twig', '<main>{% block body %}{% endblock %}</main>');
         $this->writeTemplate('partials/plain.html.twig', '<i>{{ name|upper }}</i>');
+        $this->writeTemplate('partials/attr.html.twig', "{{ item.title }}|{{ item.getTitle() }}|{{ map['k'] }}|{{ list|map(v => v)|length }}");
     }
 
     protected function tearDown(): void
@@ -175,11 +181,36 @@ class SourceSandboxCompilationTest extends TestCase
         self::assertStringContainsString('ensureToStringAllowed', $legacyCode);
     }
 
+    /**
+     * Attribute and method access, and the sandbox state handed to filters such
+     * as `map`, compile the same way as without a SandboxExtension. (Arrow
+     * function bodies are the exception, see the closure test below.)
+     */
+    public function testDiskTemplate_AttributeAccessCompilesWithoutSandboxChecks(): void
+    {
+        $env = $this->env();
+        $code = $env->compileSource($env->getLoader()->getSourceContext('partials/attr.html.twig'));
+
+        self::assertStringNotContainsString('->isSandboxed($this->source)', $code);
+        self::assertStringNotContainsString('CoreExtension::ARRAY_LIKE_CLASSES', $code);
+        self::assertStringContainsString('CoreExtension::map($this->env, false, ', $code);
+        self::assertSame(0, preg_match('/CoreExtension::getAttribute\([^\n]*, true, \d+\)/', $code), 'getAttribute() calls must not be sandboxed');
+
+        $legacy = $this->env([], false);
+        $legacyCode = $legacy->compileSource($legacy->getLoader()->getSourceContext('partials/attr.html.twig'));
+        self::assertStringContainsString('->isSandboxed($this->source)', $legacyCode);
+        self::assertSame(1, preg_match('/CoreExtension::getAttribute\([^\n]*, true, \d+\)/', $legacyCode));
+    }
+
     public function testDiskTemplate_RendersTheSameOutput(): void
     {
         $context = ['probe' => new SourceSandboxProbe(), 'name' => 'grav'];
 
-        foreach (['partials/probe.html.twig', 'partials/child.html.twig', 'partials/plain.html.twig'] as $name) {
+        $context['item'] = new SourceSandboxItem();
+        $context['map'] = ['k' => 'v'];
+        $context['list'] = [new SourceSandboxItem(), new SourceSandboxItem()];
+
+        foreach (['partials/probe.html.twig', 'partials/child.html.twig', 'partials/plain.html.twig', 'partials/attr.html.twig'] as $name) {
             self::assertSame(
                 $this->env([], false)->render($name, $context),
                 $this->env()->render($name, $context),
@@ -191,22 +222,28 @@ class SourceSandboxCompilationTest extends TestCase
         self::assertSame('<b>probe</b>', $this->env()->render('partials/probe.html.twig', $context));
     }
 
-    public function testDiskTemplate_CountsNoSourcePolicyCallsForPrints(): void
+    public function testDiskTemplate_CountsNoSourcePolicyCalls(): void
     {
+        $context = ['probe' => 'x', 'item' => new SourceSandboxItem(), 'map' => ['k' => 'v'], 'list' => [new SourceSandboxItem()]];
+
         // The first render compiles, which asks the policy once per template.
         $counter = new CountingSourcePolicy();
         $env = $this->env([], true, $counter);
-        $env->render('partials/child.html.twig', ['probe' => 'x']);
+        $env->render('partials/child.html.twig', $context);
+        $env->render('partials/attr.html.twig', $context);
         $counter->calls = 0;
-        $env->render('partials/child.html.twig', ['probe' => 'x']);
+        $env->render('partials/child.html.twig', $context);
+        $env->render('partials/attr.html.twig', $context);
 
-        self::assertSame(0, $counter->calls, 'A trusted template that only prints should not consult the source policy.');
+        self::assertSame(0, $counter->calls, 'A trusted template should not consult the source policy when it renders.');
 
         $counter = new CountingSourcePolicy();
         $legacy = $this->env([], false, $counter);
-        $legacy->render('partials/child.html.twig', ['probe' => 'x']);
+        $legacy->render('partials/child.html.twig', $context);
+        $legacy->render('partials/attr.html.twig', $context);
         $counter->calls = 0;
-        $legacy->render('partials/child.html.twig', ['probe' => 'x']);
+        $legacy->render('partials/child.html.twig', $context);
+        $legacy->render('partials/attr.html.twig', $context);
 
         self::assertGreaterThan(0, $counter->calls);
     }
@@ -320,6 +357,26 @@ class SourceSandboxCompilationTest extends TestCase
     }
 
     /**
+     * A closure is the one piece of a trusted template that can run inside a
+     * sandboxed render without passing the guard, so an arrow function body in
+     * a disk template keeps its checks, the same as before.
+     */
+    public function testClosureFromDiskTemplate_IsCheckedInsideTheSandbox(): void
+    {
+        $this->writeTemplate('partials/apply.html.twig', '{{ items|map(f)|join }}');
+        $this->writeTemplate('outer.html.twig', "{{ include('partials/apply.html.twig', {f: (x) => probe.secret ~ x, items: ['!']}, sandboxed = true) }}");
+
+        foreach ([false, true] as $sourceSandbox) {
+            try {
+                @$this->env([], $sourceSandbox)->render('outer.html.twig', ['probe' => new SourceSandboxProbe()]);
+                self::fail('The closure should have been checked');
+            } catch (SecurityNotAllowedPropertyError $e) {
+                $this->addToAssertionCount(1);
+            }
+        }
+    }
+
+    /**
      * A trusted template loaded before the sandbox was switched on has no checks
      * of its own, so it refuses to render inside the sandbox instead.
      */
@@ -338,12 +395,14 @@ class SourceSandboxCompilationTest extends TestCase
     // Wiring
     // =========================================================================
 
-    public function testSetSourceSandbox_RequiresTheRegisteredExtension(): void
+    public function testGravSourcePolicy_TrustsOnlyTemplatesWithAFilePath(): void
     {
-        $env = new TwigEnvironment(new ArrayLoader([]), ['cache' => false]);
+        $policy = new GravSourcePolicy();
+        self::assertInstanceOf(CompileTimeSourcePolicyInterface::class, $policy);
 
-        $this->expectException(LogicException::class);
-        $env->setSourceSandbox(@new SandboxExtension(Security::buildTwigSandboxPolicy(), false, new GravSourcePolicy()));
+        self::assertTrue($policy->isTrusted(new Source('', 'partials/probe.html.twig', $this->dir . '/partials/probe.html.twig')));
+        self::assertFalse($policy->isTrusted(new Source('', '__string_template__abc')));
+        self::assertFalse($policy->isTrusted(new Source('', '@Page:x')));
     }
 
     public function testGravTwig_CompilesDiskTemplatesWithoutChecks(): void
@@ -374,7 +433,7 @@ class SourceSandboxCompilationTest extends TestCase
     /**
      * @param array<string,string> $strings String templates, name => code.
      * @param bool $sourceSandbox Whether to compile trusted templates without checks.
-     * @param \Twig\Sandbox\SourcePolicyInterface|null $policy
+     * @param CompileTimeSourcePolicyInterface|null $policy
      * @return Environment
      */
     private function env(array $strings = [], bool $sourceSandbox = true, $policy = null): Environment
@@ -382,11 +441,8 @@ class SourceSandboxCompilationTest extends TestCase
         $loader = new ChainLoader([new ArrayLoader($strings), new FilesystemLoader($this->dir)]);
         $env = new TwigEnvironment($loader, ['cache' => false, 'autoescape' => 'html']);
         $env->addExtension(new StringLoaderExtension());
-        $sandbox = @new SandboxExtension(Security::buildTwigSandboxPolicy(), false, $policy ?? new GravSourcePolicy());
-        $env->addExtension($sandbox);
-        if ($sourceSandbox) {
-            $env->setSourceSandbox($sandbox);
-        }
+        $policy = $policy ?? new GravSourcePolicy();
+        $env->addExtension(@new SandboxExtension(Security::buildTwigSandboxPolicy(), false, $sourceSandbox ? $policy : new LegacySourcePolicy($policy)));
 
         return $env;
     }
@@ -423,17 +479,52 @@ class SourceSandboxProbe
 }
 
 /**
- * GravSourcePolicy with a call counter, to prove trusted prints skip it.
+ * An object the sandbox policy lets templates read, so trusted and legacy
+ * renders produce the same output.
  */
-final class CountingSourcePolicy implements \Twig\Sandbox\SourcePolicyInterface
+class SourceSandboxItem
+{
+    public $title = 'item';
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+}
+
+/**
+ * GravSourcePolicy with a call counter, to prove trusted templates skip it.
+ */
+final class CountingSourcePolicy implements CompileTimeSourcePolicyInterface
 {
     /** @var int */
     public $calls = 0;
 
-    public function enableSandbox(\Twig\Source $source): bool
+    public function enableSandbox(Source $source): bool
     {
         $this->calls++;
 
         return (new GravSourcePolicy())->enableSandbox($source);
+    }
+
+    public function isTrusted(Source $source): bool
+    {
+        return (new GravSourcePolicy())->isTrusted($source);
+    }
+}
+
+/**
+ * The same decisions through a plain SourcePolicyInterface, which Twig only
+ * applies at runtime: how every template compiled before this change.
+ */
+final class LegacySourcePolicy implements SourcePolicyInterface
+{
+    public function __construct(private SourcePolicyInterface $policy)
+    {
+    }
+
+    public function enableSandbox(Source $source): bool
+    {
+        return $this->policy->enableSandbox($source);
     }
 }

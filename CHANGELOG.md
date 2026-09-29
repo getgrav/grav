@@ -2,7 +2,7 @@
 ## 09/28/2026
 
 1. [](#improved)
-    * Theme and plugin templates no longer carry the Twig sandbox's runtime checks, which only ever apply to Twig in page content, so pages render faster (about a third less Twig time on a busy template). Twig in page content, and any template rendered with the sandbox switched on, is checked exactly as before.
+    * Theme and plugin templates now compile without any of the Twig sandbox's checks, which only ever apply to Twig in page content, so pages render faster (about half the Twig time on a busy listing template, within a few percent of running with no sandbox at all). Twig in page content, and any template rendered with the sandbox switched on, is checked exactly as before. This uses a new opt-in feature of Grav's Twig fork (getgrav/Twig), so it needs that fork's matching commit.
 
 # v2.2.2
 ## 09/28/2026

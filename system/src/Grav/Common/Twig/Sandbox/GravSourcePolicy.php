@@ -9,7 +9,7 @@
 
 namespace Grav\Common\Twig\Sandbox;
 
-use Twig\Sandbox\SourcePolicyInterface;
+use Twig\Sandbox\CompileTimeSourcePolicyInterface;
 use Twig\Source;
 
 /**
@@ -27,8 +27,18 @@ use Twig\Source;
  * theme partial; the include runs against the partial's own (file) source,
  * which is unsandboxed, while the surrounding editor template remains under
  * the policy.
+ *
+ * The same decision is also made once, when a template compiles, through the
+ * getgrav/Twig fork's CompileTimeSourcePolicyInterface: a trusted template
+ * compiles with no sandbox checks at all instead of asking this policy on every
+ * print and attribute access. Twig keeps the full checks for anything compiled
+ * while the sandbox is switched on (`{% sandbox %}`, sandboxed includes), for
+ * templates that use the `{% sandbox %}` tag, and gives a trusted template a
+ * guard that refuses to render it inside a sandboxed render. The decision is
+ * baked into compiled templates, so if these rules change, the compiled Twig
+ * cache must be cleared.
  */
-final class GravSourcePolicy implements SourcePolicyInterface
+final class GravSourcePolicy implements CompileTimeSourcePolicyInterface
 {
     public function enableSandbox(Source $source): bool
     {
@@ -47,5 +57,17 @@ final class GravSourcePolicy implements SourcePolicyInterface
         return str_starts_with($name, '@Page:')
             || str_starts_with($name, '@Var:')
             || str_starts_with($name, '@EmailVar:');
+    }
+
+    /**
+     * Only templates loaded from a file skip the sandbox checks. A string
+     * template without a path (`template_from_string()`, anything registered
+     * with setTemplate()) keeps them even when it is not sandboxed, because it
+     * may be created first and then rendered inside a sandboxed include, where a
+     * trusted template would refuse to render.
+     */
+    public function isTrusted(Source $source): bool
+    {
+        return '' !== $source->getPath();
     }
 }

@@ -1,10 +1,15 @@
 <?php
 
+use Grav\Common\Twig\Sandbox\GravSourcePolicy;
 use Grav\Common\Twig\TwigEnvironment;
 use Twig\Environment;
 use Twig\Error\SyntaxError;
 use Twig\Extension\EscaperExtension;
+use Twig\Extension\SandboxExtension;
 use Twig\Loader\ArrayLoader;
+use Twig\Loader\FilesystemLoader;
+use Twig\Sandbox\CompileTimeSourcePolicyInterface;
+use Twig\Sandbox\SecurityPolicy;
 
 /**
  * Canaries for every patch Grav carries in the bundled getgrav/Twig fork.
@@ -24,10 +29,15 @@ use Twig\Loader\ArrayLoader;
  *    definition is allowed to sit under one.
  * 3. Parser strips those nested block references from a child template's body,
  *    so the definition does not also render where it was declared.
+ * 4. Compile-time source sandboxing: a source policy implementing
+ *    CompileTimeSourcePolicyInterface (GravSourcePolicy does) lets trusted
+ *    templates compile with no sandbox checks, plus a guard that refuses to
+ *    render them while the sandbox is switched on.
  *
  * The behaviour that hangs off (2) and (3) is covered in depth by
- * TwigConditionalBlockTest and DeferredExtensionTest; what is pinned here is
- * that the patches exist at all, and that they stay as narrow as intended.
+ * TwigConditionalBlockTest and DeferredExtensionTest, and (4) by
+ * Sandbox/SourceSandboxCompilationTest; what is pinned here is that the patches
+ * exist at all, and that they stay as narrow as intended.
  */
 class TwigForkPatchesTest extends \PHPUnit\Framework\TestCase
 {
@@ -137,5 +147,33 @@ TWIG,
         ])->render('child.twig');
 
         self::assertSame('[FOO]', trim($output));
+    }
+
+    /**
+     * Divergence 4. Losing the interface is loud (GravSourcePolicy no longer
+     * loads), but losing the guard is silent: a trusted template loaded earlier
+     * would run unchecked inside a sandboxed render. Pin both, plus the class
+     * name suffix that keeps the two compiled forms apart.
+     */
+    public function testTrustedTemplatesCompileWithoutChecksButKeepTheGuard(): void
+    {
+        self::assertTrue(interface_exists(CompileTimeSourcePolicyInterface::class));
+        self::assertInstanceOf(CompileTimeSourcePolicyInterface::class, new GravSourcePolicy());
+
+        $dir = sys_get_temp_dir() . '/grav-fork-patch-' . bin2hex(random_bytes(6));
+        mkdir($dir);
+        file_put_contents($dir . '/t.twig', '{{ item.title }}');
+        try {
+            $env = new Environment(new FilesystemLoader($dir), ['cache' => false]);
+            $env->addExtension(@new SandboxExtension(new SecurityPolicy(), false, new GravSourcePolicy()));
+            $code = $env->compileSource($env->getLoader()->getSourceContext('t.twig'));
+
+            self::assertStringNotContainsString('checkSecurity', $code);
+            self::assertStringContainsString('cannot be rendered while the sandbox is enabled', $code);
+            self::assertStringEndsWith('_sourced', $env->getTemplateClass('t.twig'));
+        } finally {
+            unlink($dir . '/t.twig');
+            rmdir($dir);
+        }
     }
 }
