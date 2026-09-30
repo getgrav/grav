@@ -1,3 +1,9 @@
+# v2.2.4
+## 09/30/2026
+
+1. [](#bugfix)
+    * Saving a page whose blueprint has a list containing only an `elements` field no longer fails with an error [#4337](https://github.com/getgrav/grav/issues/4337)
+
 # v2.2.3
 ## 09/29/2026
 

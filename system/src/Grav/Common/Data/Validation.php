@@ -1210,6 +1210,11 @@ class Validation
         if (isset($field['fields'])) {
             foreach ($value as $key => $item) {
                 foreach ($field['fields'] as $subKey => $subField) {
+                    // A container with no leaf beneath it has no rule to check.
+                    if (!is_array($subField)) {
+                        continue;
+                    }
+
                     $subKey = trim((string) $subKey, '.');
                     $subValue = $item[$subKey] ?? null;
                     self::validate($subValue, $subField);
