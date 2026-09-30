@@ -59,18 +59,18 @@ RewriteRule .* index.php [L]
 # Block all direct access for these folders
 RewriteRule ^(\.git|cache|bin|logs|backup|tmp|webserver-configs|tests)/(.*) error [F,NC]
 # Block all direct access to these sensitive user folders, whatever the file type
-RewriteRule ^(user)/(config|env)/(.*) error [F,NC]
+RewriteRule ^(user)/(env/[^/]+/)?config/(.*) error [F,NC]
 # Block user/accounts too, but allow avatar images to be served directly,
 # whether stored at user/accounts/avatars/<file> (flatfile accounts) or
 # user/accounts/<username>/<file> (Flex folder storage). Account data
 # (.yaml password hashes) stays blocked; SVG is excluded as a stored-XSS vector.
-RewriteCond %{REQUEST_URI} !/user/accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$ [NC]
-RewriteRule ^(user)/accounts/(.*) error [F,NC]
+RewriteCond %{REQUEST_URI} !/user/(env/[^/]+/)?accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$ [NC]
+RewriteRule ^(user)/(env/[^/]+/)?accounts/(.*) error [F,NC]
 # Block user/data too, but allow public asset uploads (e.g. Flex Object images)
 # to be served directly. SVG stays blocked as a stored-XSS vector; .css/.js are
 # served per project policy despite the same risk on this user-writable folder.
 RewriteCond %{REQUEST_URI} !\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf|woff2|woff|ttf|otf|eot|css|js)$ [NC]
-RewriteRule ^(user)/data/(.*) error [F,NC]
+RewriteRule ^(user)/(env/[^/]+/)?data/(.*) error [F,NC]
 # Serve page media only through the page route, so plugins can apply the page's
 # `access` rules to it (the Login plugin's "Protect a login-protected page media"
 # setting, for one). Page media is normally linked by its path on disk, which the
