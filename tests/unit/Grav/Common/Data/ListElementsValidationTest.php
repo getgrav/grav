@@ -3,6 +3,7 @@
 use Codeception\Util\Fixtures;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Validation;
+use Grav\Common\Data\ValidationException;
 use Grav\Common\Grav;
 use Symfony\Component\Yaml\Yaml;
 
@@ -14,6 +15,9 @@ use Symfony\Component\Yaml\Yaml;
  * filed at the blueprint root instead of beside their `elements` field, so the
  * list's `*` item rule never got a parent entry and `getProperty()` returned
  * `fields: {"*": null}`.
+ *
+ * The schema half of the fix is in `rockettheme/toolbox`, so this guards the
+ * composer pin as much as it guards `typeList()`.
  */
 class ListElementsValidationTest extends \PHPUnit\Framework\TestCase
 {
@@ -81,6 +85,37 @@ YAML;
         ];
 
         self::assertSame([], Validation::validate([['title' => 'A']], $field));
+    }
+
+    public function testListItemRuleExistsWhenTheOnlyChildIsAnElementsField(): void
+    {
+        $field = $this->blueprint()->schema()->getProperty('header.sections');
+
+        self::assertIsArray($field['fields']['*']);
+    }
+
+    public function testElementChildrenAreFiledUnderTheListItem(): void
+    {
+        $items = $this->blueprint()->schema()->getState()['items'];
+
+        self::assertArrayHasKey('header.sections.*.text.heading', $items);
+        self::assertArrayHasKey('header.sections.*.quote.quote', $items);
+        // They used to land at the root, where they collide with a real field.
+        self::assertArrayNotHasKey('text.heading', $items);
+        self::assertArrayNotHasKey('quote.quote', $items);
+    }
+
+    public function testElementChildrenAreValidatedInsideTheList(): void
+    {
+        $blueprint = $this->blueprint();
+        $data = ['header' => ['sections' => [['type' => 'text', 'text' => ['heading' => 'A']]]]];
+
+        $blueprint->validate($data);
+        self::assertSame($data, $blueprint->filter($data));
+
+        $data['header']['sections'][0]['text']['heading'] = ['not', 'a', 'string'];
+        $this->expectException(ValidationException::class);
+        $blueprint->validate($data);
     }
 
     private function blueprint(): Blueprint
