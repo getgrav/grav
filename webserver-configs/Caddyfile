@@ -28,22 +28,22 @@ root * .
 @denied_dirs path_regexp (?i)^/(\.git|cache|bin|logs|backups?|tmp|tests)/
 
 # deny all direct access to these sensitive user folders, whatever the file type
-@denied_user_config path_regexp (?i)^/user/(config|env)/
+@denied_user_config path_regexp (?i)^/user/(env/[^/]+/)?config/
 
 # block user/accounts too, but allow avatar images to be served directly, whether
 # stored at user/accounts/avatars/<file> (flatfile accounts) or user/accounts/
 # <username>/<file> (Flex folder storage). SVG is excluded as a stored-XSS vector.
 # (Go's RE2 has no lookbehind, so this uses a negated matcher.)
 @denied_user_accounts {
-	path_regexp (?i)^/user/accounts/
-	not path_regexp (?i)^/user/accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$
+	path_regexp (?i)^/user/(env/[^/]+/)?accounts/
+	not path_regexp (?i)^/user/(env/[^/]+/)?accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$
 }
 
 # block user/data too, but allow public media uploads (e.g. Flex Object images)
 # to be served directly. SVG is intentionally excluded as a stored-XSS vector.
 # (Go's RE2 has no lookbehind, so this uses a negated matcher.)
 @denied_user_data {
-	path_regexp (?i)^/user/data/
+	path_regexp (?i)^/user/(env/[^/]+/)?data/
 	not path_regexp (?i)\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf)$
 }
 
