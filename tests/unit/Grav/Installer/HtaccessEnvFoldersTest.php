@@ -74,4 +74,30 @@ class HtaccessEnvFoldersTest extends \PHPUnit\Framework\TestCase
             @unlink($file);
         }
     }
+
+    /**
+     * The 1.8.0 postflight dropped a deny-all copy into an existing `user/env`,
+     * which refuses a multisite's assets whatever the root rules say. A copy Grav
+     * wrote becomes the env-aware one; an edited one is left alone.
+     */
+    public function testUpgradeReplacesTheDenyAllEnvBackup(): void
+    {
+        $update = require GRAV_ROOT . self::UPDATE;
+        $root = tempnam(sys_get_temp_dir(), 'htaccess');
+        $env = tempnam(sys_get_temp_dir(), 'htaccess');
+
+        try {
+            file_put_contents($env, str_replace("\n", "\r\n", (string) file_get_contents(GRAV_ROOT . '/user/config/.htaccess')));
+            $update['postflight']($root, $env);
+            self::assertSame(file_get_contents(GRAV_ROOT . '/tests/fake/htaccess-user-env.txt'), file_get_contents($env));
+
+            $edited = "RedirectMatch 403 .*\n";
+            file_put_contents($env, $edited);
+            $update['postflight']($root, $env);
+            self::assertSame($edited, file_get_contents($env));
+        } finally {
+            @unlink($root);
+            @unlink($env);
+        }
+    }
 }
