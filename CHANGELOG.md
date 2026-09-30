@@ -2,7 +2,7 @@
 ## 09/30/2026
 
 1. [](#bugfix)
-    * Saving a page whose blueprint has a list containing only an `elements` field no longer fails with an error, and the fields inside each element are now checked on save like any other field (rockettheme/toolbox 2.0.1) [#4337](https://github.com/getgrav/grav/issues/4337)
+    * Saving a page whose blueprint has a list containing only an `elements` field no longer fails with an error, and the fields inside each element now belong to their list item instead of the top of the blueprint, where they could clash with a field of the same name (rockettheme/toolbox 2.0.1) [#4337](https://github.com/getgrav/grav/issues/4337)
 
 # v2.2.3
 ## 09/29/2026
