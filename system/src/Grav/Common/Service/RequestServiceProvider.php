@@ -81,8 +81,16 @@ class RequestServiceProvider implements ServiceProviderInterface
                 }
             }
 
-            // Remove _url from ngnix routes.
             $get = $_GET;
+
+            // The web server did not pass the query string on: read it from the request URI.
+            $query = static::queryFromRequestUri($server, $get);
+            if ($query !== null) {
+                $server['QUERY_STRING'] = $query;
+                parse_str($query, $get);
+            }
+
+            // Remove _url from ngnix routes.
             unset($get['_url']);
             if (isset($server['QUERY_STRING'])) {
                 $query = $server['QUERY_STRING'];
@@ -97,5 +105,31 @@ class RequestServiceProvider implements ServiceProviderInterface
         };
 
         $container['route'] = $container->factory(fn() => clone Uri::getCurrentRoute());
+    }
+
+    /**
+     * The query string to take from REQUEST_URI, or null when the web server passed one itself.
+     *
+     * A server that rewrites to index.php without the query string (nginx
+     * `try_files $uri $uri/ /index.php;`, a `proxy_pass` built from `$uri`, an
+     * Apache rule with QSD) leaves QUERY_STRING and $_GET empty while REQUEST_URI
+     * still has the query. Uri::init() reads REQUEST_URI in that case, so
+     * `$grav['uri']->query()` kept working while `$grav['request']->getQueryParams()`
+     * came back empty, and every query parameter of an API request was ignored
+     * without an error (#4338).
+     *
+     * @param array $server Server variables.
+     * @param array $get Query parameters PHP parsed ($_GET).
+     * @return string|null
+     */
+    public static function queryFromRequestUri(array $server, array $get): ?string
+    {
+        if ($get || (string)($server['QUERY_STRING'] ?? '') !== '') {
+            return null;
+        }
+
+        $query = parse_url('http://example.com' . ($server['REQUEST_URI'] ?? '/'), PHP_URL_QUERY);
+
+        return is_string($query) && $query !== '' ? $query : null;
     }
 }
