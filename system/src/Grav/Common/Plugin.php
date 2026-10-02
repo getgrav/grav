@@ -335,6 +335,12 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         $class_name = $this->name;
         $class_name_merged = $class_name . '.merged';
         $defaults = $config->get($type . '.' . $class_name, []);
+        // A plugin that stores what this method returns back in the config
+        // (`$config->set('plugins.x', $this->mergeConfig($page))`) gets that
+        // Data object back as its defaults the next time it is called.
+        if ($defaults instanceof Data) {
+            $defaults = $defaults->toArray();
+        }
         $page_header = $page->header();
         $header = [];
 

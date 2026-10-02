@@ -1,7 +1,8 @@
 # v2.2.4
-## 09/30/2026
+## 10/01/2026
 
 1. [](#bugfix)
+    * A page's Markdown version (`<route>.md`) and `llms-full.txt` include the full page again on sites running the Archives plugin, instead of only a title and navigation links [#4339](https://github.com/getgrav/grav/issues/4339)
     * An uploaded SVG whose doctype declares entities is no longer emptied by the sanitizer (rhukster/dom-sanitizer 1.0.19)
     * A multisite that keeps each site in `user/env/<host>/` loads its theme, plugin and media files again. The bundled server configs protect `config/`, `accounts/` and `data/` inside each env folder the same way they protect them in `user/`, and the upgrade updates an existing `.htaccess`, and the `user/env/.htaccess` an earlier upgrade added, to match. Sites on nginx, Caddy, lighttpd or IIS need to copy the new rules from `webserver-configs/` by hand [#4335](https://github.com/getgrav/grav/issues/4335)
     * Saving a page whose blueprint has a list containing only an `elements` field no longer fails with an error, and the fields inside each element now belong to their list item instead of the top of the blueprint, where they could clash with a field of the same name (rockettheme/toolbox 2.0.1) [#4337](https://github.com/getgrav/grav/issues/4337)
