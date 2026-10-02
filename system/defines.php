@@ -9,8 +9,8 @@
 
 // Some standard defines
 define("GRAV", true);
-define("GRAV_VERSION", "2.2.3");
-define("GRAV_SCHEMA", "2.2.2_2026-09-28_1");
+define("GRAV_VERSION", "2.2.4");
+define("GRAV_SCHEMA", "2.2.4_2026-09-30_0");
 define("GRAV_TESTING", false);
 
 // PHP minimum requirement

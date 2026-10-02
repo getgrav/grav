@@ -2192,16 +2192,16 @@
         },
         {
             "name": "rhukster/dom-sanitizer",
-            "version": "1.0.18",
+            "version": "1.0.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rhukster/dom-sanitizer.git",
-                "reference": "47888d28e45f5dd13ff8c804f3bb20f543a23842"
+                "reference": "b4a19b982b74d2f5f78e683afd2ad00e99a6dc3c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rhukster/dom-sanitizer/zipball/47888d28e45f5dd13ff8c804f3bb20f543a23842",
-                "reference": "47888d28e45f5dd13ff8c804f3bb20f543a23842",
+                "url": "https://api.github.com/repos/rhukster/dom-sanitizer/zipball/b4a19b982b74d2f5f78e683afd2ad00e99a6dc3c",
+                "reference": "b4a19b982b74d2f5f78e683afd2ad00e99a6dc3c",
                 "shasum": ""
             },
             "require": {
@@ -2231,22 +2231,22 @@
             "description": "A simple but effective DOM/SVG/MathML Sanitizer for PHP 7.4+",
             "support": {
                 "issues": "https://github.com/rhukster/dom-sanitizer/issues",
-                "source": "https://github.com/rhukster/dom-sanitizer/tree/1.0.18"
+                "source": "https://github.com/rhukster/dom-sanitizer/tree/1.0.19"
             },
-            "time": "2026-09-27T23:45:31+00:00"
+            "time": "2026-09-30T16:45:11+00:00"
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "2.0.0",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "6f6cfc5868ce53666e075a1d22a0d5f061099580"
+                "reference": "ea386a57977cc04b9bc3ca61aaf91c494c0a3c42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/6f6cfc5868ce53666e075a1d22a0d5f061099580",
-                "reference": "6f6cfc5868ce53666e075a1d22a0d5f061099580",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/ea386a57977cc04b9bc3ca61aaf91c494c0a3c42",
+                "reference": "ea386a57977cc04b9bc3ca61aaf91c494c0a3c42",
                 "shasum": ""
             },
             "require": {
@@ -2303,10 +2303,10 @@
                 "rockettheme"
             ],
             "support": {
-                "source": "https://github.com/rockettheme/toolbox/tree/2.0.0",
+                "source": "https://github.com/rockettheme/toolbox/tree/2.0.1",
                 "issues": "https://github.com/rockettheme/toolbox/issues"
             },
-            "time": "2026-09-09T20:37:01+00:00"
+            "time": "2026-09-30T17:05:35+00:00"
         },
         {
             "name": "seld/cli-prompt",

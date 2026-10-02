@@ -4,6 +4,7 @@ use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\MarkdownOutput;
+use Grav\Common\Plugin;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -84,6 +85,37 @@ class MarkdownOutputPageSourceTest extends \PHPUnit\Framework\TestCase
         $this->output->body($page);
 
         self::assertSame('md', $page->templateFormat());
+    }
+
+    public function testPageSourceSurvivesAPluginThatStoresItsMergedConfig(): void
+    {
+        // onTwigSiteVariables fires for every themed render: twice for a `.md`
+        // request (the Markdown template, then the HTML page behind it) and once
+        // per page for a document that joins several pages. The archives plugin,
+        // among others, stores Plugin::mergeConfig()'s Data object in the config
+        // from that event and reads it back on the next run.
+        $config = $this->grav['config'];
+        $config->set('plugins.merge-config-test', ['enabled' => true, 'limit' => 12]);
+        $plugin = new class('merge-config-test', $this->grav, $config) extends Plugin {
+            public function onTwigSiteVariables(): void
+            {
+                $this->config->set('plugins.' . $this->name, $this->mergeConfig($this->grav['page']));
+            }
+        };
+        $listener = [$plugin, 'onTwigSiteVariables'];
+        $this->grav['events']->addListener('onTwigSiteVariables', $listener);
+
+        try {
+            $page = $this->page('/markdown-first');
+            $first = $this->output->body($page);
+            $second = $this->output->body($page);
+        } finally {
+            $this->grav['events']->removeListener('onTwigSiteVariables', $listener);
+            $config->set('plugins.merge-config-test', null);
+        }
+
+        self::assertStringContainsString('**yes!** and quoted', $first);
+        self::assertSame($first, $second);
     }
 
     public function testMainRegionPrefersMainThenRoleThenSingleArticleThenBody(): void

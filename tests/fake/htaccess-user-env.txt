@@ -1,0 +1,20 @@
+# Deny direct web access to the sensitive folders inside each environment:
+# config/, accounts/ (except avatar images) and data/ (except public asset
+# uploads), matching the rules for the same folders in user/. Everything else
+# under an environment, such as a multisite's themes, plugins and page media,
+# is served normally.
+# Defense-in-depth backup for the rules in the site root .htaccess.
+#
+# mod_alias, not `Require` or mod_rewrite. `Require` is AuthConfig-class and
+# returns 500 for this whole folder on a host that grants only `AllowOverride
+# FileInfo` (getgrav/grav#4309, #4311). mod_alias is FileInfo-class, leaves the
+# root's rewrite rules in force here, and merges into subfolders, so a subfolder
+# with its own RewriteEngine cannot switch it off.
+#
+# Matches the whole URL path, so the exceptions are written exactly as the
+# root's. Keep the three in sync.
+<IfModule mod_alias.c>
+    RedirectMatch 403 (?i)/user/env/[^/]+/config/
+    RedirectMatch 403 (?i)^(?!.*/user/env/[^/]+/accounts/[^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$).*/user/env/[^/]+/accounts/
+    RedirectMatch 403 (?i)^(?!.*\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf|woff2|woff|ttf|otf|eot|css|js)$).*/user/env/[^/]+/data/
+</IfModule>
