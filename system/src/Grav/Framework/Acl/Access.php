@@ -205,6 +205,11 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
     }
 
     /**
+     * Resolve a compact permission string like `cru-d` or `-c+r-ud`.
+     *
+     * A `+` or `-` sets the state for every letter that follows it, until the next sign.
+     * Letters before any sign are allowed.
+     *
      * @param string $access
      * @return array
      */
@@ -217,7 +222,6 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
             $letter = $access[$count];
             if (isset($this->rules[$letter])) {
                 $list[$this->rules[$letter]] = $op;
-                $op = true;
             } elseif (isset($this->ops[$letter])) {
                 $op = $this->ops[$letter];
             }

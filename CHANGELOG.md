@@ -4,6 +4,7 @@
 1. [](#improved)
     * Twig in page content can use the `guard` tag to check that a function, filter or test exists before calling it [#4341](https://github.com/getgrav/grav/issues/4341)
 2. [](#bugfix)
+    * A page's group permissions now deny every letter after a `-` up to the next `+`, so `-c+r-ud`, which the Admin saves for create, update and delete denied, no longer allows delete [#4340](https://github.com/getgrav/grav/issues/4340)
     * Query parameters reach the Admin and API on web servers that rewrite to `index.php` without passing the query string on, such as an nginx `try_files` line missing `?$query_string`, so switching the editor to another language no longer loads the default language's page [#4338](https://github.com/getgrav/grav/discussions/4338)
 
 # v2.2.4
