@@ -1,3 +1,9 @@
+# v2.2.5
+## 10/02/2026
+
+1. [](#improved)
+    * Twig in page content can use the `guard` tag to check that a function, filter or test exists before calling it [#4341](https://github.com/getgrav/grav/issues/4341)
+
 # v2.2.4
 ## 10/01/2026
 

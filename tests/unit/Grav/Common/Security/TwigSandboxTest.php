@@ -347,6 +347,26 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
         self::assertSame('123', $env->render('hit'));
     }
 
+    public function testSandboxRender_AllowsGuardTag(): void
+    {
+        $env = $this->sourcePolicySandboxEnv([
+            '@Page:hit' => "{% guard filter upper %}{{ 'a'|upper }}{% endguard %}"
+                . "{% guard function no_such_fn %}{{ no_such_fn() }}{% else %}b{% endguard %}",
+        ]);
+        self::assertSame('Ab', $env->render('@Page:hit'));
+    }
+
+    public function testSandboxRender_GuardBodyIsStillChecked(): void
+    {
+        // `constant` exists, so the guard keeps its body; the sandbox must
+        // still refuse the call inside it.
+        $env = $this->sourcePolicySandboxEnv([
+            '@Page:hit' => "{% guard function constant %}{{ constant('PHP_VERSION') }}{% endguard %}",
+        ]);
+        $this->expectException(SecurityNotAllowedFunctionError::class);
+        $env->render('@Page:hit');
+    }
+
     // =========================================================================
     // Runtime-constructed names: attribute() + concat can't be caught statically
     // but the sandbox catches the resolved method call
