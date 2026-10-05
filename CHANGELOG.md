@@ -1,3 +1,9 @@
+# v1.7.53.6
+## 10/04/2026
+
+1. [](#bugfix)
+    * Page slugs and other names made from titles keep accented and other non-English letters intact on PHP 7.3 to 8.1 when the site's language uses a single-byte locale, instead of turning them into broken characters
+
 # v1.7.53.5
 ## 10/04/2026
 

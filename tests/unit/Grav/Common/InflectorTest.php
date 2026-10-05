@@ -88,6 +88,26 @@ class InflectorTest extends \Codeception\TestCase\Test
         self::assertSame('wörter-mit-bindestrich-getrennt', $this->inflector->hyphenize('Wörter_mit_Bindestrich_getrennt'));
     }
 
+    /**
+     * Before PHP 8.2, strtolower() followed the locale, and under a single-byte
+     * locale it broke the bytes of a UTF-8 character.
+     */
+    public function testLowercasingIgnoresTheLocale(): void
+    {
+        $previous = setlocale(LC_CTYPE, '0');
+        if (!setlocale(LC_CTYPE, 'de_DE.ISO8859-1', 'de_DE.ISO-8859-1', 'de_DE.iso88591', 'de_DE')) {
+            self::markTestSkipped('No single-byte German locale on this system.');
+        }
+
+        try {
+            self::assertSame('wörter-mit-bindestrich', $this->inflector->hyphenize('Wörter_mit_Bindestrich'));
+            self::assertSame('wörter_mit_bindestrich', $this->inflector->underscorize('Wörter mit Bindestrich'));
+            self::assertSame('Über-straße', $this->inflector->hyphenize('Über Straße'));
+        } finally {
+            setlocale(LC_CTYPE, $previous);
+        }
+    }
+
     public function testHumanize(): void
     {
         //self::assertSame('This string is humanized',   $this->inflector->humanize('ThisStringIsHumanized'));

@@ -68,7 +68,7 @@ class Inflector
             return $word;
         }
 
-        $lowercased_word = strtolower($word);
+        $lowercased_word = static::lower($word);
 
         if (is_array(static::$uncountable)) {
             foreach (static::$uncountable as $_uncountable) {
@@ -113,7 +113,7 @@ class Inflector
             return $word;
         }
 
-        $lowercased_word = strtolower($word);
+        $lowercased_word = static::lower($word);
 
         if (is_array(static::$uncountable)) {
             foreach (static::$uncountable as $_uncountable) {
@@ -206,7 +206,24 @@ class Inflector
         $regex2 = preg_replace('/([a-zd])([A-Z])/', '\1_\2', $regex1);
         $regex3 = preg_replace('/[^\p{L}^0-9]+/u', '_', $regex2);
 
-        return strtolower($regex3);
+        return static::lower($regex3);
+    }
+
+    /**
+     * Lowercase A-Z only, leaving every other byte alone.
+     *
+     * Before PHP 8.2, strtolower() follows the process locale, which Grav sets
+     * from the site language. Under a single-byte locale it lowercases the
+     * bytes of a UTF-8 character one by one, so `Wörter` came back broken.
+     * PHP 8.2 and newer lowercase ASCII only, and this gives the same result
+     * on every version.
+     *
+     * @param string $word
+     * @return string
+     */
+    protected static function lower($word)
+    {
+        return strtr((string)$word, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz');
     }
 
     /**
@@ -229,7 +246,7 @@ class Inflector
 
         $regex4 = trim($regex4, '-');
 
-        return strtolower($regex4);
+        return static::lower($regex4);
     }
 
     /**
@@ -271,7 +288,7 @@ class Inflector
     {
         $word = static::camelize($word);
 
-        return strtolower($word[0]) . substr($word, 1);
+        return static::lower($word[0]) . substr($word, 1);
     }
 
     /**
