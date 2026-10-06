@@ -980,6 +980,14 @@ class FlexDirectory implements FlexDirectoryInterface
         }
         $method = trim((string) $method);
 
+        // A directive written in page frontmatter is not trusted, and may only ask
+        // whether the object exists. Any other method could change or remove the
+        // object. A directive from a blueprint file may call any method, the same
+        // rule dynamicDataField() applies to its callables.
+        if (!($call['trusted'] ?? false) && (strtolower($method) !== 'exists' || $params)) {
+            return;
+        }
+
         if ($object && method_exists($object, $method)) {
             $value = $object->{$method}(...$params);
             if (is_array($value) && isset($field[$property]) && is_array($field[$property])) {
