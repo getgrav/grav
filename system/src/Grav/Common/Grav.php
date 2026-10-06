@@ -628,8 +628,8 @@ class Grav extends Container
             $route = preg_replace("#^\/[\\\/]+\/#", '/', $route);
 
             if (null === $code) {
-                // Check for redirect code in the route: e.g. /new/[301], /new[301]/route or /new[301].html
-                $regex = '/.*(\[(30[1-7])\])(.\w+|\/.*?)?$/';
+                // Check for redirect code in the route: e.g. /new/[301], /new[301]/route, /new[301].html, /new[301]?a=1&b=2 or /new[301].html?a=1
+                $regex = '/.*(\[(30[1-7])\])(.\w+|\/.*?)?([?#].*)?$/';
                 preg_match($regex, (string) $route, $matches);
                 if ($matches) {
                     $route = str_replace($matches[1], '', $matches[0]);

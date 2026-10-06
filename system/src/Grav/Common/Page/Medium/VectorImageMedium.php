@@ -69,17 +69,42 @@ class VectorImageMedium extends StaticImageMedium
             return;
         }
 
-        // Get the size from svg image.
-        if ($attr->width && $attr->height) {
-            $width = (string)$attr->width;
-            $height = (string)$attr->height;
-        } elseif ($attr->viewBox && \count($size = explode(' ', (string)$attr->viewBox)) === 4) {
-            [,$width,$height,] = $size;
+        // Get the size from svg image. The width/height attributes only count when both are
+        // plain pixel lengths: "100%", "2em" or "10cm" are not pixel sizes, so the viewBox is
+        // used for those instead.
+        $width = static::parsePixelLength((string)$attr->width);
+        $height = static::parsePixelLength((string)$attr->height);
+
+        if (!$width || !$height) {
+            $width = $height = null;
+
+            // The viewBox is "min-x min-y width height", separated by whitespace and/or a comma.
+            $size = preg_split('/[\s,]+/', trim((string)$attr->viewBox)) ?: [];
+            if (\count($size) === 4) {
+                $width = static::parsePixelLength($size[2]);
+                $height = static::parsePixelLength($size[3]);
+            }
         }
 
         if ($width && $height) {
-            $this->def('width', (int)$width);
-            $this->def('height', (int)$height);
+            $this->def('width', $width);
+            $this->def('height', $height);
         }
+    }
+
+    /**
+     * Read a plain number or a `px` length as whole pixels. Returns null for anything else,
+     * including percentages, relative or physical units, and sizes that are not above zero.
+     *
+     * @param string $value
+     * @return int|null
+     */
+    protected static function parsePixelLength(string $value): ?int
+    {
+        if (!preg_match('/^\s*(\d+(?:\.\d+)?|\.\d+)(?:px)?\s*$/i', $value, $matches)) {
+            return null;
+        }
+
+        return (int)$matches[1] ?: null;
     }
 }

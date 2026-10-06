@@ -9,7 +9,7 @@
 
 // Some standard defines
 define("GRAV", true);
-define("GRAV_VERSION", "2.2.4");
+define("GRAV_VERSION", "2.2.5");
 define("GRAV_SCHEMA", "2.2.4_2026-09-30_0");
 define("GRAV_TESTING", false);
 
@@ -23,6 +23,22 @@ if (!defined("DS")) {
     define("DS", "/");
 }
 
+// Read a bootstrap variable from wherever the SAPI or Env::load() put it:
+// $_SERVER, then $_ENV, then getenv(). Hosts that disable putenv() (Cloudways'
+// web SAPI) only ever get a .env into $_SERVER/$_ENV, so a getenv()-only read
+// would ignore it. An empty value counts as unset, so it falls through to the
+// next source and finally to the default, the same as Setup::envVar().
+// Self-contained on purpose: this runs before any class is available.
+$grav_env = static function (string $name): ?string {
+    foreach ([$_SERVER[$name] ?? null, $_ENV[$name] ?? null, getenv($name)] as $value) {
+        if (is_string($value) && $value !== "") {
+            return $value;
+        }
+    }
+
+    return null;
+};
+
 // Native .env support: load environment variables from .env file(s) at the Grav
 // root (or the GRAV_ENV_PATH location when set, which may live outside the web
 // root) before any GRAV_* constant is defined, so a .env can drive the path
@@ -35,7 +51,7 @@ if (
     class_exists(\Grav\Common\Config\Env::class)
 ) {
     $root = rtrim(
-        str_replace(DIRECTORY_SEPARATOR, DS, getenv("GRAV_ROOT") ?: getcwd()),
+        str_replace(DIRECTORY_SEPARATOR, DS, $grav_env("GRAV_ROOT") ?: getcwd()),
         DS,
     );
     \Grav\Common\Config\Env::load($root ?: DS);
@@ -45,48 +61,48 @@ if (
 // Absolute path to Grav root. This is where Grav is installed into.
 if (!defined("GRAV_ROOT")) {
     $path = rtrim(
-        str_replace(DIRECTORY_SEPARATOR, DS, getenv("GRAV_ROOT") ?: getcwd()),
+        str_replace(DIRECTORY_SEPARATOR, DS, $grav_env("GRAV_ROOT") ?: getcwd()),
         DS,
     );
     define("GRAV_ROOT", $path ?: DS);
 }
 // Absolute path to Grav webroot. This is the path where your site is located in.
 if (!defined("GRAV_WEBROOT")) {
-    $path = rtrim(getenv("GRAV_WEBROOT") ?: GRAV_ROOT, DS);
+    $path = rtrim($grav_env("GRAV_WEBROOT") ?: GRAV_ROOT, DS);
     define("GRAV_WEBROOT", $path ?: DS);
 }
 // Relative path to user folder. This path needs to be located under GRAV_WEBROOT.
 if (!defined("GRAV_USER_PATH")) {
-    $path = rtrim(getenv("GRAV_USER_PATH") ?: "user", DS);
+    $path = rtrim($grav_env("GRAV_USER_PATH") ?: "user", DS);
     define("GRAV_USER_PATH", $path);
 }
 // Absolute or relative path to system folder. Defaults to GRAV_ROOT/system
 // If system folder is outside of webroot, see https://github.com/getgrav/grav/issues/3297#issuecomment-810294972
 if (!defined("GRAV_SYSTEM_PATH")) {
-    $path = rtrim(getenv("GRAV_SYSTEM_PATH") ?: "system", DS);
+    $path = rtrim($grav_env("GRAV_SYSTEM_PATH") ?: "system", DS);
     define("GRAV_SYSTEM_PATH", $path);
 }
 // Absolute or relative path to cache folder. Defaults to GRAV_ROOT/cache
 if (!defined("GRAV_CACHE_PATH")) {
-    $path = rtrim(getenv("GRAV_CACHE_PATH") ?: "cache", DS);
+    $path = rtrim($grav_env("GRAV_CACHE_PATH") ?: "cache", DS);
     define("GRAV_CACHE_PATH", $path);
 }
 // Absolute or relative path to logs folder. Defaults to GRAV_ROOT/logs
 if (!defined("GRAV_LOG_PATH")) {
-    $path = rtrim(getenv("GRAV_LOG_PATH") ?: "logs", DS);
+    $path = rtrim($grav_env("GRAV_LOG_PATH") ?: "logs", DS);
     define("GRAV_LOG_PATH", $path);
 }
 // Absolute or relative path to tmp folder. Defaults to GRAV_ROOT/tmp
 if (!defined("GRAV_TMP_PATH")) {
-    $path = rtrim(getenv("GRAV_TMP_PATH") ?: "tmp", DS);
+    $path = rtrim($grav_env("GRAV_TMP_PATH") ?: "tmp", DS);
     define("GRAV_TMP_PATH", $path);
 }
 // Absolute or relative path to backup folder. Defaults to GRAV_ROOT/backup
 if (!defined("GRAV_BACKUP_PATH")) {
-    $path = rtrim(getenv("GRAV_BACKUP_PATH") ?: "backup", DS);
+    $path = rtrim($grav_env("GRAV_BACKUP_PATH") ?: "backup", DS);
     define("GRAV_BACKUP_PATH", $path);
 }
-unset($path);
+unset($path, $grav_env);
 
 // INTERNAL: Do not use!
 define("USER_DIR", GRAV_WEBROOT . "/" . GRAV_USER_PATH . "/");

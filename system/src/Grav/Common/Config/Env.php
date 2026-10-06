@@ -53,6 +53,31 @@ final class Env
     public const ENV_PATH_KEY = 'GRAV_ENV_PATH';
 
     /**
+     * Read a variable from wherever the SAPI or the dotenv loader put it.
+     *
+     * Checks $_SERVER, then $_ENV, then getenv(), and returns the first value
+     * that is a non-empty string, or null. An empty entry is skipped rather than
+     * returned, so a present-but-empty $_SERVER value (an unset nginx variable
+     * used in a `fastcgi_param`, an empty `SetEnv`) cannot shadow a working
+     * getenv(). Same rule as Setup::envVar(). system/defines.php carries its own
+     * copy of this lookup because it runs before, and must not depend on, any
+     * class. (#4344)
+     *
+     * @param string $name
+     * @return string|null
+     */
+    public static function get(string $name): ?string
+    {
+        foreach ([$_SERVER[$name] ?? null, $_ENV[$name] ?? null, getenv($name)] as $value) {
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Load .env file(s) from the given root directory into the environment.
      *
      * A no-op when no env files are present, so sites that don't use a .env pay
@@ -71,17 +96,20 @@ final class Env
         $base = self::resolveBase($root);
 
         // Fast bail-out: nothing to do when no env files exist.
-        $env = $_SERVER[self::ENV_KEY] ?? $_ENV[self::ENV_KEY] ?? (getenv(self::ENV_KEY) ?: null);
+        $env = self::get(self::ENV_KEY);
         if (!is_file($base) && !is_file($base . '.dist') && !is_file($base . '.local')
             && !($env !== null && is_file($base . '.' . $env))) {
             return;
         }
 
         try {
-            // usePutenv(true) is required: Grav reads its bootstrap config via
-            // getenv() (defines.php, Setup.php), which Symfony Dotenv does not
-            // populate by default.
-            $dotenv = (new Dotenv(self::ENV_KEY))->usePutenv(true);
+            // putenv() keeps getenv() in step for code outside Grav, but hosts that
+            // list it in disable_functions (Cloudways' web SAPI) would make Dotenv
+            // throw halfway through the first file, after $_ENV/$_SERVER are filled
+            // and before any later layer loads. Grav's own bootstrap reads go
+            // through get(), which checks $_SERVER and $_ENV first, so skipping
+            // putenv() there loses nothing. (#4344)
+            $dotenv = (new Dotenv(self::ENV_KEY))->usePutenv(function_exists('putenv'));
 
             // 1. Base file: .env, falling back to .env.dist.
             if (is_file($base)) {
@@ -90,13 +118,13 @@ final class Env
                 $dotenv->load($base . '.dist');
             }
 
-            $env = $_SERVER[self::ENV_KEY] ?? $_ENV[self::ENV_KEY] ?? (getenv(self::ENV_KEY) ?: null);
+            $env = self::get(self::ENV_KEY);
 
             // 2. Machine-specific overrides. Skipped under the test environment to
             //    keep test runs reproducible (matches Symfony's convention).
             if ($env !== 'test' && is_file($base . '.local')) {
                 $dotenv->load($base . '.local');
-                $env = $_SERVER[self::ENV_KEY] ?? $_ENV[self::ENV_KEY] ?? $env;
+                $env = self::get(self::ENV_KEY) ?? $env;
             }
 
             // 3 & 4. Per-environment layers, only when an environment is set.
@@ -126,8 +154,8 @@ final class Env
      */
     private static function resolveBase(string $root): string
     {
-        $override = $_SERVER[self::ENV_PATH_KEY] ?? $_ENV[self::ENV_PATH_KEY] ?? (getenv(self::ENV_PATH_KEY) ?: null);
-        if (is_string($override) && $override !== '') {
+        $override = self::get(self::ENV_PATH_KEY);
+        if ($override !== null) {
             $override = rtrim(str_replace('\\', '/', $override), '/');
 
             return is_dir($override) ? $override . '/.env' : $override;

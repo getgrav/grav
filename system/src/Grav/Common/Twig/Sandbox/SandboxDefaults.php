@@ -76,6 +76,9 @@ final class SandboxDefaults
             'extends',
             'for',
             'from',
+            // Compile-time only: keeps or drops its body by whether a function,
+            // filter or test exists. The kept body is checked like any other.
+            'guard',
             'if',
             'import',
             'include',

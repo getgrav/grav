@@ -1,3 +1,17 @@
+# v2.2.5
+## 10/06/2026
+
+1. [](#improved)
+    * Twig in page content can use the `guard` tag to check that a function, filter or test exists before calling it [#4341](https://github.com/getgrav/grav/issues/4341)
+2. [](#bugfix)
+    * Folder settings in a `.env` file, such as `GRAV_BACKUP_PATH` and `GRAV_TMP_PATH`, now apply on hosts that turn off PHP's `putenv()` for web requests, and no longer write an error to the log on every request [#4344](https://github.com/getgrav/grav/issues/4344)
+    * An SVG with only a viewBox now reports its real width and height, a viewBox separated by commas is understood, and a relative width such as `100%` is no longer read as 100 pixels [#4347](https://github.com/getgrav/grav/issues/4347)
+    * A redirect with a status code followed by a query string, such as `/new[301]?a=1&b=2`, is now sent with that status code and without the `[301]` in the address, instead of as a 302 to an address containing it [#3320](https://github.com/getgrav/grav/issues/3320) [#4343](https://github.com/getgrav/grav/issues/4343)
+    * A page's group permissions now deny every letter after a `-` up to the next `+`, so `-c+r-ud`, which the Admin saves for create, update and delete denied, no longer allows delete [#4340](https://github.com/getgrav/grav/issues/4340)
+    * Query parameters reach the Admin and API on web servers that rewrite to `index.php` without passing the query string on, such as an nginx `try_files` line missing `?$query_string`, so switching the editor to another language no longer loads the default language's page [#4338](https://github.com/getgrav/grav/discussions/4338)
+    * A form field directive written in page frontmatter can now only check whether its Flex object exists; directives in blueprint files are unchanged
+    * The current page address no longer includes the visitor's HTTP Basic username and password when it is printed or turned into an array, and `Uri::user()` and `Uri::password()` are empty for the current request
+
 # v2.2.4
 ## 10/01/2026
 
