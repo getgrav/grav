@@ -4,6 +4,7 @@
 1. [](#improved)
     * Twig in page content can use the `guard` tag to check that a function, filter or test exists before calling it [#4341](https://github.com/getgrav/grav/issues/4341)
 2. [](#bugfix)
+    * A redirect with a status code followed by a query string, such as `/new[301]?a=1&b=2`, is now sent with that status code and without the `[301]` in the address, instead of as a 302 to an address containing it [#3320](https://github.com/getgrav/grav/issues/3320)
     * A page's group permissions now deny every letter after a `-` up to the next `+`, so `-c+r-ud`, which the Admin saves for create, update and delete denied, no longer allows delete [#4340](https://github.com/getgrav/grav/issues/4340)
     * Query parameters reach the Admin and API on web servers that rewrite to `index.php` without passing the query string on, such as an nginx `try_files` line missing `?$query_string`, so switching the editor to another language no longer loads the default language's page [#4338](https://github.com/getgrav/grav/discussions/4338)
 
