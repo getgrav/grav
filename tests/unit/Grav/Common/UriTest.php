@@ -945,6 +945,24 @@ class UriTest extends \PHPUnit\Framework\TestCase
         $this->runTestSet($this->tests, 'password');
     }
 
+    public function testRequestBasicCredentialsStayOutOfTheUri(): void
+    {
+        $uri = new Uri([
+            'HTTP_HOST' => 'localhost',
+            'HTTPS' => 'on',
+            'SERVER_PORT' => 443,
+            'REQUEST_URI' => '/foo',
+            'PHP_AUTH_USER' => 'visitor',
+            'PHP_AUTH_PW' => 's3cret',
+        ]);
+
+        self::assertNull($uri->user());
+        self::assertNull($uri->password());
+        self::assertNull($uri->toArray()['user']);
+        self::assertNull($uri->toArray()['pass']);
+        self::assertSame('https://localhost/foo', (string)$uri);
+    }
+
     public function testHost(): void
     {
         $this->runTestSet($this->tests, 'host');

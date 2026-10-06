@@ -1298,9 +1298,11 @@ class Uri implements \Stringable
             $this->scheme = (empty($https) || strtolower((string) $https) === 'off') ? 'http' : 'https';
         }
 
-        // Build user and password.
-        $this->user = $env['PHP_AUTH_USER'] ?? null;
-        $this->password = $env['PHP_AUTH_PW'] ?? null;
+        // The visitor's HTTP Basic credentials are left out on purpose. They come
+        // from the Authorization header, not the address, and toArray(),
+        // __toString() and addNonce() would print them into the page.
+        $this->user = null;
+        $this->password = null;
 
         // Build host.
         if (isset($env['HTTP_X_FORWARDED_HOST']) && Grav::instance()['config']->get('system.http_x_forwarded.host')) {
