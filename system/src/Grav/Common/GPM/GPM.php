@@ -680,7 +680,8 @@ class GPM extends Iterator
         $plugins = $this->getRepositoryPlugins();
 
         if (null === $themes || null === $plugins) {
-            if (!is_writable(GRAV_ROOT . '/cache/gpm')) {
+            $gpm_cache = Grav::instance()['locator']->findResource('cache://gpm', true, true);
+            if (!is_writable($gpm_cache)) {
                 throw new RuntimeException('The cache/gpm folder is not writable. Please check the folder permissions.');
             }
 
