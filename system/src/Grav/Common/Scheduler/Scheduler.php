@@ -1363,6 +1363,18 @@ class Scheduler
         
         if (!empty($history)) {
             $filename = $this->historyPath . '/' . date('Y-m-d') . '.json';
+            // The first run of a day starts a new file, so that is when files older than
+            // `history.retention_days` are dropped (#4344).
+            if (!file_exists($filename)) {
+                $retention = (int) ($this->modernConfig['history']['retention_days'] ?? 30);
+                if ($retention > 0) {
+                    try {
+                        (new JobHistory($this->historyPath, $retention))->cleanOldHistory();
+                    } catch (\Throwable $e) {
+                        // Pruning is housekeeping; never let it cost the run its history.
+                    }
+                }
+            }
             $existing = file_exists($filename) ? json_decode(file_get_contents($filename), true) : [];
             $existing = array_merge($existing, $history);
             file_put_contents($filename, json_encode($existing, JSON_PRETTY_PRINT));

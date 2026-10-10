@@ -90,7 +90,8 @@ EOF
         $io->writeln('Mode: ' . ($force ? '<red>FORCE (will delete)</red>' : '<yellow>DRY RUN (use --force to delete)</yellow>'));
         $io->newLine();
 
-        $cacheDir = GRAV_ROOT . '/cache';
+        // The cache folder can live outside the site with GRAV_CACHE_PATH (#4344).
+        $cacheDir = (string) $grav['locator']->findResource('cache://', true, true);
 
         if (!is_dir($cacheDir)) {
             $io->error("Cache directory not found: {$cacheDir}");

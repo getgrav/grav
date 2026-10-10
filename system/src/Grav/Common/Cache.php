@@ -835,7 +835,7 @@ class Cache extends Getters
         // File Cache Purge
         $at = $config->get('system.cache.purge_at');
         $name = 'cache-purge';
-        $logs = 'logs/' . $name . '.out';
+        $logs = 'log://' . $name . '.out';
 
         $job = $scheduler->addFunction('Grav\Common\Cache::purgeJob', [true], $name);
         $job->at($at);
@@ -846,7 +846,7 @@ class Cache extends Getters
         $at = $config->get('system.cache.clear_at');
         $clear_type = $config->get('system.cache.clear_job_type');
         $name = 'cache-clear';
-        $logs = 'logs/' . $name . '.out';
+        $logs = 'log://' . $name . '.out';
 
         $job = $scheduler->addFunction('Grav\Common\Cache::clearJob', [$clear_type], $name);
         $job->at($at);

@@ -101,7 +101,7 @@ class Backups
         foreach (static::getBackupProfiles() as $id => $profile) {
             $at = $profile['schedule_at'];
             $name = $inflector::hyphenize($profile['name']);
-            $logs = 'logs/backup-' . $name . '.out';
+            $logs = 'log://backup-' . $name . '.out';
             $environment = $profile['schedule_environment'] ?? null;
             /** @var Job $job */
             $job = $scheduler->addFunction('Grav\Common\Backup\Backups::backup', [$id, null, $environment], $name);

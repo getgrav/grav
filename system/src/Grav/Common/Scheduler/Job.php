@@ -636,7 +636,7 @@ class Job
                     $output_mode = $this->outputMode === 'append' ? FILE_APPEND | LOCK_EX : LOCK_EX;
                     $timestamp = (new DateTime('now'))->format('c');
                     $output = $timestamp . "\n" . str_pad('', strlen($timestamp), '>') . "\n" . $this->output;
-                    file_put_contents($file, $output, $output_mode);
+                    file_put_contents(self::resolveOutputPath($file), $output, $output_mode);
                 } catch (Throwable $e) {
                     $this->logPostRunFailure('write output to ' . $file, $e);
                 }
@@ -705,6 +705,31 @@ class Job
         }
 
         return sys_get_temp_dir();
+    }
+
+    /**
+     * Turn a job's output file into a real path. A stream such as `log://job.out` is
+     * resolved, since PHP refuses LOCK_EX on stream wrappers, and the old relative
+     * `logs/job.out` form goes to the logs folder wherever GRAV_LOG_PATH puts it (#4344).
+     *
+     * @param string $file
+     * @return string
+     */
+    private static function resolveOutputPath(string $file): string
+    {
+        if (str_starts_with($file, 'logs/')) {
+            $file = 'log://' . substr($file, 5);
+        }
+
+        if (str_contains($file, '://')) {
+            $locator = Grav::instance()['locator'] ?? null;
+            $path = $locator ? $locator->findResource($file, true, true) : false;
+            if ($path) {
+                return $path;
+            }
+        }
+
+        return $file;
     }
 
     /**
