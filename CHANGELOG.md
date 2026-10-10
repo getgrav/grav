@@ -1,5 +1,5 @@
 # v2.2.6
-## 10/07/2026
+## 10/09/2026
 
 1. [](#bugfix)
     * With the logs or cache folder moved by `GRAV_LOG_PATH` or `GRAV_CACHE_PATH`, the cache and backup jobs write their output to the moved logs folder, a job's `output:` can be a `log://` path, and `bin/grav cache-cleanup` and the GPM permission check find the moved cache folder. Thanks @onetrev [#4344](https://github.com/getgrav/grav/issues/4344)
