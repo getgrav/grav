@@ -1,3 +1,9 @@
+# v2.2.9
+## 10/13/2026
+
+1. [](#bugfix)
+    * Sites on PHP-FPM pools that disable `getmypid()` (a common hardening) no longer fail when the page index is rebuilt: its temporary database file is named with a random string instead of the process id. The scheduler's `whoami()` also checks for `get_current_user()` before calling it
+
 # v2.2.8
 ## 10/13/2026
 

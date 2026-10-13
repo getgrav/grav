@@ -901,7 +901,7 @@ class Scheduler
                 }
             }
 
-            return $_SERVER['USER'] ?? (get_current_user() ?: 'unknown');
+            return $_SERVER['USER'] ?? ((function_exists('get_current_user') ? get_current_user() : '') ?: 'unknown');
         }
 
         $process = new Process(['whoami']);

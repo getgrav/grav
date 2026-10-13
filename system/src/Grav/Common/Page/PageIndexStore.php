@@ -437,7 +437,7 @@ final class PageIndexStore
      */
     public function rebuild(string $cacheId, array $sections): bool
     {
-        $tmp = $this->file . '.tmp.' . getmypid();
+        $tmp = $this->file . '.tmp.' . bin2hex(random_bytes(6));
 
         try {
             $pdo = self::connect($this->engine, $tmp);
