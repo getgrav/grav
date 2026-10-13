@@ -1684,6 +1684,61 @@ form:
                 3: 3X
                 4: 4X
 
+            section_images_watermark:
+              type: section
+              title: PLUGIN_ADMIN.IMAGES_WATERMARK_TITLE
+              underline: true
+
+            images.watermark.watermark_all:
+              type: toggle
+              label: PLUGIN_ADMIN.IMAGES_WATERMARK_ALL
+              help: PLUGIN_ADMIN.IMAGES_WATERMARK_ALL_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            images.watermark.image:
+              type: text
+              label: PLUGIN_ADMIN.IMAGES_WATERMARK_IMAGE
+              help: PLUGIN_ADMIN.IMAGES_WATERMARK_IMAGE_HELP
+              placeholder: 'system://images/watermark.png'
+
+            images.watermark.position_y:
+              type: select
+              label: PLUGIN_ADMIN.IMAGES_WATERMARK_POSITION_Y
+              help: PLUGIN_ADMIN.IMAGES_WATERMARK_POSITION_Y_HELP
+              size: small
+              highlight: center
+              options:
+                top: PLUGIN_ADMIN.IMAGES_WATERMARK_TOP
+                center: PLUGIN_ADMIN.IMAGES_WATERMARK_CENTER
+                bottom: PLUGIN_ADMIN.IMAGES_WATERMARK_BOTTOM
+
+            images.watermark.position_x:
+              type: select
+              label: PLUGIN_ADMIN.IMAGES_WATERMARK_POSITION_X
+              help: PLUGIN_ADMIN.IMAGES_WATERMARK_POSITION_X_HELP
+              size: small
+              highlight: center
+              options:
+                left: PLUGIN_ADMIN.IMAGES_WATERMARK_LEFT
+                center: PLUGIN_ADMIN.IMAGES_WATERMARK_CENTER
+                right: PLUGIN_ADMIN.IMAGES_WATERMARK_RIGHT
+
+            images.watermark.scale:
+              type: number
+              label: PLUGIN_ADMIN.IMAGES_WATERMARK_SCALE
+              help: PLUGIN_ADMIN.IMAGES_WATERMARK_SCALE_HELP
+              size: small
+              default: 33
+              validate:
+                type: int
+                min: 1
+                max: 100
+
         session:
           type: tab
           title: PLUGIN_ADMIN.SESSION
