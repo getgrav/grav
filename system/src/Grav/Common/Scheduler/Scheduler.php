@@ -21,6 +21,7 @@ use Symfony\Component\Process\Process;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Yaml\Yaml;
 use Monolog\Logger;
+use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Handler\StreamHandler;
 use function is_callable;
 use function is_string;
@@ -391,7 +392,11 @@ class Scheduler
             $successCount = 0;
             $failureCount = 0;
             $failedJobNames = [];
-            $executedJobs = array_merge($this->executed_jobs, $this->jobs_run);
+            // A successful job sits in both lists once its state is saved, so count each job once
+            $executedJobs = [];
+            foreach (array_merge($this->executed_jobs, $this->jobs_run) as $job) {
+                $executedJobs[spl_object_id($job)] = $job;
+            }
             
             foreach ($executedJobs as $job) {
                 if ($job->isSuccessful()) {
@@ -970,9 +975,12 @@ class Scheduler
     {
         $this->logger = new Logger('scheduler');
         
-        // Single scheduler log file - all levels
+        // Single scheduler log file. Debug lines are held back until something at INFO or
+        // above is logged, so a run where nothing was due writes nothing, while a run that
+        // did work still gets its debug context. Cron fires every minute and nothing rotates
+        // this file (#4355).
         $logFile = $locator->findResource('log://scheduler.log', true, true);
-        $this->logger->pushHandler(new StreamHandler($logFile, Logger::DEBUG));
+        $this->logger->pushHandler(new FingersCrossedHandler(new StreamHandler($logFile, Logger::DEBUG), Logger::INFO, 0, true, false));
     }
     
     /**
