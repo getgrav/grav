@@ -392,7 +392,11 @@ class Scheduler
             $successCount = 0;
             $failureCount = 0;
             $failedJobNames = [];
-            $executedJobs = array_merge($this->executed_jobs, $this->jobs_run);
+            // A successful job sits in both lists once its state is saved, so count each job once
+            $executedJobs = [];
+            foreach (array_merge($this->executed_jobs, $this->jobs_run) as $job) {
+                $executedJobs[spl_object_id($job)] = $job;
+            }
             
             foreach ($executedJobs as $job) {
                 if ($job->isSuccessful()) {

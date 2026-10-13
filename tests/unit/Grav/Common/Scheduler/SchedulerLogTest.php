@@ -65,6 +65,17 @@ class SchedulerLogTest extends \Codeception\Test\Unit
         $this->assertStringContainsString('scheduler.INFO: Scheduler completed:', $log);
     }
 
+    public function testSummaryCountsEachSuccessfulJobOnce(): void
+    {
+        $scheduler = $this->scheduler();
+        $scheduler->addFunction(static fn () => 'ok', [], 'log-test-job-1')->at('* * * * *');
+        $scheduler->addFunction(static fn () => 'ok', [], 'log-test-job-2')->at('* * * * *');
+
+        $scheduler->run();
+
+        $this->assertStringContainsString('Scheduler completed: 2 job(s) succeeded', $this->log());
+    }
+
     /**
      * A scheduler with no system jobs, no queue or history, and its state and log in a
      * temp folder, so run() touches nothing outside the test.
