@@ -1,3 +1,11 @@
+# v2.2.8
+## 10/13/2026
+
+1. [](#new)
+    * Plugins can react when an image is loaded with the new `onImageMediumReset` event, for example to queue a watermark or other action on every image from its own metadata
+2. [](#bugfix)
+    * Setting only `watermark_all` for images in `system.yaml` no longer removes the watermark image, position and scale settings, and the watermark settings can now be edited in the Admin under Images
+
 # v2.2.7
 ## 10/13/2026
 
