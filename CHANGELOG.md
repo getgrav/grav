@@ -1,3 +1,9 @@
+# v2.2.7
+## 10/13/2026
+
+1. [](#bugfix)
+    * The scheduler log no longer gets two lines written every minute when no job was due; runs that do work still log their full detail. Thanks @onetrev [#4355](https://github.com/getgrav/grav/issues/4355)
+
 # v2.2.6
 ## 10/09/2026
 
