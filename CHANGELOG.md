@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * The scheduler log no longer gets two lines written every minute when no job was due; runs that do work still log their full detail. Thanks @onetrev [#4355](https://github.com/getgrav/grav/issues/4355)
+    * The compiled config, blueprints and languages caches are written to a temporary file and moved into place, and a damaged one is rebuilt, so a request arriving while the cache is being rewritten no longer fails with a blank error page. Thanks @omega8cc [#4356](https://github.com/getgrav/grav/issues/4356)
 
 # v2.2.6
 ## 10/09/2026

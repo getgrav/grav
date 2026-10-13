@@ -207,7 +207,13 @@ abstract class CompiledBase
             return false;
         }
 
-        $cache = include $filename;
+        try {
+            $cache = include $filename;
+        } catch (Throwable) {
+            // A broken compiled file is rebuilt from the source files. (#4356)
+            return false;
+        }
+
         if (!is_array($cache)
             || !isset($cache['checksum'], $cache['data'], $cache['@class'])
             || $cache['@class'] !== static::class
@@ -253,6 +259,12 @@ abstract class CompiledBase
     /**
      * Write a compiled PHP file unless another process is already writing it.
      *
+     * The compiled file is include()d by every request without a lock, so it is written to a
+     * temporary name next to the target and renamed over it: a reader only ever sees the old
+     * complete file or the new one, never a truncated one. The flock stays a mutex so that
+     * parallel requests do not all do the same work, and is released before the rename because
+     * Windows will not replace a file that still has an open handle. (#4356)
+     *
      * @param string $filename
      * @param callable(): array $payload Builds the data to store, called only once the lock is held.
      * @return bool True if the file was written.
@@ -280,9 +292,26 @@ abstract class CompiledBase
         // config init, before the logger, the error handler and the Problems
         // plugin exist, so an exception here 500s every route including /admin
         // and leaves no in-browser way back. (#4260)
+        $tmp = null;
         try {
-            $file->save($payload());
+            // Let the PhpFile encode the payload, then write the raw PHP ourselves.
+            $file->content($payload());
+            $raw = $file->raw();
+
+            do {
+                $tmp = $filename . '.' . bin2hex(random_bytes(4)) . '.tmp';
+            } while (file_exists($tmp));
+
+            if (@file_put_contents($tmp, $raw) === false) {
+                throw new RuntimeException('Failed to save file ' . $filename);
+            }
+
+            // Release the lock and close the handle before the rename.
             $file->unlock();
+
+            if (@rename($tmp, $filename) === false) {
+                throw new RuntimeException('Failed to save file ' . $filename);
+            }
 
             $this->preloadOpcodeCache($file);
 
@@ -290,6 +319,10 @@ abstract class CompiledBase
 
             return true;
         } catch (Throwable $e) {
+            if ($tmp !== null) {
+                @unlink($tmp);
+            }
+
             static::logCacheWriteFailure($filename, $e->getMessage());
 
             $file->unlock();
