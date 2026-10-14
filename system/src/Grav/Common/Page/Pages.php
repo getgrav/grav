@@ -1257,6 +1257,7 @@ class Pages
     public function find($route, $all = false)
     {
         $route = urldecode((string)$route);
+        $route = str_replace($this->base, '', $route);
 
         // Fetch page if there's a defined route to it.
         $path = $this->routeToPath($route);
