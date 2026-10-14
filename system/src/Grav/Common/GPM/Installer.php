@@ -221,7 +221,8 @@ class Installer
                 $entryName = (string) $zip->getNameIndex($i);
                 $segments = array_values(array_filter(preg_split('#[\\\\/]+#', $entryName), static fn ($s) => $s !== '' && $s !== '.'));
                 if ($segments) {
-                    $roots[$segments[0]] = count($segments) > 1 || str_ends_with($entryName, '/');
+                    $isDir = count($segments) > 1 || str_ends_with($entryName, '/') || str_ends_with($entryName, '\\');
+                    $roots[$segments[0]] = ($roots[$segments[0]] ?? false) || $isDir;
                 }
                 if (!self::isSafeArchiveEntry($entryName)) {
                     self::$error = self::ZIP_EXTRACT_ERROR;
@@ -284,12 +285,22 @@ class Installer
 
             self::$error = self::OK;
 
+            // Zips made on macOS carry a __MACOSX/ folder and dotfiles such as
+            // .DS_Store next to the package; they are not a second top-level entry.
+            $packageRoots = array_filter(
+                $roots,
+                static fn ($name) => $name !== '__MACOSX' && !str_starts_with((string) $name, '.'),
+                ARRAY_FILTER_USE_KEY
+            );
+
             // A package zipped from inside its own folder has no single top-level directory.
-            if (count($roots) !== 1 || !reset($roots)) {
+            if (count($packageRoots) !== 1 || !reset($packageRoots)) {
+                Folder::delete($destination . '/__MACOSX');
+
                 return $destination . '/';
             }
 
-            return $destination . '/' . key($roots) . '/';
+            return $destination . '/' . key($packageRoots) . '/';
         }
 
         self::$error = self::ZIP_EXTRACT_ERROR;

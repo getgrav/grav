@@ -1,7 +1,8 @@
 # v2.2.9
-## 10/13/2026
+## 10/14/2026
 
 1. [](#bugfix)
+    * A plugin or theme zipped from inside its own folder, or a zip made on macOS with a `__MACOSX` folder, now installs with `bin/gpm direct-install` and the admin's install-from-zip instead of failing with "Not a valid Grav package". Thanks @wakqasahmed [#2688](https://github.com/getgrav/grav/issues/2688) [#4357](https://github.com/getgrav/grav/pull/4357)
     * Sites on PHP-FPM pools that disable `getmypid()` (a common hardening) no longer fail when the page index is rebuilt: its temporary database file is named with a random string instead of the process id. The scheduler's `whoami()` also checks for `get_current_user()` before calling it
 
 # v2.2.8

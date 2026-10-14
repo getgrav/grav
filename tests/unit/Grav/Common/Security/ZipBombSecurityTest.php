@@ -160,6 +160,46 @@ class ZipBombSecurityTest extends \PHPUnit\Framework\TestCase
         self::assertSame($dest . '/', Installer::unZip($zip, $dest));
     }
 
+    public function testUnZip_IgnoresMacosJunkNextToPackageFolder(): void
+    {
+        $zip = $this->makeZip('macos.zip', static function (ZipArchive $z) {
+            $z->addEmptyDir('quark');
+            $z->addFromString('quark/blueprints.yaml', 'name: Quark');
+            $z->addEmptyDir('__MACOSX');
+            $z->addFromString('__MACOSX/quark/._blueprints.yaml', 'x');
+            $z->addFromString('.DS_Store', 'x');
+        });
+        $dest = $this->destFor($zip);
+
+        self::assertSame($dest . '/quark/', Installer::unZip($zip, $dest));
+    }
+
+    public function testUnZip_RemovesMacosJunkFromFlatPackage(): void
+    {
+        $zip = $this->makeZip('macos-flat.zip', static function (ZipArchive $z) {
+            $z->addFromString('blueprints.yaml', 'name: Quark');
+            $z->addFromString('quark.php', '<?php');
+            $z->addFromString('__MACOSX/._blueprints.yaml', 'x');
+        });
+        $dest = $this->destFor($zip);
+
+        self::assertSame($dest . '/', Installer::unZip($zip, $dest));
+        self::assertFileExists($dest . '/blueprints.yaml');
+        self::assertDirectoryDoesNotExist($dest . '/__MACOSX');
+    }
+
+    public function testUnZip_NormalisesDotSlashAndBackslashEntries(): void
+    {
+        $zip = $this->makeZip('prefixed.zip', static function (ZipArchive $z) {
+            $z->addFromString('./quark/blueprints.yaml', 'name: Quark');
+            $z->addFromString('quark\\templates\\default.html.twig', 'x');
+        });
+        $dest = $this->destFor($zip);
+
+        self::assertSame($dest . '/quark/', Installer::unZip($zip, $dest));
+        self::assertFileExists($dest . '/quark/templates/default.html.twig');
+    }
+
     public function testExtract_GHSA928x_RejectsOversizedArchive(): void
     {
         $zip = $this->makeZip('za-bomb.zip', static function (ZipArchive $z) {
