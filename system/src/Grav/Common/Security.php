@@ -2128,14 +2128,32 @@ class Security
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
         $configFolder = $locator->findResource('config://', true) ?: $locator->findResource('config://', true, true);
-        $privateFile = "{$configFolder}/security-private.php";
+        // One key per site, in base user/config. `config://` resolves to the
+        // environment overlay first, so keeping it there gave every new
+        // user/env/<host>/ folder a fresh key and broke every nonce and
+        // session signed with the old one.
+        $baseFolder = $locator->findResource('user://config', true) ?: $configFolder;
+        $privateFile = "{$baseFolder}/security-private.php";
 
-        if (is_file($privateFile)) {
-            $value = @include $privateFile;
-            if (is_string($value) && $value !== '') {
+        $value = self::readNonceKeyFile($privateFile);
+        if ($value !== null) {
+            return self::$nonceKey = $value;
+        }
+
+        // Earlier versions wrote the key into the environment overlay when one
+        // existed. Move that copy to base so what it signed stays valid.
+        foreach ((array) $locator->findResources('config://', true) as $folder) {
+            if (realpath((string) $folder) === realpath((string) $baseFolder)) {
+                continue;
+            }
+            $copy = "{$folder}/security-private.php";
+            $value = self::readNonceKeyFile($copy);
+            if ($value !== null) {
+                self::writeNonceKey($privateFile, $value);
+                @unlink($copy);
+
                 return self::$nonceKey = $value;
             }
-            // Corrupt/empty file — fall through to regenerate.
         }
 
         // One-time migration out of Config for sites upgrading from <= v2.0.0-beta.2.
@@ -2165,6 +2183,17 @@ class Security
         self::writeNonceKey($privateFile, $generated);
 
         return self::$nonceKey = $generated;
+    }
+
+    private static function readNonceKeyFile(string $path): ?string
+    {
+        if (!is_file($path)) {
+            return null;
+        }
+        $value = @include $path;
+
+        // A corrupt or empty file counts as missing and is regenerated.
+        return is_string($value) && $value !== '' ? $value : null;
     }
 
     private static function writeNonceKey(string $path, string $value): void
