@@ -216,8 +216,14 @@ class Installer
             }
 
             $totalSize = 0;
+            $roots = [];
             for ($i = 0; $i < $numFiles; $i++) {
                 $entryName = (string) $zip->getNameIndex($i);
+                $segments = array_values(array_filter(preg_split('#[\\\\/]+#', $entryName), static fn ($s) => $s !== '' && $s !== '.'));
+                if ($segments) {
+                    $isDir = count($segments) > 1 || str_ends_with($entryName, '/') || str_ends_with($entryName, '\\');
+                    $roots[$segments[0]] = ($roots[$segments[0]] ?? false) || $isDir;
+                }
                 if (!self::isSafeArchiveEntry($entryName)) {
                     self::$error = self::ZIP_EXTRACT_ERROR;
                     $zip->close();
@@ -271,16 +277,30 @@ class Installer
                 return false;
             }
 
-            $package_folder_name = $zip->getNameIndex(0);
-            if ($package_folder_name === false) {
+            if (!$roots) {
+                $zip->close();
                 throw new \RuntimeException('Bad package file: ' . Utils::basename($zip_file));
             }
-            $package_folder_name = preg_replace('#\./$#', '', $package_folder_name);
             $zip->close();
 
             self::$error = self::OK;
 
-            return $destination . '/' . $package_folder_name;
+            // Zips made on macOS carry a __MACOSX/ folder and dotfiles such as
+            // .DS_Store next to the package; they are not a second top-level entry.
+            $packageRoots = array_filter(
+                $roots,
+                static fn ($name) => $name !== '__MACOSX' && !str_starts_with((string) $name, '.'),
+                ARRAY_FILTER_USE_KEY
+            );
+
+            // A package zipped from inside its own folder has no single top-level directory.
+            if (count($packageRoots) !== 1 || !reset($packageRoots)) {
+                Folder::delete($destination . '/__MACOSX');
+
+                return $destination . '/';
+            }
+
+            return $destination . '/' . key($packageRoots) . '/';
         }
 
         self::$error = self::ZIP_EXTRACT_ERROR;

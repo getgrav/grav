@@ -37,7 +37,7 @@ class NonceKeySecurityTest extends \PHPUnit\Framework\TestCase
         /** @var \RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
         $this->configFolder = $locator->findResource('config://', true) ?: $locator->findResource('config://', true, true);
-        $this->privateFile = "{$this->configFolder}/security-private.php";
+        $this->privateFile = ($locator->findResource('user://config', true) ?: $this->configFolder) . '/security-private.php';
 
         // Ensure a clean slate.
         $this->resetStaticCache();
@@ -123,6 +123,72 @@ class NonceKeySecurityTest extends \PHPUnit\Framework\TestCase
         $a = Security::getNonceKey();
         $b = Security::getNonceKey();
         self::assertSame($a, $b);
+    }
+
+    public function testGetNonceKey_NeverWritesIntoAnEnvironmentOverlay(): void
+    {
+        $this->withEnvironmentOverlay(function (string $overlay) {
+            $key = Security::getNonceKey();
+
+            self::assertFileExists($this->privateFile, 'the key belongs in base user/config');
+            self::assertFileDoesNotExist("{$overlay}/security-private.php", 'a new environment folder must not get a key of its own');
+            $this->resetStaticCache();
+            self::assertSame($key, Security::getNonceKey());
+        });
+    }
+
+    public function testGetNonceKey_MovesAKeyAnEarlierVersionLeftInTheOverlay(): void
+    {
+        $this->withEnvironmentOverlay(function (string $overlay) {
+            $value = str_repeat('b', 64);
+            file_put_contents("{$overlay}/security-private.php", "<?php\nreturn " . var_export($value, true) . ";\n");
+
+            self::assertSame($value, Security::getNonceKey(), 'what the old key signed stays valid');
+            self::assertFileExists($this->privateFile);
+            self::assertFileDoesNotExist("{$overlay}/security-private.php");
+            $this->resetStaticCache();
+            self::assertSame($value, Security::getNonceKey());
+        });
+    }
+
+    public function testGetNonceKey_BaseKeyWinsOverAnOverlayCopy(): void
+    {
+        $this->withEnvironmentOverlay(function (string $overlay) {
+            $base = str_repeat('c', 64);
+            file_put_contents($this->privateFile, "<?php\nreturn " . var_export($base, true) . ";\n");
+            file_put_contents("{$overlay}/security-private.php", "<?php\nreturn " . var_export(str_repeat('d', 64), true) . ";\n");
+
+            self::assertSame($base, Security::getNonceKey());
+        });
+    }
+
+    /**
+     * Run $test with a temporary environment overlay layered over `config://`,
+     * the way Grav adds `user/env/<host>/config` for a hostname environment.
+     */
+    private function withEnvironmentOverlay(callable $test): void
+    {
+        /** @var \RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $schemes = new ReflectionProperty($locator, 'schemes');
+        $schemes->setAccessible(true);
+        $saved = $schemes->getValue($locator);
+
+        $overlay = sys_get_temp_dir() . '/grav-nonce-overlay-' . bin2hex(random_bytes(4));
+        mkdir($overlay, 0775, true);
+        try {
+            // Same position environment://config holds in the stream: first.
+            $layered = $saved;
+            array_unshift($layered['config'][''], $overlay);
+            $schemes->setValue($locator, $layered);
+            $locator->clearCache();
+            self::assertSame($overlay, $locator->findResource('config://', true), 'the overlay resolves first');
+            $test($overlay);
+        } finally {
+            $schemes->setValue($locator, $saved);
+            $locator->clearCache();
+            Folder::delete($overlay);
+        }
     }
 
     public function testGetNonceKey_IgnoresEmptyStringInConfig(): void

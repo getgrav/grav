@@ -1,3 +1,11 @@
+# v2.2.9
+## 10/14/2026
+
+1. [](#bugfix)
+    * Adding an environment folder such as `user/env/<host>/` no longer creates a new security key for that host, which broke forms and sessions signed with the old one. The key stays in `user/config`, and a copy an earlier version put in an environment folder is moved there
+    * A plugin or theme zipped from inside its own folder, or a zip made on macOS with a `__MACOSX` folder, now installs with `bin/gpm direct-install` and the admin's install-from-zip instead of failing with "Not a valid Grav package". Thanks @wakqasahmed [#2688](https://github.com/getgrav/grav/issues/2688) [#4357](https://github.com/getgrav/grav/pull/4357)
+    * Sites on PHP-FPM pools that disable `getmypid()` (a common hardening) no longer fail when the page index is rebuilt: its temporary database file is named with a random string instead of the process id. The scheduler's `whoami()` also checks for `get_current_user()` before calling it
+
 # v2.2.8
 ## 10/13/2026
 
