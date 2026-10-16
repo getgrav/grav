@@ -1,3 +1,9 @@
+# v2.2.10
+## 10/16/2026
+
+1. [](#bugfix)
+    * A remote CSS or JS file in the asset pipeline (a CDN stylesheet, for example) now gives up after 5 seconds if its server doesn't answer (set with the new `assets.pipeline_remote_timeout` option in `system.yaml`), instead of holding the page until PHP's `max_execution_time` ends it with a 503. When a remote file can't be downloaded, its group is not cached: that request renders each file as its own tag, and the next request tries the download again
+
 # v2.2.9
 ## 10/14/2026
 

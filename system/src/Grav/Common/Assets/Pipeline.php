@@ -168,8 +168,15 @@ class Pipeline extends PropertyObject
                 $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
             }
 
-            // Write file
-            if (trim($buffer) !== '') {
+            if ($this->_remote_fetch_failed) {
+                // A remote asset could not be downloaded, so this bundle is missing it. Don't
+                // cache it, or the asset stays missing until the cache is cleared. A linked
+                // bundle falls back to one tag per asset for this request; an inline one is
+                // used as it is. The next request tries the download again.
+                if (!$inline_group) {
+                    return $this->renderUnbundled($assets);
+                }
+            } elseif (trim($buffer) !== '') {
                 file_put_contents($filepath, $buffer);
             }
         }
@@ -245,8 +252,15 @@ class Pipeline extends PropertyObject
                 $buffer = $this->gatherLinks($assets, $type);
             }
 
-            // Write file
-            if (trim($buffer) !== '') {
+            if ($this->_remote_fetch_failed) {
+                // A remote asset could not be downloaded, so this bundle is missing it. Don't
+                // cache it, or the asset stays missing until the cache is cleared. A linked
+                // bundle falls back to one tag per asset for this request; an inline one is
+                // used as it is. The next request tries the download again.
+                if (!$inline_group) {
+                    return $this->renderUnbundled($assets);
+                }
+            } elseif (trim($buffer) !== '') {
                 file_put_contents($filepath, $buffer);
             }
         }
@@ -258,6 +272,22 @@ class Pipeline extends PropertyObject
         } else {
             $this->asset = $relative_path;
             $output = '<script src="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . BaseAsset::integrityHash($this->asset) . "></script>\n";
+        }
+
+        return $output;
+    }
+
+    /**
+     * Render each asset as its own tag, in order, the same way they render with the pipeline off.
+     *
+     * @param array $assets
+     * @return string
+     */
+    protected function renderUnbundled(array $assets): string
+    {
+        $output = '';
+        foreach ($assets as $asset) {
+            $output .= $asset->render();
         }
 
         return $output;
@@ -478,7 +508,7 @@ class Pipeline extends PropertyObject
                 $link = GRAV_ROOT . '/' . $relative_path;
             }
 
-            $file = $this->fetch_command instanceof \Closure ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
+            $file = $this->fetchAssetContents($link, $local);
 
             // No file found, skip it...
             if ($file === false) {
@@ -549,7 +579,7 @@ class Pipeline extends PropertyObject
                 $link = GRAV_ROOT . '/' . $relative_path;
             }
 
-            $file = $this->fetch_command instanceof \Closure ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
+            $file = $this->fetchAssetContents($link, $local);
 
             // No file found, skip it...
             if ($file === false) {
