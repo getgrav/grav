@@ -75,7 +75,9 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         $this->reset();
 
-        if ($config->get('system.images.cache_all', false)) {
+        // `watermark_all` is applied when the image is processed, so the image
+        // has to be opened even when no action is queued on it.
+        if ($config->get('system.images.cache_all', false) || $config->get('system.images.watermark.watermark_all', false)) {
             $this->cache();
         }
     }
