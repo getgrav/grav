@@ -452,7 +452,17 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     public function addFrame(int $border = 10, string $color = '0x000000')
     {
       if($border > 0 && preg_match('/^0x[a-f0-9]{6}$/i', $color)) { // $border must be an integer and bigger than 0; $color must be formatted as an HEX value (0x??????).
+        // `watermark_all` stamps the framed image once, when it is saved below,
+        // not the image inside the frame as well. The image is opened first
+        // because opening it reads `watermark_all` again.
+        $stampFrame = false;
+        if ($this->getGrav()['config']->get('system.images.watermark.watermark_all', false)) {
+            $this->cache();
+            $stampFrame = !$this->watermarked;
+            $this->watermark = false;
+        }
         $image = ImageFile::open($this->path());
+        $this->watermark = $stampFrame;
       }
       else {
         return $this;

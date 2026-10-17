@@ -2,6 +2,7 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
+use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\MediumFactory;
 
@@ -40,6 +41,7 @@ class ImageMediumWatermarkTest extends \Codeception\Test\Unit
 
     protected function tearDown(): void
     {
+        $this->grav['config']->set('system.images.watermark.watermark_all', false);
         array_map('unlink', glob($this->dir . '/*'));
         rmdir($this->dir);
         parent::tearDown();
@@ -85,6 +87,74 @@ class ImageMediumWatermarkTest extends \Codeception\Test\Unit
     public function testWatermarkIsCentredOnTheImage(): void
     {
         $this->assertSame([1000, 600, [450, 275, 549, 324]], $this->stamp($this->medium()->watermark()));
+    }
+
+    /**
+     * getgrav/grav#4359: `watermark_all` stamped only images that also had an
+     * action such as a resize. A plain image was never opened, so its original
+     * file was served without the watermark.
+     */
+    public function testWatermarkAllStampsAnImageWithNoActions(): void
+    {
+        $this->grav['config']->set('system.images.watermark.watermark_all', true);
+
+        $this->assertSame([1000, 600, [450, 275, 549, 324]], $this->stamp($this->medium()));
+    }
+
+    /**
+     * With `watermark_all`, a processed copy of an image that was stamped is not
+     * stamped a second time, and an image opened only to be stamped keeps its
+     * retina alternatives. A half-transparent stamp shows a second pass as a
+     * deeper red at the centre of the image.
+     */
+    public function testWatermarkAllStampsA1xMadeFromA2xFileOnce(): void
+    {
+        $this->watermarkAllWithATranslucentStamp();
+        rename($this->dir . '/source.png', $this->dir . '/photo@2x.png');
+
+        $medium = (new Media($this->dir))['photo.png'];
+
+        $this->assertSame('once', $this->passes($medium->path(false)));
+    }
+
+    public function testWatermarkAllStampsAFramedImageOnce(): void
+    {
+        $this->watermarkAllWithATranslucentStamp();
+
+        $this->assertSame('once', $this->passes($this->medium()->addFrame(10)->path(false)));
+    }
+
+    public function testWatermarkAllKeepsRetinaAlternatives(): void
+    {
+        $this->watermarkAllWithATranslucentStamp();
+        rename($this->dir . '/source.png', $this->dir . '/photo@2x.png');
+
+        $medium = (new Media($this->dir))['photo.png'];
+        $medium->url();
+
+        $this->assertStringContainsString('srcset=', (string) $medium->html());
+    }
+
+    private function watermarkAllWithATranslucentStamp(): void
+    {
+        $stamp = imagecreatetruecolor(100, 50);
+        imagealphablending($stamp, false);
+        imagesavealpha($stamp, true);
+        imagefill($stamp, 0, 0, imagecolorallocatealpha($stamp, 255, 0, 0, 63));
+        imagepng($stamp, $this->dir . '/stamp.png');
+
+        $this->grav['config']->set('system.images.watermark.watermark_all', true);
+    }
+
+    /**
+     * How many times the half-transparent stamp went over the centre pixel.
+     */
+    private function passes(string $file): string
+    {
+        $image = imagecreatefromstring(file_get_contents($file));
+        $green = imagecolorat($image, intdiv(imagesx($image), 2), intdiv(imagesy($image), 2)) >> 8 & 255;
+
+        return $green > 200 ? 'none' : ($green > 96 ? 'once' : 'more than once');
     }
 
     public function testWatermarkFollowsAResizeBeforeIt(): void

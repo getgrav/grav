@@ -171,6 +171,7 @@ assets:                                          # Configuration for Assets Mana
   js_minify: true                                # Minify the JS during pipelining
   enable_asset_timestamp: false                  # Enable asset timestamps (local non-pipelined assets use their own file mtime)
   enable_asset_sri: false                        # Enable asset SRI
+  pipeline_remote_timeout: 5                     # Seconds to wait for a remote CSS or JS file when building a pipeline
   collections:
     jquery: system://assets/jquery/jquery-3.x.min.js
 

@@ -39,6 +39,9 @@ trait AssetUtilsTrait
     /** @var string */
     protected $base_url;
 
+    /** @var bool Set when a remote asset could not be downloaded (the underscore keeps it out of the asset's elements) */
+    protected $_remote_fetch_failed = false;
+
     /**
      * Determine whether a link is local or remote.
      * Understands both "http://" and "https://" as well as protocol agnostic links "//"
@@ -91,8 +94,7 @@ trait AssetUtilsTrait
                 $link = GRAV_ROOT . '/' . $relative_path;
             }
 
-            // TODO: looks like this is not being used.
-            $file = $this->fetch_command instanceof Closure ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
+            $file = $this->fetchAssetContents($link, $local);
 
             // No file found, skip it...
             if ($file === false) {
@@ -123,6 +125,37 @@ trait AssetUtilsTrait
         }
 
         return $buffer;
+    }
+
+    /**
+     * Read the content of an asset, either a local file or a remote URL.
+     *
+     * Remote URLs get a short timeout (`system.assets.pipeline_remote_timeout`, 5 seconds by
+     * default). Without one, a CDN that stops responding holds the request open until PHP's
+     * max_execution_time ends it, and the page fails with it.
+     *
+     * @param string $link
+     * @param bool $local
+     * @return string|false
+     */
+    protected function fetchAssetContents(string $link, bool $local)
+    {
+        if ($this->fetch_command instanceof Closure) {
+            $file = @$this->fetch_command->__invoke($link);
+        } elseif ($local) {
+            $file = @file_get_contents($link);
+        } else {
+            $timeout = (float) Grav::instance()['config']->get('system.assets.pipeline_remote_timeout', 5);
+            $context = stream_context_create(['http' => ['timeout' => $timeout > 0 ? $timeout : 5]]);
+            $file = @file_get_contents($link, false, $context);
+        }
+
+        if ($file === false && !$local) {
+            $this->_remote_fetch_failed = true;
+            Grav::instance()['log']->warning("Assets: could not download remote asset '{$link}' for the pipeline");
+        }
+
+        return $file;
     }
 
     /**
