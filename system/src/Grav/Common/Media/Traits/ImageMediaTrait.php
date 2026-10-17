@@ -531,6 +531,19 @@ trait ImageMediaTrait
     }
 
     /**
+     * Whether the source file is itself an output of saveImage() in the image cache.
+     *
+     * @param string $file
+     * @return bool
+     */
+    protected function isProcessedCopy(string $file): bool
+    {
+        $cacheDir = Grav::instance()['locator']->findResource('cache://images', true);
+
+        return $cacheDir && str_starts_with($file, rtrim((string) $cacheDir, '/') . '/');
+    }
+
+    /**
      * Save the image with cache.
      *
      * @return string
@@ -538,7 +551,23 @@ trait ImageMediaTrait
     protected function saveImage()
     {
         if (!$this->image) {
-            return parent::path(false);
+            if (!Grav::instance()['config']->get('system.images.watermark.watermark_all', false)) {
+                return parent::path(false);
+            }
+
+            // `watermark_all` is applied below, so an image with nothing queued
+            // on it still has to be opened and saved. It is closed again after,
+            // leaving the medium the untouched original it was: reset() would
+            // otherwise treat it as processed and drop its retina alternatives.
+            // getgrav/grav#4359.
+            $this->image();
+            try {
+                return $this->saveImage();
+            } finally {
+                $this->image = null;
+                $this->watermarked = null;
+                $this->transformed = false;
+            }
         }
 
         // Refuse oversized source rasters before getgrav/image initializes its
@@ -592,8 +621,10 @@ trait ImageMediaTrait
             $this->image->merge(ImageFile::open($overlay));
         }
 
-        // `watermark_all`, unless this image already has a watermark of its own.
-        if ($this->watermark && !$this->watermarked) {
+        // `watermark_all`, unless this image already has a watermark of its own,
+        // or is a processed copy from the image cache, such as the 1x image made
+        // from an @2x file, which was stamped when it was saved.
+        if ($this->watermark && !$this->watermarked && !$this->isProcessedCopy($sourcePath)) {
             $this->watermark();
         }
 
