@@ -40,6 +40,7 @@ class ImageMediumWatermarkTest extends \Codeception\Test\Unit
 
     protected function tearDown(): void
     {
+        $this->grav['config']->set('system.images.watermark.watermark_all', false);
         array_map('unlink', glob($this->dir . '/*'));
         rmdir($this->dir);
         parent::tearDown();
@@ -85,6 +86,18 @@ class ImageMediumWatermarkTest extends \Codeception\Test\Unit
     public function testWatermarkIsCentredOnTheImage(): void
     {
         $this->assertSame([1000, 600, [450, 275, 549, 324]], $this->stamp($this->medium()->watermark()));
+    }
+
+    /**
+     * getgrav/grav#4359: `watermark_all` stamped only images that also had an
+     * action such as a resize. A plain image was never opened, so its original
+     * file was served without the watermark.
+     */
+    public function testWatermarkAllStampsAnImageWithNoActions(): void
+    {
+        $this->grav['config']->set('system.images.watermark.watermark_all', true);
+
+        $this->assertSame([1000, 600, [450, 275, 549, 324]], $this->stamp($this->medium()));
     }
 
     public function testWatermarkFollowsAResizeBeforeIt(): void
