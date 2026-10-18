@@ -146,4 +146,33 @@ class LicensesTest extends \PHPUnit\Framework\TestCase
         self::assertSame('', Licenses::forPackage(null));
         self::assertSame('', Licenses::forPackage(false));
     }
+
+    public function testAKeyFiledUnderAPaddedSlugStillResolves()
+    {
+        $this->storedLicenses([' lightbox-gallery ' => ' AAAAAAAA-BBBBBBBB-CCCCCCCC-DDDDDDDD ']);
+
+        self::assertSame('AAAAAAAA-BBBBBBBB-CCCCCCCC-DDDDDDDD', Licenses::resolve('lightbox-gallery'));
+        self::assertSame(['lightbox-gallery' => 'AAAAAAAA-BBBBBBBB-CCCCCCCC-DDDDDDDD'], Licenses::get());
+    }
+
+    public function testSetTrimsTheSlugAndTheKey()
+    {
+        $saved = null;
+        $file = $this->createMock(FileInterface::class);
+        $file->method('content')->willReturn(['licenses' => [' lightbox-gallery' => 'OLD-KEY-0000']]);
+        $file->method('save')->willReturnCallback(function ($data) use (&$saved) {
+            $saved = $data;
+        });
+        $this->fileProperty->setValue(null, $file);
+
+        self::assertTrue(Licenses::set(' Lightbox-Gallery ', "  AAAAAAAA-BBBBBBBB-CCCCCCCC-DDDDDDDD\n"));
+        self::assertSame(['licenses' => ['lightbox-gallery' => 'AAAAAAAA-BBBBBBBB-CCCCCCCC-DDDDDDDD']], $saved);
+    }
+
+    public function testSetRefusesAnEmptySlug()
+    {
+        $this->storedLicenses([]);
+
+        self::assertFalse(Licenses::set('  ', 'AAAAAAAA-BBBBBBBB-CCCCCCCC-DDDDDDDD'));
+    }
 }
