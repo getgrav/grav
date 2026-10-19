@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * A licence key saved with a stray space in the product slug or the key itself (` lightbox-gallery`, for example) now works for installs and updates. Spaces are trimmed when a key is saved, and keys already saved that way are read correctly
+    * An image pasted into the editor as inline data (a `data:` image) now shows on the frontend. Grav was turning the `+` characters in the image data into spaces, which also affected image paths with a `+` in them such as `a+b.png` [getgrav/grav-premium-issues#628](https://github.com/getgrav/grav-premium-issues/issues/628)
 
 # v2.2.10
 ## 10/16/2026

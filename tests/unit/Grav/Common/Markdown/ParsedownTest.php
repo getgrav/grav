@@ -1237,6 +1237,55 @@ class ParsedownTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    /**
+     * A pasted image is stored as a base64 data: URI. Its '+' characters were
+     * decoded to spaces, so the image failed to load on the frontend
+     * (getgrav/grav-premium-issues#628).
+     */
+    public function testDataUriImagesAreLeftAsWritten(): void
+    {
+        $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
+
+        $png = 'data:image/png;base64,iVBORw0KGgo+AAAANSUhEUg/AAA+BAAAAAQ==';
+        self::assertSame(
+            '<p><img src="' . $png . '" alt="pasted" /></p>',
+            $this->parsedown->text('![pasted](' . $png . ')')
+        );
+        self::assertSame(
+            '<p><img src="' . $png . '" alt="" /></p>',
+            $this->parsedown->text('![](<' . $png . '>)')
+        );
+
+        // Percent-encoded SVG keeps its '+' in the media type and its %23,
+        // which decoded to '#' would cut the image off at a fragment.
+        $svg = 'data:image/svg+xml,%3Csvg%20fill=%23f00%3E%3C/svg%3E';
+        self::assertSame(
+            '<p><img src="' . $svg . '" alt="" /></p>',
+            $this->parsedown->text('![](' . $svg . ')')
+        );
+        self::assertSame(
+            '<p><a href="' . $svg . '">svg</a></p>',
+            $this->parsedown->text('[svg](' . $svg . ')')
+        );
+    }
+
+    /**
+     * A '+' in an image path is a literal plus, as it already is for links.
+     */
+    public function testPlusInImagePathIsNotDecodedToASpace(): void
+    {
+        $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
+
+        self::assertSame(
+            '<p><img src="https://example.com/a+b.png" alt="" /></p>',
+            $this->parsedown->text('![](https://example.com/a+b.png)')
+        );
+        self::assertSame(
+            '<p><img src="/item2/item2-2/missing+image.jpg" alt="" /></p>',
+            $this->parsedown->text('![](missing+image.jpg)')
+        );
+    }
+
 
     /**
      * @param $string
