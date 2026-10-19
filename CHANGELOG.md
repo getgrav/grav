@@ -1,5 +1,5 @@
 # v2.2.11
-## 10/17/2026
+## 10/19/2026
 
 1. [](#bugfix)
     * A licence key saved with a stray space in the product slug or the key itself (` lightbox-gallery`, for example) now works for installs and updates. Spaces are trimmed when a key is saved, and keys already saved that way are read correctly
