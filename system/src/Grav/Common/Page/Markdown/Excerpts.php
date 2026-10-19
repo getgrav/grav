@@ -96,6 +96,12 @@ class Excerpts
      */
     public function processLinkExcerpt(array $excerpt, string $type = 'link'): array
     {
+        // A data: URI carries its payload inline; decoding it would turn %23
+        // into a fragment and corrupt the content, so leave it as written.
+        if (static::isDataUri((string) $excerpt['element']['attributes']['href'])) {
+            return $excerpt;
+        }
+
         $grav = Grav::instance();
         $url = htmlspecialchars_decode(rawurldecode((string) $excerpt['element']['attributes']['href']));
         $url_parts = $this->parseUrl($url);
@@ -186,7 +192,16 @@ class Excerpts
      */
     public function processImageExcerpt(array $excerpt): array
     {
-        $url = htmlspecialchars_decode(urldecode((string) $excerpt['element']['attributes']['src']));
+        // A pasted image arrives as a data: URI. Its base64 payload uses '+',
+        // which form-style decoding turned into a space, breaking the image on
+        // the frontend. It is never page media, so leave it as written.
+        if (static::isDataUri((string) $excerpt['element']['attributes']['src'])) {
+            return $excerpt;
+        }
+
+        // rawurldecode(), as for links: a '+' in a URL path is a literal plus
+        // (e.g. "a+b.png"), not an encoded space.
+        $url = htmlspecialchars_decode(rawurldecode((string) $excerpt['element']['attributes']['src']));
         $url_parts = $this->parseUrl($url);
 
         $media = null;
@@ -403,6 +418,17 @@ class Excerpts
         }
 
         return $url_parts;
+    }
+
+    /**
+     * Whether a reference is an inline data: URI.
+     *
+     * @param string $url
+     * @return bool
+     */
+    protected static function isDataUri(string $url): bool
+    {
+        return strncasecmp(ltrim($url), 'data:', 5) === 0;
     }
 
     /**

@@ -59,9 +59,13 @@ class Licenses
     {
         $licenses = self::getLicenseFile();
         $data = (array)$licenses->content();
-        $slug = strtolower($slug);
+        $data['licenses'] = self::normalize($data['licenses'] ?? []);
+        $slug = strtolower(trim((string)$slug));
+        if (is_string($license)) {
+            $license = trim($license);
+        }
 
-        if ($license && !self::validate($license)) {
+        if ($slug === '' || ($license && !self::validate($license))) {
             return false;
         }
 
@@ -93,13 +97,45 @@ class Licenses
         $data = (array)$licenses->content();
         $licenses->free();
 
+        $all = self::normalize($data['licenses'] ?? []);
+
         if (null === $slug) {
-            return $data['licenses'] ?? [];
+            return $all;
         }
 
-        $slug = strtolower($slug);
+        $slug = strtolower(trim((string)$slug));
 
-        return $data['licenses'][$slug] ?? '';
+        return $all[$slug] ?? '';
+    }
+
+    /**
+     * The licences as they should have been filed: slugs trimmed and
+     * lowercased, keys trimmed.
+     *
+     * A key pasted with a stray space, or against " lightbox-gallery"
+     * instead of "lightbox-gallery", reads as no key at all for the package
+     * it was bought for. Normalizing on the way in and out means a file
+     * saved that way by an older version still works.
+     *
+     * @param mixed $licenses
+     * @return array<string, mixed>
+     */
+    protected static function normalize($licenses)
+    {
+        if (!is_array($licenses)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($licenses as $slug => $license) {
+            $slug = strtolower(trim((string)$slug));
+            if ($slug === '') {
+                continue;
+            }
+            $normalized[$slug] = is_string($license) ? trim($license) : $license;
+        }
+
+        return $normalized;
     }
 
 
@@ -187,7 +223,8 @@ class Licenses
     }
 
     /**
-     * Validates the License format
+     * Validates the License format. Surrounding whitespace is ignored, as
+     * set() strips it before filing the key.
      *
      * @param string|null $license
      * @return bool
@@ -198,7 +235,7 @@ class Licenses
             return false;
         }
 
-        return (bool)preg_match('#' . self::$regex. '#', $license);
+        return (bool)preg_match('#' . self::$regex. '#', trim($license));
     }
 
     /**
