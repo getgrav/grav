@@ -41,7 +41,7 @@ class ZipArchiverChangedFileTest extends \Codeception\Test\Unit
         self::assertSame(2, $archiver->closes);
         $zip = new ZipArchive();
         self::assertTrue($zip->open($archive));
-        self::assertSame(str_repeat('y', 999), $zip->getFromName('state.yaml'));
+        self::assertSame('rewritten', $zip->getFromName('state.yaml'));
         $zip->close();
     }
 
@@ -55,7 +55,7 @@ class ZipArchiverChangedFileTest extends \Codeception\Test\Unit
             $archiver->compress($this->root . '/site');
             self::fail('compress() should have thrown');
         } catch (RuntimeException $e) {
-            self::assertStringContainsString('Unexpected length of data', $e->getMessage());
+            self::assertStringContainsString('could not be written', $e->getMessage());
         }
 
         self::assertSame(3, $archiver->closes);
@@ -75,7 +75,10 @@ class ZipArchiverChangedFileTest extends \Codeception\Test\Unit
     }
 
     /**
-     * An archiver that shrinks state.yaml after files are added, the first $changes times.
+     * An archiver that takes state.yaml away after files are added, the first $changes times, and
+     * puts it back once close() has failed. Every libzip fails a close() on a file that is gone, but
+     * only newer ones also catch a file that merely shrank (the reported case; CI's libzip does not), so the
+     * test does not rely on that.
      */
     private function archiver(int $changes)
     {
@@ -91,12 +94,15 @@ class ZipArchiverChangedFileTest extends \Codeception\Test\Unit
 
             protected function closeArchive(ZipArchive $zip): ?string
             {
-                if ($this->closes++ < $this->changes) {
-                    clearstatcache();
-                    file_put_contents($this->file, str_repeat('y', filesize($this->file) - 1));
+                if ($this->closes++ >= $this->changes) {
+                    return parent::closeArchive($zip);
                 }
 
-                return parent::closeArchive($zip);
+                unlink($this->file);
+                $error = parent::closeArchive($zip);
+                file_put_contents($this->file, 'rewritten');
+
+                return $error;
             }
         };
     }
