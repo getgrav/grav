@@ -777,7 +777,6 @@ class Job
      * Execute a callable job.
      *
      * @return string
-     * @throws RuntimeException
      */
     private function exec()
     {
@@ -786,7 +785,9 @@ class Job
         try {
             $return_data = call_user_func_array($this->command, $this->args);
             $this->successful = true;
-        } catch (RuntimeException $e) {
+        } catch (\Throwable $e) {
+            // Any failure, not only a RuntimeException: one that escaped here used to end the
+            // whole scheduler run, so the jobs after it never ran and no job states were saved.
             $return_data = $e->getMessage();
             $this->successful = false;
         }

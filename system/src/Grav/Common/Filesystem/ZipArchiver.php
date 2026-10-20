@@ -278,54 +278,94 @@ class ZipArchiver extends Archiver
             throw new InvalidArgumentException('ZipArchiver: ' . $source . ' cannot be found...');
         }
 
-        $zip = new ZipArchive();
-        $result = $zip->open($this->archive_file, ZipArchive::CREATE);
-        if ($result !== true) {
-            $error = 'unknown error';
-            if ($result === ZipArchive::ER_NOENT) {
-                $error = 'file does not exist';
-            } elseif ($result === ZipArchive::ER_EXISTS) {
-                $error = 'file already exists';
-            } elseif ($result === ZipArchive::ER_OPEN) {
-                $error = 'cannot open file';
-            } elseif ($result === ZipArchive::ER_READ) {
-                $error = 'read error';
-            } elseif ($result === ZipArchive::ER_SEEK) {
-                $error = 'seek error';
+        // ZipArchive only notes each file in addFile(); libzip reads them all in close(). A file
+        // another process rewrites in between -- a scheduler job saving its state, a search index --
+        // fails the whole archive with "Unexpected length of data". Such writes are brief, so build
+        // the archive again rather than lose the backup.
+        $attempts = 3;
+        for ($attempt = 1; ; $attempt++) {
+            $zip = new ZipArchive();
+            $result = $zip->open($this->archive_file, ZipArchive::CREATE);
+            if ($result !== true) {
+                $error = 'unknown error';
+                if ($result === ZipArchive::ER_NOENT) {
+                    $error = 'file does not exist';
+                } elseif ($result === ZipArchive::ER_EXISTS) {
+                    $error = 'file already exists';
+                } elseif ($result === ZipArchive::ER_OPEN) {
+                    $error = 'cannot open file';
+                } elseif ($result === ZipArchive::ER_READ) {
+                    $error = 'read error';
+                } elseif ($result === ZipArchive::ER_SEEK) {
+                    $error = 'seek error';
+                }
+                throw new InvalidArgumentException('ZipArchiver: ' . $this->archive_file . ' cannot be created: ' . $error);
             }
-            throw new InvalidArgumentException('ZipArchiver: ' . $this->archive_file . ' cannot be created: ' . $error);
-        }
 
-        $files = $this->getArchiveFiles($rootPath);
+            $files = $this->getArchiveFiles($rootPath);
 
-        $status && $status([
-            'type' => 'count',
-            'steps' => iterator_count($files),
-        ]);
+            $status && $status([
+                'type' => 'count',
+                'steps' => iterator_count($files),
+            ]);
 
-        foreach ($files as $file) {
-            $filePath = $file->getPathname();
-            $relativePath = ltrim(substr((string) $filePath, strlen($rootPath)), '/');
+            foreach ($files as $file) {
+                $filePath = $file->getPathname();
+                $relativePath = ltrim(substr((string) $filePath, strlen($rootPath)), '/');
 
-            if ($file->isDir()) {
-                $zip->addEmptyDir($relativePath);
-            } else {
-                $zip->addFile($filePath, $relativePath);
+                if ($file->isDir()) {
+                    $zip->addEmptyDir($relativePath);
+                } else {
+                    $zip->addFile($filePath, $relativePath);
+                }
+
+                $status && $status([
+                    'type' => 'progress',
+                ]);
             }
 
             $status && $status([
-                'type' => 'progress',
+                'type' => 'message',
+                'message' => 'Compressing...'
+            ]);
+
+            $error = $this->closeArchive($zip);
+            if (null === $error) {
+                break;
+            }
+            if ($attempt >= $attempts) {
+                throw new RuntimeException('ZipArchiver: ' . $this->archive_file . ' could not be written: ' . $error . '. A file probably changed while it was being archived.');
+            }
+
+            $status && $status([
+                'type' => 'message',
+                'message' => 'A file changed while it was being archived (' . $error . '), trying again...'
             ]);
         }
 
-        $status && $status([
-            'type' => 'message',
-            'message' => 'Compressing...'
-        ]);
-
-        $zip->close();
-
         return $this;
+    }
+
+    /**
+     * Close an archive, returning why it failed rather than a bare false. The reason arrives as a
+     * PHP warning, which Grav's error handling may have turned into an exception.
+     *
+     * @param ZipArchive $zip
+     * @return string|null Null when the archive was written
+     */
+    protected function closeArchive(ZipArchive $zip): ?string
+    {
+        error_clear_last();
+        try {
+            if (@$zip->close()) {
+                return null;
+            }
+            $error = error_get_last()['message'] ?? $zip->getStatusString();
+        } catch (\Throwable $e) {
+            $error = $e->getMessage();
+        }
+
+        return preg_replace('/^ZipArchive::close\(\):\s*/', '', (string) $error);
     }
 
     /**

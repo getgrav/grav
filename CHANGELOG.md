@@ -1,3 +1,9 @@
+# v2.2.12
+## 10/20/2026
+
+1. [](#bugfix)
+    * A scheduled backup no longer fails with "ZipArchive::close(): Unexpected length of data" when another job changes a file in the site while the backup is being written. The backup is built again (up to three tries), and if it still can't be written, it is marked as failed while the rest of the scheduler run carries on. A failing job used to stop the whole run, so the jobs after it never ran and none of their results were saved
+
 # v2.2.11
 ## 10/19/2026
 
