@@ -1,3 +1,12 @@
+# v2.2.12
+## 10/22/2026
+
+1. [](#improved)
+    * The scheduler webhook now also runs jobs that missed their time since the last call, so a site pinged hourly (or late) no longer skips jobs set for another minute. Add `?mode=due` for the old behaviour. The scheduler health check now warns when a job is behind schedule, instead of five minutes after the last run [getgrav/grav-plugin-scheduler-webhook#9](https://github.com/getgrav/grav-plugin-scheduler-webhook/issues/9)
+2. [](#bugfix)
+    * Admin listings of a folder with thousands of pages no longer reload the folder once for every page in it, which made them slow and could run out of memory with caching on [getgrav/grav-plugin-admin2#200](https://github.com/getgrav/grav-plugin-admin2/issues/200)
+    * A scheduled backup no longer fails with "ZipArchive::close(): Unexpected length of data" when another job changes a file in the site while the backup is being written. The backup is built again (up to three tries), and if it still can't be written, it is marked as failed while the rest of the scheduler run carries on. A failing job used to stop the whole run, so the jobs after it never ran and none of their results were saved
+
 # v2.2.11
 ## 10/19/2026
 
