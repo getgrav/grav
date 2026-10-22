@@ -1,0 +1,2 @@
+# The OSS Scanner build files stay out of GitHub source archives (the release zips exclude them in grav-builder)
+/.oss-scanner export-ignore
