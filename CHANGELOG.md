@@ -1,5 +1,5 @@
 # v2.2.12
-## 10/20/2026
+## 10/22/2026
 
 1. [](#improved)
     * The scheduler webhook now also runs jobs that missed their time since the last call, so a site pinged hourly (or late) no longer skips jobs set for another minute. Add `?mode=due` for the old behaviour. The scheduler health check now warns when a job is behind schedule, instead of five minutes after the last run [getgrav/grav-plugin-scheduler-webhook#9](https://github.com/getgrav/grav-plugin-scheduler-webhook/issues/9)
