@@ -97,6 +97,6 @@ RUN grav-start \
 # /src belongs to www-data so the site can write its cache; let root's git work in it too. Keep build products out of
 # the checkout's `git status`.
 RUN git config --system --add safe.directory '*' \
-    && (printf '.oss-scanner/\n' >> /src/.git/info/exclude || true)
+    && (printf '.oss-scanner/\nuser/config/plugins/*-private.php\n' >> /src/.git/info/exclude || true)
 
 WORKDIR /src
