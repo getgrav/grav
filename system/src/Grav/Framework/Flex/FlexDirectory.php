@@ -709,6 +709,11 @@ class FlexDirectory implements FlexDirectoryInterface
 
             if ($row instanceof FlexObjectInterface) {
                 $object = $row;
+                // Keep objects that came from the cache as well, like the ones
+                // read from storage below. Otherwise every getObject() of the
+                // same key unserializes a fresh copy (a page's parent() and
+                // route() ask for the parent once per child).
+                $this->objects[$storageKey] = $object;
             } else {
                 if ($row === null) {
                     $debugger->addMessage(sprintf('Flex: Object %s was not found from %s storage', $storageKey, $this->type), 'debug');
