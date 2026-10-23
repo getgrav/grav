@@ -21,6 +21,7 @@ use Grav\Common\Page\Collection;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Page\Media;
+use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Scheduler\Cron;
 use Grav\Common\Security;
 use Grav\Common\Twig\TokenParser\TwigTokenParserCache;
@@ -1876,38 +1877,19 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             return null;
         }
 
-        // Resolve and verify canonical containment, the same way FileReader::read()
-        // does for read_file(). A plain path was previously handed straight to
-        // Media, so page content could point this anywhere the web server can read
-        // and enumerate it, or republish images from it through the image cache.
-        // media_directory is on the Twig sandbox allow-list and modular pages
-        // render their content Twig unconditionally, so editor-authored content
-        // reaches this without any page-Twig permission. (GHSA-47ch-6w46-6xm7)
-        $realDir = realpath($media_dir);
+        // List only a media folder, the same folders a stream image in page
+        // content may come from. media_directory is on the Twig sandbox
+        // allow-list and modular pages render their content Twig
+        // unconditionally, so editor-authored content reaches this without any
+        // page-Twig permission, and every image it lists can be republished
+        // through the image cache. (GHSA-47ch-6w46-6xm7)
         // is_readable() also keeps Media::init()'s FilesystemIterator from throwing
         // out of a page render on a directory that exists but cannot be read.
-        if ($realDir === false || !is_dir($realDir) || !is_readable($realDir)) {
+        if (!is_dir($media_dir) || !is_readable($media_dir) || !GlobalMedia::isMediaPath($media_dir)) {
             return null;
         }
-        $realDir = rtrim($realDir, DIRECTORY_SEPARATOR);
 
-        // USER_DIR is listed separately from GRAV_WEBROOT on purpose: a user folder
-        // symlinked outside the install is a supported layout, and resolving it here
-        // keeps those sites working.
-        foreach ([GRAV_ROOT, GRAV_WEBROOT, USER_DIR] as $root) {
-            $realRoot = realpath($root);
-            if ($realRoot === false) {
-                continue;
-            }
-            // The trailing separator is essential. Without it `/var/grav` would
-            // prefix-match `/var/grav-evil`.
-            $realRoot = rtrim($realRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-            if (strncmp($realDir . DIRECTORY_SEPARATOR, $realRoot, strlen($realRoot)) === 0) {
-                return new Media($realDir);
-            }
-        }
-
-        return null;
+        return new Media((string) realpath($media_dir));
     }
 
     /**

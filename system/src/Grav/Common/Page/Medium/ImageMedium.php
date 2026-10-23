@@ -397,22 +397,16 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         if ($file === '' || $file === '1') {
             // No editor-supplied value: use the operator-configured (trusted) watermark.
             $file = $config->get('system.images.watermark.image');
+            $watermark = $file ? $locator->findResource($file) : false;
         } else {
-            // Editor-authored watermark path from page content. Constrain it to the
-            // media sandbox: the resource locator's file:// branch only collapses
-            // `..` lexically (no realpath/containment), so an unconstrained value
-            // such as `?watermark=../secret.png` resolves to an arbitrary on-disk
-            // file and composites it into a publicly-cached, anonymously-served
-            // derivative (GHSA-w3f4-8pj2-599w). Reject parent-directory traversal
-            // and absolute paths; stream URIs (user://, image://, system://, …)
-            // stay allowed because the locator's stream branch re-globs onto a
-            // registered, contained root.
-            if (strpos($file, '..') !== false || preg_match('`^(/|[a-z]:[\\\\/])`i', $file)) {
-                return $this;
-            }
+            // Editor-authored watermark from page content, composited into a
+            // publicly cached derivative. Take it from a media folder, the same as
+            // a stream image in markdown: a plain path resolves against the
+            // install root, and a stream such as `user://` or `tmp://` reaches
+            // accounts, configuration and site data. Anything else is ignored.
+            $watermark = GlobalMedia::locate($file) ?? false;
         }
 
-        $watermark = $file ? $locator->findResource($file) : false;
         if ($watermark === false) {
             return $this;
         }

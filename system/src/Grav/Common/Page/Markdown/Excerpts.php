@@ -247,11 +247,13 @@ class Excerpts
         }
 
         // If there is a media file that matches the path referenced..
-        if ($media && $filename && isset($media[$filename])) {
+        // A stream URI can name a file that is not media (no medium for it).
+        $found = $media && $filename && isset($media[$filename]) ? $media[$filename] : null;
+        if ($found) {
             // Work on a copy: the page's medium is shared by every embed of the
             // file, and actions like the querystring outlive reset().
             /** @var Medium $medium */
-            $medium = $media[$filename]->copy();
+            $medium = $found->copy();
 
             // Process operations
             $medium = $this->processMediaActions($medium, $url_parts);
