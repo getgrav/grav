@@ -139,6 +139,99 @@ class BlueprintReplaceNameProvenanceTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * The merge treats every `unset-*` / `replace-*` spelling alike, so `unset-name@`
+     * (also written `@unset-name@` or `unset-name@2`) relocates a field exactly like
+     * `replace-name@`. None of them may carry an untrusted provider out of its path.
+     *
+     * @dataProvider relocatingKeyProvider
+     */
+    public function testInit_RelocatingKeySpellingsAreNotExecuted(string $key): void
+    {
+        $provider = '\\' . BlueprintReplaceNameProbe::class . '::options';
+
+        $blueprint = new Blueprint(null, ['form' => ['fields' => ['title' => ['type' => 'text']]]], true);
+
+        $this->withoutVendorNotices(function () use ($blueprint, $provider, $key) {
+            $blueprint->extend(['form' => ['fields' => ['title' => [
+                $key => 1,
+                'name' => 'pwned',
+                'data-options@' => [$provider, 'user/data'],
+            ]]]], true);
+
+            $blueprint->init();
+        });
+
+        self::assertFalse(
+            BlueprintReplaceNameProbe::$called,
+            "A page-authored provider relocated via {$key} must not be invoked"
+        );
+    }
+
+    /**
+     * @return array<string,array{string}>
+     */
+    public static function relocatingKeyProvider(): array
+    {
+        return [
+            'replace-name@' => ['replace-name@'],
+            'unset-name@' => ['unset-name@'],
+            '@unset-name@' => ['@unset-name@'],
+            'unset-name@2' => ['unset-name@2'],
+            'replace-name@3' => ['replace-name@3'],
+        ];
+    }
+
+    /**
+     * The merge appends an integer key the base does not have through array_merge(),
+     * which renumbers it: an override field keyed `5` lands at `0`. The directive it
+     * carries must keep its untrusted provenance at the new index.
+     */
+    public function testInit_RenumberedIntegerKeyDirectiveIsNotExecuted(): void
+    {
+        $provider = '\\' . BlueprintReplaceNameProbe::class . '::options';
+
+        $blueprint = new Blueprint(null, ['form' => ['fields' => ['title' => ['type' => 'text']]]], true);
+
+        $blueprint->extend(['form' => ['fields' => [5 => [
+            'type' => 'select',
+            'data-options@' => [$provider, 'user/data'],
+        ]]]], true);
+
+        $blueprint->init();
+
+        self::assertFalse(
+            BlueprintReplaceNameProbe::$called,
+            'A page-authored provider moved by integer-key renumbering must not be invoked'
+        );
+    }
+
+    /**
+     * Negative control: an untrusted override that leaves a trusted field's
+     * directive alone keeps that directive trusted.
+     */
+    public function testInit_UntouchedTrustedDirectiveStillRuns(): void
+    {
+        $provider = '\\' . BlueprintReplaceNameProbe::class . '::options';
+
+        $blueprint = new Blueprint(null, ['form' => ['fields' => [
+            'topping' => ['type' => 'select', 'data-options@' => $provider],
+            'title' => ['type' => 'text'],
+        ]]], true);
+
+        $blueprint->extend(['form' => ['fields' => [
+            'title' => ['label' => 'Renamed label'],
+            'topping' => ['label' => 'Pick one'],
+        ]]], true);
+
+        $blueprint->init();
+
+        self::assertTrue(
+            BlueprintReplaceNameProbe::$called,
+            'A trusted provider the override did not touch must still be invoked'
+        );
+    }
+
+    /**
      * Negative control: a trusted source may still use replace-name@ and its
      * provider is honoured. Guards against the fix over-stripping legitimate use.
      */

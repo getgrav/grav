@@ -315,17 +315,20 @@ class Blueprint extends BlueprintForm
 
         // A source we do not trust must not use a subtree-relocating merge action to
         // move a `data-*@` directive to a key the pre-merge attribution can't see.
-        // The vendor deepMerge() honours `replace-name@` by relocating the whole
-        // field — directive and all — to `$head['name']`, a top-level key that
-        // dynamicPathsOf() never enumerates because it probes the incoming array
-        // with deepInit() alone (no relocation). init() would then fall back to this
-        // blueprint's own file trust for that key and skip the allowlist. Strip the
-        // relocation from untrusted input before the merge; nothing page-authored
-        // has cause to rename a file-defined field, and the directive it carries is
-        // still merged in place and attributed untrusted.
+        // The vendor deepMerge() honours `replace-name@` and `unset-name@` (one
+        // branch) by relocating the whole field — directive and all — to
+        // `$head['name']`, a top-level key that dynamicPathsOf() never enumerates
+        // because it probes the incoming array with deepInit() alone (no
+        // relocation). init() would then fall back to this blueprint's own file
+        // trust for that key and skip the allowlist. Strip the relocation from
+        // untrusted input before the merge; nothing page-authored has cause to
+        // rename a file-defined field, and the directive it carries is still merged
+        // in place and attributed untrusted.
+        $before = null;
         if (!$incomingTrust) {
             $incoming = self::stripRelocatingActions($incoming);
             $extends = $incoming;
+            $before = $this->dynamicOf($this->items);
         }
 
         $paths = $this->dynamicPathsOf($incoming);
@@ -342,13 +345,33 @@ class Blueprint extends BlueprintForm
 
         parent::extend($extends, $append);
 
+        // The merge can still move a directive away from the path it was attributed
+        // at: deepMerge() appends an integer key the base does not have through
+        // array_merge(), which renumbers it, so a field keyed `5` lands at `0`. Rather
+        // than chase every way the merge can do that, compare the merged directives
+        // with the ones this blueprint had before: any path whose directives are new
+        // or changed came from the untrusted source.
+        if (!$incomingTrust) {
+            $after = $this->dynamicOf($this->items);
+            if (null === $before || null === $after) {
+                $this->trusted = false;
+            } else {
+                foreach ($after as $path => $directives) {
+                    if (($before[$path] ?? null) !== $directives) {
+                        $this->dynamicTrust[$path] = false;
+                    }
+                }
+            }
+        }
+
         $this->deepInit($this->items);
 
         return $this;
     }
 
     /**
-     * Recursively remove subtree-relocating merge actions (`replace-name@`) from a
+     * Recursively remove subtree-relocating merge actions (`replace-name@`,
+     * `unset-name@`) from a
      * blueprint array. Applied to untrusted input by {@see self::extend()} so it
      * cannot relocate a `data-*@` directive to a key the trust attribution never
      * saw, which would let it inherit this blueprint's file trust and skip the
@@ -363,7 +386,7 @@ class Blueprint extends BlueprintForm
         foreach ($items as $key => $value) {
             if (is_string($key) && str_contains($key, '@')) {
                 $parts = explode('-', (string) preg_replace('/^(@*)?([^@]+)(@\d*)?$/', '\2', $key), 2);
-                if (($parts[0] ?? '') === 'replace' && ($parts[1] ?? '') === 'name') {
+                if (in_array($parts[0] ?? '', ['replace', 'unset'], true) && ($parts[1] ?? '') === 'name') {
                     unset($items[$key]);
                     continue;
                 }
@@ -388,6 +411,20 @@ class Blueprint extends BlueprintForm
      */
     private function dynamicPathsOf(array $items): ?array
     {
+        $dynamic = $this->dynamicOf($items);
+
+        return null === $dynamic ? null : array_keys($dynamic);
+    }
+
+    /**
+     * Dynamic directives in `$items`, keyed by field path as
+     * {@see BlueprintForm::$dynamic} keys them.
+     *
+     * @param array $items
+     * @return array|null  Null when the source could not be parsed.
+     */
+    private function dynamicOf(array $items): ?array
+    {
         if (!$items) {
             return [];
         }
@@ -396,7 +433,7 @@ class Blueprint extends BlueprintForm
             $probe = new self(null, $items, true);
             $probe->deepInit($probe->items);
 
-            return array_keys($probe->dynamic);
+            return $probe->dynamic;
         } catch (\Throwable) {
             return null;
         }
