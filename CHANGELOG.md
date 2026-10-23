@@ -1,3 +1,13 @@
+# v2.2.13
+## 10/23/2026
+
+1. [](#bugfix)
+    * [security] A field in a page's Flex form override keeps the stricter rules for dynamic options after it is merged into the directory blueprint, however it is renamed or numbered. Thanks @soquip
+    * [security] Page content is now checked for unsafe markup as though its Twig runs, even when Twig is off for that page, since a later move or rename can turn it into a module. Thanks @vLWa7ch
+    * [security] Flex user accounts: an account without super-admin access can no longer edit or delete a super-admin account through a Flex form, and a submitted password hash is ignored when an account is saved. Thanks @manus-pi
+    * [security] Flex page storage now refuses a folder, template or language that is not a plain name. Thanks @shm0x00
+    * [security] Images referenced by stream URI in page content, the watermark image and `media_directory()` now only come from media folders (pages, images, media, themes, plugins), configurable with the new `security.media.allowed_roots` setting. Thanks @123abab123789
+
 # v2.2.12
 ## 10/22/2026
 
