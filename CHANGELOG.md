@@ -2,6 +2,7 @@
 ## 10/04/2026
 
 1. [](#bugfix)
+    * [security] Clockwork profiler data now requires a configured `debugger.token`, including for requests that reach Grav from the local machine, such as through a reverse proxy on the same server. Backport of the Grav 2.1.7 fix. Thanks @xfscott
     * Page slugs and other names made from titles keep accented and other non-English letters intact on PHP 7.3 to 8.1 when the site's language uses a single-byte locale, instead of turning them into broken characters
 
 # v1.7.53.5
