@@ -209,6 +209,26 @@ read_file:
   # Maximum file size in bytes. Files larger than this return false rather
   # than being slurped into memory. Set to 0 to disable the size cap.
   max_size: 1048576
+# Folders that page content may take media from by stream URI: a markdown image
+# such as `![](theme://images/logo.png)`, `media['user://media/photo.jpg']`, the
+# image in a `watermark` action and `media_directory()`. Each entry is a stream
+# URI, and a file counts when its real path lies inside one of that stream's
+# folders, so `user://pages/...` and `user://media/...` work through `page://` and
+# `media://`. `user://` itself is deliberately absent: it also holds accounts,
+# configuration and site data (form submissions and the like), none of which a
+# page editor is granted access to. The same goes for `tmp://`, `cache://`,
+# `log://` and `backup://`.
+media:
+  allowed_roots:
+    - page://
+    - image://
+    - media://
+    - theme://
+    - themes://
+    - plugins://
+    - asset://
+    - system://images
+    - system://assets
 # NOTE: `salt:` was removed in v2.0.0-beta.2 (GHSA-3f29-pqwf-v4j4). The equivalent
 # HMAC key is now stored in `user/config/security-private.php`, outside the Config
 # tree, so sandboxed Twig cannot read it via `grav.config.get(...)`. On upgrade,

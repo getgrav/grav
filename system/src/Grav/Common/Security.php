@@ -554,15 +554,6 @@ class Security
         /** @var Config $config */
         $config = Grav::instance()['config'];
 
-        // Only content that Twig will actually process at render time can carry a
-        // render-time-assembled payload; anything else the raw-source validator
-        // already covers. Mirrors the render-time decision exactly, including the
-        // modular branch, so this check can never end up stricter than the render
-        // it is meant to protect. (GHSA-fg8g-663r-f366)
-        if (!static::willProcessContentTwig($page)) {
-            return null;
-        }
-
         // Mirror checkSafety's trust boundary: a user who may store literal
         // dangerous markup (superadmin, per security.xss_whitelist) is not blocked
         // from storing the assembled equivalent.
@@ -583,7 +574,16 @@ class Security
             // Body only. A module's trusted modular template is theme-authored,
             // not editor input, so rendering it here would let an inline event
             // handler in a theme's own markup fail an otherwise clean save.
-            $rendered = $twig->processPage($page, $rawContent, false);
+            //
+            // Render as a module, whatever the page is today. A module runs its
+            // body Twig no matter what its header says, and whether a page is a
+            // module is not settled at save time: moving or copying it to a `_`
+            // folder, or a `slug: _name` header, turns the same stored body into
+            // one. Scanning only when Twig runs today let a body saved with Twig
+            // off become live markup after an ordinary move.
+            $probe = clone $page;
+            $probe->modularTwig(true);
+            $rendered = $twig->processPage($probe, $rawContent, false);
         } catch (\Throwable) {
             return null;
         }
@@ -595,8 +595,10 @@ class Security
      * Will Grav process editor-authored Twig in this page's content at render time?
      *
      * Single source of truth for that decision, shared by the two render paths
-     * (Page::content(), PageContentTrait::processContent()) and by the save-time
-     * guard in detectXssInEditorContent(). Modules render their body Twig
+     * (Page::content(), PageContentTrait::processContent()). The save-time guard
+     * in detectXssInEditorContent() deliberately does not use it: a page can
+     * become a module after it is saved, so that guard always scans as if the
+     * body runs as Twig. Modules render their body Twig
      * unconditionally — a modular template is theme-controlled and renders its
      * children with Twig — so they ignore the security.twig_content.process_enabled
      * gate. Keeping the boolean in one place stops the save-time check drifting

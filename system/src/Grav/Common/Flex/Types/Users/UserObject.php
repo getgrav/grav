@@ -841,7 +841,69 @@ class UserObject extends FlexObject implements UserInterface, Countable
             return $action !== 'delete';
         }
 
+        // Managing user accounts does not reach the super-admin tier: an account that
+        // is not super itself may not create, update or delete one that is, whatever
+        // rule grants it user management. Otherwise it could reset the super-admin's
+        // password and sign in as them. The API, the classic admin and the generic
+        // Flex API all hold this line; this is the same guard for Flex form saves.
+        if (in_array($action, ['create', 'update', 'delete'], true)
+            && $this->hasSuperAccess()
+            && !$this->actorHasSuperAccess($user, $isMe)
+        ) {
+            return false;
+        }
+
         return parent::isAuthorizedOverride($user, $action, $scope, $isMe);
+    }
+
+    /**
+     * Whether this account holds super-admin access, through its own access map or
+     * through any of its groups. Read straight from the ACL, not through
+     * authorize(), so it answers for an account loaded from storage whatever its
+     * session or account state.
+     *
+     * @return bool
+     */
+    protected function hasSuperAccess(): bool
+    {
+        $access = $this->getAccess();
+        $groups = $this->getGroups();
+        foreach (['admin.super', 'api.super'] as $rule) {
+            if ($access->authorize($rule) === true || $groups->authorize($rule) === true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param UserInterface $user
+     * @param bool $isMe
+     * @return bool
+     */
+    protected function actorHasSuperAccess(UserInterface $user, bool $isMe): bool
+    {
+        $scope = $isMe ? null : 'test';
+
+        return $user->authorize('admin.super', $scope) === true
+            || $user->authorize('api.super', $scope) === true;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * The password hash and the session flags are never taken from submitted data.
+     * The account blueprint does not declare them, and its loose validation passes
+     * undeclared keys through, so a form save could otherwise write a hash of the
+     * submitter's choosing. A new password goes through `password`, which save()
+     * hashes.
+     */
+    public function update(array $data, array $files = [])
+    {
+        unset($data['hashed_password'], $data['authenticated'], $data['authorized']);
+
+        return parent::update($data, $files);
     }
 
     /**

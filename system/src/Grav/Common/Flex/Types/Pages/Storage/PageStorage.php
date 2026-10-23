@@ -372,6 +372,7 @@ class PageStorage extends FolderStorage
     {
         // Initialize all key-related variables.
         $newKeys = $this->extractKeysFromRow($row);
+        $this->assertValidPageKeys($newKeys);
         $newKey = $this->buildStorageKey($newKeys);
         $newFolder = $this->buildFolder($newKeys);
         $newFilename = $this->buildFilename($newKeys);
@@ -477,6 +478,37 @@ class PageStorage extends FolderStorage
         $row['__META'] = $this->getObjectMeta($newKey, true);
 
         return $row;
+    }
+
+    /**
+     * The folder, template and language become parts of the page file's path,
+     * so each has to be a plain name: no separator, no null byte and no leading
+     * dot (which also rules out `.` and `..`). The parent key is the path of an
+     * existing page, so only its segments are checked.
+     *
+     * @param array $keys
+     * @return void
+     * @throws RuntimeException
+     */
+    protected function assertValidPageKeys(array $keys): void
+    {
+        $parentKey = (string)($keys['parent_key'] ?? '');
+        foreach ($parentKey !== '' ? explode('/', $parentKey) : [] as $segment) {
+            if ($segment === '' || $segment === '.' || $segment === '..' || str_contains($segment, "\0") || str_contains($segment, '\\')) {
+                throw new RuntimeException('Invalid page parent');
+            }
+        }
+
+        foreach (['folder', 'template'] as $name) {
+            $value = (string)($keys[$name] ?? '');
+            if ($value !== '' && ($value[0] === '.' || strpbrk($value, "/\\\0") !== false)) {
+                throw new RuntimeException("Invalid page {$name}");
+            }
+        }
+
+        if (!preg_match('/^[\w-]*$/u', (string)($keys['lang'] ?? ''))) {
+            throw new RuntimeException('Invalid page language');
+        }
     }
 
     /**
