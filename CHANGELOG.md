@@ -1,5 +1,5 @@
 # v1.7.53.6
-## 10/04/2026
+## 10/23/2026
 
 1. [](#bugfix)
     * [security] Clockwork profiler data now requires a configured `debugger.token`, including for requests that reach Grav from the local machine, such as through a reverse proxy on the same server. Backport of the Grav 2.1.7 fix. Thanks @xfscott
