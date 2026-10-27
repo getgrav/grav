@@ -34,8 +34,13 @@ class Pipeline extends PropertyObject
     protected const JS_ASSET = 2;
     protected const JS_MODULE_ASSET = 3;
 
-    /** @const Regex to match CSS urls */
-    protected const CSS_URL_REGEX = '{url\(\s*([\'\"]?)(.*?)\1\s*\)|(@import)\s+([\'\"])(.*?)\4}i';
+    /**
+     * @const Regex to match CSS urls. Group 1 is the quote and group 2 the URL of a url(), group 3
+     *        is `@import`, group 4 the quote and group 5 the URL of a quoted @import. The branch
+     *        resets keep that numbering for every form, and the possessive runs scan a long
+     *        data: URI without running into PCRE's backtrack limit.
+     */
+    protected const CSS_URL_REGEX = '{url\(\s*(?|(")((?:[^"\\\\\r\n]++|\\\\.)*+)"|(\')((?:[^\'\\\\\r\n]++|\\\\.)*+)\'|()([^)\s"\']*+))\s*\)|(@import)\s+(?|(")([^"\r\n]*+)"|(\')([^\'\r\n]*+)\')}i';
 
     /** @const Regex to match JS imports */
     protected const JS_IMPORT_REGEX = '{import.+from\s?[\'|\"](.+?)[\'|\"]}';
@@ -47,8 +52,10 @@ class Pipeline extends PropertyObject
      * @const Regex matching, in order, a quoted CSS string, a bang-prefixed license comment, or
      *        an ordinary comment. Strings come first so that comment markers inside a string are
      *        never taken for a comment, and a quote inside a comment is never taken for a string.
+     *        Every run is possessive, so a long string or comment (an inlined data: URI) costs
+     *        PCRE no stack or backtracking per character.
      */
-    protected const CSS_STRING_OR_COMMENT_REGEX = '~("(?:[^"\\\\\r\n]|\\\\(?:\r\n|.))*"|\'(?:[^\'\\\\\r\n]|\\\\(?:\r\n|.))*\')|(/\*!.*?\*/)|/\*.*?\*/~s';
+    protected const CSS_STRING_OR_COMMENT_REGEX = '~("(?:[^"\\\\\r\n]++|\\\\(?:\r\n|.))*+"|\'(?:[^\'\\\\\r\n]++|\\\\(?:\r\n|.))*+\')|(/\*![^*]*+(?:\*(?!/)[^*]*+)*+\*/)|/\*[^*]*+(?:\*(?!/)[^*]*+)*+\*/~s';
 
     protected const FIRST_FORWARDSLASH_REGEX = '{^\/{1}\w}';
 
@@ -322,7 +329,7 @@ class Pipeline extends PropertyObject
 
         // Find any css url() elements, grab the URLs and calculate an absolute path
         // Then replace the old url with the new one
-        $file = (string)preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($dir, $local) {
+        $rewritten = preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($dir, $local) {
             $isImport = count($matches) > 3 && strtolower($matches[3]) === '@import';
 
             if ($isImport) {
@@ -353,7 +360,8 @@ class Pipeline extends PropertyObject
             }
         }, (string) $file);
 
-        return $file;
+        // On a PCRE failure keep the file as it was rather than lose it.
+        return $rewritten ?? (string) $file;
     }
 
     /**

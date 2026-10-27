@@ -311,6 +311,6 @@ abstract class BaseAsset extends PropertyObject
      */
     protected function jsRewrite($file, $dir, $local)
     {
-        return '';
+        return (string) $file;
     }
 }

@@ -174,10 +174,11 @@ trait AssetUtilsTrait
      */
     protected function moveImports($file)
     {
-        $string = '"(?:[^"\\\\\r\n]|\\\\(?:\r\n|.))*"|\'(?:[^\'\\\\\r\n]|\\\\(?:\r\n|.))*\'';
-        $regex = '~(' . $string . '|/\*.*?\*/)'
+        // Possessive runs, so a long string or comment costs PCRE no stack per character.
+        $string = '"(?:[^"\\\\\r\n]++|\\\\(?:\r\n|.))*+"|\'(?:[^\'\\\\\r\n]++|\\\\(?:\r\n|.))*+\'';
+        $regex = '~(' . $string . '|/\*[^*]*+(?:\*(?!/)[^*]*+)*+\*/)'
             . '|(@charset\s*(?:' . $string . ')\s*;)'
-            . '|(@import\s*(?:url\(\s*(?:' . $string . '|[^)"\'\s]*)\s*\)|' . $string . ')(?:' . $string . '|[^;{}"\'])*;)~is';
+            . '|(@import\s*(?:url\(\s*(?:' . $string . '|[^)"\'\s]*+)\s*\)|' . $string . ')(?:' . $string . '|[^;{}"\']++)*+;)~is';
 
         $charset = null;
         $imports = [];
@@ -221,6 +222,12 @@ trait AssetUtilsTrait
 
         foreach ($this->attributes as $key => $value) {
             if ($value === null) {
+                continue;
+            }
+
+            // `loading` is Grav's own option: async and defer render as boolean attributes, but
+            // inline only picks how the asset is output and is not an HTML attribute.
+            if ($key === 'loading' && $value === 'inline') {
                 continue;
             }
 
