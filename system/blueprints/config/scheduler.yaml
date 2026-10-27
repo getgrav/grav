@@ -233,7 +233,7 @@ form:
                                 .id:
                                     type: key
                                     label: PLUGIN_ADMIN.ID
-                                    placeholder: 'process-name'
+                                    placeholder: 'e.g. clear-cache'
                                     validate:
                                         required: true
                                         pattern: '[a-zа-я0-9_\-]+'
@@ -242,26 +242,26 @@ form:
                                 .command:
                                     type: text
                                     label: PLUGIN_ADMIN.COMMAND
-                                    placeholder: 'ls'
+                                    placeholder: 'e.g. bin/grav'
                                     validate:
                                         required: true
                                 .args:
                                     type: text
                                     label: PLUGIN_ADMIN.EXTRA_ARGUMENTS
-                                    placeholder: '-lah'
+                                    placeholder: 'e.g. cache'
                                 .at:
                                     type: text
                                     wrapper_classes: cron-selector
                                     label: PLUGIN_ADMIN.SCHEDULER_RUNAT
                                     help: PLUGIN_ADMIN.SCHEDULER_RUNAT_HELP
-                                    placeholder: '* * * * *'
+                                    default: '* * * * *'
                                     validate:
                                         required: true
                                 .output:
                                     type: text
                                     label: PLUGIN_ADMIN.SCHEDULER_OUTPUT
                                     help: PLUGIN_ADMIN.SCHEDULER_OUTPUT_HELP
-                                    placeholder: 'logs/ls-cron.out'
+                                    placeholder: 'e.g. logs/clear-cache.out'
                                 .output_mode:
                                     type: select
                                     label: PLUGIN_ADMIN.SCHEDULER_OUTPUT_TYPE
@@ -274,7 +274,7 @@ form:
                                     type: text
                                     label: PLUGIN_ADMIN.SCHEDULER_EMAIL
                                     help: PLUGIN_ADMIN.SCHEDULER_EMAIL_HELP
-                                    placeholder: 'notifications@yoursite.com'
+                                    placeholder: 'e.g. notifications@yoursite.com'
 
                 modern_tab:
                     type: tab
