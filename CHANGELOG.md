@@ -1,7 +1,9 @@
 # v2.2.14
 ## 10/26/2026
 
-1. [](#bugfix)
+1. [](#improved)
+    * Disabled plugins are no longer loaded, so a disabled plugin with code that doesn't work on this version of Grav can't take the site down, and requests do less work. A disabled plugin is still listed with its settings, and its class still loads if another plugin asks for it. Thanks @NoNoNo [#4374](https://github.com/getgrav/grav/issues/4374)
+2. [](#bugfix)
     * CSS with a long quoted string or comment (such as an inlined data: URI) minifies again instead of failing with a PCRE error, and a very large data: URI no longer empties the whole stylesheet from the bundle. Thanks @NoNoNo [#4372](https://github.com/getgrav/grav/issues/4372)
     * Inline JavaScript added with `loading: 'inline'` no longer renders a stray `inline` attribute on its script tag, and an inline JS module keeps its code when the pipeline is off. Thanks @NoNoNo [#4373](https://github.com/getgrav/grav/issues/4373)
 
