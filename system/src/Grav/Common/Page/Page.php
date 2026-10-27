@@ -24,10 +24,12 @@ use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Interfaces\PageUuidInterface;
 use Grav\Common\Media\MediaRouteUrls;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Traits\PageFormTrait;
+use Grav\Common\Page\Traits\PageUuidTrait;
 use Grav\Common\Security;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Uri;
@@ -53,10 +55,11 @@ define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
  * Class Page
  * @package Grav\Common\Page
  */
-class Page implements PageInterface
+class Page implements PageInterface, PageUuidInterface
 {
     use PageFormTrait;
     use MediaTrait;
+    use PageUuidTrait;
 
     /** @var string|null Filename. Leave as null if page is folder. */
     protected $name;
@@ -1597,6 +1600,9 @@ class Page implements PageInterface
             $file->header((array)$this->header());
             $file->markdown($this->rawMarkdown());
             $file->save();
+
+            // Give the folder an id when page ids are on.
+            PageIdentity::onSaved($this->path());
         }
 
         // Perform reorder if required
@@ -3335,6 +3341,8 @@ class Page implements PageInterface
                 Folder::move($this->_original->path(), $this->path());
             } elseif ($this->_action === 'copy') {
                 Folder::copy($this->_original->path(), $this->path());
+                // A copy never keeps the original's id.
+                PageIdentity::onCopied($this->path());
             }
         }
 

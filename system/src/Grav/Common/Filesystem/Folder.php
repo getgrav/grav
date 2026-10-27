@@ -13,6 +13,7 @@ use DirectoryIterator;
 use Exception;
 use FilesystemIterator;
 use Grav\Common\Grav;
+use Grav\Common\Page\PageIdentity;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
@@ -397,6 +398,8 @@ abstract class Folder
         if (is_dir($source)) {
             // Rename doesn't support moving folders across filesystems. Use copy instead.
             self::copy($source, $target);
+            // The copy leaves hidden files behind. A moved page keeps its id.
+            PageIdentity::copyIds($source, $target);
             self::delete($source);
         }
 

@@ -1,7 +1,9 @@
 # v2.2.15
 ## 10/27/2026
 
-1. [](#bugfix)
+1. [](#new)
+    * **Page ids**: a page folder can carry a hidden `.page-id` file holding a permanent id (a UUID) that stays with the folder however it is renamed, reordered or moved, in Admin, with git or over FTP. Read it with `$page->uuid()` and find a page by it with `$pages->findByUuid()`; `Grav\Common\Page\PageIdentity` writes ids, finds a folder by its id after a move, and decides which folder keeps an id that a copy made outside Grav duplicated (the older `.page-id` wins). Ids are off unless a plugin needs them: it calls `PageIdentity::enable()` in `onPluginsInitialized`, or a site sets `system.pages.uuid: true`, and then saving or creating a page gives its folder an id and a copied page gets its own. `bin/grav page-ids` gives every page folder an id and reports duplicates, and tells the pages cache so the next request finds the new ids. The file is hidden, so it never shows as a page file or as media, and a page folder moved to another disk (where Grav copies it instead of renaming it) takes its ids with it. Two requests saving one new page at the same moment give it one id, not two
+2. [](#bugfix)
     * A scheduler custom job or backup profile added in the admin and saved without being filled in no longer breaks the scheduler: it is skipped, so the other jobs still run and the job list, health check and webhook keep working [getgrav/grav-plugin-scheduler-webhook#10](https://github.com/getgrav/grav-plugin-scheduler-webhook/issues/10)
     * A new backup profile's default schedule runs once at 3:00 instead of every minute from 3:00 to 3:59, and a job whose Extra Arguments field is saved empty no longer fails
     * The scheduler's custom job placeholders read as examples (`e.g. bin/grav`) instead of looking like values already filled in, and Run At saves the every-minute schedule it shows when left as is

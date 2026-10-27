@@ -16,6 +16,7 @@ use Grav\Common\Debugger;
 use Grav\Common\Flex\Types\Pages\PageIndex;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Page\PageIdentity;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Storage\FolderStorage;
@@ -406,6 +407,10 @@ class PageStorage extends FolderStorage
                         }
 
                         $this->copyRow($oldKey, $newKey);
+                        // A copy never keeps the original's id.
+                        /** @var UniformResourceLocator $locator */
+                        $locator = $grav['locator'];
+                        PageIdentity::onCopied($locator->isStream($newFolder) ? $locator->findResource($newFolder) : $newFolder);
                         $debugger->addMessage("Page copied: {$oldFolder} => {$newFolder}", 'debug');
                     } else {
                         if (str_starts_with($newFolder, $oldFolder . '/')) {
@@ -590,6 +595,9 @@ class PageStorage extends FolderStorage
             $modified = 0;
             $markdown = [];
             $children = [];
+            // With page ids on, the folder's id is read while the folder is listed.
+            $uuidIndex = PageIdentity::enabled();
+            $uuid = null;
 
             if (is_string($path) && is_dir($path)) {
                 $modified = filemtime($path);
@@ -597,6 +605,14 @@ class PageStorage extends FolderStorage
 
                 /** @var SplFileInfo $info */
                 foreach ($iterator as $k => $info) {
+                    // The page id file is never a page file or media.
+                    if ($k === PageIdentity::FILE) {
+                        if ($uuidIndex && $info->isFile()) {
+                            $uuid = PageIdentity::read($path);
+                        }
+                        continue;
+                    }
+
                     // Ignore all hidden files if set.
                     if ($k === '' || ($this->ignore_hidden && $k[0] === '.')) {
                         continue;
@@ -664,6 +680,9 @@ class PageStorage extends FolderStorage
             }
             if ($children) {
                 $meta['children'] = $children;
+            }
+            if ($uuidIndex) {
+                $meta['uuid'] = $uuid;
             }
             $meta['checksum'] = md5(json_encode($meta) ?: '');
 
