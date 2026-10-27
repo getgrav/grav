@@ -1,3 +1,10 @@
+# v2.2.15
+## 10/27/2026
+
+1. [](#bugfix)
+    * A scheduler custom job or backup profile added in the admin and saved without being filled in no longer breaks the scheduler: it is skipped, so the other jobs still run and the job list, health check and webhook keep working [getgrav/grav-plugin-scheduler-webhook#10](https://github.com/getgrav/grav-plugin-scheduler-webhook/issues/10)
+    * A new backup profile's default schedule runs once at 3:00 instead of every minute from 3:00 to 3:59, and a job whose Extra Arguments field is saved empty no longer fails
+
 # v2.2.14
 ## 10/26/2026
 

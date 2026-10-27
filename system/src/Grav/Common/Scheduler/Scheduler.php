@@ -139,6 +139,15 @@ class Scheduler
         $saved_jobs = (array) Grav::instance()['config']->get('scheduler.custom_jobs', []);
 
         foreach ($saved_jobs as $id => $j) {
+            // A row added in the admin and saved without being filled in is stored with no
+            // command (`custom_jobs: {1: {output_mode: append}}`). Queuing it handed Process an
+            // empty program name, which took the whole run down on the CLI, and on the web the
+            // missing key alone broke the webhook, the health check and the admin job list.
+            // There is nothing to run, so leave it out (grav-plugin-scheduler-webhook#10).
+            if (!is_array($j) || !is_string($j['command'] ?? null) || trim($j['command']) === '') {
+                continue;
+            }
+
             $args = $j['args'] ?? [];
             $id = Grav::instance()['inflector']->hyphenize($id);
             

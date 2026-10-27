@@ -119,7 +119,7 @@ form:
             .schedule_at:
                 type: cron
                 label: PLUGIN_ADMIN.BACKUPS_PROFILE_SCHEDULE_AT
-                default: '* 3 * * *'
+                default: '0 3 * * *'
                 validate:
                     required: true
             .schedule_environment:
