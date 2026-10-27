@@ -1,3 +1,10 @@
+# v2.2.14
+## 10/26/2026
+
+1. [](#bugfix)
+    * CSS with a long quoted string or comment (such as an inlined data: URI) minifies again instead of failing with a PCRE error, and a very large data: URI no longer empties the whole stylesheet from the bundle. Thanks @NoNoNo [#4372](https://github.com/getgrav/grav/issues/4372)
+    * Inline JavaScript added with `loading: 'inline'` no longer renders a stray `inline` attribute on its script tag, and an inline JS module keeps its code when the pipeline is off. Thanks @NoNoNo [#4373](https://github.com/getgrav/grav/issues/4373)
+
 # v2.2.13
 ## 10/23/2026
 

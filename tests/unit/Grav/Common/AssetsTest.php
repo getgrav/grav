@@ -1139,6 +1139,42 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertSame('<script>' . PHP_EOL . 'alert("test")' . PHP_EOL . '</script>' . PHP_EOL, $js);
     }
 
+    /**
+     * `loading` is a Grav directive, not an HTML attribute. async and defer pass through as
+     * boolean attributes, but inline only picks how the asset renders and never reaches the
+     * tag (#4373).
+     *
+     * @dataProvider inlineLoadingProvider
+     */
+    public function testInlineLoadingIsNotRenderedAsAnAttribute(string $method, array $options, bool $pipeline, string $tag, bool $inline): void
+    {
+        $this->assets->reset();
+        $this->assets->setJsPipeline($pipeline);
+        $this->assets->$method('/tests/unit/data/assets/valid.js', $options);
+
+        $js = $this->assets->js($options['group'] ?? 'head');
+
+        self::assertStringStartsWith($tag, $js);
+        self::assertStringNotContainsString('inline', $js);
+        if ($inline) {
+            self::assertMatchesRegularExpression("/var valid ?= ?'ok'/", $js);
+        }
+    }
+
+    public function inlineLoadingProvider(): array
+    {
+        $src = '<script src="/tests/unit/data/assets/valid.js"';
+
+        return [
+            'js, no pipeline' => ['addJs', ['loading' => 'inline'], false, "<script>\n", true],
+            'js, after the pipeline, bottom group' => ['addJs', ['loading' => 'inline', 'position' => 'after', 'group' => 'bottom'], true, "<script>\n", true],
+            'js, pipelined' => ['addJs', ['loading' => 'inline'], true, "<script>\n", true],
+            'js module, no pipeline' => ['addJsModule', ['loading' => 'inline'], false, "<script type=\"module\">\n", true],
+            'async still renders' => ['addJs', ['loading' => 'async'], false, $src . ' async></script>', false],
+            'defer still renders' => ['addJs', ['loading' => 'defer'], false, $src . ' defer></script>', false],
+        ];
+    }
+
     public function testGetCollections(): void
     {
         self::assertIsArray($this->assets->getCollections());
