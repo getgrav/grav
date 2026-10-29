@@ -1,3 +1,9 @@
+# v2.2.16
+## 10/29/2026
+
+1. [](#bugfix)
+    * [security] The `string()` Twig function now applies the same sandbox checks as the `|string` filter. Thanks @dagighost
+
 # v2.2.15
 ## 10/29/2026
 

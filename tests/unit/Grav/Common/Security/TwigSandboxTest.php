@@ -822,7 +822,29 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
             'json_encode' => ['{{ config|json_encode }}'],
             'yaml_encode' => ['{{ config|yaml_encode }}'],
             'string'      => ['{{ config|string }}'],
+            // The function form must take the same guarded path as the filter.
+            // An object inside an array reaches json_encode(), which calls
+            // jsonSerialize() without asking the sandbox.
+            'string function'                => ['{{ string(config) }}'],
+            'string function, array wrapped' => ['{{ string([config]) }}'],
+            'string function, hash wrapped'  => ['{{ string({a: config}) }}'],
         ];
+    }
+
+    /**
+     * Guarding the `string` function must not break it on plain values in
+     * sandboxed content.
+     */
+    public function testSandboxRender_StringFunctionStillCastsPlainValues(): void
+    {
+        $env = $this->sourcePolicySandboxEnv([
+            '@Var:ok' => '{{ string(true) }}|{{ string(42) }}|{{ string(["a", "b"]) }}|{{ string(subject) }}',
+        ]);
+
+        $obj = new \stdClass();
+        $obj->title = 'Hello';
+
+        self::assertSame('1|42|["a","b"]|[{"title":"Hello"}]', html_entity_decode($env->render('@Var:ok', ['subject' => [$obj]])));
     }
 
     /**
