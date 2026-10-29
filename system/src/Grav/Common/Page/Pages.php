@@ -98,6 +98,10 @@ class Pages
     protected $ignore_folders;
     /** @var bool */
     protected $ignore_hidden;
+    /** @var array<string,string> Page folder for each page id (see PageIdentity), when ids are on. */
+    protected $uuids = [];
+    /** @var bool Whether the running build records page ids (system.pages.uuid). */
+    protected $uuid_index = false;
     /** @var string */
     protected $check_method;
     /** @var string */
@@ -392,6 +396,8 @@ class Pages
         $this->index = [];
         $this->children = [];
         $this->routes = [];
+        $this->uuids = [];
+        $this->uuid_index = PageIdentity::enabled();
 
         if (!$this->check_method) {
             $this->setCheckMethod($config->get('system.cache.check.method', 'file'));
@@ -1279,6 +1285,81 @@ class Pages
     }
 
     /**
+     * Find a page by the id of its folder (see PageIdentity).
+     *
+     * Answers from the pages index, so it only knows ids while
+     * `system.pages.uuid` is on (otherwise it returns null) and only for
+     * folders that had their id when the pages were last indexed.
+     *
+     * @param string $uuid
+     * @return PageInterface|null
+     */
+    public function findByUuid(string $uuid): ?PageInterface
+    {
+        $path = $this->uuidPath($uuid);
+
+        return $path !== null ? $this->get($path) : null;
+    }
+
+    /**
+     * Whether the pages are initialized with an index of page ids (page ids
+     * are on), so uuidPath() knows every indexed folder's id.
+     *
+     * @return bool
+     */
+    public function hasUuidIndex(): bool
+    {
+        return $this->initialized && $this->uuid_index;
+    }
+
+    /**
+     * Folder the pages index holds for a page id, or null when the pages
+     * aren't initialized, ids are off, or no folder had the id when the
+     * pages were indexed. A folder that has lost the id since is not returned.
+     *
+     * @param string $uuid
+     * @return string|null
+     */
+    public function uuidPath(string $uuid): ?string
+    {
+        if (!$this->initialized || !$this->uuid_index || !PageIdentity::isValid($uuid)) {
+            return null;
+        }
+
+        $path = $this->uuids[strtolower($uuid)] ?? null;
+        if ($path === null || PageIdentity::read($path) !== strtolower($uuid)) {
+            return null;
+        }
+
+        return $path;
+    }
+
+    /**
+     * Record a page folder's id while indexing. When two folders hold the
+     * same id, the one PageIdentity::keeper() picks is kept.
+     *
+     * @param string $uuid
+     * @param string $path
+     * @return void
+     */
+    protected function registerUuid(string $uuid, string $path): void
+    {
+        $existing = $this->uuids[$uuid] ?? null;
+        if ($existing === null || $existing === $path) {
+            $this->uuids[$uuid] = $path;
+
+            return;
+        }
+
+        $keeper = PageIdentity::keeper([$existing, $path]);
+        $this->uuids[$uuid] = $keeper;
+
+        /** @var Debugger $debugger */
+        $debugger = $this->grav['debugger'];
+        $debugger->addMessage(sprintf('Page id %s is held by both %s and %s; %s keeps it', $uuid, $existing, $path, $keeper), 'debug');
+    }
+
+    /**
      * Check site based routes.
      *
      * @param string $route
@@ -1971,8 +2052,10 @@ class Pages
 
         $cached = $cache->get($this->pages_cache_id);
 
-        if ($cached && $this->getVersion() === $cached[0]) {
+        // An index cached while page ids were off has no ids to give.
+        if ($cached && $this->getVersion() === $cached[0] && (!$this->uuid_index || is_array($cached[6] ?? null))) {
             [, $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
+            $this->uuids = $this->uuid_index ? $cached[6] : [];
 
             /** @var Taxonomy $taxonomy */
             $taxonomy = $this->grav['taxonomy'];
@@ -2039,6 +2122,15 @@ class Pages
             $this->routes[$route] = $path;
             $this->instances[$path] = $page;
             $this->index[$path] = $page->getFlexKey();
+            if ($this->uuid_index) {
+                // Flex page storage reads the id while it lists the folder.
+                // An index listed before ids were on has no `uuid`, so read it.
+                $meta = $page->getMetaData();
+                $uuid = array_key_exists('uuid', $meta) ? $meta['uuid'] : PageIdentity::read($path);
+                if (is_string($uuid) && $uuid !== '') {
+                    $this->registerUuid($uuid, $path);
+                }
+            }
             // FIXME: ... better...
             $this->children[$parent][$path] = ['slug' => $page->slug()];
             if (!isset($this->children[$path])) {
@@ -2069,7 +2161,7 @@ class Pages
             $taxonomy_map = $taxonomy->taxonomy();
 
             // save pages, routes, taxonomy, and sort to cache
-            $cache->set($this->pages_cache_id, [$this->getVersion(), $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort]);
+            $cache->set($this->pages_cache_id, [$this->getVersion(), $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort, $this->uuid_index ? $this->uuids : null]);
         }
     }
 
@@ -2168,6 +2260,11 @@ class Pages
             return false;
         }
 
+        // An index cached while page ids were off has no ids to give.
+        if ($this->uuid_index && !is_array($cached[7] ?? null)) {
+            return false;
+        }
+
         // A lazy index stores true-markers instead of Page objects; the pages
         // themselves live in the per-page index store and hydrate on access.
         $lazy = !empty($cached[6]);
@@ -2178,6 +2275,7 @@ class Pages
 
         $this->index_store = $store;
         [, $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
+        $this->uuids = $this->uuid_index ? $cached[7] : [];
 
         /** @var Taxonomy $taxonomy */
         $taxonomy = $this->grav['taxonomy'];
@@ -2248,6 +2346,7 @@ class Pages
         $this->children_lazy = false;
         $this->sort_lazy = false;
         $this->sort = [];
+        $this->uuids = [];
 
         /** @var Taxonomy $taxonomy */
         $taxonomy = $this->grav['taxonomy'];
@@ -2353,9 +2452,9 @@ class Pages
 
             // save pages, routes, taxonomy, and sort to cache
             if ($lazy) {
-                $cache->save($this->pages_cache_id, [$this->getVersion(), $index, [], [], [], [], true]);
+                $cache->save($this->pages_cache_id, [$this->getVersion(), $index, [], [], [], [], true, $this->uuid_index ? $this->uuids : null]);
             } else {
-                $cache->save($this->pages_cache_id, [$this->getVersion(), $index, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort, false]);
+                $cache->save($this->pages_cache_id, [$this->getVersion(), $index, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort, false, $this->uuid_index ? $this->uuids : null]);
             }
         }
     }
@@ -2573,6 +2672,14 @@ class Pages
         $reused = false;
         foreach ($this->listFolder($directory, $folder_time, $reused) as $filename => $type) {
             $filename = (string)$filename;
+
+            // The page id file is never a page file or media. With ids on, record the id.
+            if ($filename === PageIdentity::FILE) {
+                if ($this->uuid_index && $parent && $type === 'f' && ($uuid = PageIdentity::read($directory)) !== null) {
+                    $this->registerUuid($uuid, $directory);
+                }
+                continue;
+            }
 
             // Ignore all hidden files if set.
             if ($this->ignore_hidden && $filename && str_starts_with($filename, '.')) {

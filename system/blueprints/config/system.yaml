@@ -318,6 +318,18 @@ form:
               validate:
                 type: bool
 
+            pages.uuid:
+              type: toggle
+              label: Page IDs
+              help: "Give each page folder a hidden .page-id file with a permanent id when the page is saved, so plugins can follow a page however its folder is renamed or moved. Off by default; plugins that need ids turn them on themselves."
+              highlight: 0
+              default: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             pages.ignore_files:
               type: selectize
               size: large

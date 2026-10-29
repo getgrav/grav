@@ -21,6 +21,9 @@ use Grav\Common\Flex\Types\Pages\Traits\PageRoutableTrait;
 use Grav\Common\Flex\Types\Pages\Traits\PageTranslateTrait;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Interfaces\PageUuidInterface;
+use Grav\Common\Page\PageIdentity;
+use Grav\Common\Page\Traits\PageUuidTrait;
 use Grav\Common\Page\Pages;
 use Grav\Common\Security;
 use Grav\Common\User\Interfaces\UserInterface;
@@ -53,7 +56,7 @@ use function is_array;
  * @property string $template
  * @property string $language
  */
-class PageObject extends FlexPageObject
+class PageObject extends FlexPageObject implements PageUuidInterface
 {
     use FlexGravTrait;
     use FlexObjectTrait;
@@ -61,6 +64,7 @@ class PageObject extends FlexPageObject
     use PageLegacyTrait;
     use PageRoutableTrait;
     use PageTranslateTrait;
+    use PageUuidTrait;
 
     /** @var string Language code, eg: 'en' */
     protected $language;
@@ -314,6 +318,11 @@ class PageObject extends FlexPageObject
         /** @var static $instance */
         $instance = parent::save();
         $variables = $this->onSave($variables);
+
+        // Give the folder an id when page ids are on.
+        if (!$this->root()) {
+            PageIdentity::onSaved($this->path());
+        }
 
         // Let the regular pages cache pick up the change without waiting for the change check.
         $pages = $grav['pages'] ?? null;

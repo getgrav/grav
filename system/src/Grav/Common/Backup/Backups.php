@@ -98,9 +98,17 @@ class Backups
 
         $status = $grav['config']->get('scheduler.status');
 
-        foreach (static::getBackupProfiles() as $id => $profile) {
-            $at = $profile['schedule_at'];
-            $name = $inflector::hyphenize($profile['name']);
+        foreach ((array) static::getBackupProfiles() as $id => $profile) {
+            // A profile added in the admin and saved without a name has no job id to go by, and
+            // the missing key broke every scheduler listing and run on the web
+            // (grav-plugin-scheduler-webhook#10). A profile with no schedule would run every
+            // minute. Leave either out of the schedule.
+            $name = is_array($profile) ? $inflector::hyphenize(trim((string) ($profile['name'] ?? ''))) : '';
+            $at = is_array($profile) ? trim((string) ($profile['schedule_at'] ?? '')) : '';
+            if ($name === '' || $at === '') {
+                continue;
+            }
+
             $logs = 'log://backup-' . $name . '.out';
             $environment = $profile['schedule_environment'] ?? null;
             /** @var Job $job */
