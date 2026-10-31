@@ -79,7 +79,18 @@ uploads_dangerous_extensions:
   # sanitizer cannot read, being gzipped, so it is denied outright.
   - xhtml
   - xht
+  - xhtm
   - svgz
+  # XML formats a browser renders with their own markup (XHTML, SVG or MathML
+  # namespaces, XSLT stylesheets, feeds) are treated the same way. Sites that
+  # need XML attachments can remove `xml` here.
+  - xml
+  - xsl
+  - xslt
+  - atom
+  - rss
+  - rdf
+  - mml
   # Same reasoning as the php/php2-5 entries: a server whose PHP handler is
   # mapped over these suffixes executes them.
   - php7

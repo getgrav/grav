@@ -734,6 +734,20 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertSame('//foo.com?param=x', Utils::url('//foo.com?param=x'));
     }
 
+    public function testShippedDangerousExtensionsRefuseRenderedXmlFormats(): void
+    {
+        /** @var \Grav\Common\Config\Config $config */
+        $config = $this->grav['config'];
+        $shipped = \Grav\Common\Yaml::parse((string)file_get_contents(GRAV_ROOT . '/system/config/security.yaml'));
+        $config->set('security.uploads_dangerous_extensions', $shipped['uploads_dangerous_extensions']);
+
+        foreach (['feed.xml', 'page.xhtm', 'style.xsl', 'style.xslt', 'news.atom', 'news.rss', 'data.rdf', 'formula.mml', 'FEED.XML', 'feed.xml.txt'] as $name) {
+            self::assertFalse(Utils::checkFilename($name), $name);
+        }
+        self::assertTrue(Utils::checkFilename('photo.png'));
+        self::assertTrue(Utils::checkFilename('report.pdf'));
+    }
+
     public function testCheckFilename(): void
     {
         // configure extension for consistent results
