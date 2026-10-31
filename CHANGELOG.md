@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * A number field given a value too large for an integer no longer causes a warning on PHP 8.5
+    * The bundled `lighttpd.conf` loads on current lighttpd releases again, serves `/.well-known/` files such as ACME challenges, and keeps Markdown source files and the same folders and file types private as the Apache rules do (lighttpd sites copy the updated rules from `webserver-configs/` by hand)
 
 # v2.2.18
 ## 10/31/2026
