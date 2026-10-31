@@ -440,9 +440,12 @@ trait PageRoutableTrait
         // Use filesystem as \dirname() does not work in Windows because of '/foo' becomes '\'.
         $filesystem = Filesystem::getInstance(false);
         $directory = $this->getFlexDirectory();
-        $parentKey = ltrim($filesystem->dirname("/{$this->getKey()}"), '/');
+        // Key is the route of the page and more than one folder can have it (`03.team`, `Team`). Parent is the
+        // folder the page is in, which only the storage key can tell. New pages do not have a storage key yet.
+        $storageKey = $this->getMasterKey();
+        $parentKey = ltrim($filesystem->dirname('/' . ('' !== $storageKey ? $storageKey : $this->getKey())), '/');
         if ('' !== $parentKey) {
-            $parent = $directory->getObject($parentKey);
+            $parent = $directory->getObject($parentKey, '' !== $storageKey ? 'storage_key' : null);
             $language = $this->getLanguage();
             if ($language && $parent && method_exists($parent, 'getTranslation')) {
                 $parent = $parent->getTranslation($language) ?? $parent;
