@@ -153,17 +153,25 @@ class Security
             $sanitizer = new DOMSanitizer(DOMSanitizer::SVG);
             $sanitizer->addDisallowedAttributes(['href', 'xlink:href']);
             $original_svg = file_get_contents($file);
-            $clean_svg = $sanitizer->sanitize($original_svg);
+
+            // Keep the stored file empty until sanitization completes.
+            file_put_contents($file, '');
+
+            try {
+                $clean_svg = $sanitizer->sanitize($original_svg);
+            } catch (\Throwable) {
+                $clean_svg = false;
+            }
 
             // Quarantine bad SVG files and throw exception
             if ($clean_svg !== false ) {
                 file_put_contents($file, $clean_svg);
             } else {
+                unlink($file);
                 $quarantine_file = Utils::basename($file);
                 $quarantine_dir = 'log://quarantine';
                 Folder::mkdir($quarantine_dir);
                 file_put_contents("$quarantine_dir/$quarantine_file", $original_svg);
-                unlink($file);
                 throw new Exception('SVG could not be sanitized, it has been moved to the logs/quarantine folder');
             }
         }
