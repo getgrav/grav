@@ -15,6 +15,23 @@ class RouterTest extends \Codeception\Test\Unit
         ], 'static file');
     }
 
+    public function testServesPublicUserFiles(): void
+    {
+        $this->assertRoutes([
+            '/user/themes/theme/css/site.css',
+            '/user/plugins/plugin/js/app.js',
+            '/user/pages/01.home/image.jpg',
+            '/user/accounts/avatars/avatar.png',
+            '/user/accounts/admin/avatar.JPG',
+            '/user/env/example.com/accounts/avatars/avatar.webp',
+            '/user/data/flex-objects/photo.jpg',
+            '/user/data/uploads/document.pdf',
+            '/user/env/example.com/data/uploads/photo.png',
+            '/images/derivative.jpg',
+            '/assets/combined.css',
+        ], 'static file');
+    }
+
     public function testKeepsRestrictedFilesBehindGrav(): void
     {
         $this->assertRoutes([
@@ -30,11 +47,32 @@ class RouterTest extends \Codeception\Test\Unit
             '/bin/file.txt',
             '/logs/file.txt',
             '/backup/file.txt',
+            '/tmp/download/package.zip',
             '/webserver-configs/file.txt',
             '/tests/file.txt',
             '/system/.well-known/file.json',
             '/vendor/file.json',
             '/user/.well-known/file.yaml',
+            '/user/config/security.pem',
+            '/user/config/image.jpg',
+            '/USER/CONFIG/security.pem',
+            '/user/env/example.com/config/security.pem',
+            '/user/accounts/admin.yaml',
+            '/user/accounts/avatars/avatar.svg',
+            '/user/accounts/avatars/file.docx',
+            '/user/accounts/image.jpg',
+            '/user/accounts/admin/sub/image.png',
+            '/user/env/example.com/accounts/admin.yaml',
+            '/user/data/database.sqlite',
+            '/user/data/app.log',
+            '/user/data/uploads/image.svg',
+            '/USER/DATA/database.sqlite',
+            '/user/env/example.com/data/database.sqlite',
+            '/user/plugins/plugin/plugin.phar',
+            '/images/script.php',
+            '/images/script.phtml',
+            '/assets/script.php',
+            '/vendor/file.shtml',
             '/LICENSE.txt',
             '/composer.lock',
             '/composer.json',
