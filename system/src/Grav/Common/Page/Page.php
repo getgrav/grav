@@ -1415,10 +1415,14 @@ class Page implements PageInterface, PageUuidInterface
      * the pages-index cache (Pages.php) — they should evict in lockstep.
      * The version marker prevents a rendered modular response stored by older
      * releases from surviving the request-aware Twig cache fix.
+     *
+     * Admin scope has its own entries, as it has for the pages index: header()
+     * leaves frontmatter.yaml out there, so `process` and the other render
+     * options kept in that file do not apply to what it renders.
      */
     private function getPageContentCacheKey(Config $config): string
     {
-        return $this->getCacheKey() . ':content-v2:cfg=' . (string) $config->checksum();
+        return $this->getCacheKey() . ':content-v2:cfg=' . (string) $config->checksum() . (Utils::isAdminPlugin() ? ':admin' : '');
     }
 
     /**

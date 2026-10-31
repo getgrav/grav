@@ -2313,7 +2313,7 @@ class Pages
     }
 
     /**
-     * Set the pages cache id from the pages hash, the change stamp, the configuration and the language.
+     * Set the pages cache id from the pages hash, the change stamp, the configuration, the language and the scope.
      *
      * @param array $pages_dirs
      * @param string|int $hash
@@ -2325,7 +2325,10 @@ class Pages
         $language = $this->grav['language'];
 
         $this->simple_pages_hash = json_encode($pages_dirs) . $hash . $this->getChangeStamp() . $this->grav['config']->checksum();
-        $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive());
+
+        // Page::header() builds a page differently in admin scope: frontmatter.yaml is not merged and
+        // frontmatter Twig is not processed. Pages built there must never be the ones the site loads.
+        $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive() . (Utils::isAdminPlugin() ? 'admin' : ''));
     }
 
     protected function getPagesPaths(): array
@@ -2573,7 +2576,8 @@ class Pages
 
         // Stable name per page dirs + language; content changes are detected via
         // the cache id stored inside the file, so the file gets rewritten in place.
-        $name = 'index-' . md5(json_encode($pagesDirs) . (string)$this->active_lang);
+        // Admin scope keeps its own file, or the two scopes would rewrite each other's index.
+        $name = 'index-' . md5(json_encode($pagesDirs) . (string)$this->active_lang . (Utils::isAdminPlugin() ? 'admin' : ''));
 
         return PageIndexStore::open($dir, $name);
     }
