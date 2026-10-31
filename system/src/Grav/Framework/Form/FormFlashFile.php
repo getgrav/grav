@@ -222,6 +222,11 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
             return false;
         }
 
+        // The web server types the file by any of its extensions, not just the last one.
+        if (Security::isSvgFile((string)$this->getClientFilename(), $tmpFile)) {
+            return true;
+        }
+
         if (class_exists('finfo')) {
             $mime = (string)(new \finfo(FILEINFO_MIME_TYPE))->file($tmpFile);
             if (Utils::contains($mime, 'svg', false)) {

@@ -191,7 +191,7 @@ class GlobalMedia extends AbstractMedia
             }
 
             // Add original sized image as alternative.
-            $medium->addAlternative($scale, $altMedium['file']);
+            $medium->addAlternative($scale, $altMedium);
 
             // Locate or generate smaller retina images.
             for ($i = $scale-1; $i > 1; $i--) {

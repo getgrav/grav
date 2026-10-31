@@ -111,6 +111,37 @@ class Security
     }
 
     /**
+     * Tell whether a file stored under the given name is going to be served as SVG.
+     *
+     * Every dot-separated extension counts, not just the last one, as in
+     * Utils::checkFilename(): Apache's mod_mime types a file by the extensions it
+     * knows and skips the ones it does not, so `drawing.svg.foo` goes out as
+     * image/svg+xml. Behind another extension only a file which starts with markup
+     * counts, so that a rendered `logo.svg.png` is left alone: a browser cannot
+     * parse anything else as XML.
+     *
+     * @param string $filename Name of the file, may include a path.
+     * @param string $file Path to the file contents.
+     * @return bool
+     */
+    public static function isSvgFile(string $filename, string $file): bool
+    {
+        $extensions = array_map('mb_strtolower', array_slice(explode('.', Utils::basename($filename)), 1));
+        if (!in_array('svg', $extensions, true)) {
+            return false;
+        }
+        if (end($extensions) === 'svg') {
+            return true;
+        }
+
+        // Skip a byte order mark, whitespace and the zero bytes of UTF-16.
+        $head = is_file($file) ? (string)file_get_contents($file, false, null, 0, 1024) : '';
+        $head = ltrim($head, "\xEF\xBB\xBF\xFE\xFF\0 \t\r\n");
+
+        return $head === '' || $head[0] === '<';
+    }
+
+    /**
      * Sanitize SVG for XSS code
      *
      * @param string $file
@@ -122,17 +153,25 @@ class Security
             $sanitizer = new DOMSanitizer(DOMSanitizer::SVG);
             $sanitizer->addDisallowedAttributes(['href', 'xlink:href']);
             $original_svg = file_get_contents($file);
-            $clean_svg = $sanitizer->sanitize($original_svg);
+
+            // Keep the stored file empty until sanitization completes.
+            file_put_contents($file, '');
+
+            try {
+                $clean_svg = $sanitizer->sanitize($original_svg);
+            } catch (\Throwable) {
+                $clean_svg = false;
+            }
 
             // Quarantine bad SVG files and throw exception
             if ($clean_svg !== false ) {
                 file_put_contents($file, $clean_svg);
             } else {
+                unlink($file);
                 $quarantine_file = Utils::basename($file);
                 $quarantine_dir = 'log://quarantine';
                 Folder::mkdir($quarantine_dir);
                 file_put_contents("$quarantine_dir/$quarantine_file", $original_svg);
-                unlink($file);
                 throw new Exception('SVG could not be sanitized, it has been moved to the logs/quarantine folder');
             }
         }

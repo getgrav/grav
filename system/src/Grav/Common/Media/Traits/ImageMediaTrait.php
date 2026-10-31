@@ -21,6 +21,7 @@ use function extension_loaded;
 use function func_num_args;
 use function function_exists;
 use function in_array;
+use function is_string;
 
 /**
  * Trait ImageMediaTrait
@@ -64,7 +65,10 @@ trait ImageMediaTrait
     /** @var bool Whether anything is queued that changes the image's pixels, format or quality */
     protected $transformed = false;
 
-    /** @var array<string, array{0:int,1:int}> Source dimensions by path, cached for the request */
+    /** @var array{0:int,1:int}|null As an alternative, the size the resize actions queued so far leave this image at */
+    protected $queued_size;
+
+    /** @var array<string, array{0:int,1:int}|null> Source dimensions by path, cached for the request */
     protected static $sourceSizeCache = [];
 
     /** @var array */
@@ -117,8 +121,9 @@ trait ImageMediaTrait
         $h = $args[$positions[$count - 1]] ?? null;
 
         if ($h === null && preg_match('/^(\d+(?:\.\d+)?)%$/', (string) $w, $matches)) {
-            $w = $width * (float) $matches[1] / 100;
-            $h = $height * (float) $matches[1] / 100;
+            // Whole pixels, rounded up: the canvas is never smaller than the fraction.
+            $w = ceil($width * (float) $matches[1] / 100);
+            $h = ceil($height * (float) $matches[1] / 100);
         } else {
             foreach ([$w, $h] as $value) {
                 if ($value !== null && !ctype_digit((string) $value)) {
@@ -146,6 +151,60 @@ trait ImageMediaTrait
         return [$pixels, $w, $h];
     }
 
+    /**
+     * The largest canvas any image action allocates, and the size it leaves the image at.
+     *
+     * Resizes are measured by urlResizeCanvas(). rotate() builds the box around
+     * the turned image, so a quarter turn swaps the sides that a later
+     * one-dimension resize derives the other from. GD's gaussianBlur() halves
+     * the image once per step, rounding up, then doubles it back: once a side
+     * is down to one pixel each further step only doubles the canvas, so
+     * `gaussianBlur=14` ends at 8192x8192 whatever the source. Everything else
+     * works on the image as it is.
+     *
+     * @param string $action One of $magic_actions
+     * @param array $args The comma-separated query arguments
+     * @param int $width Current image width
+     * @param int $height Current image height
+     * @return array{0:float,1:float,2:float}|null [canvas pixels, resulting width, resulting height], null when an argument that sizes the canvas is not a usable number
+     */
+    public static function urlActionCanvas(string $action, array $args, int $width, int $height): ?array
+    {
+        if (isset(static::$magic_resize_actions[$action])) {
+            return static::urlResizeCanvas($action, $args, $width, $height);
+        }
+
+        if ($action === 'rotate') {
+            $angle = $args[0] ?? null;
+            if (!is_numeric($angle) || !is_finite((float) $angle)) {
+                return null;
+            }
+
+            // Rounded, so that the cosine of a right angle is zero.
+            $cos = abs(round(cos(deg2rad((float) $angle)), 9));
+            $sin = abs(round(sin(deg2rad((float) $angle)), 9));
+            $w = ceil($width * $cos + $height * $sin);
+            $h = ceil($width * $sin + $height * $cos);
+
+            return [$w * $h, $w, $h];
+        }
+
+        if ($action === 'gaussianBlur') {
+            $steps = $args[0] ?? 1;
+            if (!ctype_digit((string) $steps) || (int) $steps < 1) {
+                return null;
+            }
+
+            // No image outlasts 64 halvings, and the powers stay finite.
+            $steps = min((int) $steps, 64);
+            $grown = 2.0 ** ($steps - 1);
+            $pixels = ceil($width * 0.5 ** $steps) * $grown * ceil($height * 0.5 ** $steps) * $grown;
+
+            return [$pixels, (float) $width, (float) $height];
+        }
+
+        return [(float) $width * $height, (float) $width, (float) $height];
+    }
 
     /**
      * Allows the ability to override the image's pretty name stored in cache
@@ -358,6 +417,17 @@ trait ImageMediaTrait
      */
     public function format($format)
     {
+        // The format ends up as the extension of the cached file, and it comes
+        // from markdown, page Twig and, with `images.url_actions`, the request
+        // URL. Anything that is not an output type is ignored.
+        if (!is_string($format)) {
+            return $this;
+        }
+        $format = strtolower($format);
+        if ($format !== 'guess' && !isset(ImageFile::$types[$format])) {
+            return $this;
+        }
+
         if (!$this->image) {
             $this->image();
         }
@@ -371,6 +441,23 @@ trait ImageMediaTrait
             if ($medium instanceof ImageManipulateInterface) {
                 $medium->format($format);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Holds the actions queued on the open image to a total-pixel ceiling, each
+     * measured as it runs against the size the image really has by then.
+     * Processing the image throws a RangeException when one is above it.
+     *
+     * @param int $pixels 0 for no limit
+     * @return $this
+     */
+    public function maxPixels(int $pixels)
+    {
+        if ($this->image) {
+            $this->image->setMaxPixels($pixels);
         }
 
         return $this;
@@ -582,14 +669,10 @@ trait ImageMediaTrait
         $maxPixels = (int) Grav::instance()['config']->get('system.images.max_pixels', 25000000);
         $sourcePath = (string) $this->get('filepath');
         if (!array_key_exists($sourcePath, static::$sourceSizeCache)) {
-            $sourceSize = @getimagesize($sourcePath);
-            static::$sourceSizeCache[$sourcePath] = [
-                (int) ($sourceSize[0] ?? 0),
-                (int) ($sourceSize[1] ?? 0),
-            ];
+            static::$sourceSizeCache[$sourcePath] = ImageFile::decodedSize($sourcePath);
         }
-        [$width, $height] = static::$sourceSizeCache[$sourcePath];
-        // A source getimagesize() cannot measure is refused too. Imagick decodes
+        [$width, $height] = static::$sourceSizeCache[$sourcePath] ?? [0, 0];
+        // A source whose decoded size cannot be measured is refused too. Imagick decodes
         // formats PHP cannot read the size of (JPEG XL, HEIC), so an unknown size
         // is not a small one.
         if ($maxPixels > 0 && ($width < 1 || $height < 1)) {
@@ -616,8 +699,10 @@ trait ImageMediaTrait
         if ($this->format === 'guess') {
             $extension = strtolower($this->get('extension'));
             // Assigned directly: format() records a transformation, and keeping
-            // the original's own format is not one.
-            $this->format = $extension;
+            // the original's own format is not one. Not every extension media.yaml
+            // calls an image is a type ImageFile can write (`jpe` is not), and
+            // save() throws on those, so such a file is saved as what it contains.
+            $this->format = isset(ImageFile::$types[$extension]) ? $extension : $this->image->guessType();
         }
 
         if (!$this->debug_watermarked && $this->get('debug')) {

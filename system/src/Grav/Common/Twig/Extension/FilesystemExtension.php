@@ -262,7 +262,7 @@ class FilesystemExtension extends AbstractExtension
             return false;
         }
 
-        return getimagesize($filename);
+        return @getimagesize($filename);
     }
 
     /**

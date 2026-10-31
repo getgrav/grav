@@ -11,6 +11,8 @@ namespace Grav\Common\Page\Markdown;
 
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
+use Grav\Common\Media\Interfaces\MediaLinkInterface;
+use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Medium\Link;
 use Grav\Common\Page\Pages;
@@ -20,7 +22,6 @@ use Grav\Common\Utils;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function array_key_exists;
-use function call_user_func_array;
 use function count;
 use function dirname;
 use function in_array;
@@ -288,19 +289,6 @@ class Excerpts
             }
         }
 
-        // Block any real, undocumented medium method from being invoked by an
-        // editor-authored image URL — only documented actions may be called.
-        // Names that aren't real methods are left alone so the medium's __call()
-        // URL-querystring passthrough (image filters, cache-busting params, …)
-        // keeps working; that path runs no code. Operator-defined
-        // images.defaults below are server config (trusted) and not filtered.
-        // GHSA-ffmg-hfvg-jhg9.
-        $actions = array_values(array_filter(
-            $actions,
-            static fn($action) => !method_exists($medium, (string) $action['method'])
-                || Medium::isAllowedAction((string) $action['method'])
-        ));
-
         // `system.images.defaults` is image configuration, so it must only be
         // applied to image media. Applying it to audio, video or a document
         // replaced the player or download with a linked thumbnail (`link`) and
@@ -326,6 +314,7 @@ class Excerpts
                     $actions[] = [
                         'method' => $method,
                         'params' => $params,
+                        'trusted' => true,
                     ];
                 }
             }
@@ -333,6 +322,12 @@ class Excerpts
 
         // loop through actions for the image and call them
         foreach ($actions as $action) {
+            $method = (string) $action['method'];
+            $hasMethod = $medium instanceof Link ? $medium->hasMethod($method) : method_exists($medium, $method);
+            if (empty($action['trusted']) && $hasMethod && !Medium::isAllowedAction($method)) {
+                continue;
+            }
+
             $matches = [];
 
             if (preg_match('/\[(.*)\]/', (string) $action['params'], $matches)) {
@@ -341,7 +336,11 @@ class Excerpts
                 $args = explode(',', (string) $action['params']);
             }
 
-            $medium = call_user_func_array([$medium, $action['method']], $args);
+            // Only media and link results replace the current medium.
+            $result = $medium->{$method}(...$args);
+            if ($result instanceof MediaObjectInterface || $result instanceof MediaLinkInterface) {
+                $medium = $result;
+            }
         }
 
         if (isset($url_parts['fragment'])) {
