@@ -59,8 +59,13 @@ class PagesServiceProvider implements ServiceProviderInterface
             /** @var Uri $uri */
             $uri = $grav['uri'];
 
-            $path = $uri->path() ? urldecode($uri->path()) : '/'; // Don't trim to support trailing slash default routes
-            $page = $pages->dispatch($path);
+            // `Pages::find()`, behind both `dispatch()` and `fallbackUrl()`, decodes
+            // the route it is given, so hand it `Uri::path()` as is: the route is
+            // decoded once, and plugins resolving `Uri::path()` find the same page.
+            // The decoded copy is what the default-route redirect compares below.
+            $encodedPath = $uri->path() ?: '/'; // Don't trim to support trailing slash default routes
+            $path = urldecode($encodedPath);
+            $page = $pages->dispatch($encodedPath);
 
             // Runs before the found/not-found branch below so it covers the 404
             // fallback and media fallback requests too (#3703). The host guard
@@ -133,7 +138,7 @@ class PagesServiceProvider implements ServiceProviderInterface
             // if page is not found, try some fallback stuff
             if (!$page || !$page->routable()) {
                 // Try fallback URL stuff...
-                $page = $grav->fallbackUrl($path);
+                $page = $grav->fallbackUrl($encodedPath);
 
                 if (!$page) {
                     $path = $grav['locator']->findResource('system://pages/notfound.md');
