@@ -6,6 +6,7 @@
     * The bundled `lighttpd.conf` loads on current lighttpd releases again, serves `/.well-known/` files such as ACME challenges, and keeps Markdown source files and the same folders and file types private as the Apache rules do (lighttpd sites copy the updated rules from `webserver-configs/` by hand)
     * The bundled Caddyfiles also keep JSON files under `system/`, `vendor/` and `user/`, Markdown source files such as `CHANGELOG.md`, the `webserver-configs/` folder and hidden files inside `/.well-known/` private (Caddy sites copy the updated rules from `webserver-configs/` by hand)
     * The bundled `nginx.conf` also keeps Markdown source files such as `CHANGELOG.md` and the `webserver-configs/` folder private, and matches root files such as `composer.json` in any letter case (nginx sites copy the updated rules from `webserver-configs/` by hand)
+    * The bundled IIS `web.config` also keeps `LICENSE.txt`, `composer.json`, `composer.lock` and Markdown source files private, covers the same file types under `system/` and `vendor/` as the Apache rules, and matches its rules however a file path is written (IIS sites copy the updated rules from `webserver-configs/` by hand)
 
 # v2.2.18
 ## 10/31/2026
