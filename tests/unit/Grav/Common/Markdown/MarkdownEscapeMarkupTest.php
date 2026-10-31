@@ -16,6 +16,9 @@ use Grav\Common\Page\Markdown\Excerpts;
  *    written, including any HTML that shares the line with the tag.
  *  - inlineSpecialCharacter() escapes `<` / `>` through `markdown.special_chars`,
  *    a map that a page header can replace.
+ *
+ * A link whose destination is a `javascript:` or `vbscript:` URL is not left
+ * active either.
  */
 class MarkdownEscapeMarkupTest extends \PHPUnit\Framework\TestCase
 {
@@ -95,5 +98,41 @@ class MarkdownEscapeMarkupTest extends \PHPUnit\Framework\TestCase
     public function testSpecialCharsMapIsStillUsedByDefault(): void
     {
         self::assertSame('<p>a &#62; "b"</p>', $this->render('a > "b"', ['special_chars' => ['>' => '#62']]));
+    }
+
+    /**
+     * @dataProvider providerScriptLinks
+     */
+    public function testScriptLinkDestinationIsNotActive(string $text): void
+    {
+        $html = $this->render($text, ['escape_markup' => true]);
+
+        self::assertStringContainsString('<a href="', $html);
+        self::assertDoesNotMatchRegularExpression('/href="\s*(?:java|vb)script:/i', $html);
+    }
+
+    public static function providerScriptLinks(): array
+    {
+        return [
+            'inline' => ['[x](javascript:alert(1))'],
+            'upper case' => ['[x](JavaScript:alert(1))'],
+            'angle brackets' => ['[x](<javascript:alert(1)>)'],
+            'reference' => ["[x]\n\n[x]: javascript:alert(1)"],
+            'vbscript' => ['[x](vbscript:alert(1))'],
+        ];
+    }
+
+    public function testScriptLinkDestinationIsLeftAloneByDefault(): void
+    {
+        self::assertStringContainsString('href="javascript:alert(1)"', $this->render('[x](javascript:alert(1))', []));
+    }
+
+    public function testOrdinaryLinksAreLeftAloneWhenMarkupIsEscaped(): void
+    {
+        $html = $this->render('[a](https://example.com/x) [b](mailto:a@example.com) [c](tel:+123)', ['escape_markup' => true]);
+
+        self::assertStringContainsString('href="https://example.com/x"', $html);
+        self::assertStringContainsString('href="mailto:a@example.com"', $html);
+        self::assertStringContainsString('href="tel:+123"', $html);
     }
 }

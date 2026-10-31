@@ -386,6 +386,15 @@ trait ParsedownGravTrait
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
             $excerpt = $this->excerpts->processLinkExcerpt($excerpt, $type);
+
+            // With markup escaped the page content is not trusted to bring script of its own,
+            // so a link destination that runs script is not left active either.
+            if ($this->markupEscaped) {
+                $href = (string) $excerpt['element']['attributes']['href'];
+                if (preg_match('/^(?:java|vb)script:/i', (string) preg_replace('/[\x00-\x20]+/', '', $href))) {
+                    $excerpt['element']['attributes']['href'] = str_replace(':', '%3A', $href);
+                }
+            }
         }
 
         return $excerpt;
