@@ -172,7 +172,8 @@ trait PageAuthorsTrait
 
         // In admin we want to check against group permissions.
         $pageGroups = $this->getPermissions();
-        $userGroups = (array)$user->groups;
+        // Session user has no groups until the login (2FA) has been completed.
+        $userGroups = !$isMe || $user->authorized ? (array)$user->groups : [];
         $config = Grav::instance()['config'];
 
         /** @var Access $access */

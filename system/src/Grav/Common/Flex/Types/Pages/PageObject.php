@@ -399,7 +399,8 @@ class PageObject extends FlexPageObject implements PageUuidInterface
         if ($action === 'create' && !$this->exists()) {
             $parent = $this->parent();
             if ($parent && method_exists($parent, 'isAuthorized')) {
-                return $parent->isAuthorized($action, $scope, $user);
+                // Session user stays the session user, so that the login state is still checked.
+                return $parent->isAuthorized($action, $scope, !$isMe ? $user : null);
             }
 
             return false;

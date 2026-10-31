@@ -851,6 +851,21 @@ class UserObject extends FlexObject implements UserInterface, Countable
         // (GHSA-hp5c-hmwq-qjv6)
         $key = $this->getStorageKey();
         if ($key !== '' && $user instanceof self && $user->getStorageKey() === $key) {
+            // This rule answers without calling authorize(), so it has to hold the same
+            // preconditions. After the password step of a 2FA login the session already
+            // carries this account's user object, but the login is not complete until
+            // the second factor has been given. State is read from the stored account as
+            // well: the session's copy may predate the account being disabled.
+            if ($this->getProperty('state', 'enabled') !== 'enabled' || $user->getProperty('state', 'enabled') !== 'enabled') {
+                return false;
+            }
+
+            // As in authorize(), the session facts (logged in, past 2FA) apply to the
+            // session user only; a user passed in explicitly is tested as-is.
+            if ($isMe && (!$user->getProperty('authenticated') || !$user->getProperty('authorized'))) {
+                return false;
+            }
+
             // User cannot delete his own account, otherwise he has full access.
             return $action !== 'delete';
         }

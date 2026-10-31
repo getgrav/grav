@@ -21,6 +21,7 @@ class GuardStubUserObject extends UserObject
     public array $stubAccess = [];
     public ?UserGroupCollection $stubGroups = null;
     public array $written = [];
+    public array $stubProperties = [];
 
     public function __construct(array $elements = [], $key = '', ?FlexDirectory $directory = null, bool $validate = false)
     {
@@ -39,6 +40,11 @@ class GuardStubUserObject extends UserObject
     public function getBlueprint(string $name = '')
     {
         return self::$stubBlueprint;
+    }
+
+    public function getProperty($property, $default = null)
+    {
+        return $this->stubProperties[$property] ?? $default;
     }
 
     public function getTimestamp(): int
@@ -78,6 +84,11 @@ class GuardStubUserObject extends UserObject
     public function authorizeFor(UserInterface $user, string $action): ?bool
     {
         return $this->isAuthorizedOverride($user, $action, 'admin', false);
+    }
+
+    public function authorizeForSessionUser(UserInterface $user, string $action): ?bool
+    {
+        return $this->isAuthorizedOverride($user, $action, 'site', true);
     }
 }
 
@@ -151,6 +162,15 @@ class FlexUserAccountGuardsTest extends \PHPUnit\Framework\TestCase
         );
 
         return $target;
+    }
+
+    /** The copy of the target account that a session carries. */
+    private function owner(array $properties): GuardStubUserObject
+    {
+        $user = $this->target([]);
+        $user->stubProperties = $properties;
+
+        return $user;
     }
 
     public function testManagerCanStillUpdateRegularAccount(): void
@@ -234,6 +254,48 @@ class FlexUserAccountGuardsTest extends \PHPUnit\Framework\TestCase
         $target = $this->target(['admin' => ['super' => true]]);
 
         self::assertTrue($target->authorizeFor($this->superAdmin(), 'update'));
+    }
+
+    public function testLoggedInOwnerCanUpdateButNotDeleteOwnAccount(): void
+    {
+        $owner = $this->owner(['state' => 'enabled', 'authenticated' => true, 'authorized' => true]);
+
+        self::assertTrue($this->target([])->authorizeForSessionUser($owner, 'update'));
+        self::assertFalse($this->target([])->authorizeForSessionUser($owner, 'delete'));
+    }
+
+    public function testOwnerWaitingForSecondFactorCannotReachOwnAccount(): void
+    {
+        $owner = $this->owner(['state' => 'enabled', 'authenticated' => true, 'authorized' => false]);
+
+        self::assertFalse($this->target([])->authorizeForSessionUser($owner, 'read'));
+        self::assertFalse($this->target([])->authorizeForSessionUser($owner, 'update'));
+    }
+
+    public function testOwnerWhoIsNotLoggedInCannotReachOwnAccount(): void
+    {
+        $owner = $this->owner(['state' => 'enabled']);
+
+        self::assertFalse($this->target([])->authorizeForSessionUser($owner, 'update'));
+    }
+
+    public function testDisabledOwnerCannotUpdateOwnAccount(): void
+    {
+        $session = ['authenticated' => true, 'authorized' => true];
+
+        self::assertFalse($this->target([])->authorizeForSessionUser($this->owner(['state' => 'disabled'] + $session), 'update'));
+
+        // Disabled after the session started: only the stored account knows.
+        $target = $this->target([]);
+        $target->stubProperties = ['state' => 'disabled'];
+
+        self::assertFalse($target->authorizeForSessionUser($this->owner(['state' => 'enabled'] + $session), 'update'));
+    }
+
+    public function testOwnerPassedInExplicitlyNeedsNoSession(): void
+    {
+        self::assertTrue($this->target([])->authorizeFor($this->owner(['state' => 'enabled']), 'update'));
+        self::assertFalse($this->target([])->authorizeFor($this->owner(['state' => 'disabled']), 'update'));
     }
 
     public function testUpdateIgnoresSubmittedPasswordHashAndSessionFlags(): void
