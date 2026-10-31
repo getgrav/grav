@@ -55,7 +55,9 @@ class UserCollection implements UserCollectionInterface
         // Filter username.
         $username = $this->filterUsername($username);
 
-        $filename = 'account://' . $username . YAML_EXT;
+        // The locator normalizes the path, so './admin', '\admin' or 'x/../admin' would all open admin.yaml
+        // under a username of their own. A name save() refuses is not an account: return a user which does not exist.
+        $filename = 'account://' . (User::isValidUsername($username) ? $username : '') . YAML_EXT;
         $path = $locator->findResource($filename) ?: $locator->findResource($filename, true, true);
         if (!is_string($path)) {
             throw new RuntimeException('Internal Error');
@@ -134,6 +136,10 @@ class UserCollection implements UserCollectionInterface
      */
     public function delete($username): bool
     {
+        if (!User::isValidUsername((string)$username)) {
+            return false;
+        }
+
         $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
         if (!$file_path) {
             return false;
