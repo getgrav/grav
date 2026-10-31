@@ -456,6 +456,10 @@ class PageStorage extends FolderStorage
                         $debugger->addMessage("Page template created: {$newFilename}", 'debug');
                     }
                 }
+            } elseif (!empty($this->getObjectMeta($newKeys['key'], true)['markdown'])) {
+                // A new page cannot take over the folder of an existing page, just like a page cannot be moved or
+                // copied over another. A folder with only media or child pages in it can still become a page.
+                throw new RuntimeException(sprintf('Page /%s already exists', $newKey));
             }
 
             // Clean up the data to be saved.

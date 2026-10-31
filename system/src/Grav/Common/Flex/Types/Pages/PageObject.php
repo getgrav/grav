@@ -300,12 +300,20 @@ class PageObject extends FlexPageObject implements PageUuidInterface
     {
         parent::check($user);
 
-        if ($user && $this->isMoved()) {
+        // New and moved pages are saved under the parent given in the data (parent_key), which is not necessarily the
+        // parent implied by the key. It is that parent which needs to allow the page to be created. Like in
+        // isAuthorized(), missing user means the active user.
+        if (!$this->exists() || $this->isMoved()) {
             $parentKey = $this->getProperty('parent_key');
+            if ($parentKey === '') {
+                /** @var PageIndex $index */
+                $index = $this->getFlexDirectory()->getIndex();
+                $parent = $index->getRoot();
+            } else {
+                $parent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
+            }
 
-            /** @var PageObject|null $parent */
-            $parent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
-            if (!$parent || !$parent->isAuthorized('create', null, $user)) {
+            if (!$parent instanceof PageObject || !$parent->isAuthorized('create', null, $user)) {
                 throw new \RuntimeException('Forbidden', 403);
             }
         }
