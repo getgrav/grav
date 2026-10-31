@@ -442,10 +442,10 @@ class Page implements PageInterface, PageUuidInterface
             $md = CompiledMarkdownFile::instance($file);
             $header = (array) $md->header();
             $md->free();
-            if (!empty($header['slug'])) {
+            if (!empty($header['slug']) && is_scalar($header['slug'])) {
                 $slug = $header['slug'];
             }
-            if (isset($header['routes']['default']) && $header['routes']['default'] !== '') {
+            if (isset($header['routes']['default']) && is_string($header['routes']['default']) && $header['routes']['default'] !== '') {
                 $routesDefault = $header['routes']['default'];
             }
             break;
@@ -637,11 +637,16 @@ class Page implements PageInterface, PageUuidInterface
             if (isset($this->header->modified)) {
                 $this->modified($this->header->modified);
             }
-            if (isset($this->header->slug)) {
+            // Only scalar slugs and string routes can be used in the route index.
+            if (isset($this->header->slug) && is_scalar($this->header->slug)) {
                 $this->slug($this->header->slug);
             }
             if (isset($this->header->routes)) {
-                $this->routes = (array)$this->header->routes;
+                $routes = (array)$this->header->routes;
+                $this->routes = array_filter($routes, 'is_string');
+                if (isset($routes['aliases'])) {
+                    $this->routes['aliases'] = array_values(array_filter((array)$routes['aliases'], 'is_string'));
+                }
             }
             if (isset($this->header->title)) {
                 $this->title = trim($this->header->title);
@@ -2478,11 +2483,11 @@ class Page implements PageInterface, PageUuidInterface
     public function routeAliases($var = null)
     {
         if ($var !== null) {
-            $this->routes['aliases'] = (array)$var;
+            $this->routes['aliases'] = array_values(array_filter((array)$var, 'is_string'));
         }
 
         if (!empty($this->routes) && isset($this->routes['aliases'])) {
-            return $this->routes['aliases'];
+            return array_values(array_filter((array)$this->routes['aliases'], 'is_string'));
         }
 
         return [];
