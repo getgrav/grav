@@ -591,7 +591,8 @@ trait MediaObjectTrait
      * into `property: value` declarations and require each one to be benign:
      *
      *  - the property is a plain CSS identifier and not a positioning/stacking
-     *    primitive (`position`, `z-index`, `behavior`, `-moz-binding`), and
+     *    primitive (`position`, `z-index`, `transform` and its `scale` /
+     *    `translate` / `rotate` longhands, `zoom`, `behavior`, `-moz-binding`), and
      *  - the value contains no `(` (kills `url(…)` / `expression(…)`), no at-rule
      *    (`@import`), and no markup or quoting characters.
      *
@@ -622,8 +623,14 @@ trait MediaObjectTrait
                 return false;
             }
 
-            // Positioning / stacking primitives are the phishing-overlay vector.
-            if (in_array($property, ['position', 'z-index', 'behavior', '-moz-binding'], true)) {
+            // Positioning / stacking primitives are not allowed.
+            // `scale`, `translate` and `rotate` are `transform` without the
+            // function call that the value check below would catch; `zoom`
+            // enlarges the box the same way. The name is checked as written and
+            // without a vendor prefix, as `-moz-binding` only exists prefixed.
+            $denied = ['position', 'z-index', 'transform', 'scale', 'translate', 'rotate', 'zoom', 'behavior', '-moz-binding'];
+            if (in_array($property, $denied, true)
+                || in_array(preg_replace('/^-(?:webkit|moz|ms|o)-/', '', $property), $denied, true)) {
                 return false;
             }
 
