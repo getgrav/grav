@@ -35,6 +35,8 @@ class Session implements SessionInterface
     protected $readonly = false;
     /** @var string|null Value only this site can produce, stored in every session it creates (see setSite()). */
     protected $site;
+    /** @var string|null Domain attribute of the session cookie as sent by older versions (see setLegacyCookieDomain()). */
+    protected $legacyCookieDomain;
 
     /** @var Session */
     protected static $instance;
@@ -142,6 +144,24 @@ class Session implements SessionInterface
     public function setSite(?string $site)
     {
         $this->site = $site;
+
+        return $this;
+    }
+
+    /**
+     * Expire the session cookie which versions before 2.2.18 sent with `Domain=<host>`.
+     *
+     * A browser keeps such a cookie next to the one sent without the attribute, goes on sending
+     * it to the hosts below this one and puts it first in the requests to this one, where PHP
+     * takes it over the current cookie. When a domain is set here, every request which brings a
+     * session cookie also gets that old variant removed.
+     *
+     * @param string|null $domain
+     * @return $this
+     */
+    public function setLegacyCookieDomain(?string $domain)
+    {
+        $this->legacyCookieDomain = $domain;
 
         return $this;
     }
@@ -457,6 +477,12 @@ class Session implements SessionInterface
         $this->__unset('session_destroyed');
         $this->__unset('session_new_id');
 
+        // PHP drops every Set-Cookie header of the session name when it sends the new id, the
+        // removal of the legacy cookie among them: send it again.
+        if (null !== $this->legacyCookieDomain) {
+            $this->setCookie();
+        }
+
         return $this;
     }
 
@@ -471,6 +497,7 @@ class Session implements SessionInterface
         $name = $this->getName();
         if (null !== $name) {
             $this->removeCookie();
+            $this->removeLegacyCookie();
 
             setcookie(
                 $name,
@@ -667,10 +694,33 @@ class Session implements SessionInterface
             return;
         }
 
+        $this->removeLegacyCookie();
+
         setcookie(
             $sessionName,
             $sessionId,
             $this->getCookieOptions()
+        );
+    }
+
+    /**
+     * Expire the legacy cookie of the session name (see setLegacyCookieDomain()) if the request brought a session cookie.
+     *
+     * Always sent before the current cookie, as removeCookie() strips every header of the session name.
+     *
+     * @return void
+     */
+    protected function removeLegacyCookie(): void
+    {
+        $sessionName = $this->getName();
+        if (null === $this->legacyCookieDomain || null === $sessionName || !isset($_COOKIE[$sessionName])) {
+            return;
+        }
+
+        setcookie(
+            $sessionName,
+            '',
+            ['domain' => $this->legacyCookieDomain] + $this->getCookieOptions(-42000)
         );
     }
 

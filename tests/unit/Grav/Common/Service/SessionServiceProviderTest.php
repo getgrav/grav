@@ -94,6 +94,23 @@ class SessionServiceProviderTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Without a configured domain the cookie stays on the host that set it: no Domain
+     * attribute, which would also send it to every host below that domain. The cookie older
+     * versions sent with the request host as its domain is expired.
+     */
+    public function testSessionCookieHasNoDomainUnlessConfigured(): void
+    {
+        self::assertSame(['', 'example.com'], SessionServiceProvider::resolveCookieDomain(null, 'example.com'));
+        self::assertSame(['', null], SessionServiceProvider::resolveCookieDomain(null, 'localhost'));
+    }
+
+    public function testConfiguredSessionCookieDomainIsUsed(): void
+    {
+        self::assertSame(['example.com', null], SessionServiceProvider::resolveCookieDomain('example.com', 'www.example.com'));
+        self::assertSame(['', null], SessionServiceProvider::resolveCookieDomain('', 'example.com'));
+    }
+
+    /**
      * Names that are already valid cookie tokens now pass through verbatim rather than
      * being lowercased and hyphenized. This changes the cookie name on upgrade for the
      * sites that use them, which signs those users out once -- an accepted, one-time
