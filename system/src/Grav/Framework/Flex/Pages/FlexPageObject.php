@@ -411,7 +411,8 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     {
         $separator = $separator ?: '.';
         if (str_starts_with($property, 'header' . $separator)) {
-            $this->getProperty('header')->set(str_replace('header' . $separator, '', $property), $value, $separator);
+            // Strip the prefix only, so the header key stays the name the blueprint has checked.
+            $this->getProperty('header')->set(substr($property, strlen('header' . $separator)), $value, $separator);
 
             return $this;
         }
@@ -430,7 +431,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     {
         $separator = $separator ?: '.';
         if (str_starts_with($property, 'header' . $separator)) {
-            $this->getProperty('header')->undef(str_replace('header' . $separator, '', $property), $separator);
+            $this->getProperty('header')->undef(substr($property, strlen('header' . $separator)), $separator);
 
             return $this;
         }
