@@ -838,8 +838,10 @@ class Page implements PageInterface, PageUuidInterface
         // HTML or Markdown depending on the request's `Accept` header, so a
         // shared cache must key on it or it hands an agent the HTML (and a
         // browser the Markdown). The `.md` URL is its own resource and needs
-        // no such hint.
-        if (MarkdownOutput::enabled() && !$grav['uri']->extension()) {
+        // no such hint. Only a page type counts as the URL having chosen, the
+        // same test Utils::getPageFormat() uses: the `2` of `/release-2.2`
+        // is part of the slug and that page is still negotiated.
+        if (MarkdownOutput::enabled() && !$grav['uri']->isValidExtension($grav['uri']->extension())) {
             $vary[] = 'Accept';
         }
         if ($vary) {
