@@ -36,6 +36,25 @@ trait UserTrait
     protected const LOGIN_ACTIONS = ['login', 'site.login', 'admin.login'];
 
     /**
+     * Account fields which hold a credential, or a one-time token that stands in for
+     * one (password reset, magic link) or proves ownership (activation, email change).
+     * Left out of jsonSerialize() and of form values: whoever reads one of these can
+     * take the account.
+     *
+     * @var string[]
+     */
+    protected const SECRET_FIELDS = [
+        'hashed_password',
+        'secret',               // 2FA secret
+        'twofa_secret',         // Alternative 2FA field name
+        'reset',
+        'activation_token',
+        'email_change_token',
+        'email_change_cancel_token',
+        'magic_login',
+    ];
+
+    /**
      * Authenticate user.
      *
      * If user password needs to be updated, new information will be saved.

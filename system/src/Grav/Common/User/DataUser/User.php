@@ -325,11 +325,16 @@ class User extends Data implements UserInterface
         $items = parent::jsonSerialize();
 
         // Security: Remove sensitive fields that should never be exposed to frontend
-        unset($items['hashed_password']);
-        unset($items['secret']);  // 2FA secret
-        unset($items['twofa_secret']);  // Alternative 2FA field name
+        return array_diff_key($items, array_flip(static::SECRET_FIELDS));
+    }
 
-        return $items;
+    /**
+     * {@inheritdoc}
+     * Override to filter out sensitive fields like password hashes
+     */
+    public function toArray()
+    {
+        return $this->jsonSerialize();
     }
 
     /**

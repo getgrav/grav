@@ -368,11 +368,23 @@ class UserObject extends FlexObject implements UserInterface, Countable
         $elements = parent::jsonSerialize();
 
         // Security: Remove sensitive fields that should never be exposed to frontend
-        unset($elements['hashed_password']);
-        unset($elements['secret']);  // 2FA secret
-        unset($elements['twofa_secret']);  // Alternative 2FA field name
+        return array_diff_key($elements, array_flip(static::SECRET_FIELDS));
+    }
 
-        return $elements;
+    /**
+     * {@inheritdoc}
+     *
+     * Override to keep the same sensitive fields out of forms: a form asks for a value
+     * by field name, and the fields of a Flex form can be written in page frontmatter.
+     */
+    public function getFormValue(string $name, $default = null, ?string $separator = null)
+    {
+        // Security: Sensitive fields are not form values, a field named after one stays empty
+        if (in_array(explode($separator ?: '.', $name, 2)[0], static::SECRET_FIELDS, true)) {
+            return $default;
+        }
+
+        return parent::getFormValue($name, $default, $separator);
     }
 
     /**
