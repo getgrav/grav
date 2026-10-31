@@ -28,6 +28,13 @@ use function is_array;
  */
 class FormFlash implements FormFlashInterface
 {
+    /** @var string Name of the index file. Earlier versions wrote `index.yaml`, which is not read. */
+    protected const INDEX_FILE = 'index-v2.yaml';
+    /** @var int Maximum size of the index file in bytes. */
+    protected const MAX_INDEX_SIZE = 1048576;
+    /** @var int Maximum nesting depth of the index (the default max_input_nesting_level of PHP). */
+    protected const MAX_INDEX_DEPTH = 64;
+
     /** @var bool */
     protected $exists;
     /** @var string */
@@ -128,7 +135,10 @@ class FormFlash implements FormFlashInterface
     protected function loadStoredForm(): ?array
     {
         $file = $this->getTmpIndex();
-        $exists = $file && $file->exists();
+
+        // The index is read by every request which names this flash. Ignore an oversized index (save() never
+        // writes one).
+        $exists = $file && $file->exists() && filesize($file->filename()) <= static::MAX_INDEX_SIZE;
 
         $data = null;
         if ($exists) {
@@ -263,7 +273,21 @@ class FormFlash implements FormFlashInterface
             // Only save if there is data or files to be saved.
             $file = $this->getTmpIndex();
             if ($file) {
-                $file->save($this->jsonSerialize());
+                // Refuse an index which is nested too deep (block style YAML grows with the depth) or too large
+                // to be loaded back.
+                $index = $this->jsonSerialize();
+                if (self::exceedsDepth($index, static::MAX_INDEX_DEPTH)) {
+                    throw new RuntimeException('Form flash data is nested too deep');
+                }
+
+                $file->content($index);
+                if (strlen($file->raw()) > static::MAX_INDEX_SIZE) {
+                    $file->free();
+
+                    throw new RuntimeException('Form flash data is too large');
+                }
+
+                $file->save();
                 $this->exists = true;
             }
         } elseif ($this->exists) {
@@ -511,14 +535,44 @@ class FormFlash implements FormFlashInterface
     }
 
     /**
+     * Whether an array is nested deeper than `$limit` levels. Stops as soon as the limit is passed.
+     *
+     * @param array $data
+     * @param int $limit
+     * @return bool
+     */
+    private static function exceedsDepth(array $data, int $limit): bool
+    {
+        if ($limit < 1) {
+            return true;
+        }
+        foreach ($data as $value) {
+            if (is_array($value) && self::exceedsDepth($value, $limit - 1)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return ?YamlFile
      */
     protected function getTmpIndex(): ?YamlFile
     {
         $tmpDir = $this->getTmpDir();
+        if (!$tmpDir) {
+            return null;
+        }
 
         // Do not use CompiledYamlFile as the file can change multiple times per second.
-        return $tmpDir ? YamlFile::instance($tmpDir . '/index.yaml') : null;
+        $file = YamlFile::instance($tmpDir . '/' . static::INDEX_FILE);
+
+        // Always write block style YAML, which parses in linear time whatever the shape of the data; long inline
+        // lists do not. The index is written by Grav itself, so there is no need for the compatibility parser.
+        $file->settings(['inline' => PHP_INT_MAX, 'compat' => false]);
+
+        return $file;
     }
 
     /**
