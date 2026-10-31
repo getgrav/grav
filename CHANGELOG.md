@@ -1,3 +1,9 @@
+# v2.2.20
+## 10/31/2026
+
+1. [](#bugfix)
+    * JSON sent to the site is now checked against size limits before it is read, so an oversized request is turned away quickly instead of tying up the server (limits are under `request.json` in `system.yaml`)
+
 # v2.2.19
 ## 10/31/2026
 

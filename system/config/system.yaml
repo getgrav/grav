@@ -260,6 +260,12 @@ http:
   verify_peer: true                              # Enable/Disable SSL verification of peer certificates
   verify_host: true                              # Enable/Disable SSL verification of host certificates
 
+request:
+  json:                                          # Limits for JSON sent with a request (an application/json body, a form's _json fields). A body over them is answered with 413
+    max_bytes: 16777216                          # Largest JSON body in bytes (16 MiB). 0 disables
+    max_members: 10000                           # Most members one JSON object may have; all objects of a body together may cost no more than one object of this size. Bounds the CPU a body with colliding keys can take. 0 disables
+    max_depth: 512                               # Deepest nesting allowed (PHP's json_decode default)
+
 accounts:
   type: regular                                  # EXPERIMENTAL: Account type: regular or flex
   storage: file                                  # EXPERIMENTAL: Flex storage type: file or folder

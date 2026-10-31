@@ -10,7 +10,6 @@
 namespace Grav\Common\Service;
 
 use Grav\Common\Uri;
-use JsonException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Pimple\Container;
@@ -68,15 +67,8 @@ class RequestServiceProvider implements ServiceProviderInterface
                             break 2;
                         case 'application/json':
                         case 'application/vnd.api+json':
-                            try {
-                                $json = file_get_contents('php://input');
-                                $post = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-                                if (!is_array($post)) {
-                                    $post = null;
-                                }
-                            } catch (JsonException) {
-                                $post = null;
-                            }
+                            // Decoded once the configuration has loaded, within its limits:
+                            // see JsonBody::parseRequest() in InitializeProcessor.
                             break 2;
                     }
                 }
