@@ -20,11 +20,19 @@ if ($path !== '/index.php' && is_file($root . $path)) {
         // Block dot files and folders except .well-known directories
         preg_match('`/\.(?!well-known/)`', (string) $path)
         // Block all direct access for these folders
-        || preg_match('`^/(\.git|cache|bin|logs|backup|webserver-configs|tests)/`ui', (string) $path)
+        || preg_match('`^/(\.git|cache|bin|logs|backup|tmp|webserver-configs|tests)/`ui', (string) $path)
+        // Block all direct access to these sensitive user folders, whatever the file type
+        || preg_match('`^/user/(env/[^/]+/)?config/`ui', (string) $path)
+        // Block user/accounts too, but allow avatar images (SVG stays blocked)
+        || preg_match('`^/user/(env/[^/]+/)?accounts/(?![^/]+/[^/]+\.(jpe?g|png|gif|webp|avif|bmp|ico)$)`ui', (string) $path)
+        // Block user/data too, but allow public media and asset uploads (SVG stays blocked)
+        || preg_match('`^/user/(env/[^/]+/)?data/(?!.*\.(jpe?g|png|gif|webp|avif|bmp|ico|mp4|webm|ogg|ogv|mov|mp3|wav|m4a|flac|pdf|woff2|woff|ttf|otf|eot|css|js)$)`ui', (string) $path)
+        // Block running scripts in the public cache folders (image derivatives and combined assets)
+        || preg_match('`^/(images|assets)/(.*)\.(php|php2|php3|php4|php5|php7|php8|phar|phtml|pht|phtm|phps|pl|py|cgi|sh|bat)$`ui', (string) $path)
         // Block access to specific file types for these system folders
-        || preg_match('`^/(system|vendor)/(.*)\.(txt|xml|md|html|json|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', (string) $path)
+        || preg_match('`^/(system|vendor)/(.*)\.(txt|xml|md|html|htm|shtml|shtm|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$`ui', (string) $path)
         // Block access to specific file types for these user folders
-        || preg_match('`^/(user)/(.*)\.(txt|md|json|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', (string) $path)
+        || preg_match('`^/(user)/(.*)\.(txt|md|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$`ui', (string) $path)
         // Block all direct access to .md files
         || preg_match('`\.md$`ui', (string) $path)
         // Block access to specific files in the root folder

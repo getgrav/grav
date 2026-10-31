@@ -778,7 +778,13 @@ class Validation
      */
     protected static function filterNumber(mixed $value, array $params, array $field)
     {
-        return (string)(int)$value !== (string)(float)$value ? (float)$value : (int)$value;
+        $float = (float)$value;
+        // Out of int range (or INF/NAN): an int cast would be wrong, and PHP 8.5 warns about it.
+        if (!is_finite($float) || $float >= PHP_INT_MAX || $float < PHP_INT_MIN) {
+            return $float;
+        }
+
+        return (string)(int)$value !== (string)$float ? $float : (int)$value;
     }
 
     /**

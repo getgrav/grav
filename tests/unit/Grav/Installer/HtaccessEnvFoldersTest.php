@@ -3,6 +3,15 @@
 class HtaccessEnvFoldersTest extends \PHPUnit\Framework\TestCase
 {
     private const UPDATE = '/system/src/Grav/Installer/updates/2.2.4_2026-09-30_0.php';
+    /** Later updates that also change `.htaccess`, run after this one as an upgrade from 2.2.3 does. */
+    private const LATER = ['/system/src/Grav/Installer/updates/2.2.19_2026-10-31_0.php'];
+
+    private function runLaterUpdates(string $file): void
+    {
+        foreach (self::LATER as $later) {
+            (require GRAV_ROOT . $later)['postflight']($file);
+        }
+    }
 
     /**
      * A multisite keeps each site in `user/env/<host>/`, so the shipped files must
@@ -28,6 +37,7 @@ class HtaccessEnvFoldersTest extends \PHPUnit\Framework\TestCase
         try {
             copy(GRAV_ROOT . '/tests/fake/htaccess-2.2.3.txt', $file);
             $update['postflight']($file);
+            $this->runLaterUpdates($file);
             self::assertSame(file_get_contents(GRAV_ROOT . '/.htaccess'), file_get_contents($file));
 
             $update['postflight']($file);
@@ -46,6 +56,7 @@ class HtaccessEnvFoldersTest extends \PHPUnit\Framework\TestCase
             $old = str_replace("\n", "\r\n", (string) file_get_contents(GRAV_ROOT . '/tests/fake/htaccess-2.2.3.txt'));
             file_put_contents($file, $old);
             $update['postflight']($file);
+            $this->runLaterUpdates($file);
             self::assertSame(str_replace("\n", "\r\n", (string) file_get_contents(GRAV_ROOT . '/.htaccess')), file_get_contents($file));
         } finally {
             @unlink($file);
