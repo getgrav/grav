@@ -277,6 +277,13 @@ trait ImageMediaTrait
                     $derivative->queueWatermark($this->watermarked);
                 }
 
+                // And for the URL params that came in before them: querystring()
+                // fans each new param out to the alternatives that exist when it
+                // is called, nothing else.
+                if ($this->medium_querystring) {
+                    $derivative->querystring($this->querystring(null, false));
+                }
+
                 $this->addAlternative($ratio, $derivative);
             }
         }

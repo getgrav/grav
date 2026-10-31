@@ -2,6 +2,7 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
+use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\MediumFactory;
@@ -117,5 +118,60 @@ class MediumMagicCallTest extends \Codeception\Test\Unit
 
         $this->assertStringContainsString('/images/', $url);
         $this->assertStringNotContainsString('?cropZoom', $url);
+    }
+
+    public function testQuerystringKeepsEachParamOnceInOrder(): void
+    {
+        $medium = $this->media['photo4.jpg'];
+
+        $this->assertSame('?a=1&b', $medium->querystring('?a=1&b'));
+        $this->assertSame('?a=1&b&c', $medium->querystring('&b&c&a=1'));
+        $this->assertSame('a=1&b&c&7', $medium->querystring('7', false));
+
+        $medium->foo('bar', 'b z')->foo('bar', 'b z')->b('');
+        $this->assertSame('a=1&b&c&7&foo=bar,b%20z', $medium->querystring(null, false));
+    }
+
+    public function testQuerystringParamsReachTheAlternatives(): void
+    {
+        $medium = $this->media['photo4.jpg'];
+        $alternative = $this->media['photo3.jpg'];
+        $medium->addAlternative(2, $alternative);
+
+        $medium->querystring('a=1');
+        $medium->v('2');
+
+        $this->assertSame('?a=1&v=2', $medium->querystring());
+        $this->assertSame('?a=1&v=2', $alternative->querystring());
+    }
+
+    public function testQuerystringParamsReachDerivativesMadeLater(): void
+    {
+        $medium = MediumFactory::fromFile(GRAV_ROOT . '/tests/fake/nested-site/user/pages/01.item1/home-sample-image.jpg');
+        $this->assertInstanceOf(ImageMedium::class, $medium);
+
+        // `![](img.jpg?foo&derivatives=320,640&bar)`: both params belong to every
+        // candidate of the srcset, whichever side of `derivatives` they are on.
+        $medium->foo('')->derivatives([320, 640])->bar('');
+
+        $alternatives = $medium->getAlternatives();
+        $this->assertCount(3, $alternatives);
+        foreach ($alternatives as $width => $alternative) {
+            $this->assertSame('?foo&bar', $alternative->querystring(), "{$width}w");
+        }
+    }
+
+    public function testManyUrlParamsCostLinearTime(): void
+    {
+        // Each param is stored once as it comes in, instead of the whole querystring
+        // being split and de-duplicated again for every pass-through param.
+        $query = implode('&', array_map(static fn($number) => 'p' . $number, range(1, 1000)));
+        $excerpts = new Excerpts(null, ['markdown' => [], 'images' => []]);
+
+        $start = microtime(true);
+        $medium = $excerpts->processMediaActions($this->media['photo4.jpg'], 'photo4.jpg?' . $query);
+
+        $this->assertLessThan(1.0, microtime(true) - $start);
+        $this->assertSame('?' . $query, $medium->querystring());
     }
 }

@@ -195,7 +195,10 @@ trait MediaObjectTrait
     public function querystring($querystring = null, $withQuestionmark = true)
     {
         if (null !== $querystring) {
-            $this->medium_querystring[] = ltrim($querystring, '?&');
+            // Keep each param once, in the order it first came in.
+            foreach (explode('&', ltrim($querystring, '?&')) as $param) {
+                $this->medium_querystring[$param] = $param;
+            }
             foreach ($this->alternatives as $alt) {
                 $alt->querystring($querystring, $withQuestionmark);
             }
@@ -205,12 +208,7 @@ trait MediaObjectTrait
             return '';
         }
 
-        // join the strings
         $querystring = implode('&', $this->medium_querystring);
-        // explode all strings
-        $query_parts = explode('&', (string) $querystring);
-        // Join them again now ensure the elements are unique
-        $querystring = implode('&', array_unique($query_parts));
 
         return $withQuestionmark ? ('?' . $querystring) : $querystring;
     }
@@ -672,7 +670,7 @@ trait MediaObjectTrait
         }
 
         if (!empty($method)) {
-            $this->querystring($this->querystring(null, false) . '&' . $method);
+            $this->querystring($method);
         }
 
         return $this;
