@@ -2255,7 +2255,7 @@ class Pages
      */
     protected function loadCachedPages(Cache $cache, array $pages_dirs): bool
     {
-        $cached = $cache->fetch($this->pages_cache_id);
+        $cached = $this->isIndexShared() ? $cache->fetchShared($this->pages_cache_id) : $cache->fetch($this->pages_cache_id);
         if (!$cached || $this->getVersion() !== $cached[0]) {
             return false;
         }
@@ -2298,6 +2298,14 @@ class Pages
         }
 
         return true;
+    }
+
+    /**
+     * Frontmatter Twig may put request-specific values into the page index.
+     */
+    protected function isIndexShared(): bool
+    {
+        return $this->grav['config']->get('system.pages.frontmatter.process_twig') !== true;
     }
 
     /**
@@ -2402,7 +2410,7 @@ class Pages
             if ($state_file && $this->writeScanFile($state_file, ['hash' => $hash, 'paths' => $this->scan_paths])) {
                 $interval = (int)$config->get('system.cache.check.interval', 0);
                 if ($interval > 0) {
-                    $this->grav['cache']->save($this->getPagesHashKey($pages_dirs, $method), $hash, $interval);
+                    $this->grav['cache']->saveShared($this->getPagesHashKey($pages_dirs, $method), $hash, $interval);
                 }
 
                 $this->setPagesCacheId($pages_dirs, $hash);
@@ -2450,11 +2458,16 @@ class Pages
                 $this->index_store = null;
             }
 
-            // save pages, routes, taxonomy, and sort to cache
+            // Save pages, routes, taxonomy, sort and UUIDs to the selected cache.
             if ($lazy) {
-                $cache->save($this->pages_cache_id, [$this->getVersion(), $index, [], [], [], [], true, $this->uuid_index ? $this->uuids : null]);
+                $cached = [$this->getVersion(), $index, [], [], [], [], true, $this->uuid_index ? $this->uuids : null];
             } else {
-                $cache->save($this->pages_cache_id, [$this->getVersion(), $index, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort, false, $this->uuid_index ? $this->uuids : null]);
+                $cached = [$this->getVersion(), $index, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort, false, $this->uuid_index ? $this->uuids : null];
+            }
+            if ($this->isIndexShared()) {
+                $cache->saveShared($this->pages_cache_id, $cached);
+            } else {
+                $cache->save($this->pages_cache_id, $cached);
             }
         }
     }
@@ -3104,7 +3117,7 @@ class Pages
         $cache = $this->grav['cache'];
         $cacheKey = $this->getPagesHashKey($pagesDirs, $method);
         if ($interval > 0) {
-            $cached = $cache->fetch($cacheKey);
+            $cached = $cache->fetchShared($cacheKey);
             if ($cached !== false) {
                 return $cached;
             }
@@ -3143,7 +3156,7 @@ class Pages
             }
 
             if ($interval > 0) {
-                $cache->save($cacheKey, $hash, $interval);
+                $cache->saveShared($cacheKey, $hash, $interval);
             }
         } finally {
             $this->releaseLock($lock);

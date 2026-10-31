@@ -64,6 +64,16 @@ class PagesLazyIndexTest extends \PHPUnit\Framework\TestCase
                 $this->store[$id] = $data;
             }
 
+            public function fetchShared($id)
+            {
+                return $this->fetch($id);
+            }
+
+            public function saveShared($id, $data, $lifetime = null)
+            {
+                $this->save($id, $data, $lifetime);
+            }
+
             public function delete($id)
             {
                 unset($this->store[$id]);
