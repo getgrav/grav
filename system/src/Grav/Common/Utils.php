@@ -20,6 +20,7 @@ use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Markdown\Excerpts;
+use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Pages;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
@@ -67,9 +68,12 @@ abstract class Utils
      * @param string|bool|null $lang Language prefix for path input. `null`/`false` keeps the URL language-neutral,
      *                               which is what asset URLs need; `true` uses the active language; a language code
      *                               such as `'de'` uses that language. Streams and external URLs are never prefixed.
+     * @param bool $media_only Resolve a stream URI only inside the media folders in `security.media.allowed_roots`
+     *                         and return `false` for any other stream location, whether or not the file exists.
+     *                         Set for sandboxed page content.
      * @return string|false
      */
-    public static function url($input, $domain = false, $fail_gracefully = false, $lang = null)
+    public static function url($input, $domain = false, $fail_gracefully = false, $lang = null, $media_only = false)
     {
         if ((!is_string($input) && !is_callable([$input, '__toString'])) || !trim($input)) {
             if ($fail_gracefully) {
@@ -113,6 +117,12 @@ abstract class Utils
                         return str_replace(' ', '%20', $input);
                     }
 
+                    // Checked on the URI that is looked up, not on $input: parse_url() and the locator split
+                    // `account:/admin.yaml?x=://` differently, so a check on the raw string can be stepped around.
+                    if ($media_only && !GlobalMedia::isMediaUri("{$scheme}://{$host}{$path}")) {
+                        return false;
+                    }
+
                     // Attempt to find the resource (because of parse_url() we need to put host back to path).
                     $resource = $locator->findResource("{$scheme}://{$host}{$path}", false);
 
@@ -142,6 +152,10 @@ abstract class Utils
                 }
             } else {
                 // Not a valid URL (can still be a stream).
+                if ($media_only && !GlobalMedia::isMediaUri($input)) {
+                    return false;
+                }
+
                 $resource = $locator->findResource($input, false);
             }
         } else {
