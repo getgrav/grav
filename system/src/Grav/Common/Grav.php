@@ -56,6 +56,7 @@ use Grav\Framework\RequestHandler\RequestHandler;
 use Grav\Framework\Route\Route;
 use Grav\Framework\Session\Messages;
 use InvalidArgumentException;
+use RangeException;
 use RuntimeException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -1039,14 +1040,15 @@ class Grav extends Container
                     foreach ($uri->query(null, true) as $action => $params) {
                         if (in_array($action, ImageMedium::$magic_actions, true)) {
                             $args = explode(',', (string) $params);
-                            // Reject resize actions whose canvas is above the
+                            // Reject actions whose canvas is above the
                             // total-pixel ceiling. The GD/Imagick buffer is allocated
                             // as width*height*4 bytes outside PHP's memory_limit, so
                             // an unbounded request exhausts RAM. The canvas is
                             // measured, not the query numbers: `forceResize=46000`
-                            // and `zoomCrop=46000,1` both allocate 46000x46000.
-                            if ($max_pixels > 0 && $raster && isset(ImageMedium::$magic_resize_actions[$action])) {
-                                $canvas = ImageMedium::urlResizeCanvas($action, $args, $width, $height);
+                            // and `zoomCrop=46000,1` both allocate 46000x46000, and
+                            // `gaussianBlur=14` 8192x8192.
+                            if ($max_pixels > 0 && $raster) {
+                                $canvas = ImageMedium::urlActionCanvas($action, $args, $width, $height);
                                 if ($canvas === null || $canvas[0] > $max_pixels) {
                                     return false;
                                 }
@@ -1056,9 +1058,25 @@ class Grav extends Container
                             call_user_func_array([&$medium, $action], $args);
                         }
                     }
+
+                    // That refuses what it can before the source is decoded, but
+                    // it only predicts the size each action starts from: the Exif
+                    // orientation fix queued ahead of the actions, or a resize
+                    // that declines to enlarge, leaves another size than it
+                    // expects. So every action is measured again as it runs, on
+                    // the image as it really is by then.
+                    if ($max_pixels > 0 && $raster) {
+                        $medium->maxPixels($max_pixels);
+                    }
                 }
 
-                Utils::download($medium->path(), false);
+                try {
+                    $file = $medium->path();
+                } catch (RangeException) {
+                    return false;
+                }
+
+                Utils::download($file, false);
             }
 
             // unsupported media type, try to download it...

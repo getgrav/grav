@@ -17,10 +17,12 @@ use Gregwar\Image\Exceptions\GenerationError;
 use Gregwar\Image\Image;
 use Gregwar\Image\Source;
 use InvalidArgumentException;
+use RangeException;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function array_key_exists;
+use function call_user_func_array;
 use function count;
 use function extension_loaded;
 use function in_array;
@@ -35,6 +37,9 @@ use function strlen;
  */
 class ImageFile extends Image
 {
+    /** @var int Most pixels one operation may allocate, 0 for no limit */
+    protected $maxPixels = 0;
+
     /**
      * Image constructor with adapter configuration from Grav.
      *
@@ -78,6 +83,46 @@ class ImageFile extends Image
     public function clearOperations()
     {
         $this->operations = [];
+    }
+
+    /**
+     * Holds the canvas of every queued operation to a total-pixel ceiling.
+     *
+     * @param int $maxPixels 0 for no limit
+     * @return $this
+     */
+    public function setMaxPixels($maxPixels)
+    {
+        $this->maxPixels = (int) $maxPixels;
+
+        return $this;
+    }
+
+    /**
+     * Applies the operations, each measured against the ceiling just before it
+     * runs. Only here is the size it starts from known rather than predicted:
+     * whatever the operations before it, the Exif orientation fix and a resize
+     * that declined to enlarge among them, really left.
+     *
+     * @return void
+     * @throws RangeException
+     */
+    public function applyOperations()
+    {
+        foreach ($this->operations as [$method, $args]) {
+            if ($this->maxPixels > 0) {
+                $canvas = ImageMedium::urlActionCanvas($method, $args, $this->adapter->width(), $this->adapter->height());
+                if ($canvas === null || $canvas[0] > $this->maxPixels) {
+                    // A refusal, not a broken image: save() would otherwise
+                    // swallow the exception and serve the fallback image.
+                    $this->useFallback(false);
+
+                    throw new RangeException("Image operation {$method} is above the pixel limit");
+                }
+            }
+
+            call_user_func_array([$this->adapter, $method], $args);
+        }
     }
 
     /**
