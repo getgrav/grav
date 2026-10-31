@@ -45,6 +45,9 @@ class BlueprintExtendsProvenanceTest extends \PHPUnit\Framework\TestCase
 
         $this->dir = sys_get_temp_dir() . '/grav-bp-provenance-' . bin2hex(random_bytes(6));
         mkdir($this->dir, 0775, true);
+
+        // Only files in a blueprint folder are trusted, so make this one.
+        $this->grav['locator']->addPath('blueprints', '', $this->dir);
     }
 
     protected function tearDown(): void

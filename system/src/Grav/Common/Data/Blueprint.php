@@ -35,6 +35,13 @@ use function strlen;
  */
 class Blueprint extends BlueprintForm
 {
+    /**
+     * Folders whose blueprint files are the site author's, as stream URIs. Grav's
+     * own blueprints and `user://blueprints` are part of `blueprints://`, as is
+     * every folder a plugin adds to that stream.
+     */
+    public const TRUSTED_ROOTS = ['blueprints://', 'plugins://', 'themes://'];
+
     /** @var string */
     protected $context = 'blueprints://';
 
@@ -55,10 +62,10 @@ class Blueprint extends BlueprintForm
 
     /**
      * Whether this blueprint's own field definitions came from a source the site
-     * author controls — a blueprint file on disk, or PHP that declared itself
-     * trusted. Both are the author speaking: a plugin shipping a `blueprints.yaml`
-     * also ships code Grav autoloads, so honouring its `data-*@` directives grants
-     * no capability it did not already have.
+     * author controls — a blueprint file in one of the {@see self::TRUSTED_ROOTS},
+     * or PHP that declared itself trusted. Both are the author speaking: a plugin
+     * shipping a `blueprints.yaml` also ships code Grav autoloads, so honouring its
+     * `data-*@` directives grants no capability it did not already have.
      *
      * @var bool
      */
@@ -96,9 +103,10 @@ class Blueprint extends BlueprintForm
      * @param string|string[]|null $filename
      * @param array $items
      * @param bool|null $trusted  Declare the provenance of `$items`. Null infers it:
-     *                            a blueprint loaded from files is trusted, items
-     *                            injected as data are not. Pass true from code that
-     *                            builds a blueprint out of its own PHP array.
+     *                            a blueprint loaded from files is trusted (as long
+     *                            as they lie in a blueprint folder), items injected
+     *                            as data are not. Pass true from code that builds a
+     *                            blueprint out of its own PHP array.
      */
     public function __construct($filename = null, array $items = [], ?bool $trusted = null)
     {
@@ -602,11 +610,61 @@ class Blueprint extends BlueprintForm
      */
     protected function loadFile($filename)
     {
+        // Only files in a blueprint, plugin or theme folder are the author's.
+        // getFiles() also accepts any existing path or stream URI, and the name it
+        // is given can come from content (a page's `template` header). Every file
+        // of the blueprint passes through this method, parents included, before
+        // load() merges the first of them.
+        if ($this->trusted && !self::isTrustedFile((string) $filename)) {
+            $this->trusted = false;
+        }
+
         $file = CompiledYamlFile::instance($filename);
         $content = (array)$file->content();
         $file->free();
 
         return $content;
+    }
+
+    /**
+     * Whether a file lies inside one of the {@see self::TRUSTED_ROOTS}.
+     *
+     * @param string $filename
+     * @return bool
+     */
+    private static function isTrustedFile(string $filename): bool
+    {
+        $realPath = realpath($filename);
+        if ($realPath === false) {
+            return false;
+        }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        // A plugin or theme symlinked into its folder is a supported layout, and
+        // its real path is somewhere else. The path as the locator built it still
+        // starts with the folder, which is enough when no `..` can leave it again.
+        $isPlain = !str_contains($filename, '..');
+
+        foreach (self::TRUSTED_ROOTS as $root) {
+            if (!$locator->isStream($root)) {
+                continue;
+            }
+            foreach ($locator->findResources($root) as $folder) {
+                if ($isPlain && str_starts_with($filename, $folder . '/')) {
+                    return true;
+                }
+                $realRoot = realpath($folder);
+                // The trailing separator keeps `user/plugins` from matching
+                // `user/plugins-old`.
+                if ($realRoot !== false && str_starts_with($realPath, $realRoot . DIRECTORY_SEPARATOR)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
