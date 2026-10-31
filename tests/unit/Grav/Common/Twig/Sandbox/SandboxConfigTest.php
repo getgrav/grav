@@ -117,6 +117,34 @@ class SandboxConfigTest extends TestCase
         self::assertSame('My Site', $sandbox->get('site.title', null, '0'));
     }
 
+    public function testGet_ThemePathIsDeniedUnderBothOfItsNames(): void
+    {
+        // Themes::load() copies `themes.<active theme>` to `theme`.
+        $settings = ['custom_color' => '#fff', 'maps_api_key' => 'mp-secret', 'captcha' => ['secret' => 'cp-secret']];
+        $items = ['themes' => ['quark' => $settings, 'other' => ['maps_api_key' => 'other']], 'theme' => $settings] + self::SAMPLE;
+        $sandbox = new SandboxConfig(new Config($items), ['themes.quark.maps_api_key', 'theme.captcha']);
+
+        foreach (['theme', 'themes.quark'] as $name) {
+            self::assertNull($sandbox->get($name . '.maps_api_key'));
+            self::assertNull($sandbox->get($name . '.captcha.secret'));
+            self::assertFalse($sandbox->offsetExists($name . '.maps_api_key'));
+            self::assertSame(['custom_color' => '#fff'], $sandbox->get($name));
+        }
+        self::assertSame(['custom_color' => '#fff'], $sandbox->toArray()['theme']);
+        self::assertSame(['custom_color' => '#fff'], $sandbox->toArray()['themes']['quark']);
+
+        // Another theme's settings are not the active theme's.
+        self::assertSame('other', $sandbox->get('themes.other.maps_api_key'));
+        $sandbox = new SandboxConfig(new Config($items), ['themes.other.maps_api_key']);
+        self::assertSame('mp-secret', $sandbox->get('theme.maps_api_key'));
+
+        foreach (['themes', 'themes.quark', 'theme'] as $whole) {
+            $sandbox = new SandboxConfig(new Config($items), [$whole]);
+            self::assertNull($sandbox->get('theme'), $whole);
+            self::assertNull($sandbox->get('themes.quark.maps_api_key'), $whole);
+        }
+    }
+
     // =========================================================================
     // value() — alias for get() with the same filtering
     // =========================================================================

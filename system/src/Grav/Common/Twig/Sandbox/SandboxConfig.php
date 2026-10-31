@@ -30,6 +30,9 @@ use function str_starts_with;
  * `get`/`value` return the supplied default, `offsetExists` returns false,
  * and `toArray` recursively removes the matching subtrees.
  *
+ * The active theme's settings are in the tree twice, as `themes.<name>` and as
+ * `theme`; a path denied under one of the two names is denied under both.
+ *
  * Defense-in-depth: this class is the only Config-shape object whose
  * `toarray` is allow-listed in the sandbox. The raw Config and Data
  * sandbox entries have `toarray` removed (system/config/security.yaml),
@@ -57,7 +60,42 @@ final class SandboxConfig implements ArrayAccess
             }
             $denied[] = $path;
         }
-        $this->denied = $denied;
+        $this->denied = $this->withThemeAliases($denied);
+    }
+
+    /**
+     * Themes::load() copies the active theme's settings from where they are
+     * stored, `themes.<name>`, to `theme`, so every one of them can be read by
+     * two paths. Add the other name of each denied path in either tree, or
+     * the value it is meant to hide stays readable there.
+     *
+     * @param list<string> $denied
+     * @return list<string>
+     */
+    private function withThemeAliases(array $denied): array
+    {
+        $name = (string) $this->config->get('system.pages.theme');
+        if ($name === '') {
+            return $denied;
+        }
+
+        $stored = 'themes.' . $name;
+        foreach ($denied as $path) {
+            if ($path === 'themes' || $path === $stored) {
+                $alias = 'theme';
+            } elseif (str_starts_with($path, $stored . '.')) {
+                $alias = 'theme' . substr($path, strlen($stored));
+            } elseif ($path === 'theme' || str_starts_with($path, 'theme.')) {
+                $alias = $stored . substr($path, strlen('theme'));
+            } else {
+                continue;
+            }
+            if (!in_array($alias, $denied, true)) {
+                $denied[] = $alias;
+            }
+        }
+
+        return $denied;
     }
 
     /**

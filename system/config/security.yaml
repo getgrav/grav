@@ -170,6 +170,8 @@ twig_sandbox:
   # to the built-in defaults (plugins, streams, security, backups, scheduler,
   # system.cache.redis.password — see SandboxDefaults::configDeniedPaths).
   # e.g. a plugin that stores secrets under `site.integrations.*`.
+  # `theme.*` and `themes.<active theme>.*` are the same settings: a path listed
+  # under either name is redacted under both.
   # (GHSA-j274-39qw-32c9, GHSA-p597-crqc-m349)
   config_denied_paths: []
 # Constraints applied to the Twig `read_file()` function. The function is
