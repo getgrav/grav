@@ -264,6 +264,28 @@ class CompiledMarkdownFile extends MarkdownFile
     }
 
     /**
+     * Encode contents into RAW string.
+     *
+     * MarkdownFile::encode() writes no frontmatter block when the header is empty, so a body
+     * that starts with a `---` block of its own would be read back as the header. Such a body
+     * gets an empty block in front of it to keep header and markdown apart.
+     *
+     * @param array $var
+     * @return string
+     */
+    protected function encode($var)
+    {
+        $encoded = parent::encode($var);
+
+        // decode() skips a BOM and whitespace before it looks for the frontmatter.
+        if (empty($var['header']) && str_starts_with(ltrim($encoded, "\xef\xbb\xbf \n\r\t\v\0"), '---')) {
+            $encoded = "---\n{  }\n---\n\n" . $encoded;
+        }
+
+        return $encoded;
+    }
+
+    /**
      * Decode RAW string into contents, reusing the header parsed by an earlier scan.
      *
      * @param string $var
