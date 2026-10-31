@@ -100,6 +100,16 @@ class Blueprint extends BlueprintForm
     protected $loadingFiles = false;
 
     /**
+     * Whether deepInit() is resolving `import@` directives that arrived with
+     * page-authored input {@see self::extend()} merged into a file-defined
+     * blueprint (FlexForm, FlexDirectoryForm). `$trusted` stays true for such a
+     * blueprint, so loadImport() needs this to know the directives are not its own.
+     *
+     * @var bool
+     */
+    protected $untrustedImports = false;
+
+    /**
      * @param string|string[]|null $filename
      * @param array $items
      * @param bool|null $trusted  Declare the provenance of `$items`. Null infers it:
@@ -339,7 +349,7 @@ class Blueprint extends BlueprintForm
             $before = $this->dynamicOf($this->items);
         }
 
-        $paths = $this->dynamicPathsOf($incoming);
+        $paths = $this->dynamicPathsOf($incoming, $incomingTrust);
 
         if (null === $paths) {
             // Could not attribute the incoming fields. Fall back to demoting the whole
@@ -360,7 +370,7 @@ class Blueprint extends BlueprintForm
         // with the ones this blueprint had before: any path whose directives are new
         // or changed came from the untrusted source.
         if (!$incomingTrust) {
-            $after = $this->dynamicOf($this->items);
+            $after = $this->dynamicOf($this->items, false);
             if (null === $before || null === $after) {
                 $this->trusted = false;
             } else {
@@ -372,9 +382,80 @@ class Blueprint extends BlueprintForm
             }
         }
 
-        $this->deepInit($this->items);
+        // load() resolved and removed this blueprint's own `import@` directives, so
+        // any still in the merged tree arrived with $extends and take its provenance.
+        $previous = $this->untrustedImports;
+        $this->untrustedImports = !$incomingTrust;
+        try {
+            $this->deepInit($this->items);
+        } finally {
+            $this->untrustedImports = $previous;
+        }
 
         return $this;
+    }
+
+    /**
+     * Resolve an `import@` directive.
+     *
+     * A blueprint file may import from any path, stream or `context:` of its
+     * choosing. A directive that came from page-authored input (a form in page
+     * frontmatter, a Flex form override) may only name a blueprint under
+     * blueprints://, because the imported array becomes part of the rendered
+     * form.
+     *
+     * @param array|string $value
+     * @return array|null
+     */
+    protected function loadImport($value)
+    {
+        if ($this->trusted && !$this->untrustedImports) {
+            return parent::loadImport($value);
+        }
+
+        $type = is_string($value) ? $value : ($value['type'] ?? null);
+        $context = is_array($value) ? ($value['context'] ?? null) : null;
+        if (!is_string($type)) {
+            return null;
+        }
+
+        [$name, $field] = explode(':', $type, 2) + [1 => 'form'];
+        if ($name === '') {
+            // Import from this blueprint itself; nothing is read from disk.
+            return parent::loadImport($value);
+        }
+
+        // A plain blueprint name (`user/account`, `partials/security`), optionally
+        // with a context that stays inside blueprints://. No absolute path, no
+        // `..`, no other stream. Without a context, the one this blueprint was
+        // given in PHP applies, as long as it is inside blueprints:// too.
+        if (!preg_match('#^[\w-]+(?:[./][\w-]+)*$#', $name)) {
+            return null;
+        }
+        $insideBlueprints = '#^blueprints://(?:[\w-]+(?:/[\w-]+)*/?)?$#';
+        if (null === $context) {
+            $context = is_string($this->context) && preg_match($insideBlueprints, $this->context) ? $this->context : 'blueprints://';
+        } elseif (!is_string($context) || !preg_match($insideBlueprints, $context)) {
+            return null;
+        }
+        if ($context[strlen($context)-1] !== '/') {
+            $context .= '/';
+        }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        $files = $locator->findResources($context . $name . (str_ends_with($name, '.yaml') ? '' : '.yaml'));
+        if (!$files) {
+            return null;
+        }
+
+        // Same context and overrides as the vendor import, so relative imports
+        // and extends@ inside the imported blueprint resolve as they always have.
+        $blueprint = new static();
+        $blueprint->filename = $files;
+        $import = $blueprint->setContext($this->context)->setOverrides($this->overrides)->load()->get($field);
+
+        return is_array($import) ? $import : null;
     }
 
     /**
@@ -415,11 +496,12 @@ class Blueprint extends BlueprintForm
      * are guaranteed to line up with the ones init() dispatches on.
      *
      * @param array $items
+     * @param bool $trusted  Provenance of `$items`; decides how the probe resolves `import@`.
      * @return string[]|null  Null when the source could not be parsed.
      */
-    private function dynamicPathsOf(array $items): ?array
+    private function dynamicPathsOf(array $items, bool $trusted = true): ?array
     {
-        $dynamic = $this->dynamicOf($items);
+        $dynamic = $this->dynamicOf($items, $trusted);
 
         return null === $dynamic ? null : array_keys($dynamic);
     }
@@ -429,16 +511,17 @@ class Blueprint extends BlueprintForm
      * {@see BlueprintForm::$dynamic} keys them.
      *
      * @param array $items
+     * @param bool $trusted  Provenance of `$items`; decides how the probe resolves `import@`.
      * @return array|null  Null when the source could not be parsed.
      */
-    private function dynamicOf(array $items): ?array
+    private function dynamicOf(array $items, bool $trusted = true): ?array
     {
         if (!$items) {
             return [];
         }
 
         try {
-            $probe = new self(null, $items, true);
+            $probe = new self(null, $items, $trusted);
             $probe->deepInit($probe->items);
 
             return $probe->dynamic;
