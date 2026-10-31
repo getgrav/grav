@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * [security] `system.images.max_pixels` now also refuses to resize an image whose size PHP can't read, instead of skipping the check. Imagick can decode formats such as JPEG XL and HEIC that `getimagesize()` can't measure, so a huge image in one of those formats could get past the limit. The image is served as it is, and a warning is logged
+    * [security] A media `.meta.yaml` file can no longer change which file a medium points to or where it is served from, and only files ending in `.meta.yaml` are read as media metadata
     * `image/avif` was listed under an `image` extension in `mime.yaml` instead of `avif`, so Grav's MIME type list gave `image` as an extension for `image/avif`, ahead of `avif`
 
 # v2.2.17
