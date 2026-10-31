@@ -242,8 +242,12 @@ trait UserTrait
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
 
+        // The hash may be the free text `avatar_hash` account field: only use it as the filename if it is
+        // a plain name, otherwise use its digest so that the file always stays inside the storage folder.
+        $name = preg_match('/^[a-z0-9_-]{1,64}$/iD', $hash) ? $hash : md5($hash);
+
         $storage = $locator->findResource('image://multiavatar', true, true);
-        $avatar_file = "{$storage}/{$hash}.svg";
+        $avatar_file = "{$storage}/{$name}.svg";
 
         if (!file_exists($storage)) {
             Folder::create($storage);
@@ -255,7 +259,7 @@ trait UserTrait
             file_put_contents($avatar_file, $mavatar->generate($hash, null, null));
         }
 
-        $avatar_url = $locator->findResource("image://multiavatar/{$hash}.svg", false, true);
+        $avatar_url = $locator->findResource("image://multiavatar/{$name}.svg", false, true);
 
         return Utils::url($avatar_url);
 
