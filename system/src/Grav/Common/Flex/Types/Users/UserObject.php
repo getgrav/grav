@@ -979,6 +979,13 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 if ($file) {
                     // Check file upload against media limits (except for max size).
                     $filename = $media->checkUploadedFile($file, $filename, ['filesize' => 0] + $settings);
+                } else {
+                    // The name of a deleted file has to be a plain filename, like an upload: deleteFile()
+                    // follows sub-folders (`original/` is added when saving).
+                    $filename = (string)$filename;
+                    if (!Utils::checkFilename($filename)) {
+                        throw new RuntimeException('File could not be deleted: Bad filename', 400);
+                    }
                 }
 
                 $self = $settings['self'];

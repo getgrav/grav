@@ -399,6 +399,13 @@ trait FlexMediaTrait
                 if ($file) {
                     // Check file upload against media limits (except for max size).
                     $filename = $media->checkUploadedFile($file, $filename, ['filesize' => 0] + $settings);
+                } else {
+                    // The name of a deleted file has to be a plain filename, like an upload: deleteFile()
+                    // follows sub-folders, and the folder of a page also holds its child pages.
+                    $filename = (string)$filename;
+                    if (!Utils::checkFilename($filename)) {
+                        throw new RuntimeException('File could not be deleted: Bad filename', 400);
+                    }
                 }
 
                 $self = $settings['self'];
