@@ -58,9 +58,10 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
      *
      * @param  string $action
      * @param  string|null $scope
+     * @param  bool $super  False if the group may not fall back to its super user access.
      * @return bool|null
      */
-    public function authorize(string $action, ?string $scope = null): ?bool
+    public function authorize(string $action, ?string $scope = null, bool $super = true): ?bool
     {
         if ($scope === 'test') {
             $scope = null;
@@ -75,7 +76,7 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
             return $authorized;
         }
 
-        return $access->authorize('admin.super') ? true : null;
+        return $super && $access->authorize('admin.super') ? true : null;
     }
 
     /**

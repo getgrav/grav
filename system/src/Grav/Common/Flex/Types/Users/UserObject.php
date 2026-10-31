@@ -324,8 +324,10 @@ class UserObject extends FlexObject implements UserInterface, Countable
             return $authorized;
         }
 
-        // Check group access.
-        $authorized = $this->getGroups()->authorize($action, $scope);
+        // Check group access. A rule in the account wins over the groups, and that includes
+        // the super user rule: when the account denies it, a group still grants what it
+        // spells out, but it does not make the user a superuser for everything else.
+        $authorized = $this->getGroups()->authorize($action, $scope, $access->authorize('admin.super') !== false);
         if (is_bool($authorized)) {
             return $authorized;
         }
