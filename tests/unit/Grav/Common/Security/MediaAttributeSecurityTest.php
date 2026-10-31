@@ -86,6 +86,10 @@ class MediaAttributeSecurityTest extends \PHPUnit\Framework\TestCase
             ['"onerror', 'attribute name with leading quote'],
             ['', 'empty name (already handled by empty() check)'],
             ['1foo', 'attribute name not letter-led'],
+            // `$` without the `D` modifier also matches before a final newline.
+            ["style\n", 'denylisted name with a trailing newline'],
+            ["srcdoc\n", 'denylisted name with a trailing newline'],
+            ["data-foo\n", 'safe name with a trailing newline'],
         ];
     }
 

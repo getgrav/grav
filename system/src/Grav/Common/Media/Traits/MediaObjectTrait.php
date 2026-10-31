@@ -397,7 +397,9 @@ trait MediaObjectTrait
     {
         // Strict shape: HTML attribute names are letter-led, then alnum/-/_/:/./$
         // Anything else (whitespace, quotes, `<>`, etc.) is rejected outright.
-        if (!preg_match('/^[A-Za-z][A-Za-z0-9_:.\-]*$/', $name)) {
+        // `D` keeps `$` from also matching before a trailing newline: "style\n"
+        // would miss the denylist below, yet browsers still read it as `style`.
+        if (!preg_match('/^[A-Za-z][A-Za-z0-9_:.\-]*$/D', $name)) {
             return false;
         }
         $lower = strtolower($name);
