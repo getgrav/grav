@@ -1,5 +1,5 @@
 # v1.7.53.7
-## mm/dd/2026
+## 10/31/2026
 
 1. [](#bugfix)
     * [security] The security fixes below were found by Anthropic's OSS Scanner
