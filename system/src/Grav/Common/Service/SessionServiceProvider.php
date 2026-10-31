@@ -125,6 +125,9 @@ class SessionServiceProvider implements ServiceProviderInterface
             ] + (array) $config->get('system.session.options');
 
             $session = new Session($options);
+            // The client picks the cookie name, so the name alone does not keep out the sessions
+            // of other sites sharing the session storage (or of the other side of the split).
+            $session->setSite(hash_hmac('sha256', $session_name, Security::getNonceKey()));
             $session->setAutoStart($enabled);
             // The admin always needs its session; lazy start is for the site.
             $session->setLazy(!$is_admin && (bool)$config->get('system.session.lazy', false));

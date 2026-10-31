@@ -2105,7 +2105,8 @@ class Security
 
     /**
      * Per-site HMAC key used for CSRF nonce signing, admin rate-limit key hashing,
-     * and (when configured) session-name derivation. Backed by a local PHP file
+     * binding sessions to the site which created them, and (when configured)
+     * session-name derivation. Backed by a local PHP file
      * outside the Config tree, so sandboxed Twig cannot reach it via
      * `grav.config.get('security.salt')` or `Config::toArray()` (GHSA-3f29-pqwf-v4j4).
      *
@@ -2117,8 +2118,7 @@ class Security
      *
      * To rotate the key manually, delete `user/config/security-private.php`; the
      * next request generates a fresh 64-char random value. Rotation invalidates
-     * in-flight CSRF nonces and — if `system.session.uniqueness` is set to
-     * `security` — existing sessions.
+     * in-flight CSRF nonces and existing sessions.
      */
     public static function getNonceKey(): string
     {

@@ -33,6 +33,8 @@ class Session implements SessionInterface
     protected $started = false;
     /** @var bool Lock released after a read-only start; the first write re-acquires it. */
     protected $readonly = false;
+    /** @var string|null Value only this site can produce, stored in every session it creates (see setSite()). */
+    protected $site;
 
     /** @var Session */
     protected static $instance;
@@ -121,6 +123,25 @@ class Session implements SessionInterface
     public function setName($name)
     {
         session_name($name);
+
+        return $this;
+    }
+
+    /**
+     * Bind the sessions this site creates to it.
+     *
+     * Session storage is usually shared: every site run by the same PHP stores its sessions in
+     * the same session.save_path unless the server says otherwise, and the cookie name cannot
+     * keep the sites apart because the client picks the name it sends an id under. With a site
+     * value set, start() resumes only sessions carrying the same value and starts a new session
+     * for any other id, leaving the session of the other site as it is.
+     *
+     * @param string|null $site
+     * @return $this
+     */
+    public function setSite(?string $site)
+    {
+        $this->site = $site;
 
         return $this;
     }
@@ -216,6 +237,21 @@ class Session implements SessionInterface
                 throw new RuntimeException($error);
             }
 
+            // The session was created by another site sharing the storage (or by this site before
+            // it bound its sessions). Leave it untouched and start a new one with a new id.
+            if (!$this->isSiteSession()) {
+                session_abort();
+                session_id(@session_create_id() ?: '');
+
+                $success = @session_start($options);
+                if (!$success) {
+                    $last = error_get_last();
+                    $error = $last ? $last['message'] : 'Unknown error';
+
+                    throw new RuntimeException($error);
+                }
+            }
+
             // Handle changing session id.
             if ($this->__isset('session_destroyed')) {
                 $newId = $this->__get('session_new_id');
@@ -250,6 +286,8 @@ class Session implements SessionInterface
         } catch (Exception $e) {
             throw new SessionException('Failed to start session: ' . $e->getMessage(), 500);
         }
+
+        $this->bindToSite();
 
         $this->started = true;
         $this->onSessionStart();
@@ -410,6 +448,8 @@ class Session implements SessionInterface
                 throw new RuntimeException($error);
             }
 
+            $this->bindToSite();
+
             $this->onSessionStart();
         }
 
@@ -477,6 +517,7 @@ class Session implements SessionInterface
     {
         $this->reopen();
         session_unset();
+        $this->bindToSite();
 
         return $this;
     }
@@ -552,6 +593,37 @@ class Session implements SessionInterface
     protected function isSessionStarted()
     {
         return \PHP_SAPI !== 'cli' ? \PHP_SESSION_ACTIVE === session_status() : false;
+    }
+
+    /**
+     * Was the current session created by this site? Every session this site creates carries its
+     * value (see bindToSite()), so a session without it, or with another site's, is not resumed.
+     * An empty session holds nothing to take over: it is as good as the new one it would be
+     * replaced with, and that is what a session which has just been created looks like.
+     *
+     * @return bool
+     */
+    protected function isSiteSession(): bool
+    {
+        if (null === $this->site || !$_SESSION) {
+            return true;
+        }
+
+        $site = $_SESSION['session_site'] ?? null;
+
+        return is_string($site) && hash_equals($this->site, $site);
+    }
+
+    /**
+     * Mark the current session as created by this site.
+     *
+     * @return void
+     */
+    protected function bindToSite(): void
+    {
+        if (null !== $this->site) {
+            $_SESSION['session_site'] = $this->site;
+        }
     }
 
     protected function onBeforeSessionStart(): void
