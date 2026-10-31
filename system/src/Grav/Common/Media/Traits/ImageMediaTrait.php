@@ -65,6 +65,9 @@ trait ImageMediaTrait
     /** @var bool Whether anything is queued that changes the image's pixels, format or quality */
     protected $transformed = false;
 
+    /** @var array{0:int,1:int}|null As an alternative, the size the resize actions queued so far leave this image at */
+    protected $queued_size;
+
     /** @var array<string, array{0:int,1:int}> Source dimensions by path, cached for the request */
     protected static $sourceSizeCache = [];
 

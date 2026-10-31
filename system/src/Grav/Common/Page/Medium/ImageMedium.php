@@ -136,6 +136,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         $this->format = 'guess';
         $this->quality = $this->default_quality;
+        $this->queued_size = null;
 
         $this->debug_watermarked = false;
         $this->watermarked = null;
@@ -504,7 +505,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $this->image->{$method}(...$args);
 
             /** @var ImageMediaInterface $medium */
-            foreach ($this->alternatives as $medium) {
+            foreach ($this->alternatives as $key => $medium) {
                 $args_copy = $args;
 
                 // regular image: resize 400x400 -> 200x200
@@ -515,6 +516,12 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                             $args_copy[$param] *= $medium->get('ratio');
                         }
                     }
+
+                    // Check the canvas after scaling the arguments for this alternative.
+                    if (!$this->alternativeResizeFits($medium, $method, $args, $args_copy)) {
+                        unset($this->alternatives[$key]);
+                        continue;
+                    }
                 }
 
                 // Do the same call for alternative media.
@@ -524,5 +531,59 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         }
 
         return $this;
+    }
+
+    /**
+     * Check the canvas and track dimensions through alternative resize actions.
+     *
+     * @param ImageMediaInterface $medium The alternative
+     * @param string $method One of $magic_resize_actions
+     * @param array $args The arguments as given for this image
+     * @param array $scaled The arguments multiplied by the alternative's ratio
+     * @return bool
+     */
+    protected function alternativeResizeFits(ImageMediaInterface $medium, string $method, array $args, array $scaled): bool
+    {
+        foreach (array_slice(static::$magic_resize_actions[$method], -2) as $param) {
+            if (!isset($scaled[$param])) {
+                continue;
+            }
+            if (is_numeric($args[$param]) && $args[$param] >= 1 && $scaled[$param] < 1) {
+                return false;
+            }
+            // Whole pixels, as urlResizeCanvas() reads them.
+            $scaled[$param] = (string) (int) ceil((float) $scaled[$param]);
+        }
+
+        $max_pixels = (int) $this->getGrav()['config']->get('system.images.max_pixels', 25000000);
+        if ($max_pixels <= 0 || !$medium instanceof self) {
+            return true;
+        }
+
+        [$width, $height] = $medium->queued_size ?? [(int) $medium->get('width'), (int) $medium->get('height')];
+        $canvas = static::urlResizeCanvas($method, $scaled, $width, $height);
+        if ($canvas === null) {
+            return false;
+        }
+
+        [$pixels, $w, $h] = $canvas;
+        if ($method === 'cropResize' || ($method === 'resize' && empty($scaled[3]) && empty($scaled[4]))) {
+            // Neither enlarges: the result stays within the image as it is.
+            $w = min($w, $width);
+            $h = min($h, $height);
+            $pixels = $w * $h;
+        }
+        if ($pixels > $max_pixels) {
+            $this->getGrav()['log']->warning(sprintf(
+                'Refusing to %s image alternative above system.images.max_pixels: %s (%d pixels at ratio %s of %s)',
+                $method, $medium->get('filepath'), $pixels, $medium->get('ratio'), $this->get('filepath')
+            ));
+
+            return false;
+        }
+
+        $medium->queued_size = [(int) $w, (int) $h];
+
+        return true;
     }
 }
