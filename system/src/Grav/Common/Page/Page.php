@@ -3369,8 +3369,10 @@ class Page implements PageInterface, PageUuidInterface
         // Handle publishing dates if no explicit published option set
         if (Grav::instance()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
             // unpublish if required, if not clear cache right before page should be unpublished
+            // The page is gone from the second of its unpublish date on (it is published from the second of its
+            // publish date on), so the cache is never asked to end in the current second.
             if ($this->unpublishDate()) {
-                if ($this->unpublishDate() < time()) {
+                if ($this->unpublishDate() <= time()) {
                     $this->published(false);
                 } else {
                     $this->published();
