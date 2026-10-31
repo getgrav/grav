@@ -133,6 +133,11 @@ trait UserTrait
         //Check group access level
         $groups = (array)$this->get('groups');
         foreach ($groups as $group) {
+            // A disabled group grants nothing, the same as UserGroupObject::authorize().
+            if (!$config->get("groups.{$group}.enabled", true)) {
+                continue;
+            }
+
             $permission = $config->get("groups.{$group}.access.{$action}");
             $authorized = Utils::isPositive($permission);
             if ($authorized === true) {
