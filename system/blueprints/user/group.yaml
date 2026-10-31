@@ -35,6 +35,10 @@ form:
       label: PLUGIN_ADMIN.ICON
 
     enabled:
+      # Switching a group off or on takes its access map away from every member
+      # or hands it back, so it is as much a super-only capability as `access`
+      # below.
+      security@: admin.super
       type: toggle
       label: PLUGIN_ADMIN.ENABLED
       highlight: 1

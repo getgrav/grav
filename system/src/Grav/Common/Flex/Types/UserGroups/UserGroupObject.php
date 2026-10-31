@@ -15,7 +15,9 @@ use Grav\Common\Flex\FlexObject;
 use Grav\Common\Grav;
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
+use Grav\Common\User\Interfaces\UserInterface;
 use RuntimeException;
+use function in_array;
 use function is_bool;
 
 /**
@@ -107,6 +109,55 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
         }
 
         return $groups;
+    }
+
+    /**
+     * @param UserInterface $user
+     * @param string $action
+     * @param string $scope
+     * @param bool $isMe
+     * @return bool|null
+     */
+    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe): ?bool
+    {
+        // Managing groups does not reach the super-admin tier either: the line
+        // UserObject::isAuthorizedOverride() holds for accounts would be worth
+        // little if a user manager could switch off, re-permission or delete the
+        // group its members are super-admins through. Read straight from the ACL,
+        // so a group that is switched off is guarded the same as one that is on.
+        if (in_array($action, ['update', 'delete'], true)
+            && $this->hasSuperAccess()
+            && !$this->actorHasSuperAccess($user, $isMe)
+        ) {
+            return false;
+        }
+
+        return parent::isAuthorizedOverride($user, $action, $scope, $isMe);
+    }
+
+    /**
+     * Whether the access map of this group grants super-admin access to its members.
+     *
+     * @return bool
+     */
+    protected function hasSuperAccess(): bool
+    {
+        $access = $this->getAccess();
+
+        return $access->authorize('admin.super') === true || $access->authorize('api.super') === true;
+    }
+
+    /**
+     * @param UserInterface $user
+     * @param bool $isMe
+     * @return bool
+     */
+    protected function actorHasSuperAccess(UserInterface $user, bool $isMe): bool
+    {
+        $scope = $isMe ? null : 'test';
+
+        return $user->authorize('admin.super', $scope) === true
+            || $user->authorize('api.super', $scope) === true;
     }
 
     /**
