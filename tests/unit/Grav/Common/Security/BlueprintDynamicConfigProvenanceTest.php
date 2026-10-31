@@ -44,6 +44,9 @@ class BlueprintDynamicConfigProvenanceTest extends \PHPUnit\Framework\TestCase
         $config->set('plugins.zzprobe.secret', 'S3CRET-plugin');
         $config->set('security.zzprobe', 'S3CRET-security');
         $config->set('site.zzprobe', 'public-site-value');
+        $config->set('zzprobe.secret', 'S3CRET-custom');
+        $config->set('system.http.proxy_url', 'S3CRET-proxy');
+        $config->set('security.twig_content.config_access', false);
 
         BlueprintDynamicProvenanceProbe::$calls = 0;
     }
@@ -54,6 +57,9 @@ class BlueprintDynamicConfigProvenanceTest extends \PHPUnit\Framework\TestCase
         $config->undef('plugins.zzprobe');
         $config->undef('security.zzprobe');
         $config->undef('site.zzprobe');
+        $config->undef('zzprobe');
+        $config->set('system.http.proxy_url', null);
+        $config->set('security.twig_content.config_access', false);
 
         parent::tearDown();
     }
@@ -88,6 +94,31 @@ class BlueprintDynamicConfigProvenanceTest extends \PHPUnit\Framework\TestCase
         self::assertNotSame('S3CRET-security', $fields['salt']['placeholder'] ?? null);
         // Paths sandboxed Twig may read still resolve.
         self::assertSame('public-site-value', $fields['site']['default'] ?? null);
+    }
+
+    public function testReadDynamicConfig_configAccessOffLimitsPageAuthoredDirectiveToSandboxTrees(): void
+    {
+        // Trees config_denied_paths does not name (groups, a custom user/config file)
+        // are still out of reach: sandboxed Twig has an empty `config`.
+        self::assertNull(Blueprint::readDynamicConfig('zzprobe.secret', null, false));
+        self::assertNull(Blueprint::readDynamicConfig('zzprobe', null, false));
+        self::assertSame('fallback', Blueprint::readDynamicConfig('', 'fallback', false));
+
+        // The trees sandboxed Twig has as `system`, `site` and `theme`, still redacted.
+        self::assertSame('public-site-value', Blueprint::readDynamicConfig('site.zzprobe', null, false));
+        self::assertNotNull(Blueprint::readDynamicConfig('system.pages.theme', null, false));
+        self::assertNull(Blueprint::readDynamicConfig('system.http.proxy_url', null, false));
+
+        // A blueprint file keeps the raw config.
+        self::assertSame('S3CRET-custom', Blueprint::readDynamicConfig('zzprobe.secret', null, true));
+    }
+
+    public function testReadDynamicConfig_configAccessOnLeavesOnlyDeniedPathsRedacted(): void
+    {
+        $this->grav['config']->set('security.twig_content.config_access', true);
+
+        self::assertSame('S3CRET-custom', Blueprint::readDynamicConfig('zzprobe.secret', null, false));
+        self::assertNull(Blueprint::readDynamicConfig('plugins.zzprobe.secret', null, false));
     }
 
     public function testGetDefaults_schemaDoesNotResolvePageAuthoredDirectives(): void

@@ -1055,7 +1055,13 @@ class Blueprint extends BlueprintForm
      * facade sandboxed page Twig gets, so a page editor cannot copy
      * `plugins.*`, `security.*` or the other credential paths in
      * `security.twig_sandbox.config_denied_paths` into a field value that the
-     * form then prints to every visitor.
+     * form then prints to every visitor. While
+     * `security.twig_content.config_access` is off (the default) that Twig has
+     * an empty `config` and only the redacted `system`, `site` and `theme`
+     * arrays ({@see \Grav\Common\Twig\Twig::buildSandboxVars}), so those
+     * three trees are all a page-authored directive may name either;
+     * `groups.*`, `versions.*` and any custom `user/config/*.yaml` stay out
+     * of reach.
      *
      * Shared by {@see Blueprint::dynamicConfig} and
      * {@see BlueprintSchema::dynamicConfig}.
@@ -1072,6 +1078,12 @@ class Blueprint extends BlueprintForm
 
         if ($trusted) {
             return $config->get($path, $default);
+        }
+
+        if (!$config->get('security.twig_content.config_access', false)
+            && !in_array(explode('.', $path, 2)[0], ['system', 'site', 'theme'], true)
+        ) {
+            return $default;
         }
 
         return (new SandboxConfig($config, Security::effectiveConfigDeniedPaths($config)))->get($path, $default);
