@@ -21,6 +21,7 @@ use function extension_loaded;
 use function func_num_args;
 use function function_exists;
 use function in_array;
+use function is_string;
 
 /**
  * Trait ImageMediaTrait
@@ -358,6 +359,17 @@ trait ImageMediaTrait
      */
     public function format($format)
     {
+        // The format ends up as the extension of the cached file, and it comes
+        // from markdown, page Twig and, with `images.url_actions`, the request
+        // URL. Anything that is not an output type is ignored.
+        if (!is_string($format)) {
+            return $this;
+        }
+        $format = strtolower($format);
+        if ($format !== 'guess' && !isset(ImageFile::$types[$format])) {
+            return $this;
+        }
+
         if (!$this->image) {
             $this->image();
         }
