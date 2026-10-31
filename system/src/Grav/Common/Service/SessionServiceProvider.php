@@ -11,6 +11,7 @@ namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
+use Grav\Common\Grav;
 use Grav\Common\Inflector;
 use Grav\Common\Security;
 use Grav\Common\Session;
@@ -19,6 +20,7 @@ use Grav\Common\Utils;
 use Grav\Framework\Session\Messages;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * Class SessionServiceProvider
@@ -121,7 +123,10 @@ class SessionServiceProvider implements ServiceProviderInterface
             $session = new Session($options);
             // The client picks the cookie name, so the name alone does not keep out the sessions
             // of other sites sharing the session storage (or of the other side of the split).
-            $session->setSite(hash_hmac('sha256', $session_name, Security::getNonceKey()));
+            $session->setSite(
+                hash_hmac('sha256', $session_name, Security::getNonceKey()),
+                static::unboundSessionsUntil((int)$cookie_lifetime)
+            );
             $session->setLegacyCookieDomain($legacy_domain);
             $session->setAutoStart($enabled);
             // The admin always needs its session; lazy start is for the site.
@@ -159,6 +164,41 @@ class SessionServiceProvider implements ServiceProviderInterface
 
             return $session->messages;
         };
+    }
+
+    /**
+     * Until when sessions stored before sessions were bound to their site are still resumed.
+     *
+     * The first request after the update records when binding started (in
+     * `user-data://session-binding.json`), and sessions without a site value are taken over for
+     * one session lifetime from then: any session that was active at the update is resumed on its
+     * next request, and one that stays idle longer would have expired anyway. The lifetime is
+     * kept between one hour and 30 days.
+     *
+     * @param int $lifetime  Session cookie lifetime in seconds.
+     * @return int  Timestamp; 0 when the start could not be recorded.
+     */
+    public static function unboundSessionsUntil(int $lifetime): int
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        $folder = $locator->findResource('user-data://', true, true);
+        if (!is_string($folder) || $folder === '') {
+            return 0;
+        }
+
+        $file = $folder . '/session-binding.json';
+        $data = is_file($file) ? json_decode((string)@file_get_contents($file), true) : null;
+        $since = is_array($data) && is_int($data['since'] ?? null) ? $data['since'] : null;
+        if (null === $since) {
+            $since = time();
+            // Without a record every request would start the window again, so refuse instead.
+            if ((!is_dir($folder) && !@mkdir($folder, 0775, true)) || @file_put_contents($file, json_encode(['since' => $since]), LOCK_EX) === false) {
+                return 0;
+            }
+        }
+
+        return $since + min(max($lifetime, 3600), 30 * 86400);
     }
 
     /**

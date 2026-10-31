@@ -35,6 +35,8 @@ class Session implements SessionInterface
     protected $readonly = false;
     /** @var string|null Value only this site can produce, stored in every session it creates (see setSite()). */
     protected $site;
+    /** @var int Until when a session stored before sessions were bound is still resumed (see setSite()). */
+    protected $unboundUntil = 0;
     /** @var string|null Domain attribute of the session cookie as sent by older versions (see setLegacyCookieDomain()). */
     protected $legacyCookieDomain;
 
@@ -138,12 +140,18 @@ class Session implements SessionInterface
      * value set, start() resumes only sessions carrying the same value and starts a new session
      * for any other id, leaving the session of the other site as it is.
      *
+     * A session that carries no site value at all was stored before this site started binding
+     * its sessions. Until `$unboundUntil` (a timestamp) such a session is resumed and bound, so
+     * an update does not sign everyone out; after that it is refused like any other.
+     *
      * @param string|null $site
+     * @param int $unboundUntil
      * @return $this
      */
-    public function setSite(?string $site)
+    public function setSite(?string $site, int $unboundUntil = 0)
     {
         $this->site = $site;
+        $this->unboundUntil = $unboundUntil;
 
         return $this;
     }
@@ -636,7 +644,11 @@ class Session implements SessionInterface
             return true;
         }
 
-        $site = $_SESSION['session_site'] ?? null;
+        if (!array_key_exists('session_site', $_SESSION)) {
+            return time() < $this->unboundUntil;
+        }
+
+        $site = $_SESSION['session_site'];
 
         return is_string($site) && hash_equals($this->site, $site);
     }
