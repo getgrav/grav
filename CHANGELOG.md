@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * [security] The root `.htaccess` also keeps the `tmp/` folder private, refuses scripts in `images/` and `assets/`, and refuses requests in `images/`, `assets/`, `system/`, `vendor/` and `user/` that map to a file with a path after it, and upgrading adds these rules to an existing site's `.htaccess`. Backport of the Grav 2 rules
+    * [security] The bundled IIS `web.config` applies its rules in any letter case and however a file path is written, and also keeps hidden files, `.env` files, `tmp/`, root files such as `composer.json`, Markdown files and scripts in `images/` and `assets/` private (IIS sites copy the updated rules from `webserver-configs/` by hand). Backport of the Grav 2 rules
 
 # v1.7.53.7
 ## 10/31/2026
