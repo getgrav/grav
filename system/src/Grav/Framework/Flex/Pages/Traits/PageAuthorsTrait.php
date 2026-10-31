@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Pages\Traits;
 
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Acl\Access;
 use InvalidArgumentException;
@@ -75,7 +76,7 @@ trait PageAuthorsTrait
         if (null === $this->_permissionsCache) {
             $permissions = [];
             if ($inherit && $this->getNestedProperty('header.permissions.inherit', true)) {
-                $parent = $this->parent();
+                $parent = $this->getPermissionsParent();
                 if ($parent && method_exists($parent, 'getPermissions')) {
                     $permissions = $parent->getPermissions($inherit);
                 }
@@ -200,13 +201,28 @@ trait PageAuthorsTrait
 
         if (null === $authorized && $this->getNestedProperty('header.permissions.inherit', true)) {
             // Authorize against parent page.
-            $parent = $this->parent();
+            $parent = $this->getPermissionsParent();
             if ($parent && method_exists($parent, 'isParentAuthorized')) {
                 $authorized = $parent->isParentAuthorized($action, $scope, !$isMe ? $user : null, $isAuthor);
             }
         }
 
         return $authorized;
+    }
+
+    /**
+     * Get the parent page which the permissions are inherited from.
+     *
+     * Permissions only exist on Flex pages, so the parent always comes from the Flex directory. Outside of admin
+     * PageObject::parent() returns the parent from the page tree of the site instead, which is a regular page unless
+     * system.pages.type is flex; a regular parent would silently end the inheritance and the page would fall back to
+     * the account wide permissions.
+     *
+     * @return PageInterface|null
+     */
+    protected function getPermissionsParent(): ?PageInterface
+    {
+        return self::parent();
     }
 
     /**
