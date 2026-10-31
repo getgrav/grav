@@ -2,8 +2,45 @@
 ## 10/31/2026
 
 1. [](#bugfix)
+    * [security] The security fixes below were found by Anthropic's OSS Scanner
+    * [security] Twig in page content can only read an account's name, username, e-mail, language and login state, and account secrets such as password hashes, 2FA secrets and reset tokens are no longer included in form values or in an account's array and JSON output
+    * [security] Twig in page content can no longer use `page.path`, `page.filepath` or `{% autoescape %}`, page methods it calls only change that one page for the current request, and `array_key_value()` and `sort_by_key` only work with data content Twig may read
+    * [security] Settings hidden from content Twig by `security.twig_sandbox.config_denied_paths` now stay hidden through loops, theme helpers, plugin page settings, theme aliases, unusual path separators and full config listings
+    * [security] `yaml_decode` and page frontmatter always read invalid YAML as text, never as the name of a file
+    * [security] A page's `template` setting only picks a theme or plugin template, and a page whose template names a file path gets the default blueprint
+    * [security] Media file names and metadata are always shown as text when a page's Twig runs, and a media `.meta.yaml` file can no longer change which file a medium points to
+    * [security] Media actions in Markdown only call the documented action methods, and image output formats only accept supported image types
+    * [security] SVG uploads are checked under every file extension, cleared before sanitizing, and quarantined when sanitizing fails
+    * [security] A site without a `user/env/` folder only uses a folder of its own as a host's environment folder, and host names with slashes or a leading dot get none
+    * [security] Blueprint files are only trusted when they live in a blueprint, plugin or theme folder, and forms in page frontmatter can only import blueprints from those folders and always keep their state in the default forms folder
+    * [security] Field overrides in a page's Flex form only change that form and follow the same rules for dynamic options as other page-authored fields
+    * [security] With `security.twig_content.config_access` off, forms in page frontmatter can only read the `system`, `site` and `theme` settings
+    * [security] Creating, renaming or copying user accounts, groups and other Flex objects can no longer replace an existing one or take another file's storage key, and a Flex form only resumes saved state from a form of the same type
+    * [security] Only a super admin can switch a user group on or off or edit a group that grants super admin, disabling a group now applies to regular accounts too, and a super-admin group always counts for super-admin protection
+    * [security] YAML merge keys (`<<`) are no longer saved into account or other data files
+    * [security] User accounts are counted correctly when the site's folder path contains square brackets
+    * [security] A login still waiting for its two-factor code, or a disabled account, no longer gets access through its own Flex account or its groups
+    * [security] Signed-in sessions pick up changes to their account made elsewhere, and saving an account no longer overwrites changes made to it since it was loaded
+    * [security] Sessions are tied to the site that created them, so everyone is signed out once after updating, and the session cookie is only sent to the site's own host unless `system.session.domain` is set
+    * [security] Looking up an account by a name that isn't a valid username no longer finds another account, an email field only takes a list when set to `multiple`, and avatar images always stay in their own folder
+    * [security] Sorting or filtering a Flex collection by a field name only reads properties and a short list of read-only page fields
+    * [security] Flex pages check permissions on the parent and translations they actually affect when they are created, moved, saved in another language or deleted, and keep the permissions inherited from their real parent folder
+    * [security] Flex pages keep their own folder, storage key and header fields when saved, and Flex media changes only touch the object's own files and media fields
+    * [security] Flex pages follow their publish and unpublish dates, and unpublished pages no longer follow their `redirect`
+    * [security] Pages built for the admin and the API keep their own cache, so site visitors always get pages built with the rules from `frontmatter.yaml`
+    * [security] The requested URL is decoded once when looking up a page, so plugins that protect page media check the same page Grav serves the file from
+    * [security] Forwarded protocol headers, including `CloudFront-Forwarded-Proto`, are only used when `system.http_x_forwarded.protocol` is enabled
+    * [security] Responses that set a cookie always stay private to the browser, error responses are never cached, and HTML and Markdown versions of a page are kept apart in shared caches
+    * [security] Host names without an environment folder share one set of compiled caches and page index instead of each getting their own
+    * [security] Saved form state is written to a new file with limits on its size and depth, so form state pending during the update starts over
+    * [security] Very long or repetitive input in form field names, number fields, dates, uploads, Markdown links, taxonomy URLs and the XSS check is handled quickly instead of slowing the site down
+    * [security] Damaged images, unusual retina file names and large image actions no longer break a page's media or get past the image pixel limit
+    * [security] Configured redirects keep their intended destination, module output is only cached for real page routes, and official package downloads require HTTPS
+    * [security] Page summaries keep escaped text escaped, image loading options only accept their defined values, and with `escape_markup` on, Twig tag lines, `special_chars` maps and script links are escaped too
+    * Page change checks skip unreadable folders, invalid route aliases are ignored, saving a page with an empty header keeps its content separate, and a page with an empty default route keeps its raw route
+    * A page with an unpublish date now disappears at that moment, image derivatives with an invalid width are ignored, and long runs of punctuation after a link render quickly
+    * Asset pipeline bundles are the same for every host name a site answers to, Flex directories list folders with unusual names, the image `style` option refuses transforms, srcset derivatives keep the image options given before them, and `url()` in page content only resolves streams inside the media folders
     * [security] `system.images.max_pixels` now also refuses to resize an image whose size PHP can't read, instead of skipping the check. Imagick can decode formats such as JPEG XL and HEIC that `getimagesize()` can't measure, so a huge image in one of those formats could get past the limit. The image is served as it is, and a warning is logged
-    * [security] A media `.meta.yaml` file can no longer change which file a medium points to or where it is served from, and only files ending in `.meta.yaml` are read as media metadata
     * `image/avif` was listed under an `image` extension in `mime.yaml` instead of `avif`, so Grav's MIME type list gave `image` as an extension for `image/avif`, ahead of `avif`
 
 # v2.2.17
