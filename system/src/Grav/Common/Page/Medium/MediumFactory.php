@@ -168,19 +168,18 @@ class MediumFactory
     /**
      * Create a new ImageMedium by scaling another ImageMedium object.
      *
+     * Returns a `['file' => Medium|null, 'size' => int]` pair; `file` is null when
+     * the medium cannot be scaled (only raster images can, not a gif, svg or plain file).
+     *
      * @param  ImageMediaInterface|MediaObjectInterface $medium
      * @param  int         $from
      * @param  int         $to
-     * @return ImageMediaInterface|MediaObjectInterface|array
+     * @return array
      */
     public static function scaledFromMedium($medium, $from, $to)
     {
-        if (!$medium instanceof ImageMedium) {
-            return $medium;
-        }
-
-        if ($to > $from) {
-            return $medium;
+        if (!$medium instanceof ImageMedium || $to > $from) {
+            return ['file' => null, 'size' => 0];
         }
 
         $ratio = $to / $from;

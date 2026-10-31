@@ -257,7 +257,11 @@ class Media extends AbstractMedia
                             continue;
                         }
 
-                        $types['alternative'][$i] = MediumFactory::scaledFromMedium($alternatives[$max]['file'], $max, $i);
+                        // Only raster images can be scaled (not a gif or svg): skip the step when there is no scaled copy.
+                        $scaled = MediumFactory::scaledFromMedium($alternatives[$max]['file'], $max, $i);
+                        if (!empty($scaled['file'])) {
+                            $types['alternative'][$i] = $scaled;
+                        }
                     }
 
                     foreach ($types['alternative'] as $altMedium) {
