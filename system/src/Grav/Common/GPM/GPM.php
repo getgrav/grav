@@ -723,7 +723,7 @@ class GPM extends Iterator
 
         $filename = Utils::basename($package['path'] ?? '');
 
-        if (Grav::instance()['config']->get('system.gpm.official_gpm_only') && ($package['host'] ?? null) !== 'getgrav.org') {
+        if (Grav::instance()['config']->get('system.gpm.official_gpm_only') && !static::isOfficialUrl($package_file)) {
             throw new RuntimeException('Only official GPM URLs are allowed. You can modify this behavior in the System configuration.');
         }
 
@@ -736,6 +736,25 @@ class GPM extends Iterator
         }
 
         return null;
+    }
+
+    /**
+     * Is the URL served by the official GPM repository?
+     *
+     * The host name only identifies the server once TLS has authenticated it,
+     * so a plain http:// URL is not official whatever host it names.
+     *
+     * @param string $url
+     * @return bool
+     */
+    public static function isOfficialUrl($url): bool
+    {
+        $parts = parse_url((string)$url);
+
+        return is_array($parts)
+            && strtolower($parts['scheme'] ?? '') === 'https'
+            && strtolower($parts['host'] ?? '') === 'getgrav.org'
+            && ($parts['port'] ?? 443) === 443;
     }
 
     /**
