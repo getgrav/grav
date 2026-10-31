@@ -490,7 +490,8 @@ class PageStorage extends FolderStorage
      * The folder, template and language become parts of the page file's path,
      * so each has to be a plain name: no separator, no null byte and no leading
      * dot (which also rules out `.` and `..`). The parent key is the path of an
-     * existing page, so only its segments are checked.
+     * existing page, so only its segments are checked. `|` ends the folder path
+     * in a storage key, so neither the folder nor a parent segment can have it.
      *
      * @param array $keys
      * @return void
@@ -500,7 +501,7 @@ class PageStorage extends FolderStorage
     {
         $parentKey = (string)($keys['parent_key'] ?? '');
         foreach ($parentKey !== '' ? explode('/', $parentKey) : [] as $segment) {
-            if ($segment === '' || $segment === '.' || $segment === '..' || str_contains($segment, "\0") || str_contains($segment, '\\')) {
+            if ($segment === '' || $segment === '.' || $segment === '..' || str_contains($segment, "\0") || str_contains($segment, '\\') || str_contains($segment, '|')) {
                 throw new RuntimeException('Invalid page parent');
             }
         }
@@ -510,6 +511,10 @@ class PageStorage extends FolderStorage
             if ($value !== '' && ($value[0] === '.' || strpbrk($value, "/\\\0") !== false)) {
                 throw new RuntimeException("Invalid page {$name}");
             }
+        }
+
+        if (str_contains((string)($keys['folder'] ?? ''), '|')) {
+            throw new RuntimeException('Invalid page folder');
         }
 
         if (!preg_match('/^[\w-]*$/u', (string)($keys['lang'] ?? ''))) {
@@ -649,6 +654,12 @@ class PageStorage extends FolderStorage
                             continue;
                         }
 
+                        // `|` ends the folder path in a storage key and a backslash is refused in one,
+                        // so no storage key can address a folder whose name has either of them.
+                        if (strpbrk($k, '|\\') !== false) {
+                            continue;
+                        }
+
                         $children[$k] = false;
                     } else {
                         // Ignore all files in ignore list.
@@ -720,7 +731,7 @@ class PageStorage extends FolderStorage
         $params = $keys['params'];
         if ($params) {
             $language = $keys['lang'];
-            $template = $keys['template'] ?: array_key_first($meta['markdown'][$language]) ?? $meta['template'];
+            $template = $keys['template'] ?: array_key_first($meta['markdown'][$language] ?? []) ?? $meta['template'];
             $meta['exists'] = ($template && !empty($meta['children'])) || isset($meta['markdown'][$language][$template]);
             $meta['storage_key'] .= '|' . $params;
             $meta['template'] = $template;

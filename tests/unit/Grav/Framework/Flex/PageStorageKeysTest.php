@@ -59,6 +59,8 @@ class PageStorageKeysTest extends \PHPUnit\Framework\TestCase
             'folder with a separator' => [['parent_key' => '01.blog', 'folder' => '../post', 'template' => 'default']],
             'parent with a dot segment' => [['parent_key' => '01.blog/..', 'folder' => 'post', 'template' => 'default']],
             'language with a separator' => [['parent_key' => '01.blog', 'folder' => 'post', 'template' => 'default', 'lang' => 'en/../../x']],
+            'folder with a parameter separator' => [['parent_key' => '01.blog', 'folder' => 'post|.fr', 'template' => 'default']],
+            'parent with a parameter separator' => [['parent_key' => '01.blog|.fr', 'folder' => 'post', 'template' => 'default']],
         ];
     }
 
@@ -191,5 +193,48 @@ class PageStorageKeysTest extends \PHPUnit\Framework\TestCase
 
         // `default.md`, or `default.en.md` when the default language is written out.
         $this->assertNotEmpty(glob($this->root . '/pages/01.blog/post/default*.md'));
+    }
+
+    public static function foldersWithAParameterSeparator(): array
+    {
+        return [
+            'language of a missing page' => ['news|.fr'],
+            'language of an existing page' => ['01.blog|.fr'],
+            'file of a missing page' => ['news|default.fr'],
+            'file of an existing page' => ['01.blog|default'],
+            'below a page' => ['01.blog/post|.fr'],
+            'backslash' => ['news\\post'],
+        ];
+    }
+
+    /**
+     * `|` ends the folder path in a storage key and a backslash is refused in one,
+     * so a folder with either in its name is left out of the index, and the rest
+     * of the index is built as before.
+     *
+     * @dataProvider foldersWithAParameterSeparator
+     */
+    public function testIndexLeavesOutFoldersThatHaveNoStorageKey(string $folder): void
+    {
+        mkdir($this->root . '/pages/01.blog/post');
+        touch($this->root . '/pages/01.blog/default.md');
+        touch($this->root . '/pages/01.blog/post/default.md');
+        $expected = $this->storage->getExistingKeys();
+
+        mkdir($this->root . '/pages/' . $folder . '/child', 0777, true);
+        touch($this->root . '/pages/' . $folder . '/default.md', filemtime($this->root . '/pages/01.blog/default.md'));
+
+        $index = $this->storage->getExistingKeys();
+        $this->assertSame(['', '01.blog', '01.blog/post'], array_keys($index));
+        $this->assertSame(array_column($expected, 'children', 'storage_key'), array_column($index, 'children', 'storage_key'));
+    }
+
+    public function testLanguageWithoutAFileDoesNotExist(): void
+    {
+        touch($this->root . '/pages/01.blog/default.md');
+
+        $this->assertFalse($this->storage->hasKey('news|.fr'));
+        $this->assertFalse($this->storage->hasKey('01.blog|.fr'));
+        $this->assertTrue($this->storage->hasKey('01.blog|.'));
     }
 }
