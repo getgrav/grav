@@ -43,6 +43,9 @@ class Setup extends Data
     /** @var string */
     public static $securityFile = 'config://security.yaml';
 
+    /** @var bool True if the environment name is just the host name sent by the client. */
+    private $hostEnvironment = false;
+
     /** @var array */
     protected $streams = [
         'user' => [
@@ -218,6 +221,7 @@ class Setup extends Data
                 $request = $container['request'];
                 $uri = $request->getUri();
                 $environment = $uri->getHost();
+                $this->hostEnvironment = true;
             }
         }
 
@@ -247,6 +251,9 @@ class Setup extends Data
             }
         }
         $setup = $setupFile ? (array) include $setupFile : [];
+        if (isset($setup['environment'])) {
+            $this->hostEnvironment = false;
+        }
 
         // Add default streams defined in beginning of the class.
         if (!isset($setup['streams']['schemes'])) {
@@ -448,6 +455,12 @@ class Setup extends Data
                     $this->set('streams.schemes.environment.prefixes', ['' => array_values($prefixes)]);
                     $this->initializeLocator($locator);
                 }
+            }
+
+            // Folderless hosts share compiled caches for the same stream configuration.
+            // Keep the original host in Setup::$environment for environment folder lookups.
+            if ($this->hostEnvironment && !$this->get('streams.schemes.environment.prefixes.')) {
+                $this->set('environment', '@' . substr(md5(json_encode($this->get('streams.schemes'))), 0, 8));
             }
 
             if (!$locator->findResource('environment://config', true)) {
