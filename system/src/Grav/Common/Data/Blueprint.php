@@ -382,6 +382,17 @@ class Blueprint extends BlueprintForm
 
         $this->deepInit($this->items);
 
+        // Compare once more against the tree the real deepInit() produced: it embeds
+        // an `import@` from the untrusted source with another merge, which can
+        // renumber a field next to it after its path was recorded above.
+        if (!$incomingTrust && null !== $before) {
+            foreach ($this->dynamic as $path => $directives) {
+                if (($before[$path] ?? null) !== $directives) {
+                    $this->dynamicTrust[$path] = false;
+                }
+            }
+        }
+
         return $this;
     }
 
@@ -464,6 +475,13 @@ class Blueprint extends BlueprintForm
      * Dynamic directives in `$items`, keyed by field path as
      * {@see BlueprintForm::$dynamic} keys them.
      *
+     * The throwaway blueprint looks files up the way this one does. deepInit()
+     * resolves `import@` through getFiles(), which falls back to the context and
+     * overrides, and embeds what it finds with another merge. An import that only
+     * this blueprint can find (`default` in `blueprints://pages`, the context of
+     * every page blueprint) would renumber an integer-keyed field next to it here
+     * and not in the probe, leaving its directive at a path nobody attributed.
+     *
      * @param array $items
      * @return array|null  Null when the source could not be parsed.
      */
@@ -475,6 +493,7 @@ class Blueprint extends BlueprintForm
 
         try {
             $probe = new self(null, $items, true);
+            $probe->setContext($this->context)->setOverrides($this->overrides);
             $probe->deepInit($probe->items);
 
             return $probe->dynamic;
