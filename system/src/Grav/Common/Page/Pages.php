@@ -2068,6 +2068,9 @@ class Pages
         $debugger = $this->grav['debugger'];
         $debugger->addMessage('Page cache missed, rebuilding Flex Pages..');
 
+        // Pages waiting for a publishing date shorten the cache lifetime while they are built.
+        $lifetime = $this->grav['cache']->getLifetime();
+
         $root = $collection->getRoot();
         $root_path = $root->path();
         $this->routes = [];
@@ -2160,8 +2163,16 @@ class Pages
             $taxonomy = $this->grav['taxonomy'];
             $taxonomy_map = $taxonomy->taxonomy();
 
+            // Expire the cached taxonomy and lists when the next page is published or unpublished.
+            $ttl = null;
+            $next = $this->grav['cache']->getLifetime();
+            if ($next < $lifetime) {
+                $configured = (int)$directory->getConfig('object.cache.index.lifetime', 60);
+                $ttl = $configured > 0 ? min($configured, $next) : $next;
+            }
+
             // save pages, routes, taxonomy, and sort to cache
-            $cache->set($this->pages_cache_id, [$this->getVersion(), $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort, $this->uuid_index ? $this->uuids : null]);
+            $cache->set($this->pages_cache_id, [$this->getVersion(), $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort, $this->uuid_index ? $this->uuids : null], $ttl);
         }
     }
 
