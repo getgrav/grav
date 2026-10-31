@@ -56,6 +56,11 @@ abstract class Utils
 
     protected const ROOTURL_REGEX = '{^((?:http[s]?:\/\/[^\/]+)|(?:\/\/[^\/]+))(.*)}';
 
+    /**
+     * Maximum length of strings accepted by the date parsers.
+     */
+    public const DATE_MAX_LENGTH = 256;
+
     // ^((?:http[s]?:)?[\/]?(?:\/))
 
     /**
@@ -1572,7 +1577,7 @@ abstract class Utils
      *                     `date: 2022-01-06` never reaches us as a string: the YAML parser reads it as a date and
      *                     hands over a Unix timestamp, which strtotime() then misreads as a year in the far future.
      * @param string|null $format a date format to use if possible
-     * @return int the timestamp
+     * @return int|false the timestamp, or false when the value is no date
      */
     public static function date2timestamp($date, $format = null)
     {
@@ -1591,6 +1596,11 @@ abstract class Utils
                 return (int) $date;
             }
         }
+
+        if (!is_scalar($date) || strlen((string) $date) > self::DATE_MAX_LENGTH) {
+            return false;
+        }
+        $date = (string) $date;
 
         $config = Grav::instance()['config'];
         $dateformat = $format ?: $config->get('system.pages.dateformat.default');
@@ -1612,6 +1622,21 @@ abstract class Utils
         }
 
         return strtotime($date);
+    }
+
+    /**
+     * Parse scalar date values within the shared date length limit.
+     *
+     * @param mixed $value
+     * @return int|false
+     */
+    public static function strtotime($value)
+    {
+        if (!is_scalar($value) || strlen((string) $value) > self::DATE_MAX_LENGTH) {
+            return false;
+        }
+
+        return strtotime((string) $value);
     }
 
     /**

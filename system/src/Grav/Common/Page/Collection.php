@@ -390,7 +390,7 @@ class Collection extends Iterator implements PageCollectionInterface
                 continue;
             }
 
-            $date = $field ? strtotime((string) $page->value($field)) : $page->date();
+            $date = $field ? Utils::strtotime($page->value($field)) : $page->date();
 
             if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
                 $date_range[$path] = $slug;

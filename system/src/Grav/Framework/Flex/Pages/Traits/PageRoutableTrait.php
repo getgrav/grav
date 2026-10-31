@@ -278,9 +278,10 @@ trait PageRoutableTrait
             $this->setNestedProperty('header.routes.aliases', (array)$var);
         }
 
-        $aliases = (array)$this->getNestedProperty('header.routes.aliases');
+        // Only strings can be routes; anything else in the header is ignored, as route() does.
+        $aliases = array_values(array_filter((array)$this->getNestedProperty('header.routes.aliases'), 'is_string'));
         $default = $this->getNestedProperty('header.routes.default');
-        if ($default) {
+        if (is_string($default) && $default !== '') {
             $aliases[] = $default;
         }
 

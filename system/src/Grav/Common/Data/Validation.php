@@ -802,6 +802,10 @@ class Validation
                 return date($format, (int) Utils::date2timestamp($value));
             }
 
+            if (!is_string($value) || strlen($value) > Utils::DATE_MAX_LENGTH) {
+                return '';
+            }
+
             $converted = new DateTime($value);
             return $converted->format($format);
         }
@@ -916,11 +920,11 @@ class Validation
             return true;
         }
 
-        if (!is_string($value)) {
+        if (!is_string($value) || strlen($value) > Utils::DATE_MAX_LENGTH) {
             return false;
         }
         if (!isset($params['format'])) {
-            return false !== strtotime($value);
+            return false !== Utils::strtotime($value);
         }
 
         $dateFromFormat = DateTime::createFromFormat($params['format'], $value);

@@ -715,8 +715,10 @@ class Pages
             foreach ($context['taxonomies'] as $taxonomy) {
                 $param = $uri->param(rawurlencode((string) $taxonomy));
                 $items = is_string($param) ? explode(',', $param) : [];
-                foreach ($items as $item) {
-                    $params['taxonomies'][$taxonomy][] = htmlspecialchars_decode(rawurldecode($item), ENT_QUOTES);
+                $items = array_map(static fn($item) => htmlspecialchars_decode(rawurldecode($item), ENT_QUOTES), $items);
+                // The list comes from the URL: a repeated value filters nothing more, so do not let it grow the list.
+                foreach (array_unique($items) as $item) {
+                    $params['taxonomies'][$taxonomy][] = $item;
                 }
             }
         }
@@ -742,7 +744,9 @@ class Pages
                 $test = $page->taxonomy()[$taxonomy] ?? [];
                 foreach ($items as $item) {
                     if (!$test || !in_array($item, $test, true)) {
+                        // One missing value is enough to drop the page, there is nothing left to test.
                         $collection->remove($page->path());
+                        break;
                     }
                 }
             }
@@ -2917,7 +2921,7 @@ class Pages
 
             // add raw route
             if ($raw_route) {
-                if (isset($this->routes[$raw_route]) && $this->routes[$route] !== $page_path) {
+                if (isset($this->routes[$raw_route]) && $this->routes[$raw_route] !== $page_path) {
                     $this->grav['debugger']->addMessage("Raw Route '{$raw_route}' already exists: {$this->routes[$raw_route]}, overwriting with {$page_path}");
                 }
                 $this->routes[$raw_route] = $page_path;
