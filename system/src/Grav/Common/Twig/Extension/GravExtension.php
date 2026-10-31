@@ -414,6 +414,14 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
                 $filter
             );
         }
+
+        if ($var instanceof \stdClass) {
+            // A stdClass is plain data only as far as its properties are: a page
+            // header is YAML, but PHP code can put an object in it.
+            foreach (get_object_vars($var) as $item) {
+                $this->scanSandboxDump($policy, $item, $filter, $reflective, $depth + 1);
+            }
+        }
     }
 
     /**

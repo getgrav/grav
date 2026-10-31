@@ -1098,6 +1098,44 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * The dump guard walks the properties of a stdClass (a page header) the way
+     * it walks arrays, so an object kept inside one gets the same check.
+     *
+     * @dataProvider serializingDumpFilterProvider
+     * @param string $template
+     */
+    public function testSerializingDumpOfHeaderHoldingDataObjectIsBlockedUnderSourcePolicy(string $template): void
+    {
+        $header = (object) [
+            'title' => 'Page',
+            'login' => ['parent_acl' => false],
+            'login.merged' => new \Grav\Common\Data\Data(['site_host' => 'example.com']),
+        ];
+
+        $env = $this->sourcePolicySandboxEnv(['@Var:header' => $template]);
+
+        $this->expectException(SecurityNotAllowedFilterError::class);
+        $env->render('@Var:header', ['config' => $header]);
+    }
+
+    /**
+     * A header that really is YAML data (scalars, arrays, nested stdClass) must
+     * still dump, or `{{ page.header|json_encode }}` breaks for every page.
+     */
+    public function testSerializingDumpOfPlainHeaderStillWorksUnderSourcePolicy(): void
+    {
+        $header = (object) [
+            'title' => 'Page',
+            'taxonomy' => ['tag' => ['a', 'b']],
+            'nested' => (object) ['deep' => (object) ['ok' => true]],
+        ];
+
+        $env = $this->sourcePolicySandboxEnv(['@Var:ok' => '{{ config|json_encode }}']);
+
+        self::assertSame(json_encode($header), html_entity_decode($env->render('@Var:ok', ['config' => $header])));
+    }
+
+    /**
      * The same guard must not fire on a trusted (unsandboxed) source, or every
      * theme partial that dumps an object breaks — the regression behind #4175.
      */
