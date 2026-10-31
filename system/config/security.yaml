@@ -130,7 +130,9 @@ sanitize_svg: true
 #
 # twig_content.config_access: when false (default), the `config` Twig
 # variable is empty inside sandboxed renders. When true, `config` is the
-# SandboxConfig facade with config_denied_paths redaction applied.
+# SandboxConfig facade with config_denied_paths redaction applied. The same
+# setting governs `config-*@` directives in page-authored forms: when false
+# they can only read `system.*`, `site.*` and `theme.*` (redacted as above).
 twig_content:
   process_enabled: true
   editor_enabled: false

@@ -38,6 +38,14 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      */
     protected $trusted = true;
 
+    /**
+     * Number of dots in the deepest field name, refreshed by {@see self::filter()}.
+     * Bounds the ancestor walk in {@see self::filterArray()}.
+     *
+     * @var int
+     */
+    protected $itemDepth = 0;
+
     /** @var array */
     protected $ignoreFormKeys = [
         'title' => true,
@@ -117,6 +125,12 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     public function filter(array $data, $missingValuesAsNull = false, $keepEmptyValues = false)
     {
         $this->buildIgnoreNested($this->nested);
+
+        // No prefix with more dots than the deepest field name can be a key of $this->items.
+        $this->itemDepth = 0;
+        foreach ($this->items as $name => $item) {
+            $this->itemDepth = max($this->itemDepth, substr_count((string)$name, '.'));
+        }
 
         return $this->filterArray($data, $this->nested, '', $missingValuesAsNull, $keepEmptyValues) ?? [];
     }
@@ -291,11 +305,13 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             // subtree the blueprint disabled or gated with `security@`. Drop the key
             // when any ancestor path is disabled or ignored, so the per-field guard
             // holds whichever shape the data arrives in. (GHSA-mwjj-r7vm-pgqm)
+            //
+            // The key can be of any length, so only test the leading segments that
+            // can still name a field. This keeps the walk linear in the key's length.
             if (null === $rule && str_contains($key, '.')) {
-                $ancestor = $key;
-                while (false !== $pos = strrpos($ancestor, '.')) {
-                    $ancestor = substr($ancestor, 0, $pos);
-                    $item = $this->items[$parent . $ancestor] ?? null;
+                $pos = -1;
+                for ($i = 0; $i <= $this->itemDepth && false !== $pos = strpos($key, '.', $pos + 1); $i++) {
+                    $item = $this->items[$parent . substr($key, 0, $pos)] ?? null;
                     if (!empty($item['disabled']) || !empty($item['validate']['ignore'])) {
                         unset($results[$key]);
                         continue 2;

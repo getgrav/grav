@@ -65,6 +65,31 @@ class ValidationNumberTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * A huge positive exponent is answered without expanding the number into as many
+     * digits as the exponent says.
+     */
+    public function testHugeExponentIsNotExpanded(): void
+    {
+        memory_reset_peak_usage();
+        $before = memory_get_peak_usage();
+
+        self::assertTrue(Validation::typeNumber('0e50000000', ['min' => 0, 'max' => 100, 'step' => 1], []));
+        self::assertTrue(Validation::typeRange('0e50000000', ['min' => 0, 'max' => 100, 'step' => 1], []));
+        self::assertFalse(Validation::typeInt('1e50000000', ['min' => 0], []));
+        self::assertFalse(Validation::typeInt('-1e50000000', ['max' => 0], []));
+        self::assertFalse(Validation::typeInt('1e99999999999999999999', ['min' => 0], []));
+
+        self::assertLessThan(1000000, memory_get_peak_usage() - $before);
+    }
+
+    public function testOrdinaryExponentsStayOnTheGrid(): void
+    {
+        self::assertTrue(Validation::typeNumber('1e2', ['min' => 0, 'step' => 10], []));
+        self::assertFalse(Validation::typeNumber('1e1', ['min' => 0, 'step' => 4], []));
+        self::assertTrue(Validation::typeNumber('25e-2', ['min' => 0, 'step' => 0.05], []));
+    }
+
+    /**
      * A step that does not parse as a positive number is not a grid. The HTML spec falls
      * back to the default step rather than erroring, so none of these may divide by zero.
      */

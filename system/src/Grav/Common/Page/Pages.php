@@ -1535,6 +1535,14 @@ class Pages
             $this->blueprints = new Blueprints(self::getTypes());
         }
 
+        // The type is content: a page names it in its `template` header. It is
+        // looked up among the page types, but Blueprint::getFiles() also takes a
+        // stream URI or the path of an existing file as the blueprint itself,
+        // which would let a file uploaded as page media define the page's fields.
+        if ($this->grav['locator']->isStream($type) || is_file((string) $type)) {
+            $type = 'default';
+        }
+
         try {
             $blueprint = $this->blueprints->get($type);
         } catch (RuntimeException) {

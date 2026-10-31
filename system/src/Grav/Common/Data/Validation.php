@@ -712,8 +712,11 @@ class Validation
             return null;
         }
 
+        // Bound the spread between the scales as well as the largest one. A positive
+        // exponent is a negative scale, and lifting it to the common scale appends
+        // that many zeros. Beyond the bound the caller uses the float comparison.
         $scale = max($v[1], $m[1], $s[1]);
-        if ($scale > 100) {
+        if ($scale > 100 || $scale - min($v[1], $m[1], $s[1]) > 100) {
             return null;
         }
 
