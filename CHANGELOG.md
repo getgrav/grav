@@ -20,7 +20,7 @@
     * [security] YAML merge keys (`<<`) are no longer saved into account or other data files
     * [security] User accounts are counted correctly when the site's folder path contains square brackets
     * [security] A login still waiting for its two-factor code, or a disabled account, no longer gets access through its own Flex account or its groups
-    * [security] Signed-in sessions pick up changes to their account made elsewhere, and saving an account no longer overwrites changes made to it since it was loaded
+    * [security] Signed-in sessions pick up changes to their account made elsewhere, and saving an account no longer overwrites changes made to it since it was loaded. This applies to Flex accounts as well
     * [security] Sessions are tied to the site that created them, and the session cookie is only sent to the site's own host unless `system.session.domain` is set. Sessions active at the update carry on as before
     * [security] Looking up an account by a name that isn't a valid username no longer finds another account, an email field only takes a list when set to `multiple`, and avatar images always stay in their own folder
     * [security] Sorting or filtering a Flex collection by a field name only reads properties and a short list of read-only page fields
