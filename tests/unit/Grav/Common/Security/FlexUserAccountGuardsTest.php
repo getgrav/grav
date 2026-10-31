@@ -185,4 +185,12 @@ class FlexUserAccountGuardsTest extends \PHPUnit\Framework\TestCase
 
         self::assertSame(['fullname' => 'Changed'], $target->written);
     }
+
+    public function testUpdateIgnoresSubmittedStorageKey(): void
+    {
+        $target = $this->target([]);
+        $target->update(['fullname' => 'Changed', 'storage_key' => 'admin']);
+
+        self::assertSame(['fullname' => 'Changed'], $target->written);
+    }
 }

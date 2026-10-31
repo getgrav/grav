@@ -628,17 +628,17 @@ class UserObject extends FlexObject implements UserInterface, Countable
         $isNewUser = $key === '' || str_contains($key, '@@');
 
         if ($isNewUser) {
-            $newKey = $this->getKey();
+            $this->setStorageKey($this->getKey());
+        }
 
-            // Prevent overwriting an existing account when a low-privileged user
-            // creates a new user with an already-taken username (GHSA-rr73-568v-28f8).
-            // Applies to every storage implementation, not just FileStorage.
-            $storage = $this->getFlexDirectory()->getStorage();
-            if ($storage->hasKey($newKey)) {
-                throw new RuntimeException('User account with this username already exists');
-            }
-
-            $this->setStorageKey($newKey);
+        // Prevent overwriting an existing account when a new user is created with
+        // an already-taken username, or an account is renamed to one. Checked
+        // against the record the storage is going to write rather than the object
+        // key, and outside of the branch above: a Flex form creates the object with
+        // an empty key and takes both the username and, if submitted, `storage_key`
+        // from the form data. Applies to every storage implementation.
+        if ($this->isUsernameTaken()) {
+            throw new RuntimeException('User account with this username already exists');
         }
 
         $password = $this->getProperty('password') ?? $this->getProperty('password1');
@@ -903,17 +903,56 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
+     * Whether saving this object would land on another account: on its record in
+     * the storage, or on its username in the index.
+     *
+     * The object key does not answer that. It is the username when the object comes
+     * from $grav['accounts']->load(), but a Flex form creates the object with an
+     * empty key and fills `username` from the submission -- and the storage names
+     * the record after its key field (`username` in file storage) whenever the row
+     * has one, not after the key it was handed. So look at the key the storage is
+     * going to write, and compare it with the record this object was loaded from.
+     *
+     * @return bool
+     */
+    protected function isUsernameTaken(): bool
+    {
+        $directory = $this->getFlexDirectory();
+        $storage = $directory->getStorage();
+        $normalize = static fn($key): string => method_exists($storage, 'normalizeKey') ? $storage->normalizeKey((string)$key) : (string)$key;
+
+        // The record this object was loaded from comes from the meta data, as
+        // `storage_key` is a property which can be set from the outside.
+        $oldKey = (string)($this->getMetaData()['storage_key'] ?? '');
+
+        // getElement() reads what goes into the row. getProperty('storage_key')
+        // would lazy load the property first, losing the key set by setStorageKey().
+        $newKey = $normalize($this->getElement($storage->getKeyField()) ?? $this->getStorageKey());
+        if ($newKey !== '' && $newKey !== $normalize($oldKey) && $storage->hasKey($newKey)) {
+            return true;
+        }
+
+        // Folder storage does not have the username in its key, but accounts are still
+        // looked up by it: a second record with the same username would shadow the
+        // first one. The index can be stale, so make sure the record is still there.
+        $owner = (string)($directory->getIndex()->getMetaData($normalize($this->getElement('username')))['storage_key'] ?? '');
+
+        return $owner !== '' && $normalize($owner) !== $normalize($oldKey) && $storage->hasKey($owner);
+    }
+
+    /**
      * {@inheritdoc}
      *
      * The password hash and the session flags are never taken from submitted data.
      * The account blueprint does not declare them, and its loose validation passes
      * undeclared keys through, so a form save could otherwise write a hash of the
      * submitter's choosing. A new password goes through `password`, which save()
-     * hashes.
+     * hashes. Neither is the storage key: it says which account this object is,
+     * both to save() and to the own-account rule in isAuthorizedOverride().
      */
     public function update(array $data, array $files = [])
     {
-        unset($data['hashed_password'], $data['authenticated'], $data['authorized']);
+        unset($data['hashed_password'], $data['authenticated'], $data['authorized'], $data['storage_key']);
 
         return parent::update($data, $files);
     }

@@ -15,6 +15,7 @@ use Grav\Common\Flex\FlexObject;
 use Grav\Common\Grav;
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
+use RuntimeException;
 use function is_bool;
 
 /**
@@ -73,6 +74,27 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
         }
 
         return $access->authorize('admin.super') ? true : null;
+    }
+
+    /**
+     * Save user group
+     *
+     * @return static
+     */
+    public function save()
+    {
+        // Prevent overwriting an existing group, access map included, when a user who
+        // is only allowed to create groups submits an already-taken group name. The
+        // storage names the row after its key field (`groupname`) whenever the row has
+        // one, so that is the key to check, not the key of the object.
+        $storage = $this->getFlexDirectory()->getStorage();
+        $oldKey = (string)($this->getMetaData()['storage_key'] ?? '');
+        $newKey = (string)($this->getElement($storage->getKeyField()) ?? $this->getStorageKey());
+        if ($newKey !== $oldKey && $storage->hasKey($newKey)) {
+            throw new RuntimeException('User group with this name already exists');
+        }
+
+        return parent::save();
     }
 
     public static function groupNames(): array

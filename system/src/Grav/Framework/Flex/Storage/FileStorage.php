@@ -80,6 +80,11 @@ class FileStorage extends FolderStorage
             return false;
         }
 
+        // Keys which differ only by case are the same file on a case insensitive filesystem.
+        if ($this->normalizeKey($src) !== $this->normalizeKey($dst) && $this->hasKey($dst)) {
+            throw new RuntimeException("Cannot rename object '{$src}': key '{$dst}' is already taken");
+        }
+
         // Remove old file.
         $path = $this->getPathFromKey($src);
         $file = $this->getFile($path);
