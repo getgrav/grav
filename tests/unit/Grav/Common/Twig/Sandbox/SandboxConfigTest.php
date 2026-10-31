@@ -102,6 +102,21 @@ class SandboxConfigTest extends TestCase
         self::assertSame('My Site', $this->build()->get('site/title', null, '/'));
     }
 
+    public function testGet_FalsySeparatorIsCheckedTheWayConfigReadsIt(): void
+    {
+        // `Config::get` falls back to '.' for every falsy separator, '0' included.
+        $items = self::SAMPLE + ['auth0' => ['client_secret' => 'a0-secret']];
+        $items['site']['oauth20'] = ['secret' => 'o2-secret'];
+        $sandbox = new SandboxConfig(new Config($items), ['auth0', 'site.oauth20']);
+
+        self::assertNull($sandbox->get('auth0.client_secret', null, '0'));
+        self::assertNull($sandbox->get('auth0', null, '0'));
+        self::assertNull($sandbox->value('site.oauth20.secret', null, '0'));
+        self::assertArrayNotHasKey('oauth20', $sandbox->get('site', null, '0'));
+        self::assertNull($sandbox->get('auth0.client_secret', null, ''));
+        self::assertSame('My Site', $sandbox->get('site.title', null, '0'));
+    }
+
     // =========================================================================
     // value() — alias for get() with the same filtering
     // =========================================================================

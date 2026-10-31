@@ -73,6 +73,11 @@ final class SandboxConfig implements ArrayAccess
      */
     public function get(string $name, mixed $default = null, string $separator = '.'): mixed
     {
+        // Config::get() splits on `$separator ?: '.'`, so every falsy separator
+        // ('' and '0') means '.' there. Resolve it once, up front, so the path
+        // that is checked is the path that is read.
+        $separator = $separator ?: '.';
+
         $path = $this->normalize($name, $separator);
         if ($this->isDenied($path)) {
             return $default;
