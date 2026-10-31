@@ -76,6 +76,17 @@ class Blueprint extends BlueprintForm
     protected $dynamicTrust = [];
 
     /**
+     * Whether {@see self::extend()} has merged a source the site author does not
+     * control. `$dynamicTrust` only knows the `*@` keys deepInit() recognises, but
+     * BlueprintSchema::parseProperties() also takes a field's plain `data:`
+     * property as its table of dynamic calls, and that spelling leaves no entry
+     * there. The schema's single trust flag is derived from this instead.
+     *
+     * @var bool
+     */
+    protected $untrustedMerge = false;
+
+    /**
      * Whether we are inside {@see self::load()}.
      *
      * Everything the loader merges through extend() is file content:
@@ -326,7 +337,12 @@ class Blueprint extends BlueprintForm
         // in place and attributed untrusted.
         $before = null;
         if (!$incomingTrust) {
+            // Remember the merge itself, not just the directives found in it: a
+            // field's `data:` table carries no `@` key, so the attribution below
+            // never sees it, yet the schema pass in initInternals() resolves it.
+            $this->untrustedMerge = true;
             $incoming = self::stripRelocatingActions($incoming);
+            $incoming = self::stripDataTables($incoming);
             $extends = $incoming;
             $before = $this->dynamicOf($this->items);
         }
@@ -393,6 +409,34 @@ class Blueprint extends BlueprintForm
             }
             if (is_array($value)) {
                 $items[$key] = self::stripRelocatingActions($value);
+            }
+        }
+
+        return $items;
+    }
+
+    /**
+     * Remove the plain `data:` table from every field in an untrusted source.
+     *
+     * BlueprintSchema::parseProperties() takes a field's `data:` property as its table
+     * of dynamic calls. Page-authored forms spell dynamic options as `data-*@`
+     * directives, which are attributed and checked; nothing they render needs the
+     * table. Keys directly under `fields` are field names, so a field called `data`
+     * stays.
+     *
+     * @param array $items
+     * @param bool $fieldNames  Whether the keys of `$items` are field names.
+     * @return array
+     */
+    private static function stripDataTables(array $items, bool $fieldNames = false): array
+    {
+        foreach ($items as $key => $value) {
+            if (!$fieldNames && $key === 'data') {
+                unset($items[$key]);
+                continue;
+            }
+            if (is_array($value)) {
+                $items[$key] = self::stripDataTables($value, !$fieldNames && $key === 'fields');
             }
         }
 
@@ -581,10 +625,12 @@ class Blueprint extends BlueprintForm
             $this->blueprintSchema = new BlueprintSchema;
             // The schema re-reads every `*@` directive left in $this->items and
             // resolves it a second time, outside init() and so outside the
-            // per-directive provenance init() enforces. It only sees one flag, so
-            // hand it the strictest: any page-authored directive makes the whole
-            // schema untrusted. Directives init() already resolved keep their value.
-            $this->blueprintSchema->setTrusted($this->trusted && !in_array(false, $this->dynamicTrust, true));
+            // per-directive provenance init() enforces. It also resolves a field's
+            // `data:` table, which init() never sees. It only takes one flag, so
+            // hand it the strictest: any page-authored merge makes the whole schema
+            // untrusted, whether or not a directive was attributed to that merge.
+            // Directives init() already resolved keep their value.
+            $this->blueprintSchema->setTrusted($this->trusted && !$this->untrustedMerge);
 
             if ($types) {
                 $this->blueprintSchema->setTypes($types);
