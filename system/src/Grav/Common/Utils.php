@@ -842,6 +842,37 @@ abstract class Utils
     }
 
     /**
+     * Returns the first and the last byte of a file that a Range request header asks for.
+     *
+     * Only the first range of the header is used. A header that is malformed, uses another unit than bytes or cannot
+     * be satisfied by the file is ignored, which a server is free to do (RFC 9110, 14.2): the whole file is sent.
+     *
+     * @param string $header Value of the Range header
+     * @param int $size Size of the file in bytes
+     * @return int[]|null [first, last] or null if the header is to be ignored
+     */
+    public static function getByteRange($header, $size): ?array
+    {
+        if (!preg_match('/^bytes=(\d*)-(\d*)(?:,|$)/Di', (string) $header, $matches)) {
+            return null;
+        }
+
+        [, $start, $end] = $matches;
+        if ($start !== '') {
+            $start = (int)$start;
+            $end = $end !== '' ? min((int)$end, $size - 1) : $size - 1;
+        } elseif ($end !== '') {
+            // Suffix range: the last N bytes of the file.
+            $start = max(0, $size - (int)$end);
+            $end = $size - 1;
+        } else {
+            return null;
+        }
+
+        return $start <= $end ? [$start, $end] : null;
+    }
+
+    /**
      * Provides the ability to download a file to the browser
      *
      * @param string $file the full path to the file to be downloaded
@@ -890,16 +921,9 @@ abstract class Utils
             }
 
             // multipart-download and download resuming support
-            if (isset($_SERVER['HTTP_RANGE'])) {
-                [$a, $range] = explode('=', (string) $_SERVER['HTTP_RANGE'], 2);
-                [$range] = explode(',', $range, 2);
-                [$range, $range_end] = explode('-', $range);
-                $range = (int)$range;
-                if (!$range_end) {
-                    $range_end = $size - 1;
-                } else {
-                    $range_end = (int)$range_end;
-                }
+            $byte_range = static::getByteRange($_SERVER['HTTP_RANGE'] ?? '', $size);
+            if ($byte_range) {
+                [$range, $range_end] = $byte_range;
                 $new_length = $range_end - $range + 1;
                 http_response_code(206);
                 header("Content-Length: {$new_length}");
@@ -929,7 +953,7 @@ abstract class Utils
                     fseek($fp, $range);
                 }
                 while (!feof($fp) && (!connection_aborted()) && ($bytes_send < $new_length)) {
-                    $buffer = fread($fp, $chunksize);
+                    $buffer = fread($fp, min($chunksize, $new_length - $bytes_send));
                     echo($buffer); //echo($buffer); // is also possible
                     flush();
                     usleep($sec * 1000000);
