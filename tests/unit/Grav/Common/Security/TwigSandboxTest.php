@@ -716,6 +716,95 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
         self::assertSame([], $filter->get('system', []));
     }
 
+    /**
+     * theme_var(), header_var() and body_class() read the tree behind the
+     * `theme` variable by name, so a path redacted from the variable must not
+     * come back through them. A trusted theme template keeps the real value.
+     *
+     * @dataProvider themeConfigFunctionProvider
+     * @param string $template
+     * @param string $sandboxed
+     * @param string $trusted
+     */
+    public function testThemeConfigFunctionsHonorConfigDeniedPaths(string $template, string $sandboxed, string $trusted): void
+    {
+        $config = \Grav\Common\Grav::instance()['config'];
+        $prevTheme  = $config->get('theme');
+        $prevDenied = $config->get('security.twig_sandbox.config_denied_paths');
+
+        try {
+            $config->set('theme', ['maps_api_key' => 'THEME_SECRET_3', 'nested' => ['key' => 'THEME_SECRET_4', 'open' => 'yes'], 'accent' => 'blue']);
+            $config->set('security.twig_sandbox.config_denied_paths', ['theme.maps_api_key', 'theme.nested.key']);
+
+            $env = $this->sourcePolicySandboxEnv(['@Page:content' => $template, 'partials/base.html.twig' => $template]);
+            $vars = ['page' => new \Grav\Common\Page\Page()];
+
+            self::assertSame($sandboxed, $env->render('@Page:content', $vars));
+            self::assertSame($trusted, $env->render('partials/base.html.twig', $vars));
+        } finally {
+            $config->set('theme', $prevTheme);
+            $config->set('security.twig_sandbox.config_denied_paths', $prevDenied ?? []);
+        }
+    }
+
+    /**
+     * theme_var() walks page headers as plain data: a regular page's stdClass
+     * header and a Flex page's Header are read, any other object is skipped.
+     */
+    public function testThemeVarReadsPlainPageHeadersOnly(): void
+    {
+        $ext = new \Grav\Common\Twig\Extension\GravExtension();
+        $page = new class extends \Grav\Common\Page\Page {
+            public $stubHeader;
+            public function __construct()
+            {
+            }
+            public function header($var = null)
+            {
+                return $this->stubHeader;
+            }
+            public function exists()
+            {
+                return true;
+            }
+            public function root()
+            {
+                return false;
+            }
+            public function parent(?\Grav\Common\Page\Interfaces\PageInterface $var = null)
+            {
+                return null;
+            }
+        };
+
+        $page->stubHeader = (object) ['color' => 'red'];
+        self::assertSame('red', $ext->themeVarFunc([], 'color', null, $page));
+
+        $page->stubHeader = new \Grav\Common\Page\Header(['color' => 'green']);
+        self::assertSame('green', $ext->themeVarFunc([], 'color', null, $page));
+
+        $page->stubHeader = new class {
+            protected $color = 'blue';
+        };
+        self::assertSame('none', $ext->themeVarFunc([], "\0*\0color", 'none', $page));
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: string, 2: string}>
+     */
+    public static function themeConfigFunctionProvider(): array
+    {
+        return [
+            'theme_var'         => ["[{{ theme_var('maps_api_key') }}]", '[]', '[THEME_SECRET_3]'],
+            'theme_var default' => ["[{{ theme_var('maps_api_key', 'none') }}]", '[none]', '[THEME_SECRET_3]'],
+            'theme_var nested'  => ["[{{ theme_var('nested.key') }}]", '[]', '[THEME_SECRET_4]'],
+            'theme_var parent'  => ["[{{ theme_var('nested')|join(',') }}]", '[yes]', '[THEME_SECRET_4,yes]'],
+            'header_var'        => ["[{{ header_var('maps_api_key') }}]", '[]', '[THEME_SECRET_3]'],
+            'body_class'        => ["[{{ body_class(['maps_api_key', 'accent']) }}]", '[ accent]', '[ maps_api_key accent]'],
+            'not denied'        => ["[{{ theme_var('accent') }}]", '[blue]', '[blue]'],
+        ];
+    }
+
     // =========================================================================
     // Per-page process defaults wired through Security::pageProcessDefaults():
     // when system.pages.process.twig is unset, the per-page twig flag inherits

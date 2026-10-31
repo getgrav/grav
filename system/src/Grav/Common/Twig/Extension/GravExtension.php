@@ -18,6 +18,7 @@ use Grav\Common\Grav;
 use Grav\Common\Inflector;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Collection;
+use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Page\Media;
@@ -44,6 +45,7 @@ use JsonSerializable;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Traversable;
 use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
+use Grav\Common\Twig\Sandbox\SandboxConfig;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
@@ -240,9 +242,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('isajaxrequest', $this->isAjaxFunc(...)),
             new TwigFunction('exif', $this->exifFunc(...)),
             new TwigFunction('media_directory', $this->mediaDirFunc(...)),
-            new TwigFunction('body_class', $this->bodyClassFunc(...), ['needs_context' => true]),
-            new TwigFunction('theme_var', $this->themeVarFunc(...), ['needs_context' => true]),
-            new TwigFunction('header_var', $this->pageHeaderVarFunc(...), ['needs_context' => true]),
+            new TwigFunction('body_class', $this->bodyClassGuarded(...), ['needs_context' => true, 'needs_is_sandboxed' => true]),
+            new TwigFunction('theme_var', $this->themeVarGuarded(...), ['needs_context' => true, 'needs_is_sandboxed' => true]),
+            new TwigFunction('header_var', $this->pageHeaderVarGuarded(...), ['needs_context' => true, 'needs_is_sandboxed' => true]),
             new TwigFunction('read_file', $this->readFileFunc(...)),
             new TwigFunction('nicenumber', $this->niceNumberFunc(...)),
             new TwigFunction('nicefilesize', $this->niceFilesizeFunc(...)),
@@ -1971,13 +1973,42 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function themeVarFunc($context, $var, $default = null, $page = null, $exists = false)
     {
+        return $this->themeVarGuarded($context, false, $var, $default, $page, $exists);
+    }
+
+    /**
+     * theme_var() as registered in Twig. Sandboxed content gets its `theme`
+     * variable with `security.twig_sandbox.config_denied_paths` removed (see
+     * Twig::buildSandboxVars()); this reads the same tree by name, so the
+     * fallback to the theme's configuration has to leave out the same paths.
+     *
+     * @param array $context      Twig Context
+     * @param bool $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param string $var variable to be found (using dot notation)
+     * @param null $default the default value to be used as last resort
+     * @param PageInterface|null $page an optional page to use for the current page
+     * @param bool $exists toggle to simply return the page where the variable is set, else null
+     * @return mixed
+     */
+    public function themeVarGuarded($context, bool $isSandboxed, $var, $default = null, $page = null, $exists = false)
+    {
         $page ??= $context['page'] ?? Grav::instance()['page'] ?? null;
 
         // Try to find var in the page headers
         if ($page instanceof PageInterface && $page->exists()) {
             // Loop over pages and look for header vars
             while ($page && !$page->root()) {
-                $header = new Data((array)$page->header());
+                // Read plain header data only: an `(array)` cast of any other
+                // object would also list its protected and private properties.
+                $header = $page->header();
+                if ($header instanceof Header) {
+                    $header = $header->toArray();
+                } elseif ($header instanceof \stdClass) {
+                    $header = (array)$header;
+                } else {
+                    $header = [];
+                }
+                $header = new Data($header);
                 $value = $header->get($var);
                 if (isset($value)) {
                     if ($exists) {
@@ -1994,7 +2025,22 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             return false;
         }
 
-        return Grav::instance()['config']->get('theme.' . $var, $default);
+        return $this->themeConfig($isSandboxed)->get('theme.' . $var, $default);
+    }
+
+    /**
+     * The configuration theme_var(), header_var() and body_class() fall back to:
+     * the redacting facade for a sandboxed render, the real Config otherwise.
+     *
+     * @param bool $isSandboxed
+     * @return Config|SandboxConfig
+     */
+    protected function themeConfig(bool $isSandboxed)
+    {
+        /** @var Config $config */
+        $config = Grav::instance()['config'];
+
+        return $isSandboxed ? new SandboxConfig($config, Security::effectiveConfigDeniedPaths($config)) : $config;
     }
 
     /**
@@ -2008,12 +2054,26 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function pageHeaderVarFunc($context, $var, $pages = null)
     {
+        return $this->pageHeaderVarGuarded($context, false, $var, $pages);
+    }
+
+    /**
+     * header_var() as registered in Twig, see themeVarGuarded().
+     *
+     * @param array $context
+     * @param bool $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param string $var the variable to look for in the page header
+     * @param string|string[]|null $pages array of pages to check (current page upwards if not null)
+     * @return mixed
+     */
+    public function pageHeaderVarGuarded($context, bool $isSandboxed, $var, $pages = null)
+    {
         if (is_array($pages)) {
             $page = array_shift($pages);
         } else {
             $page = null;
         }
-        return $this->themeVarFunc($context, $var, null, $page);
+        return $this->themeVarGuarded($context, $isSandboxed, $var, null, $page);
     }
 
     /**
@@ -2026,16 +2086,30 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function bodyClassFunc($context, $classes)
     {
+        return $this->bodyClassGuarded($context, false, $classes);
+    }
+
+    /**
+     * body_class() as registered in Twig, see themeVarGuarded().
+     *
+     * @param array $context
+     * @param bool $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param string|string[] $classes
+     * @return string
+     */
+    public function bodyClassGuarded($context, bool $isSandboxed, $classes)
+    {
 
         $header = $context['page']->header();
         $body_classes = $header->body_classes ?? '';
+        $config = $this->themeConfig($isSandboxed);
 
         foreach ((array)$classes as $class) {
             if (!empty($body_classes) && Utils::contains($body_classes, $class)) {
                 continue;
             }
 
-            $val = $this->config->get('theme.' . $class, false) ? $class : false;
+            $val = $config->get('theme.' . $class, false) ? $class : false;
             $body_classes .= $val ? ' ' . $val : '';
         }
 
