@@ -68,7 +68,9 @@ final class SandboxDefaults
     {
         return [
             'apply',
-            'autoescape',
+            // `autoescape` is deliberately absent, for the same reason as the
+            // `raw` filter (see filters()): it switches output escaping off for
+            // its body. Trusted theme templates keep the tag.
             'block',
             'deprecated',
             'do',
@@ -98,7 +100,7 @@ final class SandboxDefaults
      * autoescape, so `{{ x|raw }}` on render-time-only data is the sole XSS
      * vector the save-time content scan can't see. Dropping it keeps that scan
      * complete. Trusted theme templates (.html.twig) are unsandboxed and can
-     * still use `raw`.
+     * still use `raw`. The same goes for the `autoescape` tag (see tags()).
      *
      * @return list<string>
      */

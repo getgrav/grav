@@ -1136,6 +1136,21 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Sandboxed content keeps output escaping on: the `autoescape` tag is not
+     * available there, as the `raw` filter is not. Trusted templates keep it.
+     */
+    public function testAutoescapeTagIsNotAllowedUnderSourcePolicy(): void
+    {
+        $template = '{% autoescape false %}{{ markup }}{% endautoescape %}';
+        $env = $this->sourcePolicySandboxEnv(['@Page:content' => $template, 'partials/base.html.twig' => $template]);
+
+        self::assertSame('<b>x</b>', $env->render('partials/base.html.twig', ['markup' => '<b>x</b>']));
+
+        $this->expectException(SecurityNotAllowedTagError::class);
+        $env->render('@Page:content', ['markup' => '<b>x</b>']);
+    }
+
+    /**
      * `sort_by_key` reads `row[key]` from every row. In sandboxed content an
      * object row must pass the same property check as `row[key]` in a template;
      * arrays of arrays and trusted templates sort as before.
