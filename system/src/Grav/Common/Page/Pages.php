@@ -2850,7 +2850,7 @@ class Pages
 
             // add raw route
             if ($raw_route) {
-                if (isset($this->routes[$raw_route]) && $this->routes[$route] !== $page_path) {
+                if (isset($this->routes[$raw_route]) && $this->routes[$raw_route] !== $page_path) {
                     $this->grav['debugger']->addMessage("Raw Route '{$raw_route}' already exists: {$this->routes[$raw_route]}, overwriting with {$page_path}");
                 }
                 $this->routes[$raw_route] = $page_path;
