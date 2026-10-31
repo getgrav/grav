@@ -298,8 +298,9 @@ final class SandboxDefaults
      * (Twig lowercases before the check). `@media_actions` expands to
      * Medium::ALLOWED_ACTIONS at policy-build time so the media action surface
      * can never drift from the URL-trusted list. `offsetget`/`__get`,
-     * `toarray` on raw Config/Data, and the dangerous media surface are
-     * deliberately absent. (GHSA-mc5q-6hpj-rp7j, GHSA-j274-39qw-32c9)
+     * `toarray` on raw Config/Data, every by-key getter on accounts, and the
+     * dangerous media surface are deliberately absent.
+     * (GHSA-mc5q-6hpj-rp7j, GHSA-j274-39qw-32c9)
      *
      * @return list<array{class: string, methods: string}>
      */
@@ -316,7 +317,12 @@ final class SandboxDefaults
             ['class' => 'Grav\Common\Media\Interfaces\MediaCollectionInterface', 'methods' => 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'],
             ['class' => 'Grav\Common\Page\Medium\Medium', 'methods' => 'url, html, filepath, filename, metadata, srcset, parsedownelement, __tostring, @media_actions'],
             ['class' => 'Grav\Common\Media\Interfaces\MediaLinkInterface', 'methods' => 'html, url, __tostring, parsedownelement, srcset, @media_actions'],
-            ['class' => 'Grav\Common\User\Interfaces\UserInterface', 'methods' => 'authorize, authorized, authenticated, username, fullname, email, language, offsetget, offsetexists'],
+            // offsetget/offsetexists are deliberately NOT allowlisted on accounts:
+            // they return any stored field by key, credentials included. The
+            // fields content may read are named in properties() instead, which
+            // is where Twig resolves `user.email` on an ArrayAccess object
+            // anyway. See also deniedMethods().
+            ['class' => 'Grav\Common\User\Interfaces\UserInterface', 'methods' => 'authorize'],
             ['class' => 'Grav\Common\Taxonomy', 'methods' => 'taxonomy'],
             ['class' => 'Grav\Common\Language\Language', 'methods' => 'getactive, getdefault, getlanguages, getlanguage, enabled'],
             // addcss/addjs are deliberately NOT allowlisted: the sandbox arbitrates
@@ -327,6 +333,26 @@ final class SandboxDefaults
             ['class' => 'Grav\Common\Assets', 'methods' => '__tostring'],
             ['class' => 'stdClass', 'methods' => '*'],
             ['class' => 'Grav\Common\Data\Data', 'methods' => 'get, value, items, offsetget, offsetexists, __tostring'],
+        ];
+    }
+
+    /**
+     * Per-class method denials that are built into the policy, same shape as
+     * methods(). Unlike the allowlist rows these cannot be widened from user
+     * config: GravSecurityPolicy checks them first, by instanceof, so they
+     * also hold when the object satisfies another allowlisted type. That is
+     * what keeps them honest for accounts: a regular account (DataUser\User)
+     * is a Data object, and with `twig_content.config_access` on the Data row
+     * above would hand its by-key getters straight back to every account.
+     * A site that wants content to show another account field names it under
+     * allowed_properties, never through a getter that takes the key.
+     *
+     * @return list<array{class: string, methods: string}>
+     */
+    public static function deniedMethods(): array
+    {
+        return [
+            ['class' => 'Grav\Common\User\Interfaces\UserInterface', 'methods' => 'get, value, getproperty, offsetget, offsetexists'],
         ];
     }
 
@@ -344,6 +370,10 @@ final class SandboxDefaults
         return [
             ['class' => 'Grav\Common\Page\Interfaces\PageInterface', 'methods' => 'header, media, taxonomy'],
             ['class' => 'Grav\Common\Grav', 'methods' => 'theme'],
+            // Account fields content may read. Twig resolves `user.email` on an
+            // ArrayAccess object through this list (then offsetGet), so this is
+            // the only spelling that works: the by-key getters are denied above.
+            ['class' => 'Grav\Common\User\Interfaces\UserInterface', 'methods' => 'authorized, authenticated, username, fullname, email, language'],
             ['class' => 'Grav\Common\Media\Interfaces\MediaCollectionInterface', 'methods' => '*'],
             ['class' => 'Grav\Common\Page\Media', 'methods' => '*'],
             ['class' => 'Grav\Common\Page\Medium\Medium', 'methods' => '*'],

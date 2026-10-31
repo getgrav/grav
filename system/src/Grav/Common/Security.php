@@ -756,14 +756,17 @@ class Security
         // diagnostic, but the policy also carries the denials so they are enforced
         // by type at call time — a denial can then never be silently dropped by a
         // mis-cased class name or re-granted through an allowed parent class or
-        // interface the object also satisfies.
+        // interface the object also satisfies. The built-in denials
+        // (SandboxDefaults::deniedMethods) ride along for the same reason: they
+        // close members on a type that an allowlisted supertype row, such as the
+        // Data row kept above with config_access on, would otherwise grant.
         self::$twigSandboxPolicy = new GravSecurityPolicy(
             $tags,
             $filters,
             $methods,
             $properties,
             $functions,
-            deniedMethods: self::normalizeMethodsMap($deniedMethods, true),
+            deniedMethods: self::normalizeMethodsMap(array_merge(SandboxDefaults::deniedMethods(), $deniedMethods), true),
             deniedProperties: self::normalizeMethodsMap($deniedProperties, false)
         );
         self::$twigSandboxPolicyKey = $cacheKey;

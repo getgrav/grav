@@ -209,6 +209,70 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
         }
     }
 
+    /**
+     * Sandboxed content reads only the named account fields, and no by-key
+     * getter is callable on an account. A regular account is also a Data
+     * object, so this holds whatever `config_access` is set to.
+     *
+     * @dataProvider providerConfigAccess
+     */
+    public function testBuildPolicy_BlocksByKeyGettersOnAccounts(bool $configAccess): void
+    {
+        $grav = \Grav\Common\Grav::instance();
+        $previous = $grav['config']->get('security.twig_content.config_access');
+        $grav['config']->set('security.twig_content.config_access', $configAccess);
+        try {
+            $policy = Security::buildTwigSandboxPolicy();
+            $account = new \Grav\Common\User\DataUser\User(['username' => 'admin', 'email' => 'admin@example.com', 'hashed_password' => 'secret']);
+
+            foreach (['offsetGet', 'offsetExists', 'get', 'value', 'getProperty', 'toArray'] as $method) {
+                try {
+                    $policy->checkMethodAllowed($account, $method);
+                    self::fail("UserInterface::{$method} must be blocked (config_access=" . var_export($configAccess, true) . ')');
+                } catch (SecurityNotAllowedMethodError $e) {
+                    $this->addToAssertionCount(1);
+                }
+            }
+
+            $this->assertDoesNotThrow(fn() => $policy->checkMethodAllowed($account, 'authorize'));
+            foreach (['username', 'email', 'fullname', 'authenticated'] as $property) {
+                $this->assertDoesNotThrow(fn() => $policy->checkPropertyAllowed($account, $property));
+            }
+
+            $this->expectException(\Twig\Sandbox\SecurityNotAllowedPropertyError::class);
+            $policy->checkPropertyAllowed($account, 'hashed_password');
+        } finally {
+            $grav['config']->set('security.twig_content.config_access', $previous);
+        }
+    }
+
+    public static function providerConfigAccess(): array
+    {
+        return [[false], [true]];
+    }
+
+    public function testSandboxRender_ReadsNamedAccountFieldsOnly(): void
+    {
+        $account = new \Grav\Common\User\DataUser\User(['username' => 'admin', 'email' => 'admin@example.com', 'hashed_password' => 'secret']);
+        $env = $this->sandboxEnv([
+            'fields'    => "{{ account.username }} {{ account['email'] }}",
+            'method'    => "{{ account.offsetGet('hashed_password') }}",
+            'attribute' => "{{ attribute(account, 'offsetGet', ['hashed_password']) }}",
+            'key'       => "{{ account['hashed_password'] }}",
+            'get'       => "{{ account.get('hashed_password') }}",
+        ]);
+
+        self::assertSame('admin admin@example.com', $env->render('fields', ['account' => $account]));
+        foreach (['method', 'attribute', 'key', 'get'] as $name) {
+            try {
+                $output = $env->render($name, ['account' => $account]);
+                self::fail("Template '{$name}' must be blocked, rendered: {$output}");
+            } catch (SecurityError $e) {
+                $this->addToAssertionCount(1);
+            }
+        }
+    }
+
     // =========================================================================
     // Media access: page-content Twig must be able to read media members under
     // the sandbox. Regression for getgrav/grav#4105 — a modular page with

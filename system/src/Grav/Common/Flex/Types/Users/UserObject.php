@@ -371,6 +371,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
         unset($elements['hashed_password']);
         unset($elements['secret']);  // 2FA secret
         unset($elements['twofa_secret']);  // Alternative 2FA field name
+        unset($elements['reset']);  // Pending password-reset token
+        unset($elements['email_change_cancel_token']);  // Pending e-mail change token
 
         return $elements;
     }
