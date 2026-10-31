@@ -183,8 +183,9 @@ class MediumFactory
         }
 
         $ratio = $to / $from;
-        $width = $medium->get('width') * $ratio;
-        $height = $medium->get('height') * $ratio;
+        // Never go below one pixel, image adapters throw on an empty canvas.
+        $width = max(1, $medium->get('width') * $ratio);
+        $height = max(1, $medium->get('height') * $ratio);
 
         $prev_basename = $medium->get('basename');
         $basename = str_replace('@' . $from . 'x', $to !== 1 ? '@' . $to . 'x' : '', $prev_basename);
