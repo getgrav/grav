@@ -81,7 +81,9 @@ class PagesServiceProvider implements ServiceProviderInterface
                     $grav['debugger']->enabled(false);
                 }
 
-                $route = $page->route();
+                // A page that is not routable (unpublished, scheduled, expired) is replaced
+                // by the 404 page below, so it has no canonical route to redirect to.
+                $route = $page->routable() ? $page->route() : null;
                 if ($route && \in_array($uri->method(), ['GET', 'HEAD'], true)) {
                     $pageExtension = $page->urlExtension();
                     $url = $pages->route($route) . $pageExtension;

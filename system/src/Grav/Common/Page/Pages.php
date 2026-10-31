@@ -1445,8 +1445,9 @@ class Pages
         if ($page) {
             $routable = $page->routable();
             if ($redirect) {
-                if ($page->redirect()) {
-                    // Follow a redirect page.
+                if ($page->redirect() && $page->published()) {
+                    // Follow a redirect page. It does not need to be routable (a folder that
+                    // only forwards), but it has to be published, like any page that is found.
                     $this->grav->redirectLangSafe($page->redirect());
                 }
 
