@@ -874,6 +874,11 @@ class UserObject extends FlexObject implements UserInterface, Countable
      * authorize(), so it answers for an account loaded from storage whatever its
      * session or account state.
      *
+     * Every group is asked on its own, with the `test` scope. The combined answer of
+     * UserGroupCollection::authorize() lets a deny in one group cancel the grant of
+     * another and skips disabled groups, but regular accounts and the API are super as
+     * soon as one group says so, and a disabled group can be enabled again.
+     *
      * @return bool
      */
     protected function hasSuperAccess(): bool
@@ -881,8 +886,14 @@ class UserObject extends FlexObject implements UserInterface, Countable
         $access = $this->getAccess();
         $groups = $this->getGroups();
         foreach (['admin.super', 'api.super'] as $rule) {
-            if ($access->authorize($rule) === true || $groups->authorize($rule) === true) {
+            if ($access->authorize($rule) === true) {
                 return true;
+            }
+
+            foreach ($groups as $group) {
+                if ($group->authorize($rule, 'test') === true) {
+                    return true;
+                }
             }
         }
 
