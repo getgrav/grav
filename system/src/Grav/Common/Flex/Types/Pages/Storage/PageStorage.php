@@ -404,6 +404,12 @@ class PageStorage extends FolderStorage
                 $oldFolder = $this->buildFolder($oldKeys);
                 $oldFilename = $this->buildFilename($oldKeys);
 
+                // A new filename has to be free: it can belong to another translation (or template) of the page, which
+                // has permissions of its own and is only edited by loading it. Fail before anything has been moved.
+                if ($oldFilename !== $newFilename && $this->getFile("{$oldFolder}/{$newFilename}")->exists()) {
+                    throw new RuntimeException(sprintf('Page file %s already exists', $newFilename));
+                }
+
                 // Check if folder has changed.
                 if ($oldFolder !== $newFolder && file_exists($oldFolder)) {
                     $isCopy = $row['__META']['copy'] ?? false;
@@ -497,6 +503,8 @@ class PageStorage extends FolderStorage
      * dot (which also rules out `.` and `..`). The parent key is the path of an
      * existing page, so only its segments are checked. `|` ends the folder path
      * in a storage key, so neither the folder nor a parent segment can have it.
+     * `.` separates the template from the language in a file name, so a template
+     * cannot have one either: `default.fr` would be the `fr` translation of the page.
      *
      * @param array $keys
      * @return void
@@ -520,6 +528,10 @@ class PageStorage extends FolderStorage
 
         if (str_contains((string)($keys['folder'] ?? ''), '|')) {
             throw new RuntimeException('Invalid page folder');
+        }
+
+        if (str_contains((string)($keys['template'] ?? ''), '.')) {
+            throw new RuntimeException('Invalid page template');
         }
 
         if (!preg_match('/^[\w-]*$/u', (string)($keys['lang'] ?? ''))) {

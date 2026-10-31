@@ -309,6 +309,14 @@ class PageObject extends FlexPageObject implements PageUuidInterface
                 throw new \RuntimeException('Forbidden', 403);
             }
         }
+
+        // Saving the page in another language replaces the translation currently served for it, which has
+        // permissions of its own: being allowed to save the loaded translation is not enough. Without a user
+        // this is checked against the active user, like isAuthorized() on the loaded page.
+        $translation = $this->getReplacedTranslation();
+        if ($translation && !$translation->isAuthorized('update', null, $user)) {
+            throw new \RuntimeException('Forbidden', 403);
+        }
     }
 
     /**
@@ -434,6 +442,30 @@ class PageObject extends FlexPageObject implements PageUuidInterface
         $newParentKey = $this->getProperty('parent_key');
 
         return $this->exists() && $oldParentKey !== $newParentKey;
+    }
+
+    /**
+     * If the page is being saved in another language, get the translation which is currently served for that
+     * language: its own file or, if there is none yet, the one the language falls back to.
+     *
+     * @return PageObject|null
+     */
+    protected function getReplacedTranslation(): ?PageObject
+    {
+        $oldLang = $this->getMetaData()['lang'] ?? '';
+        // Resolves (and keeps) the language which prepareStorage() is going to save.
+        $newLang = $this->getLanguage();
+        if ($oldLang === $newLang || !$this->exists()) {
+            return null;
+        }
+
+        // Start from the main page as this object has already been modified.
+        /** @var PageObject|null $page */
+        $page = $this->getFlexDirectory()->getObject($this->getMasterKey(), 'storage_key');
+        /** @var PageObject|null $translation */
+        $translation = $page ? $page->getTranslation($newLang, $newLang !== '') : null;
+
+        return $translation && ($translation->getMetaData()['lang'] ?? '') !== $oldLang ? $translation : null;
     }
 
     /**

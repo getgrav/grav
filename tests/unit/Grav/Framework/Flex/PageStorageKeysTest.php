@@ -55,6 +55,7 @@ class PageStorageKeysTest extends \PHPUnit\Framework\TestCase
         return [
             'template climbing out' => [['parent_key' => '01.blog', 'folder' => 'post', 'template' => '../../../outside']],
             'template with a separator' => [['parent_key' => '01.blog', 'folder' => 'post', 'template' => 'sub/default']],
+            'template with a language' => [['parent_key' => '01.blog', 'folder' => 'post', 'template' => 'default.fr']],
             'folder climbing out' => [['parent_key' => '01.blog', 'folder' => '..', 'template' => 'default']],
             'folder with a separator' => [['parent_key' => '01.blog', 'folder' => '../post', 'template' => 'default']],
             'parent with a dot segment' => [['parent_key' => '01.blog/..', 'folder' => 'post', 'template' => 'default']],
