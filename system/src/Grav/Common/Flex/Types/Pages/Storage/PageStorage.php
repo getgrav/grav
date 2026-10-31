@@ -395,6 +395,7 @@ class PageStorage extends FolderStorage
             if (is_string($oldKey)) {
                 // Initialize all old key-related variables.
                 $oldKeys = $this->extractKeysFromRow(['__META' => $row['__META']], false);
+                $this->assertValidPageKeys($oldKeys);
                 $oldFolder = $this->buildFolder($oldKeys);
                 $oldFilename = $this->buildFilename($oldKeys);
 

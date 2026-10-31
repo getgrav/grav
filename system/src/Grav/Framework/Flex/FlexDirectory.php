@@ -565,6 +565,11 @@ class FlexDirectory implements FlexDirectoryInterface
     }
 
     /**
+     * Create a new object from its properties.
+     *
+     * Data may come from a request, so it cannot carry the storage metadata (`__META`): the object would otherwise
+     * claim to be stored under another key and the storage would move or delete that file when the object is saved.
+     *
      * @param array $data
      * @param string $key
      * @param bool $validate
@@ -572,13 +577,29 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     public function createObject(array $data, string $key = '', bool $validate = false): FlexObjectInterface
     {
+        unset($data['__META']);
+
+        return $this->createObjectFromStorage($data, $key, $validate);
+    }
+
+    /**
+     * Create an object from a row returned by the storage (or by `$object->prepareStorage()`), including its `__META`.
+     *
+     * @param array $row
+     * @param string $key
+     * @param bool $validate
+     * @return FlexObjectInterface
+     * @internal
+     */
+    public function createObjectFromStorage(array $row, string $key = '', bool $validate = false): FlexObjectInterface
+    {
         /** @phpstan-var class-string $className */
         $className = $this->objectClassName ?: $this->getObjectClass();
         if (!is_a($className, FlexObjectInterface::class, true)) {
             throw new \RuntimeException('Bad object class: ' . $className);
         }
 
-        return new $className($data, $key, $this, $validate);
+        return new $className($row, $key, $this, $validate);
     }
 
     /**
@@ -735,7 +756,7 @@ class FlexDirectory implements FlexDirectoryInterface
                 }
 
                 $key = $row['__META']['key'] ?? $entries[$usedKey]['key'] ?? $usedKey;
-                $object = $this->createObject($row, $key, false);
+                $object = $this->createObjectFromStorage($row, $key, false);
                 $this->objects[$storageKey] = $object;
                 if ($isListed) {
                     // If unserialize works for the object, serialize the object to speed up the loading.
