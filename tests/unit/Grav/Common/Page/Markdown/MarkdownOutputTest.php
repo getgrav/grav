@@ -192,6 +192,52 @@ class MarkdownOutputTest extends \PHPUnit\Framework\TestCase
         self::assertStringContainsString("- Children:\n  - [Item 1-2-1](http://localhost/item1/item1-2/item1-2-1.md)", $links);
     }
 
+    /**
+     * Every URL whose format Utils::getPageFormat() negotiates on `Accept` has to tell shared caches so.
+     */
+    public function testVaryAcceptIsSentWheneverTheFormatIsNegotiated(): void
+    {
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? null;
+        $_SERVER['HTTP_ACCEPT'] = 'text/markdown';
+
+        try {
+            // URL => format negotiated on Accept?
+            $urls = [
+                'item1' => true,
+                'release-2.2' => true,
+                'docs/v1.2' => true,
+                'item1.md' => false,
+                'release-2.2.md' => false,
+                'item1.json' => false,
+            ];
+            foreach ($urls as $url => $negotiated) {
+                $this->grav['uri']->initializeWithUrl('http://localhost/' . $url)->init();
+                $vary = $this->page('/item1')->httpHeaders()['Vary'] ?? '';
+
+                if ($negotiated) {
+                    self::assertSame('md', Utils::getPageFormat(), $url);
+                    self::assertSame('Accept', $vary, $url);
+                } else {
+                    self::assertSame('', $vary, $url);
+                }
+            }
+
+            $this->grav['uri']->initializeWithUrl('http://localhost/release-2.2')->init();
+            $this->grav['config']->set('system.pages.vary_accept_encoding', true);
+            self::assertSame('Accept-Encoding, Accept', $this->page('/item1')->httpHeaders()['Vary']);
+
+            $this->grav['config']->set('system.pages.vary_accept_encoding', false);
+            $this->grav['config']->set('system.pages.markdown_output.enabled', false);
+            self::assertArrayNotHasKey('Vary', $this->page('/item1')->httpHeaders());
+        } finally {
+            if ($accept === null) {
+                unset($_SERVER['HTTP_ACCEPT']);
+            } else {
+                $_SERVER['HTTP_ACCEPT'] = $accept;
+            }
+        }
+    }
+
     public function testEstimateTokens(): void
     {
         self::assertSame(0, MarkdownOutput::estimateTokens(''));

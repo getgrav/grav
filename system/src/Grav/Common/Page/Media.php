@@ -19,6 +19,7 @@ use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Medium\MediumFactory;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Throwable;
 use function in_array;
 
 /**
@@ -171,107 +172,121 @@ class Media extends AbstractMedia
         }
 
         foreach ($media as $name => $types) {
-            // First prepare the alternatives in case there is no base medium
-            if (!empty($types['alternative'])) {
-                /**
-                 * @var string|int $ratio
-                 * @var array $alt
-                 */
-                foreach ($types['alternative'] as $ratio => &$alt) {
-                    $alt['file'] = $this->createFromFile($alt['file']);
+            try {
+                // First prepare the alternatives in case there is no base medium
+                if (!empty($types['alternative'])) {
+                    /**
+                     * @var string|int $ratio
+                     * @var array $alt
+                     */
+                    foreach ($types['alternative'] as $ratio => &$alt) {
+                        $alt['file'] = $this->createFromFile($alt['file']);
 
-                    if (empty($alt['file'])) {
-                        unset($types['alternative'][$ratio]);
-                    } else {
-                        $alt['file']->set('size', $alt['size']);
-                    }
-                }
-                unset($alt);
-            }
-
-            $file_path = null;
-
-            // Create the base medium
-            if (empty($types['base'])) {
-                if (!isset($types['alternative'])) {
-                    continue;
-                }
-
-                $max = max(array_keys($types['alternative']));
-                $medium = $types['alternative'][$max]['file'];
-                $file_path = $medium->path();
-                $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
-            } else {
-                $medium = $this->createFromFile($types['base']['file']);
-                if ($medium) {
-                    $medium->set('size', $types['base']['size']);
-                    $file_path = $medium->path();
-                }
-            }
-
-            if (empty($medium)) {
-                continue;
-            }
-
-            // metadata file
-            $meta_path = $file_path . '.meta.yaml';
-
-            if (file_exists($meta_path)) {
-                $types['meta']['file'] = $meta_path;
-            } elseif ($file_path && $exif_reader && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif')) {
-                $meta = $exif_reader->read($file_path);
-
-                if ($meta) {
-                    $meta_data = $meta->getData();
-                    $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
-                    if ($meta_trimmed) {
-                        if ($locator->isStream($meta_path)) {
-                            $file = File::instance($locator->findResource($meta_path, true, true));
+                        if (empty($alt['file'])) {
+                            unset($types['alternative'][$ratio]);
                         } else {
-                            $file = File::instance($meta_path);
+                            $alt['file']->set('size', $alt['size']);
                         }
-                        $file->save(Yaml::dump($meta_trimmed));
-                        $types['meta']['file'] = $meta_path;
                     }
+                    unset($alt);
                 }
-            }
 
-            if (!empty($types['meta'])) {
-                $medium->addMetaFile($types['meta']['file']);
-            }
+                $file_path = null;
 
-            if (!empty($types['thumb'])) {
-                // We will not turn it into medium yet because user might never request the thumbnail
-                // not wasting any resources on that, maybe we should do this for medium in general?
-                $medium->set('thumbnails.page', $types['thumb']['file']);
-            }
-
-            // Build missing alternatives
-            if (!empty($types['alternative'])) {
-                $alternatives = $types['alternative'];
-                $max = max(array_keys($alternatives));
-
-                for ($i=$max; $i > 1; $i--) {
-                    if (isset($alternatives[$i])) {
+                // Create the base medium
+                if (empty($types['base'])) {
+                    if (!isset($types['alternative'])) {
                         continue;
                     }
 
-                    $types['alternative'][$i] = MediumFactory::scaledFromMedium($alternatives[$max]['file'], $max, $i);
+                    $max = max(array_keys($types['alternative']));
+                    $medium = $types['alternative'][$max]['file'];
+                    $file_path = $medium->path();
+                    $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
+                } else {
+                    $medium = $this->createFromFile($types['base']['file']);
+                    if ($medium) {
+                        $medium->set('size', $types['base']['size']);
+                        $file_path = $medium->path();
+                    }
                 }
 
-                foreach ($types['alternative'] as $altMedium) {
-                    if ($altMedium['file'] != $medium) {
-                        $altWidth = $altMedium['file']->get('width');
-                        $medWidth = $medium->get('width');
-                        if ($altWidth && $medWidth) {
-                            $ratio = $altWidth / $medWidth;
-                            $medium->addAlternative($ratio, $altMedium['file']);
+                if (empty($medium)) {
+                    continue;
+                }
+
+                // metadata file
+                $meta_path = $file_path . '.meta.yaml';
+
+                if (file_exists($meta_path)) {
+                    $types['meta']['file'] = $meta_path;
+                } elseif ($file_path && $exif_reader && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif')) {
+                    try {
+                        $meta = $exif_reader->read($file_path);
+                    } catch (Throwable $e) {
+                        // The reader chokes on damaged files and on Exif values it does not expect.
+                        $grav['log']->error($file_path . ' - ' . $e->getMessage());
+                        $meta = null;
+                    }
+
+                    if ($meta) {
+                        $meta_data = $meta->getData();
+                        $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
+                        if ($meta_trimmed) {
+                            if ($locator->isStream($meta_path)) {
+                                $file = File::instance($locator->findResource($meta_path, true, true));
+                            } else {
+                                $file = File::instance($meta_path);
+                            }
+                            $file->save(Yaml::dump($meta_trimmed));
+                            $types['meta']['file'] = $meta_path;
                         }
                     }
                 }
-            }
 
-            $this->add($name, $medium);
+                if (!empty($types['meta'])) {
+                    $medium->addMetaFile($types['meta']['file']);
+                }
+
+                if (!empty($types['thumb'])) {
+                    // We will not turn it into medium yet because user might never request the thumbnail
+                    // not wasting any resources on that, maybe we should do this for medium in general?
+                    $medium->set('thumbnails.page', $types['thumb']['file']);
+                }
+
+                // Build missing alternatives
+                if (!empty($types['alternative'])) {
+                    $alternatives = $types['alternative'];
+                    $max = max(array_keys($alternatives));
+
+                    for ($i=$max; $i > 1; $i--) {
+                        if (isset($alternatives[$i])) {
+                            continue;
+                        }
+
+                        // Only raster images can be scaled (not a gif or svg): skip the step when there is no scaled copy.
+                        $scaled = MediumFactory::scaledFromMedium($alternatives[$max]['file'], $max, $i);
+                        if (!empty($scaled['file'])) {
+                            $types['alternative'][$i] = $scaled;
+                        }
+                    }
+
+                    foreach ($types['alternative'] as $altMedium) {
+                        if ($altMedium['file'] != $medium) {
+                            $altWidth = $altMedium['file']->get('width');
+                            $medWidth = $medium->get('width');
+                            if ($altWidth && $medWidth) {
+                                $ratio = $altWidth / $medWidth;
+                                $medium->addAlternative($ratio, $altMedium['file']);
+                            }
+                        }
+                    }
+                }
+
+                $this->add($name, $medium);
+            } catch (\Throwable $e) {
+                $grav['log']->error(sprintf('Skipping media "%s" in %s: %s', $name, $path, $e->getMessage()));
+            }
         }
     }
 

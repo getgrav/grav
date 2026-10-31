@@ -442,10 +442,10 @@ class Page implements PageInterface, PageUuidInterface
             $md = CompiledMarkdownFile::instance($file);
             $header = (array) $md->header();
             $md->free();
-            if (!empty($header['slug'])) {
+            if (!empty($header['slug']) && is_scalar($header['slug'])) {
                 $slug = $header['slug'];
             }
-            if (isset($header['routes']['default']) && $header['routes']['default'] !== '') {
+            if (isset($header['routes']['default']) && is_string($header['routes']['default']) && $header['routes']['default'] !== '') {
                 $routesDefault = $header['routes']['default'];
             }
             break;
@@ -525,7 +525,7 @@ class Page implements PageInterface, PageUuidInterface
             }
 
             // Force content re-processing.
-            $this->id(time() . md5((string) $this->filePath()));
+            $this->id($this->memoryId());
         }
         if (!$this->frontmatter) {
             $this->header();
@@ -569,6 +569,7 @@ class Page implements PageInterface, PageUuidInterface
     public function header($var = null)
     {
         if ($var) {
+            $var = Header::plainData($var);
             $this->header = (object)$var;
 
             // Update also file object.
@@ -578,7 +579,7 @@ class Page implements PageInterface, PageUuidInterface
             }
 
             // Force content re-processing.
-            $this->id(time() . md5((string) $this->filePath()));
+            $this->id($this->memoryId());
         }
         if (!$this->header) {
             $file = $this->file();
@@ -637,11 +638,16 @@ class Page implements PageInterface, PageUuidInterface
             if (isset($this->header->modified)) {
                 $this->modified($this->header->modified);
             }
-            if (isset($this->header->slug)) {
+            // Only scalar slugs and string routes can be used in the route index.
+            if (isset($this->header->slug) && is_scalar($this->header->slug)) {
                 $this->slug($this->header->slug);
             }
             if (isset($this->header->routes)) {
-                $this->routes = (array)$this->header->routes;
+                $routes = (array)$this->header->routes;
+                $this->routes = array_filter($routes, 'is_string');
+                if (isset($routes['aliases'])) {
+                    $this->routes['aliases'] = array_values(array_filter((array)$routes['aliases'], 'is_string'));
+                }
             }
             if (isset($this->header->title)) {
                 $this->title = trim($this->header->title);
@@ -800,7 +806,7 @@ class Page implements PageInterface, PageUuidInterface
         if ($expires > 0) {
             $expires_date = gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
             if (!$cache_control) {
-                $headers['Cache-Control'] = 'max-age=' . $expires;
+                $headers['Cache-Control'] = Utils::getCacheControl((int)$expires);
             }
             $headers['Expires'] = $expires_date;
         }
@@ -838,8 +844,10 @@ class Page implements PageInterface, PageUuidInterface
         // HTML or Markdown depending on the request's `Accept` header, so a
         // shared cache must key on it or it hands an agent the HTML (and a
         // browser the Markdown). The `.md` URL is its own resource and needs
-        // no such hint.
-        if (MarkdownOutput::enabled() && !$grav['uri']->extension()) {
+        // no such hint. Only a page type counts as the URL having chosen, the
+        // same test Utils::getPageFormat() uses: the `2` of `/release-2.2`
+        // is part of the slug and that page is still negotiated.
+        if (MarkdownOutput::enabled() && !$grav['uri']->isValidExtension($grav['uri']->extension())) {
             $vary[] = 'Accept';
         }
         if ($vary) {
@@ -924,7 +932,9 @@ class Page implements PageInterface, PageUuidInterface
 
         $summary = Utils::truncateHtml($content, $size);
 
-        return html_entity_decode($summary, ENT_COMPAT | ENT_HTML401, 'UTF-8');
+        // Only undo the entities the truncator leaves for non-ASCII characters; decoding &lt; and friends as well
+        // would turn text that the content escaped back into markup.
+        return Utils::decodeNonAsciiEntities($summary);
     }
 
     /**
@@ -955,7 +965,7 @@ class Page implements PageInterface, PageUuidInterface
             }
 
             // Force re-processing.
-            $this->id(time() . md5((string) $this->filePath()));
+            $this->id($this->memoryId());
             $this->content = null;
         }
         // If no content, process it
@@ -1100,12 +1110,17 @@ class Page implements PageInterface, PageUuidInterface
                 }
             }
 
-            // Handle summary divider
+            // Handle summary divider. Markdown renders it as a block of its own, so only
+            // remove it where it stands between tags (or at either end of the content):
+            // cut out of the middle of raw HTML, what is left on both sides would join
+            // into markup (`<scr<p>===</p>ipt>`) that the tagfilter and the save-time
+            // XSS scan never saw.
             $delimiter = $config->get('site.summary.delimiter', '===');
-            $divider_pos = mb_strpos((string) $this->content, "<p>{$delimiter}</p>");
-            if ($divider_pos !== false) {
-                $this->summary_size = $divider_pos;
-                $this->content = str_replace("<p>{$delimiter}</p>", '', $this->content);
+            $divider = '~(?:\G|>)\s*\K' . preg_quote("<p>{$delimiter}</p>", '~') . '(?=\s*(?:<|$))~';
+            $parts = preg_split($divider, (string) $this->content);
+            if ($parts && count($parts) > 1) {
+                $this->summary_size = mb_strlen($parts[0]);
+                $this->content = implode('', $parts);
             }
 
             // Fire event when Page::content() is called
@@ -1326,9 +1341,10 @@ class Page implements PageInterface, PageUuidInterface
      * - neither page sets `never_cache_twig`, and neither has a form or an access rule;
      * - the module body has no Twig of its own (it is request-aware even in the sandbox);
      * - the request is a GET or HEAD from a visitor who is not logged in, so a logged-in
-     *   render is never stored and never served.
+     *   render is never stored and never served;
+     * - the request has no query string or URL params and resolves to a registered page route.
      * The id covers the page and config (as the page content cache does), the language and the
-     * whole request URL, so pages that read the query or URL params keep one entry per URL.
+     * cleaned path and extension of the request.
      * A stored render is used only while the module's template file is older than it; partials
      * that template includes are not checked, so editing only a partial needs a cache clear.
      *
@@ -1370,8 +1386,19 @@ class Page implements PageInterface, PageUuidInterface
         /** @var Uri $uri */
         $uri = $grav['uri'];
 
-        // The request URI as sent: path, URL params, extension and query string.
-        return md5('module-output' . $this->getPageContentCacheKey($grav['config']) . '|' . $parent->path() . '|' . $grav['language']->getActive() . '|' . $uri->base() . '|' . $uri->uri());
+        // Query strings and URL parameters render fresh, including empty query strings.
+        if (str_contains($uri->uri(), '?') || str_contains((string)($_SERVER['REQUEST_URI'] ?? ''), '?') || $uri->params(null, true)) {
+            return null;
+        }
+
+        $path = $uri->path();
+        if (!$grav['pages']->find($path === '' ? '/' : $path, true) instanceof PageInterface) {
+            return null;
+        }
+
+        // The cleaned path and the format, not the URI as sent: `//landing` shares the entry of
+        // `/landing`, while `/landing.json` has its own.
+        return md5('module-output' . $this->getPageContentCacheKey($grav['config']) . '|' . $parent->path() . '|' . $grav['language']->getActive() . '|' . $uri->base() . '|' . $uri->path() . '|' . $uri->extension());
     }
 
     /**
@@ -1415,10 +1442,14 @@ class Page implements PageInterface, PageUuidInterface
      * the pages-index cache (Pages.php) — they should evict in lockstep.
      * The version marker prevents a rendered modular response stored by older
      * releases from surviving the request-aware Twig cache fix.
+     *
+     * Admin scope has its own entries, as it has for the pages index: header()
+     * leaves frontmatter.yaml out there, so `process` and the other render
+     * options kept in that file do not apply to what it renders.
      */
     private function getPageContentCacheKey(Config $config): string
     {
-        return $this->getCacheKey() . ':content-v2:cfg=' . (string) $config->checksum();
+        return $this->getCacheKey() . ':content-v2:cfg=' . (string) $config->checksum() . (Utils::isAdminPlugin() ? ':admin' : '');
     }
 
     /**
@@ -1652,7 +1683,7 @@ class Page implements PageInterface, PageUuidInterface
         }
 
         $this->parent($parent);
-        $this->id(time() . md5((string) $this->filePath()));
+        $this->id($this->memoryId());
 
         if ($parent->path()) {
             $this->path($parent->path() . '/' . $this->folder());
@@ -1831,6 +1862,9 @@ class Page implements PageInterface, PageUuidInterface
     public function media($var = null)
     {
         if ($var) {
+            // Media set in memory belongs to this object only: a fresh id keeps the
+            // content rendered with it apart from the page's own cached content.
+            $this->id($this->memoryId());
             $this->setMedia($var);
         }
 
@@ -2168,6 +2202,43 @@ class Page implements PageInterface, PageUuidInterface
     }
 
     /**
+     * Escape the `content` of metadata entries handed to a metadata() setter the
+     * way the getter escapes the entries it builds from the header, since themes
+     * print `content` as it is. Text that is already escaped stays as it is, and
+     * anything that isn't an entry (an array of attributes) is left out.
+     *
+     * @param array $metadata
+     * @return array
+     * @internal
+     */
+    public static function escapeMetadata(array $metadata): array
+    {
+        $config = Grav::instance()['config'];
+        $escape = !$config->get('system.strict_mode.twig2_compat', false) || $config->get('system.twig.autoescape', true);
+
+        foreach ($metadata as $key => $entry) {
+            if ($entry instanceof \stdClass) {
+                $entry = get_object_vars($entry);
+            }
+            if (!is_array($entry)) {
+                unset($metadata[$key]);
+                continue;
+            }
+            if (array_key_exists('content', $entry)) {
+                $content = $entry['content'];
+                if (!is_scalar($content)) {
+                    $entry['content'] = null;
+                } elseif ($escape) {
+                    $entry['content'] = htmlspecialchars((string) $content, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
+                }
+            }
+            $metadata[$key] = $entry;
+        }
+
+        return $metadata;
+    }
+
+    /**
      * Function to merge page metadata tags and build an array of Metadata objects
      * that can then be rendered in the page.
      *
@@ -2177,7 +2248,7 @@ class Page implements PageInterface, PageUuidInterface
     public function metadata($var = null)
     {
         if ($var !== null) {
-            $this->metadata = (array)$var;
+            $this->metadata = self::escapeMetadata((array)$var);
         }
 
         // if not metadata yet, process it.
@@ -2478,11 +2549,11 @@ class Page implements PageInterface, PageUuidInterface
     public function routeAliases($var = null)
     {
         if ($var !== null) {
-            $this->routes['aliases'] = (array)$var;
+            $this->routes['aliases'] = array_values(array_filter((array)$var, 'is_string'));
         }
 
         if (!empty($this->routes) && isset($this->routes['aliases'])) {
-            return $this->routes['aliases'];
+            return array_values(array_filter((array)$this->routes['aliases'], 'is_string'));
         }
 
         return [];
@@ -2509,6 +2580,19 @@ class Page implements PageInterface, PageUuidInterface
     }
 
     /**
+     * An id for a page whose content was set or changed in memory. The pages index
+     * builds ids from a timestamp and the file path, so this one can never be equal
+     * to an id the index gives a page, and nothing cached under it stands in for
+     * that page's own content or media.
+     *
+     * @return string
+     */
+    private function memoryId(): string
+    {
+        return 'mem-' . bin2hex(random_bytes(8)) . md5((string) $this->filePath());
+    }
+
+    /**
      * Gets and sets the identifier for this Page object.
      *
      * @param  string|null $var the identifier
@@ -2518,7 +2602,7 @@ class Page implements PageInterface, PageUuidInterface
     {
         if (null === $this->id) {
             // We need to set unique id to avoid potential cache conflicts between pages.
-            $var = time() . md5((string) $this->filePath());
+            $var = $this->memoryId();
         }
         if ($var !== null) {
             // store unique per language
@@ -3362,8 +3446,10 @@ class Page implements PageInterface, PageUuidInterface
         // Handle publishing dates if no explicit published option set
         if (Grav::instance()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
             // unpublish if required, if not clear cache right before page should be unpublished
+            // The page is gone from the second of its unpublish date on (it is published from the second of its
+            // publish date on), so the cache is never asked to end in the current second.
             if ($this->unpublishDate()) {
-                if ($this->unpublishDate() < time()) {
+                if ($this->unpublishDate() <= time()) {
                     $this->published(false);
                 } else {
                     $this->published();

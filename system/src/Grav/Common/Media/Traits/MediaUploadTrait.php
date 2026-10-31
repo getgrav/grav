@@ -162,9 +162,10 @@ trait MediaUploadTrait
             );
         }
 
-        // Check if the file extension is allowed.
+        // Check if the file extension is allowed. Note that `media.types.defaults` holds
+        // the fallback settings for all the types, it is not a file type.
         $extension = mb_strtolower($extension);
-        if (!$extension || !$this->getConfig()->get("media.types.{$extension}")) {
+        if (!$extension || $extension === 'defaults' || !$this->getConfig()->get("media.types.{$extension}")) {
             // Not a supported type.
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.UNSUPPORTED_FILE_TYPE') . ': ' . $extension, 400);
         }
@@ -309,10 +310,7 @@ trait MediaUploadTrait
             }
 
             // Post-processing: Special content sanitization for SVG.
-            $mime = Utils::getMimeByFilename($filename);
-            if (Utils::contains($mime, 'svg', false)) {
-                $this->doSanitizeSvg($filename, $path);
-            }
+            $this->doSanitizeSvg($filename, $path);
 
             // Add the new file into the media.
             // TODO: This overrides existing media sizes if used with multiple retina image sizes.
@@ -672,6 +670,8 @@ trait MediaUploadTrait
     }
 
     /**
+     * Sanitize the uploaded file if it is going to be served as SVG.
+     *
      * @param string $filename
      * @param string $path
      */
@@ -687,7 +687,12 @@ trait MediaUploadTrait
             $filepath = (string)$locator->findResource($filepath, true, true);
         }
 
-        Security::sanitizeSVG($filepath);
+        // Every extension counts, not just the last one: the web server types
+        // `drawing.svg.foo` by its `.svg` part (see Security::isSvgFile()).
+        $mime = Utils::getMimeByFilename($filename);
+        if (Utils::contains($mime, 'svg', false) || Security::isSvgFile($filename, $filepath)) {
+            Security::sanitizeSVG($filepath);
+        }
     }
 
     /**

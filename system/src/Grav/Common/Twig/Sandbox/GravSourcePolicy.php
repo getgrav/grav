@@ -23,10 +23,13 @@ use Twig\Source;
  * partials) — those are trusted code authored by the site operator, and
  * sandboxing them would block legitimate uses of the full Grav container.
  *
- * This means a page with `process.twig: true` can still `{% include %}` a
- * theme partial; the include runs against the partial's own (file) source,
- * which is unsandboxed, while the surrounding editor template remains under
- * the policy.
+ * That trust is for renders Grav starts. A page with `process.twig: true` can
+ * still `{% include %}` a theme partial, but the partial then runs on variables
+ * the page chose, so it has to stay inside the policy as well:
+ * TwigEnvironment::render() switches the sandbox on for the whole render of a
+ * source sandboxed here, whatever that source goes on to load. The partials
+ * listed under `security.twig_sandbox.trusted_partials` get a trusted render on
+ * Grav's own variables instead (TwigEnvironment::includeFromContent()).
  *
  * The same decision is also made once, when a template compiles, through the
  * getgrav/Twig fork's CompileTimeSourcePolicyInterface: a trusted template
@@ -43,14 +46,24 @@ final class GravSourcePolicy implements CompileTimeSourcePolicyInterface
 {
     public function enableSandbox(Source $source): bool
     {
-        $name = $source->getName();
+        return self::isSandboxedName($source->getName());
+    }
+
+    /**
+     * Whether a template name is one of the editor-authored string templates
+     * registered via Twig::setTemplate(). These share the loader chain with the
+     * theme and plugin templates, so a caller that resolves a template by a name
+     * an editor controls (the page `template` header, a form action parameter)
+     * can be handed content instead of a trusted template and must check here.
+     */
+    public static function isSandboxedName(string $name): bool
+    {
         // This runs for every attribute access in every template, and trusted disk
         // templates (never '@'-prefixed) are the overwhelmingly common case.
         if ($name === '' || $name[0] !== '@') {
             return false;
         }
 
-        // Editor-authored string templates registered via Twig::setTemplate().
         // `@EmailVar:` is the Email plugin's form-action parameters (subject,
         // body, recipients). Those come from a page's `form.process.email.*`
         // front matter, so they are editor-authored too and must be sandboxed

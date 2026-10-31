@@ -15,7 +15,7 @@ use Grav\Common\Utils;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
-use RocketTheme\Toolbox\Compat\Yaml\Yaml as CompatYaml;
+use RocketTheme\Toolbox\Compat\Yaml\Parser as CompatYaml;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Symfony\Component\Yaml\Yaml;
@@ -141,7 +141,7 @@ class YamlLinter
             try {
                 $yaml = static::extractYaml($filepath);
                 if ($strict) {
-                    CompatYaml::parse($yaml);
+                    (new CompatYaml())->parse($yaml);
                 } else {
                     Yaml::parse($yaml);
                 }

@@ -53,7 +53,8 @@ abstract class Folder
                 $directory = new RecursiveDirectoryIterator($path, $flags);
             }
             $filter  = new RecursiveFolderFilterIterator($directory);
-            $iterator = new RecursiveIteratorIterator($filter, RecursiveIteratorIterator::SELF_FIRST);
+            // Step over folders which cannot be opened (no permission, path longer than the system allows).
+            $iterator = new RecursiveIteratorIterator($filter, RecursiveIteratorIterator::SELF_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD);
 
             foreach ($iterator as $dir) {
                 $dir_modified = $dir->getMTime();
@@ -90,7 +91,8 @@ abstract class Folder
             } else {
                 $directory = new RecursiveDirectoryIterator($path, $flags);
             }
-            $recursive = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST);
+            // Step over folders which cannot be opened (no permission, path longer than the system allows).
+            $recursive = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD);
             // Group the alternatives: without it, 'md|yaml' matched any path containing '.md' or ending in 'yaml'.
             $iterator = new RegexIterator($recursive, '/^.+\.(?:' . $extensions . ')$/i');
 
@@ -132,10 +134,15 @@ abstract class Folder
                     $directory = new RecursiveDirectoryIterator($path, $flags);
                 }
 
-                $iterator = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST);
+                // Step over folders which cannot be opened (no permission, path longer than the system allows).
+                $iterator = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD);
 
                 foreach ($iterator as $file) {
-                    $files[] = $file->getPathname() . '?'. $file->getMTime();
+                    try {
+                        $files[] = $file->getPathname() . '?'. $file->getMTime();
+                    } catch (Exception $e) {
+                        Grav::instance()['log']->error('Could not process file: ' . $e->getMessage());
+                    }
                 }
             }
         }

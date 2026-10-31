@@ -9,6 +9,7 @@
 
 namespace Grav\Common\File;
 
+use Grav\Framework\File\Formatter\YamlFormatter;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\File\YamlFile;
 use function count;
@@ -213,6 +214,24 @@ class CompiledMarkdownFile extends MarkdownFile
     }
 
     /**
+     * Check contents and make sure it is in correct format.
+     *
+     * The frontmatter goes through the same YAML decoders as CompiledYamlFile, so a `<<`
+     * key in the header would be read back as the merge key.
+     *
+     * @param mixed $var
+     * @return array
+     */
+    protected function check($var)
+    {
+        $var = parent::check($var);
+
+        YamlFormatter::assertNoMergeKeys($var['header']);
+
+        return $var;
+    }
+
+    /**
      * @return bool
      */
     protected function usesCompiledCache(): bool
@@ -264,6 +283,28 @@ class CompiledMarkdownFile extends MarkdownFile
     }
 
     /**
+     * Encode contents into RAW string.
+     *
+     * MarkdownFile::encode() writes no frontmatter block when the header is empty, so a body
+     * that starts with a `---` block of its own would be read back as the header. Such a body
+     * gets an empty block in front of it to keep header and markdown apart.
+     *
+     * @param array $var
+     * @return string
+     */
+    protected function encode($var)
+    {
+        $encoded = parent::encode($var);
+
+        // decode() skips a BOM and whitespace before it looks for the frontmatter.
+        if (empty($var['header']) && str_starts_with(ltrim($encoded, "\xef\xbb\xbf \n\r\t\v\0"), '---')) {
+            $encoded = "---\n{  }\n---\n\n" . $encoded;
+        }
+
+        return $encoded;
+    }
+
+    /**
      * Decode RAW string into contents, reusing the header parsed by an earlier scan.
      *
      * @param string $var
@@ -272,7 +313,7 @@ class CompiledMarkdownFile extends MarkdownFile
     protected function decode($var)
     {
         if (self::$scan === null) {
-            return parent::decode($var);
+            return $this->decodeRaw($var);
         }
 
         // Split the file the same way MarkdownFile::decode() does; the header is only reused
@@ -294,12 +335,36 @@ class CompiledMarkdownFile extends MarkdownFile
             return ['header' => $header, 'frontmatter' => $frontmatter, 'markdown' => $m[2]];
         }
 
-        $content = parent::decode($var);
+        $content = $this->decodeRaw($var);
         if (is_array($content['header'])) {
             self::$scan['current'][$key] = $content['header'];
             self::$scan['parsed']++;
             $this->scanKey = $key;
         }
+
+        return $content;
+    }
+
+    /**
+     * MarkdownFile::decode(), with a one-line frontmatter always parsed as YAML text.
+     *
+     * When neither YAML parser accepts the frontmatter, MarkdownFile::decode() hands it to the
+     * static Compat\Yaml\Yaml::parse(), which treats a string without a line break as a file name
+     * when a file of that name exists. A frontmatter of a single line is therefore passed on with
+     * a blank line after it, and the `frontmatter` text is restored afterwards.
+     *
+     * @param string $var
+     * @return array
+     */
+    private function decodeRaw($var)
+    {
+        $text = ltrim((string)preg_replace("/(\r\n|\r)/", "\n", ltrim($var, "\xef\xbb\xbf")));
+        if (!preg_match("/^---\n([^\n]+)\n---\n{0,}(.*)$/us", $text, $m)) {
+            return parent::decode($var);
+        }
+
+        $content = parent::decode("---\n{$m[1]}\n\n---\n{$m[2]}");
+        $content['frontmatter'] = $m[1];
 
         return $content;
     }

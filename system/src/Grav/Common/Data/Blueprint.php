@@ -35,6 +35,13 @@ use function strlen;
  */
 class Blueprint extends BlueprintForm
 {
+    /**
+     * Folders whose blueprint files are the site author's, as stream URIs. Grav's
+     * own blueprints and `user://blueprints` are part of `blueprints://`, as is
+     * every folder a plugin adds to that stream.
+     */
+    public const TRUSTED_ROOTS = ['blueprints://', 'plugins://', 'themes://'];
+
     /** @var string */
     protected $context = 'blueprints://';
 
@@ -55,10 +62,10 @@ class Blueprint extends BlueprintForm
 
     /**
      * Whether this blueprint's own field definitions came from a source the site
-     * author controls — a blueprint file on disk, or PHP that declared itself
-     * trusted. Both are the author speaking: a plugin shipping a `blueprints.yaml`
-     * also ships code Grav autoloads, so honouring its `data-*@` directives grants
-     * no capability it did not already have.
+     * author controls — a blueprint file in one of the {@see self::TRUSTED_ROOTS},
+     * or PHP that declared itself trusted. Both are the author speaking: a plugin
+     * shipping a `blueprints.yaml` also ships code Grav autoloads, so honouring its
+     * `data-*@` directives grants no capability it did not already have.
      *
      * @var bool
      */
@@ -74,6 +81,17 @@ class Blueprint extends BlueprintForm
      * @var array<string,bool>
      */
     protected $dynamicTrust = [];
+
+    /**
+     * Whether {@see self::extend()} has merged a source the site author does not
+     * control. `$dynamicTrust` only knows the `*@` keys deepInit() recognises, but
+     * BlueprintSchema::parseProperties() also takes a field's plain `data:`
+     * property as its table of dynamic calls, and that spelling leaves no entry
+     * there. The schema's single trust flag is derived from this instead.
+     *
+     * @var bool
+     */
+    protected $untrustedMerge = false;
 
     /**
      * Whether we are inside {@see self::load()}.
@@ -93,12 +111,23 @@ class Blueprint extends BlueprintForm
     protected $loadingFiles = false;
 
     /**
+     * Whether deepInit() is resolving `import@` directives that arrived with
+     * page-authored input {@see self::extend()} merged into a file-defined
+     * blueprint (FlexForm, FlexDirectoryForm). `$trusted` stays true for such a
+     * blueprint, so loadImport() needs this to know the directives are not its own.
+     *
+     * @var bool
+     */
+    protected $untrustedImports = false;
+
+    /**
      * @param string|string[]|null $filename
      * @param array $items
      * @param bool|null $trusted  Declare the provenance of `$items`. Null infers it:
-     *                            a blueprint loaded from files is trusted, items
-     *                            injected as data are not. Pass true from code that
-     *                            builds a blueprint out of its own PHP array.
+     *                            a blueprint loaded from files is trusted (as long
+     *                            as they lie in a blueprint folder), items injected
+     *                            as data are not. Pass true from code that builds a
+     *                            blueprint out of its own PHP array.
      */
     public function __construct($filename = null, array $items = [], ?bool $trusted = null)
     {
@@ -326,12 +355,17 @@ class Blueprint extends BlueprintForm
         // in place and attributed untrusted.
         $before = null;
         if (!$incomingTrust) {
+            // Remember the merge itself, not just the directives found in it: a
+            // field's `data:` table carries no `@` key, so the attribution below
+            // never sees it, yet the schema pass in initInternals() resolves it.
+            $this->untrustedMerge = true;
             $incoming = self::stripRelocatingActions($incoming);
+            $incoming = self::stripDataTables($incoming);
             $extends = $incoming;
             $before = $this->dynamicOf($this->items);
         }
 
-        $paths = $this->dynamicPathsOf($incoming);
+        $paths = $this->dynamicPathsOf($incoming, $incomingTrust);
 
         if (null === $paths) {
             // Could not attribute the incoming fields. Fall back to demoting the whole
@@ -352,7 +386,7 @@ class Blueprint extends BlueprintForm
         // with the ones this blueprint had before: any path whose directives are new
         // or changed came from the untrusted source.
         if (!$incomingTrust) {
-            $after = $this->dynamicOf($this->items);
+            $after = $this->dynamicOf($this->items, false);
             if (null === $before || null === $after) {
                 $this->trusted = false;
             } else {
@@ -364,9 +398,91 @@ class Blueprint extends BlueprintForm
             }
         }
 
-        $this->deepInit($this->items);
+        // load() resolved and removed this blueprint's own `import@` directives, so
+        // any still in the merged tree arrived with $extends and take its provenance.
+        $previous = $this->untrustedImports;
+        $this->untrustedImports = !$incomingTrust;
+        try {
+            $this->deepInit($this->items);
+        } finally {
+            $this->untrustedImports = $previous;
+        }
+
+        // Compare once more against the tree the real deepInit() produced: it embeds
+        // an `import@` from the untrusted source with another merge, which can
+        // renumber a field next to it after its path was recorded above.
+        if (!$incomingTrust && null !== $before) {
+            foreach ($this->dynamic as $path => $directives) {
+                if (($before[$path] ?? null) !== $directives) {
+                    $this->dynamicTrust[$path] = false;
+                }
+            }
+        }
 
         return $this;
+    }
+
+    /**
+     * Resolve an `import@` directive.
+     *
+     * A blueprint file may import from any path, stream or `context:` of its
+     * choosing. A directive that came from page-authored input (a form in page
+     * frontmatter, a Flex form override) may only name a blueprint under
+     * blueprints://, because the imported array becomes part of the rendered
+     * form.
+     *
+     * @param array|string $value
+     * @return array|null
+     */
+    protected function loadImport($value)
+    {
+        if ($this->trusted && !$this->untrustedImports) {
+            return parent::loadImport($value);
+        }
+
+        $type = is_string($value) ? $value : ($value['type'] ?? null);
+        $context = is_array($value) ? ($value['context'] ?? null) : null;
+        if (!is_string($type)) {
+            return null;
+        }
+
+        [$name, $field] = explode(':', $type, 2) + [1 => 'form'];
+        if ($name === '') {
+            // Import from this blueprint itself; nothing is read from disk.
+            return parent::loadImport($value);
+        }
+
+        // A plain blueprint name (`user/account`, `partials/security`), optionally
+        // with a context that stays inside blueprints://. No absolute path, no
+        // `..`, no other stream. Without a context, the one this blueprint was
+        // given in PHP applies, as long as it is inside blueprints:// too.
+        if (!preg_match('#^[\w-]+(?:[./][\w-]+)*$#', $name)) {
+            return null;
+        }
+        $insideBlueprints = '#^blueprints://(?:[\w-]+(?:/[\w-]+)*/?)?$#';
+        if (null === $context) {
+            $context = is_string($this->context) && preg_match($insideBlueprints, $this->context) ? $this->context : 'blueprints://';
+        } elseif (!is_string($context) || !preg_match($insideBlueprints, $context)) {
+            return null;
+        }
+        if ($context[strlen($context)-1] !== '/') {
+            $context .= '/';
+        }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        $files = $locator->findResources($context . $name . (str_ends_with($name, '.yaml') ? '' : '.yaml'));
+        if (!$files) {
+            return null;
+        }
+
+        // Same context and overrides as the vendor import, so relative imports
+        // and extends@ inside the imported blueprint resolve as they always have.
+        $blueprint = new static();
+        $blueprint->filename = $files;
+        $import = $blueprint->setContext($this->context)->setOverrides($this->overrides)->load()->get($field);
+
+        return is_array($import) ? $import : null;
     }
 
     /**
@@ -400,6 +516,34 @@ class Blueprint extends BlueprintForm
     }
 
     /**
+     * Remove the plain `data:` table from every field in an untrusted source.
+     *
+     * BlueprintSchema::parseProperties() takes a field's `data:` property as its table
+     * of dynamic calls. Page-authored forms spell dynamic options as `data-*@`
+     * directives, which are attributed and checked; nothing they render needs the
+     * table. Keys directly under `fields` are field names, so a field called `data`
+     * stays.
+     *
+     * @param array $items
+     * @param bool $fieldNames  Whether the keys of `$items` are field names.
+     * @return array
+     */
+    private static function stripDataTables(array $items, bool $fieldNames = false): array
+    {
+        foreach ($items as $key => $value) {
+            if (!$fieldNames && $key === 'data') {
+                unset($items[$key]);
+                continue;
+            }
+            if (is_array($value)) {
+                $items[$key] = self::stripDataTables($value, !$fieldNames && $key === 'fields');
+            }
+        }
+
+        return $items;
+    }
+
+    /**
      * Field paths in `$items` that carry a dynamic directive, keyed as
      * {@see BlueprintForm::$dynamic} keys them.
      *
@@ -407,11 +551,12 @@ class Blueprint extends BlueprintForm
      * are guaranteed to line up with the ones init() dispatches on.
      *
      * @param array $items
+     * @param bool $trusted  Provenance of `$items`; decides how the probe resolves `import@`.
      * @return string[]|null  Null when the source could not be parsed.
      */
-    private function dynamicPathsOf(array $items): ?array
+    private function dynamicPathsOf(array $items, bool $trusted = true): ?array
     {
-        $dynamic = $this->dynamicOf($items);
+        $dynamic = $this->dynamicOf($items, $trusted);
 
         return null === $dynamic ? null : array_keys($dynamic);
     }
@@ -420,17 +565,26 @@ class Blueprint extends BlueprintForm
      * Dynamic directives in `$items`, keyed by field path as
      * {@see BlueprintForm::$dynamic} keys them.
      *
+     * The throwaway blueprint looks files up the way this one does. deepInit()
+     * resolves `import@` through getFiles(), which falls back to the context and
+     * overrides, and embeds what it finds with another merge. An import that only
+     * this blueprint can find (`default` in `blueprints://pages`, the context of
+     * every page blueprint) would renumber an integer-keyed field next to it here
+     * and not in the probe, leaving its directive at a path nobody attributed.
+     *
      * @param array $items
+     * @param bool $trusted  Provenance of `$items`; decides how the probe resolves `import@`.
      * @return array|null  Null when the source could not be parsed.
      */
-    private function dynamicOf(array $items): ?array
+    private function dynamicOf(array $items, bool $trusted = true): ?array
     {
         if (!$items) {
             return [];
         }
 
         try {
-            $probe = new self(null, $items, true);
+            $probe = new self(null, $items, $trusted);
+            $probe->setContext($this->context)->setOverrides($this->overrides);
             $probe->deepInit($probe->items);
 
             return $probe->dynamic;
@@ -581,10 +735,12 @@ class Blueprint extends BlueprintForm
             $this->blueprintSchema = new BlueprintSchema;
             // The schema re-reads every `*@` directive left in $this->items and
             // resolves it a second time, outside init() and so outside the
-            // per-directive provenance init() enforces. It only sees one flag, so
-            // hand it the strictest: any page-authored directive makes the whole
-            // schema untrusted. Directives init() already resolved keep their value.
-            $this->blueprintSchema->setTrusted($this->trusted && !in_array(false, $this->dynamicTrust, true));
+            // per-directive provenance init() enforces. It also resolves a field's
+            // `data:` table, which init() never sees. It only takes one flag, so
+            // hand it the strictest: any page-authored merge makes the whole schema
+            // untrusted, whether or not a directive was attributed to that merge.
+            // Directives init() already resolved keep their value.
+            $this->blueprintSchema->setTrusted($this->trusted && !$this->untrustedMerge);
 
             if ($types) {
                 $this->blueprintSchema->setTypes($types);
@@ -602,11 +758,61 @@ class Blueprint extends BlueprintForm
      */
     protected function loadFile($filename)
     {
+        // Only files in a blueprint, plugin or theme folder are the author's.
+        // getFiles() also accepts any existing path or stream URI, and the name it
+        // is given can come from content (a page's `template` header). Every file
+        // of the blueprint passes through this method, parents included, before
+        // load() merges the first of them.
+        if ($this->trusted && !self::isTrustedFile((string) $filename)) {
+            $this->trusted = false;
+        }
+
         $file = CompiledYamlFile::instance($filename);
         $content = (array)$file->content();
         $file->free();
 
         return $content;
+    }
+
+    /**
+     * Whether a file lies inside one of the {@see self::TRUSTED_ROOTS}.
+     *
+     * @param string $filename
+     * @return bool
+     */
+    private static function isTrustedFile(string $filename): bool
+    {
+        $realPath = realpath($filename);
+        if ($realPath === false) {
+            return false;
+        }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        // A plugin or theme symlinked into its folder is a supported layout, and
+        // its real path is somewhere else. The path as the locator built it still
+        // starts with the folder, which is enough when no `..` can leave it again.
+        $isPlain = !str_contains($filename, '..');
+
+        foreach (self::TRUSTED_ROOTS as $root) {
+            if (!$locator->isStream($root)) {
+                continue;
+            }
+            foreach ($locator->findResources($root) as $folder) {
+                if ($isPlain && str_starts_with($filename, $folder . '/')) {
+                    return true;
+                }
+                $realRoot = realpath($folder);
+                // The trailing separator keeps `user/plugins` from matching
+                // `user/plugins-old`.
+                if ($realRoot !== false && str_starts_with($realPath, $realRoot . DIRECTORY_SEPARATOR)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -914,7 +1120,13 @@ class Blueprint extends BlueprintForm
      * facade sandboxed page Twig gets, so a page editor cannot copy
      * `plugins.*`, `security.*` or the other credential paths in
      * `security.twig_sandbox.config_denied_paths` into a field value that the
-     * form then prints to every visitor.
+     * form then prints to every visitor. While
+     * `security.twig_content.config_access` is off (the default) that Twig has
+     * an empty `config` and only the redacted `system`, `site` and `theme`
+     * arrays ({@see \Grav\Common\Twig\Twig::buildSandboxVars}), so those
+     * three trees are all a page-authored directive may name either;
+     * `groups.*`, `versions.*` and any custom `user/config/*.yaml` stay out
+     * of reach.
      *
      * Shared by {@see Blueprint::dynamicConfig} and
      * {@see BlueprintSchema::dynamicConfig}.
@@ -931,6 +1143,12 @@ class Blueprint extends BlueprintForm
 
         if ($trusted) {
             return $config->get($path, $default);
+        }
+
+        if (!$config->get('security.twig_content.config_access', false)
+            && !in_array(explode('.', $path, 2)[0], ['system', 'site', 'theme'], true)
+        ) {
+            return $default;
         }
 
         return (new SandboxConfig($config, Security::effectiveConfigDeniedPaths($config)))->get($path, $default);

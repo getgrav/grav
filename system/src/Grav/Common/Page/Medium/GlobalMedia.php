@@ -119,6 +119,38 @@ class GlobalMedia extends AbstractMedia
     }
 
     /**
+     * Whether a stream URI points inside one of the media folders in
+     * `security.media.allowed_roots`, whether or not the file is there.
+     *
+     * A file that does not exist is judged by the closest folder that does,
+     * so the answer depends only on where the URI points, never on whether
+     * the file exists. Use this where page content gets a URL for a stream
+     * URI (`url()`), where a missing file still has an answer.
+     *
+     * @param string $uri
+     * @return bool
+     */
+    public static function isMediaUri(string $uri): bool
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        if (!$locator->isStream($uri)) {
+            return false;
+        }
+
+        $path = $locator->findResource($uri) ?: $locator->findResource($uri, true, true);
+        while (is_string($path) && !file_exists($path)) {
+            $parent = dirname($path);
+            if ($parent === $path) {
+                return false;
+            }
+            $path = $parent;
+        }
+
+        return is_string($path) && static::isMediaPath($path);
+    }
+
+    /**
      * Whether an existing file or folder lies inside one of the media folders
      * in `security.media.allowed_roots`.
      *
@@ -191,7 +223,7 @@ class GlobalMedia extends AbstractMedia
             }
 
             // Add original sized image as alternative.
-            $medium->addAlternative($scale, $altMedium['file']);
+            $medium->addAlternative($scale, $altMedium);
 
             // Locate or generate smaller retina images.
             for ($i = $scale-1; $i > 1; $i--) {

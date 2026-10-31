@@ -195,10 +195,50 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('<ol><li>item 1 <i>something</i></li><li>item 2...</li></ol>', Utils::safeTruncateHtml('<ol><li>item 1 <i>something</i></li><li>item 2 <strong>bold</strong></li></ol>', 5));
     }
 
+    public function testDecodeNonAsciiEntities(): void
+    {
+        self::assertSame('<p>é … 中 😀 ©</p>', Utils::decodeNonAsciiEntities('<p>&eacute; &hellip; &#20013; &#x1F600; &copy;</p>'));
+        self::assertSame('é … 中', Utils::decodeNonAsciiEntities(Utils::truncateHtml('é … 中 and more', 5, '')));
+
+        // Entities that stand for ASCII characters keep text apart from markup and must stay as written.
+        $kept = [
+            '&lt;b&gt;', '&LT;b&GT;', '&#60;b&#62;', '&#x3c;b&#X3E;', '&#0060;b', '&nvlt;b&nvgt;', '&amp;lt;', '&#38;lt;',
+            '<a title="&quot; onclick=&quot;x">', "<a title='&#39; onclick=&apos;x'>", '<a title=x&#32;onclick&equals;x&Tab;y>',
+            '&unknown;', '&lt', '& ;'
+        ];
+        foreach ($kept as $html) {
+            self::assertSame($html, Utils::decodeNonAsciiEntities($html));
+        }
+    }
+
     public function testGenerateRandomString(): void
     {
         self::assertNotEquals(Utils::generateRandomString(), Utils::generateRandomString());
         self::assertNotEquals(Utils::generateRandomString(20), Utils::generateRandomString(20));
+    }
+
+    public function testGetByteRange(): void
+    {
+        self::assertSame([0, 2], Utils::getByteRange('bytes=0-2', 10));
+        self::assertSame([0, 0], Utils::getByteRange('bytes=0-0', 10));
+        self::assertSame([4, 9], Utils::getByteRange('bytes=4-', 10));
+        self::assertSame([7, 9], Utils::getByteRange('bytes=-3', 10));
+        self::assertSame([0, 9], Utils::getByteRange('bytes=-99', 10));
+        self::assertSame([3, 5], Utils::getByteRange('bytes=3-5,7-8', 10));
+
+        // The range never reaches past the end of the file.
+        self::assertSame([0, 9], Utils::getByteRange('bytes=0-99999999', 10));
+        self::assertSame([0, 9], Utils::getByteRange('bytes=0-99999999999999999999999', 10));
+
+        // Malformed and unsatisfiable headers are ignored instead of raising an error.
+        foreach (['', 'x', '=', 'bytes', 'bytes=', 'bytes=5', 'bytes=-', 'bytes=a-b', 'bytes=1-2-3', "bytes=0-2\n", 'items=0-2'] as $header) {
+            self::assertNull(Utils::getByteRange($header, 10), $header);
+        }
+        foreach (['bytes=5-2', 'bytes=10-', 'bytes=10-12', 'bytes=-0', 'bytes=99999999999999999999999-'] as $header) {
+            self::assertNull(Utils::getByteRange($header, 10), $header);
+        }
+        self::assertNull(Utils::getByteRange('bytes=0-', 0));
+        self::assertNull(Utils::getByteRange('bytes=-5', 0));
     }
 
     public function download(): void
@@ -692,6 +732,20 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertSame('https://foo.com', Utils::url('https://foo.com'));
         self::assertSame('//foo.com', Utils::url('//foo.com'));
         self::assertSame('//foo.com?param=x', Utils::url('//foo.com?param=x'));
+    }
+
+    public function testShippedDangerousExtensionsRefuseRenderedXmlFormats(): void
+    {
+        /** @var \Grav\Common\Config\Config $config */
+        $config = $this->grav['config'];
+        $shipped = \Grav\Common\Yaml::parse((string)file_get_contents(GRAV_ROOT . '/system/config/security.yaml'));
+        $config->set('security.uploads_dangerous_extensions', $shipped['uploads_dangerous_extensions']);
+
+        foreach (['feed.xml', 'page.xhtm', 'style.xsl', 'style.xslt', 'news.atom', 'news.rss', 'data.rdf', 'formula.mml', 'FEED.XML', 'feed.xml.txt'] as $name) {
+            self::assertFalse(Utils::checkFilename($name), $name);
+        }
+        self::assertTrue(Utils::checkFilename('photo.png'));
+        self::assertTrue(Utils::checkFilename('report.pdf'));
     }
 
     public function testCheckFilename(): void

@@ -64,6 +64,16 @@ class PagesLazyIndexTest extends \PHPUnit\Framework\TestCase
                 $this->store[$id] = $data;
             }
 
+            public function fetchShared($id)
+            {
+                return $this->fetch($id);
+            }
+
+            public function saveShared($id, $data, $lifetime = null)
+            {
+                $this->save($id, $data, $lifetime);
+            }
+
             public function delete($id)
             {
                 unset($this->store[$id]);
@@ -228,6 +238,40 @@ class PagesLazyIndexTest extends \PHPUnit\Framework\TestCase
         // A cache written with the index on, read with it off: the pages are rebuilt into the blob.
         self::assertSame('blob', $this->request(false)->getIndexStats()['mode']);
         self::assertSame('blob', $this->request(false)->getIndexStats()['mode']);
+    }
+
+    public function testPagesBuiltInAdminScopeAreNotLoadedByTheSite(): void
+    {
+        // Page::header() leaves frontmatter.yaml out in admin scope.
+        $this->writePage('05.members/default.md', ['title' => 'Members', 'process' => ['twig' => false]]);
+        file_put_contents($this->pagesDir . '/05.members/frontmatter.yaml', "access:\n  site.login: true\nprocess:\n  markdown: false\n");
+
+        foreach ([false, true] as $lazy) {
+            $this->grav['cache']->store = [];
+
+            $this->grav['admin'] = new \stdClass();
+            try {
+                $page = $this->request($lazy)->find('/members', true);
+                self::assertFalse(isset($page->header()->access));
+                self::assertSame('<p>Members body</p>', trim($page->content()));
+            } finally {
+                unset($this->grav['admin']);
+            }
+
+            // Neither the page nor the content rendered from it comes out of the cache admin scope filled.
+            $page = $this->request($lazy)->find('/members', true);
+            self::assertSame(['site.login' => true], $page->header()->access ?? null);
+            self::assertSame('Members body', trim($page->content()));
+
+            // The other way round, admin scope does not load the pages the site built.
+            $this->grav['admin'] = new \stdClass();
+            try {
+                $page = $this->request($lazy)->find('/members', true);
+                self::assertFalse(isset($page->header()->access));
+            } finally {
+                unset($this->grav['admin']);
+            }
+        }
     }
 
     public function testStoreReadsManyRowsAcrossBatches(): void

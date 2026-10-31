@@ -712,8 +712,11 @@ class Validation
             return null;
         }
 
+        // Bound the spread between the scales as well as the largest one. A positive
+        // exponent is a negative scale, and lifting it to the common scale appends
+        // that many zeros. Beyond the bound the caller uses the float comparison.
         $scale = max($v[1], $m[1], $s[1]);
-        if ($scale > 100) {
+        if ($scale > 100 || $scale - min($v[1], $m[1], $s[1]) > 100) {
             return null;
         }
 
@@ -799,6 +802,10 @@ class Validation
                 return date($format, (int) Utils::date2timestamp($value));
             }
 
+            if (!is_string($value) || strlen($value) > Utils::DATE_MAX_LENGTH) {
+                return '';
+            }
+
             $converted = new DateTime($value);
             return $converted->format($format);
         }
@@ -859,6 +866,13 @@ class Validation
             $params['max'] = 320;
         }
 
+        // A list of addresses is only valid for a `multiple` field. Everywhere else the
+        // address is a single string, which is what the code reading it back expects
+        // (account look-ups by e-mail cast the stored value to string).
+        if (is_array($value) && empty($field['multiple'])) {
+            return false;
+        }
+
         $values = !is_array($value) ? explode(',', (string) preg_replace('/\s+/', '', (string) $value)) : $value;
 
         foreach ($values as $val) {
@@ -913,11 +927,11 @@ class Validation
             return true;
         }
 
-        if (!is_string($value)) {
+        if (!is_string($value) || strlen($value) > Utils::DATE_MAX_LENGTH) {
             return false;
         }
         if (!isset($params['format'])) {
-            return false !== strtotime($value);
+            return false !== Utils::strtotime($value);
         }
 
         $dateFromFormat = DateTime::createFromFormat($params['format'], $value);

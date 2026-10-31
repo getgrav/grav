@@ -324,8 +324,10 @@ class UserObject extends FlexObject implements UserInterface, Countable
             return $authorized;
         }
 
-        // Check group access.
-        $authorized = $this->getGroups()->authorize($action, $scope);
+        // Check group access. A rule in the account wins over the groups, and that includes
+        // the super user rule: when the account denies it, a group still grants what it
+        // spells out, but it does not make the user a superuser for everything else.
+        $authorized = $this->getGroups()->authorize($action, $scope, $access->authorize('admin.super') !== false);
         if (is_bool($authorized)) {
             return $authorized;
         }
@@ -368,11 +370,23 @@ class UserObject extends FlexObject implements UserInterface, Countable
         $elements = parent::jsonSerialize();
 
         // Security: Remove sensitive fields that should never be exposed to frontend
-        unset($elements['hashed_password']);
-        unset($elements['secret']);  // 2FA secret
-        unset($elements['twofa_secret']);  // Alternative 2FA field name
+        return array_diff_key($elements, array_flip(static::SECRET_FIELDS));
+    }
 
-        return $elements;
+    /**
+     * {@inheritdoc}
+     *
+     * Override to keep the same sensitive fields out of forms: a form asks for a value
+     * by field name, and the fields of a Flex form can be written in page frontmatter.
+     */
+    public function getFormValue(string $name, $default = null, ?string $separator = null)
+    {
+        // Security: Sensitive fields are not form values, a field named after one stays empty
+        if (in_array(explode($separator ?: '.', $name, 2)[0], static::SECRET_FIELDS, true)) {
+            return $default;
+        }
+
+        return parent::getFormValue($name, $default, $separator);
     }
 
     /**
@@ -616,17 +630,17 @@ class UserObject extends FlexObject implements UserInterface, Countable
         $isNewUser = $key === '' || str_contains($key, '@@');
 
         if ($isNewUser) {
-            $newKey = $this->getKey();
+            $this->setStorageKey($this->getKey());
+        }
 
-            // Prevent overwriting an existing account when a low-privileged user
-            // creates a new user with an already-taken username (GHSA-rr73-568v-28f8).
-            // Applies to every storage implementation, not just FileStorage.
-            $storage = $this->getFlexDirectory()->getStorage();
-            if ($storage->hasKey($newKey)) {
-                throw new RuntimeException('User account with this username already exists');
-            }
-
-            $this->setStorageKey($newKey);
+        // Prevent overwriting an existing account when a new user is created with
+        // an already-taken username, or an account is renamed to one. Checked
+        // against the record the storage is going to write rather than the object
+        // key, and outside of the branch above: a Flex form creates the object with
+        // an empty key and takes both the username and, if submitted, `storage_key`
+        // from the form data. Applies to every storage implementation.
+        if ($this->isUsernameTaken()) {
+            throw new RuntimeException('User account with this username already exists');
         }
 
         $password = $this->getProperty('password') ?? $this->getProperty('password1');
@@ -653,7 +667,17 @@ class UserObject extends FlexObject implements UserInterface, Countable
             }
         }
 
-        $instance = parent::save();
+        try {
+            $instance = parent::save();
+        } catch (RuntimeException $e) {
+            if ($e->getCode() === 409) {
+                // The account has changed since this object was loaded. The object may have come from the object
+                // cache, which does not see two changes made within the same second: read the storage next time.
+                $this->getFlexDirectory()->getCache('object')->clear();
+            }
+
+            throw $e;
+        }
 
         // Backwards compatibility with older plugins.
         if ($fireEvents) {
@@ -661,6 +685,21 @@ class UserObject extends FlexObject implements UserInterface, Countable
         }
 
         return $instance;
+    }
+
+    /**
+     * Compare a later save against the stored account $stored was loaded from, as if this object had been
+     * loaded from it too. Used when the session's copy of the account is refreshed from the stored account.
+     *
+     * @param UserObject $stored
+     * @return void
+     * @internal
+     */
+    public function setLoadedFrom(UserObject $stored): void
+    {
+        $meta = $this->getMetaData();
+        $meta['account_checksum'] = $stored->getMetaData()['account_checksum'] ?? null;
+        $this->setMetaData($meta);
     }
 
     /**
@@ -837,6 +876,21 @@ class UserObject extends FlexObject implements UserInterface, Countable
         // (GHSA-hp5c-hmwq-qjv6)
         $key = $this->getStorageKey();
         if ($key !== '' && $user instanceof self && $user->getStorageKey() === $key) {
+            // This rule answers without calling authorize(), so it has to hold the same
+            // preconditions. After the password step of a 2FA login the session already
+            // carries this account's user object, but the login is not complete until
+            // the second factor has been given. State is read from the stored account as
+            // well: the session's copy may predate the account being disabled.
+            if ($this->getProperty('state', 'enabled') !== 'enabled' || $user->getProperty('state', 'enabled') !== 'enabled') {
+                return false;
+            }
+
+            // As in authorize(), the session facts (logged in, past 2FA) apply to the
+            // session user only; a user passed in explicitly is tested as-is.
+            if ($isMe && (!$user->getProperty('authenticated') || !$user->getProperty('authorized'))) {
+                return false;
+            }
+
             // User cannot delete his own account, otherwise he has full access.
             return $action !== 'delete';
         }
@@ -862,6 +916,11 @@ class UserObject extends FlexObject implements UserInterface, Countable
      * authorize(), so it answers for an account loaded from storage whatever its
      * session or account state.
      *
+     * Every group is asked on its own, with the `test` scope. The combined answer of
+     * UserGroupCollection::authorize() lets a deny in one group cancel the grant of
+     * another and skips disabled groups, but regular accounts and the API are super as
+     * soon as one group says so, and a disabled group can be enabled again.
+     *
      * @return bool
      */
     protected function hasSuperAccess(): bool
@@ -869,8 +928,14 @@ class UserObject extends FlexObject implements UserInterface, Countable
         $access = $this->getAccess();
         $groups = $this->getGroups();
         foreach (['admin.super', 'api.super'] as $rule) {
-            if ($access->authorize($rule) === true || $groups->authorize($rule) === true) {
+            if ($access->authorize($rule) === true) {
                 return true;
+            }
+
+            foreach ($groups as $group) {
+                if ($group->authorize($rule, 'test') === true) {
+                    return true;
+                }
             }
         }
 
@@ -891,17 +956,56 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
+     * Whether saving this object would land on another account: on its record in
+     * the storage, or on its username in the index.
+     *
+     * The object key does not answer that. It is the username when the object comes
+     * from $grav['accounts']->load(), but a Flex form creates the object with an
+     * empty key and fills `username` from the submission -- and the storage names
+     * the record after its key field (`username` in file storage) whenever the row
+     * has one, not after the key it was handed. So look at the key the storage is
+     * going to write, and compare it with the record this object was loaded from.
+     *
+     * @return bool
+     */
+    protected function isUsernameTaken(): bool
+    {
+        $directory = $this->getFlexDirectory();
+        $storage = $directory->getStorage();
+        $normalize = static fn($key): string => method_exists($storage, 'normalizeKey') ? $storage->normalizeKey((string)$key) : (string)$key;
+
+        // The record this object was loaded from comes from the meta data, as
+        // `storage_key` is a property which can be set from the outside.
+        $oldKey = (string)($this->getMetaData()['storage_key'] ?? '');
+
+        // getElement() reads what goes into the row. getProperty('storage_key')
+        // would lazy load the property first, losing the key set by setStorageKey().
+        $newKey = $normalize($this->getElement($storage->getKeyField()) ?? $this->getStorageKey());
+        if ($newKey !== '' && $newKey !== $normalize($oldKey) && $storage->hasKey($newKey)) {
+            return true;
+        }
+
+        // Folder storage does not have the username in its key, but accounts are still
+        // looked up by it: a second record with the same username would shadow the
+        // first one. The index can be stale, so make sure the record is still there.
+        $owner = (string)($directory->getIndex()->getMetaData($normalize($this->getElement('username')))['storage_key'] ?? '');
+
+        return $owner !== '' && $normalize($owner) !== $normalize($oldKey) && $storage->hasKey($owner);
+    }
+
+    /**
      * {@inheritdoc}
      *
      * The password hash and the session flags are never taken from submitted data.
      * The account blueprint does not declare them, and its loose validation passes
      * undeclared keys through, so a form save could otherwise write a hash of the
      * submitter's choosing. A new password goes through `password`, which save()
-     * hashes.
+     * hashes. Neither is the storage key: it says which account this object is,
+     * both to save() and to the own-account rule in isAuthorizedOverride().
      */
     public function update(array $data, array $files = [])
     {
-        unset($data['hashed_password'], $data['authenticated'], $data['authorized']);
+        unset($data['hashed_password'], $data['authenticated'], $data['authorized'], $data['storage_key']);
 
         return parent::update($data, $files);
     }
@@ -963,6 +1067,13 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
             // Load settings for the field.
             $settings = $this->getMediaFieldSettings($field);
+
+            // Files are not filtered by the blueprint like form data: skip fields which are disabled or
+            // ignored (e.g. guarded by `security@`).
+            if (!empty($settings['disabled']) || !empty($settings['validate']['ignore'])) {
+                continue;
+            }
+
             foreach ($group as $filename => $file) {
                 if ($file) {
                     // File upload.
@@ -979,6 +1090,13 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 if ($file) {
                     // Check file upload against media limits (except for max size).
                     $filename = $media->checkUploadedFile($file, $filename, ['filesize' => 0] + $settings);
+                } else {
+                    // The name of a deleted file has to be a plain filename, like an upload: deleteFile()
+                    // follows sub-folders (`original/` is added when saving).
+                    $filename = (string)$filename;
+                    if (!Utils::checkFilename($filename)) {
+                        throw new RuntimeException('File could not be deleted: Bad filename', 400);
+                    }
                 }
 
                 $self = $settings['self'];
@@ -1005,6 +1123,11 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', Utils::basename($filepath));
 
                 $list[$filename] = [$file, $settings];
+
+                // Only media fields keep a file list in the object; other field names are not object properties.
+                if (empty($settings['media_field'])) {
+                    continue;
+                }
 
                 $path = str_replace('.', "\n", $field);
                 if (null !== $data) {

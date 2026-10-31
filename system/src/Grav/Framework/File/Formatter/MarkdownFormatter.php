@@ -94,6 +94,9 @@ class MarkdownFormatter extends AbstractFormatter
         $encoded = '';
         if ($header) {
             $encoded = "---\n" . trim($this->getHeaderFormatter()->encode($data['header'])) . "\n---\n\n";
+        } elseif (str_starts_with(ltrim($body, "\xef\xbb\xbf \n\r\t\v\0"), '---')) {
+            // Without an empty block in front of it, a `---` block at the top of the body would decode as the header.
+            $encoded = "---\n" . trim($this->getHeaderFormatter()->encode([])) . "\n---\n\n";
         }
         $encoded .= $body;
 

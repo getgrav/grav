@@ -20,6 +20,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Security;
 use Grav\Common\Twig\Cache\ResilientFilesystemCache;
+use Grav\Common\Twig\Sandbox\ContentIncludeExtension;
 use Grav\Common\Twig\Sandbox\GravSourcePolicy;
 use Grav\Common\Twig\Sandbox\SandboxConfig;
 use Grav\Common\Twig\Compatibility\Twig3CompatibilityLoader;
@@ -293,9 +294,14 @@ class Twig
 
             // Content sandbox — a SourcePolicy selects per-template whether to
             // enforce. Only editor-authored string templates (@Page: / @Var:)
-            // are sandboxed; theme files on disk are always trusted. This means
-            // we don't need to toggle the sandbox around specific render calls,
-            // and {% include %}ing a theme partial from editor content is safe.
+            // are sandboxed; theme files on disk are trusted when Grav renders
+            // them. A theme or plugin file that editor content pulls in itself
+            // ({% include %}, {% embed %}, {% extends %}, ...) runs on variables
+            // the content chose, so TwigEnvironment::render() keeps the sandbox
+            // on for everything an editor-authored render reaches. The partials
+            // listed under security.twig_sandbox.trusted_partials are the
+            // exception: ContentIncludeExtension gives them a trusted render on
+            // Grav's own variables.
             // GravSourcePolicy also makes that decision at compile time (a
             // getgrav/Twig fork feature), so theme and plugin files compile
             // without any sandbox checks at all.
@@ -305,6 +311,7 @@ class Twig
                     false,
                     new GravSourcePolicy()
                 ));
+                $this->twig->addExtension(new ContentIncludeExtension());
             }
 
             /** @var Debugger $debugger */
@@ -412,7 +419,7 @@ class Twig
         try {
             // In-page Twig runs FIRST and in isolation. The editor-authored
             // body becomes an @Page: string template that the SourcePolicy
-            // sandboxes (it can still {% include %} trusted theme partials).
+            // sandboxes, along with any theme partial it {% include %}s.
             // Doing this before the modular template render keeps the two
             // concerns cleanly separated: content is always sandboxed, the
             // template never is. The body is resolved to plain HTML up front,
@@ -441,7 +448,7 @@ class Twig
                 // raw Config.
                 $sandbox_vars = $this->buildSandboxVars($twig_vars, $twig_vars);
                 try {
-                    $output = $content = $local_twig->render($name, $sandbox_vars);
+                    $output = $content = $this->renderContent($local_twig, $name, $sandbox_vars, $twig_vars);
                 } catch (SecurityError $e) {
                     $this->logSandboxViolation($e);
                     // Soft-fail: fall back to the pre-render content so the
@@ -495,8 +502,15 @@ class Twig
         $this->grav->fireEvent('onTwigTemplateVariables');
         $vars += $this->twig_vars;
 
+        // The name can be editor-authored (the Email plugin passes a page's
+        // `form.process.email.template`), so it can be that of a registered
+        // content string, which only ever sees the filtered variables.
         try {
-            $output = $this->twig->render($template, $vars);
+            if (is_string($template) && GravSourcePolicy::isSandboxedName($template)) {
+                $output = $this->renderContent($this->twig, $template, $this->buildSandboxVars($vars, $this->twig_vars), $vars);
+            } else {
+                $output = $this->twig->render($template, $vars);
+            }
         } catch (LoaderError $e) {
             throw new RuntimeException($e->getRawMessage(), 404, $e);
         }
@@ -527,7 +541,7 @@ class Twig
         // GHSA-p597-crqc-m349). Caller-supplied values are left alone —
         // internal call sites that need a custom value (e.g. tests) can
         // still pass them through.
-        $vars = $this->buildSandboxVars($vars, $this->twig_vars);
+        $sandbox_vars = $this->buildSandboxVars($vars, $this->twig_vars);
 
         $filtered = false;
 
@@ -536,7 +550,7 @@ class Twig
 
         // SourcePolicy sandboxes @Var: sources automatically; no toggle needed.
         try {
-            $output = $this->twig->render($name, $vars);
+            $output = $this->renderContent($this->twig, $name, $sandbox_vars, $vars);
         } catch (LoaderError $e) {
             throw new RuntimeException($e->getRawMessage(), 404, $e);
         } catch (SecurityError $e) {
@@ -722,6 +736,11 @@ class Twig
      * $inherited) are left untouched, so internal call sites and tests can
      * still pass their own.
      *
+     * The same treatment is applied to the copies of the enclosing context
+     * that Twig's `for` tag stores in `_parent` and `loop.parent`, which
+     * evaluate_twig() / evaluate() forward along with the rest of the
+     * calling template's context.
+     *
      * @param array $vars      Variables about to be rendered.
      * @param array $inherited The base $twig_vars they were derived from.
      * @return array
@@ -749,7 +768,42 @@ class Twig
             $vars[$key] = $filter->get($key, []);
         }
 
+        // A `{% for %}` body carries the enclosing context twice over, as
+        // `_parent` and `loop.parent` (ForNode). When a trusted template calls
+        // evaluate_twig() from inside a loop, those copies arrive here too, so
+        // they get the same filtering. Nested loops nest the copies; recurse.
+        $parent = $vars['_parent'] ?? null;
+        if (is_array($parent)) {
+            $vars['_parent'] = $this->buildSandboxVars($parent, $inherited);
+        }
+        if (is_array($vars['loop'] ?? null) && is_array($vars['loop']['parent'] ?? null)) {
+            // ForNode sets both from the same array; reuse the filtered copy.
+            $vars['loop']['parent'] = $vars['loop']['parent'] === $parent
+                ? $vars['_parent']
+                : $this->buildSandboxVars($vars['loop']['parent'], $inherited);
+        }
+
         return $vars;
+    }
+
+    /**
+     * Render an editor-authored template on its filtered variables, with the
+     * unfiltered ones for the trusted partials it includes (see
+     * TwigEnvironment::renderContent()).
+     *
+     * @param Environment $twig
+     * @param string $name
+     * @param array $vars Filtered variables, for the content.
+     * @param array $partialVars Variables PHP chose, for trusted partials.
+     * @return string
+     */
+    private function renderContent(Environment $twig, string $name, array $vars, array $partialVars): string
+    {
+        if ($twig instanceof TwigEnvironment) {
+            return $twig->renderContent($name, $vars, $partialVars);
+        }
+
+        return $twig->render($name, $vars);
     }
 
     /**
@@ -862,6 +916,13 @@ class Twig
         /** @var ExistsLoaderInterface $loader */
         $loader = $this->twig->getLoader();
 
+        // The loader chain also holds the editor-authored strings registered by
+        // processPage()/processString() (`@Page:<folder>`, `@Var:<string>`),
+        // and the `template` header is editor-authored too. The callers render
+        // the page template on the raw `config`, `system`, `site` and `theme`,
+        // so a content string is never used as a page template.
+        $exists = static fn(string $name): bool => !GravSourcePolicy::isSandboxedName($name) && $loader->exists($name);
+
         // Markdown output never falls back to an HTML template: a client that
         // asked for Markdown must not be handed the theme's HTML page. The
         // theme may provide `<template>.md.twig` or `default.md.twig`; core
@@ -870,17 +931,17 @@ class Twig
         // document converts that output, the same way it treats the page's
         // own content.
         if ($extension === MarkdownOutput::FORMAT && !$page->isModule() && MarkdownOutput::enabled()) {
-            return $loader->exists($template_file) ? $template_file : 'default' . $twig_extension;
+            return $exists($template_file) ? $template_file : 'default' . $twig_extension;
         }
 
-        if ($loader->exists($template_file)) {
+        if ($exists($template_file)) {
             // template.xxx.twig
             $page_template = $template_file;
-        } elseif ($twig_extension !== TEMPLATE_EXT && $loader->exists($template . TEMPLATE_EXT)) {
+        } elseif ($twig_extension !== TEMPLATE_EXT && $exists($template . TEMPLATE_EXT)) {
             // template.html.twig
             $page_template = $template . TEMPLATE_EXT;
             $format = 'html';
-        } elseif ($loader->exists($default . $twig_extension)) {
+        } elseif ($exists($default . $twig_extension)) {
             // default.xxx.twig
             $page_template = $default . $twig_extension;
         } else {

@@ -597,6 +597,15 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
+     * Highest `@Nx` filename suffix treated as a retina alternative.
+     *
+     * The scale is a loop bound: Media::init() and GlobalMedia::addMedium() render
+     * one image for every missing step below it, and the filename can come from an
+     * upload. Matches the `images.cls.retina_scale` options and debug overlays.
+     */
+    public const MAX_RETINA_SCALE = 4;
+
+    /**
      * Get filename, extension and meta part.
      *
      * @param  string $filename
@@ -604,7 +613,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function getFileParts($filename)
     {
-        if (preg_match('/(.*)@(\d+)x\.(.*)$/', $filename, $matches)) {
+        // Above the limit `photo@1000x.png` is a regular file which has `@` in its name.
+        if (preg_match('/(.*)@(\d+)x\.(.*)$/', $filename, $matches) && (int) $matches[2] <= static::MAX_RETINA_SCALE) {
             $name = $matches[1];
             $extension = $matches[3];
             $extra = (int) $matches[2];
@@ -623,7 +633,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $type = 'base';
 
             while (($part = array_shift($fileParts)) !== null) {
-                if ($part !== 'meta' && $part !== 'thumb') {
+                // Only `<file>.meta.yaml` is a sidecar; any other `.meta.<ext>`
+                // file is an ordinary medium of its own.
+                $isMeta = $part === 'meta' && $fileParts === ['yaml'];
+                if (!$isMeta && $part !== 'thumb') {
                     if (null !== $extension) {
                         $name .= '.' . $extension;
                     }

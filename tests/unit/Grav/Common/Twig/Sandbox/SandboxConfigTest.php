@@ -102,6 +102,49 @@ class SandboxConfigTest extends TestCase
         self::assertSame('My Site', $this->build()->get('site/title', null, '/'));
     }
 
+    public function testGet_FalsySeparatorIsCheckedTheWayConfigReadsIt(): void
+    {
+        // `Config::get` falls back to '.' for every falsy separator, '0' included.
+        $items = self::SAMPLE + ['auth0' => ['client_secret' => 'a0-secret']];
+        $items['site']['oauth20'] = ['secret' => 'o2-secret'];
+        $sandbox = new SandboxConfig(new Config($items), ['auth0', 'site.oauth20']);
+
+        self::assertNull($sandbox->get('auth0.client_secret', null, '0'));
+        self::assertNull($sandbox->get('auth0', null, '0'));
+        self::assertNull($sandbox->value('site.oauth20.secret', null, '0'));
+        self::assertArrayNotHasKey('oauth20', $sandbox->get('site', null, '0'));
+        self::assertNull($sandbox->get('auth0.client_secret', null, ''));
+        self::assertSame('My Site', $sandbox->get('site.title', null, '0'));
+    }
+
+    public function testGet_ThemePathIsDeniedUnderBothOfItsNames(): void
+    {
+        // Themes::load() copies `themes.<active theme>` to `theme`.
+        $settings = ['custom_color' => '#fff', 'maps_api_key' => 'mp-secret', 'captcha' => ['secret' => 'cp-secret']];
+        $items = ['themes' => ['quark' => $settings, 'other' => ['maps_api_key' => 'other']], 'theme' => $settings] + self::SAMPLE;
+        $sandbox = new SandboxConfig(new Config($items), ['themes.quark.maps_api_key', 'theme.captcha']);
+
+        foreach (['theme', 'themes.quark'] as $name) {
+            self::assertNull($sandbox->get($name . '.maps_api_key'));
+            self::assertNull($sandbox->get($name . '.captcha.secret'));
+            self::assertFalse($sandbox->offsetExists($name . '.maps_api_key'));
+            self::assertSame(['custom_color' => '#fff'], $sandbox->get($name));
+        }
+        self::assertSame(['custom_color' => '#fff'], $sandbox->toArray()['theme']);
+        self::assertSame(['custom_color' => '#fff'], $sandbox->toArray()['themes']['quark']);
+
+        // Another theme's settings are not the active theme's.
+        self::assertSame('other', $sandbox->get('themes.other.maps_api_key'));
+        $sandbox = new SandboxConfig(new Config($items), ['themes.other.maps_api_key']);
+        self::assertSame('mp-secret', $sandbox->get('theme.maps_api_key'));
+
+        foreach (['themes', 'themes.quark', 'theme'] as $whole) {
+            $sandbox = new SandboxConfig(new Config($items), [$whole]);
+            self::assertNull($sandbox->get('theme'), $whole);
+            self::assertNull($sandbox->get('themes.quark.maps_api_key'), $whole);
+        }
+    }
+
     // =========================================================================
     // value() — alias for get() with the same filtering
     // =========================================================================
@@ -133,6 +176,33 @@ class SandboxConfigTest extends TestCase
         self::assertSame('smtp', $arr['plugins']['email']['mailer']);
         self::assertArrayNotHasKey('smtp', $arr['plugins']['email'], 'nested denied path must be removed');
         self::assertArrayHasKey('recaptcha', $arr['plugins'], 'sibling subtree untouched');
+    }
+
+    public function testToArray_StripsDeniedKeysContainingDots(): void
+    {
+        // user/config/plugins.bak/email.yaml and user/config/.old/site.yaml load as the
+        // single top-level keys 'plugins.bak' and '.old'. Twig::buildSandboxConfig()
+        // denies array_keys() of the tree and expects the facade to come out empty.
+        $items = self::SAMPLE + [
+            'plugins.bak' => self::SAMPLE['plugins'],
+            '.old' => ['site' => ['key' => 'old-secret']],
+        ];
+        $sandbox = new SandboxConfig(new Config($items), array_keys($items));
+        self::assertSame([], $sandbox->toArray());
+        self::assertSame([], $sandbox->get(''));
+        self::assertSame([], $sandbox->offsetGet(''));
+
+        // The dump agrees with the read by name, which treats it as a child of 'plugins'.
+        $sandbox = new SandboxConfig(new Config($items), ['plugins']);
+        self::assertNull($sandbox->get('plugins.bak/email', null, '/'));
+        self::assertArrayNotHasKey('plugins.bak', $sandbox->toArray());
+        self::assertArrayHasKey('.old', $sandbox->toArray(), 'unrelated dotted key untouched');
+
+        // Same below the root.
+        $items = ['site' => ['keys.old' => ['api' => 'old-secret'], 'title' => 'My Site']];
+        $sandbox = new SandboxConfig(new Config($items), ['site.keys.old']);
+        self::assertSame(['title' => 'My Site'], $sandbox->get('site'));
+        self::assertSame(['site' => ['title' => 'My Site']], $sandbox->toArray());
     }
 
     public function testToArray_NoDeniedPathsReturnsFullTree(): void

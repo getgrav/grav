@@ -111,6 +111,37 @@ class Security
     }
 
     /**
+     * Tell whether a file stored under the given name is going to be served as SVG.
+     *
+     * Every dot-separated extension counts, not just the last one, as in
+     * Utils::checkFilename(): Apache's mod_mime types a file by the extensions it
+     * knows and skips the ones it does not, so `drawing.svg.foo` goes out as
+     * image/svg+xml. Behind another extension only a file which starts with markup
+     * counts, so that a rendered `logo.svg.png` is left alone: a browser cannot
+     * parse anything else as XML.
+     *
+     * @param string $filename Name of the file, may include a path.
+     * @param string $file Path to the file contents.
+     * @return bool
+     */
+    public static function isSvgFile(string $filename, string $file): bool
+    {
+        $extensions = array_map('mb_strtolower', array_slice(explode('.', Utils::basename($filename)), 1));
+        if (!in_array('svg', $extensions, true)) {
+            return false;
+        }
+        if (end($extensions) === 'svg') {
+            return true;
+        }
+
+        // Skip a byte order mark, whitespace and the zero bytes of UTF-16.
+        $head = is_file($file) ? (string)file_get_contents($file, false, null, 0, 1024) : '';
+        $head = ltrim($head, "\xEF\xBB\xBF\xFE\xFF\0 \t\r\n");
+
+        return $head === '' || $head[0] === '<';
+    }
+
+    /**
      * Sanitize SVG for XSS code
      *
      * @param string $file
@@ -122,17 +153,25 @@ class Security
             $sanitizer = new DOMSanitizer(DOMSanitizer::SVG);
             $sanitizer->addDisallowedAttributes(['href', 'xlink:href']);
             $original_svg = file_get_contents($file);
-            $clean_svg = $sanitizer->sanitize($original_svg);
+
+            // Keep the stored file empty until sanitization completes.
+            file_put_contents($file, '');
+
+            try {
+                $clean_svg = $sanitizer->sanitize($original_svg);
+            } catch (\Throwable) {
+                $clean_svg = false;
+            }
 
             // Quarantine bad SVG files and throw exception
             if ($clean_svg !== false ) {
                 file_put_contents($file, $clean_svg);
             } else {
+                unlink($file);
                 $quarantine_file = Utils::basename($file);
                 $quarantine_dir = 'log://quarantine';
                 Folder::mkdir($quarantine_dir);
                 file_put_contents("$quarantine_dir/$quarantine_file", $original_svg);
-                unlink($file);
                 throw new Exception('SVG could not be sanitized, it has been moved to the logs/quarantine folder');
             }
         }
@@ -345,7 +384,11 @@ class Security
         // of the script body, not the scheme. Inside an attribute value (right
         // after `=`, optionally quoted) there is no prose to protect, so accept
         // whitespace after the colon there.
-        $protocol_attr_regex = '#=\s*[\"\'`]?\s*(' . $protocol_alt . ')(:|\&\#58)\s+\S#iu';
+        //
+        // The whitespace after the quote only exists when the quote does, and both
+        // runs are possessive: written as `\s*["'`]?\s*` they competed for the same
+        // spaces and `=` followed by N spaces took quadratic time.
+        $protocol_attr_regex = '#=\s*+(?:[\"\'`]\s*+)?(' . $protocol_alt . ')(:|\&\#58)\s+\S#iu';
 
         // Set the patterns we'll test against
         $patterns = [
@@ -756,14 +799,17 @@ class Security
         // diagnostic, but the policy also carries the denials so they are enforced
         // by type at call time — a denial can then never be silently dropped by a
         // mis-cased class name or re-granted through an allowed parent class or
-        // interface the object also satisfies.
+        // interface the object also satisfies. The built-in denials
+        // (SandboxDefaults::deniedMethods) ride along for the same reason: they
+        // close members on a type that an allowlisted supertype row, such as the
+        // Data row kept above with config_access on, would otherwise grant.
         self::$twigSandboxPolicy = new GravSecurityPolicy(
             $tags,
             $filters,
             $methods,
             $properties,
             $functions,
-            deniedMethods: self::normalizeMethodsMap($deniedMethods, true),
+            deniedMethods: self::normalizeMethodsMap(array_merge(SandboxDefaults::deniedMethods(), $deniedMethods), true),
             deniedProperties: self::normalizeMethodsMap($deniedProperties, false)
         );
         self::$twigSandboxPolicyKey = $cacheKey;
@@ -822,6 +868,34 @@ class Security
             if (!isset($seen[$lc])) {
                 $seen[$lc] = true;
                 $out[] = $member;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Templates page content may include as trusted partials: the built-in
+     * defaults plus the site's additive `security.twig_sandbox.trusted_partials`.
+     * Names are matched exactly against the name content includes.
+     *
+     * @return list<string>
+     */
+    public static function twigTrustedPartials(?Config $config = null): array
+    {
+        if ($config === null) {
+            try {
+                $config = Grav::instance()['config'];
+            } catch (Exception) {
+                $config = null;
+            }
+        }
+
+        $user = (array) ($config?->get('security.twig_sandbox.trusted_partials', []) ?? []);
+        $out = [];
+        foreach (array_merge(SandboxDefaults::trustedPartials(), $user) as $name) {
+            if (is_string($name) && $name !== '' && !in_array($name, $out, true)) {
+                $out[] = $name;
             }
         }
 
@@ -2105,7 +2179,8 @@ class Security
 
     /**
      * Per-site HMAC key used for CSRF nonce signing, admin rate-limit key hashing,
-     * and (when configured) session-name derivation. Backed by a local PHP file
+     * binding sessions to the site which created them, and (when configured)
+     * session-name derivation. Backed by a local PHP file
      * outside the Config tree, so sandboxed Twig cannot reach it via
      * `grav.config.get('security.salt')` or `Config::toArray()` (GHSA-3f29-pqwf-v4j4).
      *
@@ -2117,8 +2192,7 @@ class Security
      *
      * To rotate the key manually, delete `user/config/security-private.php`; the
      * next request generates a fresh 64-char random value. Rotation invalidates
-     * in-flight CSRF nonces and — if `system.session.uniqueness` is set to
-     * `security` — existing sessions.
+     * in-flight CSRF nonces and existing sessions.
      */
     public static function getNonceKey(): string
     {

@@ -11,7 +11,7 @@ username_regex: '^[a-z0-9_-]{3,16}$'             # Only lowercase chars, digits,
 pwd_regex: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}' # At least one number, one uppercase and lowercase letter, and be at least 8+ chars
 intl_enabled: true                               # Special logic for PHP International Extension (mod_intl)
 http_x_forwarded:                                # Each header is opt-in: only enable when the site is genuinely behind a proxy that sets and overwrites that header. Defaults are off in Grav 2.0 to prevent client-supplied spoofing of client IP, host, port, or protocol.
-  protocol: false                                #   X-Forwarded-Proto
+  protocol: false                                #   X-Forwarded-Proto / CloudFront-Forwarded-Proto
   host: false                                    #   X-Forwarded-Host
   port: false                                    #   X-Forwarded-Port
   ip: false                                      #   X-Forwarded-For / X-Forwarded / Forwarded-For / Forwarded
@@ -240,7 +240,7 @@ session:
   httponly: true                                 # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
   samesite: Lax                                  # Set session SameSite. Possible values are Lax, Strict and None. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
   split: true                                    # Sessions should be independent between site and plugins (such as admin)
-  domain:                                        # Domain used by sessions.
+  domain:                                        # Domain of the session cookie. Leave empty to keep the cookie on the host that set it; a domain (`example.com`) also sends it to every host below that domain
   path:                                          # Path used by sessions.
 
 gpm:

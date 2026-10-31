@@ -9,11 +9,17 @@
 
 namespace Grav\Common;
 
+use Grav\Common\Flex\Types\Users\UserObject;
 use Grav\Common\Form\FormFlash;
+use Grav\Common\User\DataUser\User;
+use Grav\Common\User\Interfaces\UserCollectionInterface;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Events\BeforeSessionStartEvent;
 use Grav\Events\SessionStartEvent;
 use Grav\Plugin\Form\Forms;
 use JsonException;
+use Throwable;
+use function is_callable;
 use function is_string;
 
 /**
@@ -22,6 +28,13 @@ use function is_string;
  */
 class Session extends \Grav\Framework\Session\Session
 {
+    /**
+     * Fields of the session's account which decide what it may do. The session keeps its own copy of the
+     * account, so a change made to the stored account after sign-in (disabling it, changing its access or
+     * groups, a new password) would not reach it.
+     */
+    protected const USER_REFRESH_FIELDS = ['state', 'access', 'groups', 'hashed_password'];
+
     /** @var bool */
     protected $autoStart = false;
     /** @var bool Start the session only for a request that brings a session cookie, or on the first write (system.session.lazy). */
@@ -432,9 +445,57 @@ class Session extends \Grav\Framework\Session\Session
      */
     protected function onSessionStart(): void
     {
+        $this->refreshUser();
+
         $event = new SessionStartEvent($this);
 
         $grav = Grav::instance();
         $grav->dispatchEvent($event);
+    }
+
+    /**
+     * Copy the fields in USER_REFRESH_FIELDS from the stored account into the session's copy of it. A session
+     * of a disabled account then fails authorize() right away, and a later save of the session's copy can't
+     * write the old values back.
+     *
+     * @return void
+     */
+    protected function refreshUser(): void
+    {
+        try {
+            $user = $this->__get('user');
+            if (!$user instanceof UserInterface || !$user->exists()) {
+                return;
+            }
+
+            /** @var UserCollectionInterface $accounts */
+            $accounts = Grav::instance()['accounts'];
+            $stored = $accounts->load($user->username);
+            if ($stored === $user || !$stored->exists()) {
+                return;
+            }
+            if (is_callable([$stored, 'refresh'])) {
+                $stored->refresh(true);
+            }
+
+            foreach (static::USER_REFRESH_FIELDS as $field) {
+                $value = $stored->get($field);
+                if (null === $value) {
+                    $user->undef($field);
+                } else {
+                    $user->set($field, $value);
+                }
+            }
+
+            // The session's copy now matches the account file as far as its checks go: compare a save
+            // made in this request against the file as it is now.
+            if ($user instanceof User && $stored instanceof User && ($file = $stored->file())) {
+                $user->file($file);
+            } elseif ($user instanceof UserObject && $stored instanceof UserObject) {
+                $user->setLoadedFrom($stored);
+            }
+        } catch (Throwable) {
+            // Keep the session as it is; the user is validated right after this.
+        }
     }
 }

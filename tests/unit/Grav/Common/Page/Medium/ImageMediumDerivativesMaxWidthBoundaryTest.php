@@ -55,4 +55,42 @@ class ImageMediumDerivativesMaxWidthBoundaryTest extends \Codeception\Test\Unit
             $this->assertCount(1, array_keys($widths, '1024w', true));
         }
     }
+
+    /**
+     * `![](image.jpg?derivatives=1024,1024,0)`: the arguments arrive as strings,
+     * and a range that cannot be counted adds no derivatives.
+     *
+     * @dataProvider rangesThatCannotBeCounted
+     */
+    public function testRangeThatCannotBeCountedAddsNoDerivatives(string $min, string $max, string $step): void
+    {
+        $this->assertSame('', $this->medium()->derivatives($min, $max, $step)->srcset(false));
+    }
+
+    public static function rangesThatCannotBeCounted(): array
+    {
+        return [
+            'step zero, on the base width' => ['1024', '1024', '0'],
+            'step zero, below the base width' => ['200', '1000', '0'],
+            'step negative' => ['200', '1000', '-200'],
+            'step below one' => ['200', '1000', '0.5'],
+            'step empty' => ['200', '1000', ''],
+            'step not a number' => ['200', '1000', 'x'],
+            'width below one' => ['0', '1000', '200'],
+        ];
+    }
+
+    public function testRangeGivenAsStringsIsCounted(): void
+    {
+        $widths = $this->widths($this->medium()->derivatives('200', '1000', '400'));
+        $this->assertSame(['200w', '600w', '1000w', '1024w'], $widths);
+    }
+
+    public function testListedWidthsBelowOneAreSkipped(): void
+    {
+        $widths = $this->widths($this->medium()->derivatives(['0', '-100', 'x', '300']));
+        $this->assertSame(['300w', '1024w'], $widths);
+
+        $this->assertSame('', $this->medium()->derivatives('0')->srcset(false));
+    }
 }

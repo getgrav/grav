@@ -21,6 +21,7 @@ use Grav\Common\Utils;
 use Grav\Framework\Cache\Adapter\DoctrineCache;
 use Grav\Framework\Cache\Adapter\MemoryCache;
 use Grav\Framework\Cache\CacheInterface;
+use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexDirectoryInterface;
@@ -276,6 +277,8 @@ class FlexDirectory implements FlexDirectoryInterface
             'data' => &$data,
         ]));
 
+        YamlFormatter::assertNoMergeKeys($data);
+
         $file = YamlFile::instance($filename);
         if (!empty($data)) {
             $file->save($data);
@@ -490,12 +493,15 @@ class FlexDirectory implements FlexDirectoryInterface
      * Encode a storage key for use as a cache key.
      * Symfony cache reserves characters: {}()/\@:
      *
+     * The escape character is encoded too, so every storage key has a cache key of
+     * its own and decodeCacheKey() always returns the storage key that was encoded.
+     *
      * @param string $key
      * @return string
      */
     protected function encodeCacheKey(string $key): string
     {
-        return str_replace(['/', '\\', '@', ':'], ['__SLASH__', '__BSLASH__', '__AT__', '__COLON__'], $key);
+        return rawurlencode($key);
     }
 
     /**
@@ -506,7 +512,7 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     protected function decodeCacheKey(string $key): string
     {
-        return str_replace(['__SLASH__', '__BSLASH__', '__AT__', '__COLON__'], ['/', '\\', '@', ':'], $key);
+        return rawurldecode($key);
     }
 
     /**
@@ -565,6 +571,11 @@ class FlexDirectory implements FlexDirectoryInterface
     }
 
     /**
+     * Create a new object from its properties.
+     *
+     * Data may come from a request, so it cannot carry the storage metadata (`__META`): the object would otherwise
+     * claim to be stored under another key and the storage would move or delete that file when the object is saved.
+     *
      * @param array $data
      * @param string $key
      * @param bool $validate
@@ -572,13 +583,29 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     public function createObject(array $data, string $key = '', bool $validate = false): FlexObjectInterface
     {
+        unset($data['__META']);
+
+        return $this->createObjectFromStorage($data, $key, $validate);
+    }
+
+    /**
+     * Create an object from a row returned by the storage (or by `$object->prepareStorage()`), including its `__META`.
+     *
+     * @param array $row
+     * @param string $key
+     * @param bool $validate
+     * @return FlexObjectInterface
+     * @internal
+     */
+    public function createObjectFromStorage(array $row, string $key = '', bool $validate = false): FlexObjectInterface
+    {
         /** @phpstan-var class-string $className */
         $className = $this->objectClassName ?: $this->getObjectClass();
         if (!is_a($className, FlexObjectInterface::class, true)) {
             throw new \RuntimeException('Bad object class: ' . $className);
         }
 
-        return new $className($data, $key, $this, $validate);
+        return new $className($row, $key, $this, $validate);
     }
 
     /**
@@ -735,7 +762,7 @@ class FlexDirectory implements FlexDirectoryInterface
                 }
 
                 $key = $row['__META']['key'] ?? $entries[$usedKey]['key'] ?? $usedKey;
-                $object = $this->createObject($row, $key, false);
+                $object = $this->createObjectFromStorage($row, $key, false);
                 $this->objects[$storageKey] = $object;
                 if ($isListed) {
                     // If unserialize works for the object, serialize the object to speed up the loading.

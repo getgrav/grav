@@ -195,7 +195,10 @@ trait MediaObjectTrait
     public function querystring($querystring = null, $withQuestionmark = true)
     {
         if (null !== $querystring) {
-            $this->medium_querystring[] = ltrim($querystring, '?&');
+            // Keep each param once, in the order it first came in.
+            foreach (explode('&', ltrim($querystring, '?&')) as $param) {
+                $this->medium_querystring[$param] = $param;
+            }
             foreach ($this->alternatives as $alt) {
                 $alt->querystring($querystring, $withQuestionmark);
             }
@@ -205,12 +208,7 @@ trait MediaObjectTrait
             return '';
         }
 
-        // join the strings
         $querystring = implode('&', $this->medium_querystring);
-        // explode all strings
-        $query_parts = explode('&', (string) $querystring);
-        // Join them again now ensure the elements are unique
-        $querystring = implode('&', array_unique($query_parts));
 
         return $withQuestionmark ? ('?' . $querystring) : $querystring;
     }
@@ -397,7 +395,9 @@ trait MediaObjectTrait
     {
         // Strict shape: HTML attribute names are letter-led, then alnum/-/_/:/./$
         // Anything else (whitespace, quotes, `<>`, etc.) is rejected outright.
-        if (!preg_match('/^[A-Za-z][A-Za-z0-9_:.\-]*$/', $name)) {
+        // `D` keeps `$` from also matching before a trailing newline: "style\n"
+        // would miss the denylist below, yet browsers still read it as `style`.
+        if (!preg_match('/^[A-Za-z][A-Za-z0-9_:.\-]*$/D', $name)) {
             return false;
         }
         $lower = strtolower($name);
@@ -593,7 +593,8 @@ trait MediaObjectTrait
      * into `property: value` declarations and require each one to be benign:
      *
      *  - the property is a plain CSS identifier and not a positioning/stacking
-     *    primitive (`position`, `z-index`, `behavior`, `-moz-binding`), and
+     *    primitive (`position`, `z-index`, `transform` and its `scale` /
+     *    `translate` / `rotate` longhands, `zoom`, `behavior`, `-moz-binding`), and
      *  - the value contains no `(` (kills `url(…)` / `expression(…)`), no at-rule
      *    (`@import`), and no markup or quoting characters.
      *
@@ -624,8 +625,14 @@ trait MediaObjectTrait
                 return false;
             }
 
-            // Positioning / stacking primitives are the phishing-overlay vector.
-            if (in_array($property, ['position', 'z-index', 'behavior', '-moz-binding'], true)) {
+            // Positioning / stacking primitives are not allowed.
+            // `scale`, `translate` and `rotate` are `transform` without the
+            // function call that the value check below would catch; `zoom`
+            // enlarges the box the same way. The name is checked as written and
+            // without a vendor prefix, as `-moz-binding` only exists prefixed.
+            $denied = ['position', 'z-index', 'transform', 'scale', 'translate', 'rotate', 'zoom', 'behavior', '-moz-binding'];
+            if (in_array($property, $denied, true)
+                || in_array(preg_replace('/^-(?:webkit|moz|ms|o)-/', '', $property), $denied, true)) {
                 return false;
             }
 
@@ -672,7 +679,7 @@ trait MediaObjectTrait
         }
 
         if (!empty($method)) {
-            $this->querystring($this->querystring(null, false) . '&' . $method);
+            $this->querystring($method);
         }
 
         return $this;

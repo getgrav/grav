@@ -18,6 +18,7 @@ use Grav\Common\Grav;
 use Grav\Common\Inflector;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Collection;
+use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Page\Media;
@@ -42,8 +43,10 @@ use Grav\Framework\Psr7\Response;
 use Iterator;
 use JsonSerializable;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Throwable;
 use Traversable;
 use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
+use Grav\Common\Twig\Sandbox\SandboxConfig;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
@@ -142,7 +145,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('safe_email', $this->safeEmailFilter(...), ['is_safe' => ['html']]),
             new TwigFilter('safe_truncate', Utils::safeTruncate(...)),
             new TwigFilter('safe_truncate_html', Utils::safeTruncateHTML(...)),
-            new TwigFilter('sort_by_key', $this->sortByKeyFilter(...)),
+            new TwigFilter('sort_by_key', $this->sortByKeyGuarded(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
             new TwigFilter('starts_with', $this->startsWithFilter(...)),
             new TwigFilter('truncate', Utils::truncate(...)),
             new TwigFilter('truncate_html', Utils::truncateHTML(...)),
@@ -232,7 +235,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('regex_split', $this->regexSplit(...)),
             new TwigFunction('string', $this->stringGuarded(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
             new TwigFunction('md5', $this->md5Filter(...)),
-            new TwigFunction('url', $this->urlFunc(...)),
+            new TwigFunction('url', $this->urlGuarded(...), ['needs_is_sandboxed' => true]),
             new TwigFunction('json_decode', $this->jsonDecodeFilter(...)),
             new TwigFunction('get_cookie', $this->getCookie(...)),
             new TwigFunction('redirect_me', $this->redirectFunc(...)),
@@ -240,9 +243,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('isajaxrequest', $this->isAjaxFunc(...)),
             new TwigFunction('exif', $this->exifFunc(...)),
             new TwigFunction('media_directory', $this->mediaDirFunc(...)),
-            new TwigFunction('body_class', $this->bodyClassFunc(...), ['needs_context' => true]),
-            new TwigFunction('theme_var', $this->themeVarFunc(...), ['needs_context' => true]),
-            new TwigFunction('header_var', $this->pageHeaderVarFunc(...), ['needs_context' => true]),
+            new TwigFunction('body_class', $this->bodyClassGuarded(...), ['needs_context' => true, 'needs_is_sandboxed' => true]),
+            new TwigFunction('theme_var', $this->themeVarGuarded(...), ['needs_context' => true, 'needs_is_sandboxed' => true]),
+            new TwigFunction('header_var', $this->pageHeaderVarGuarded(...), ['needs_context' => true, 'needs_is_sandboxed' => true]),
             new TwigFunction('read_file', $this->readFileFunc(...)),
             new TwigFunction('nicenumber', $this->niceNumberFunc(...)),
             new TwigFunction('nicefilesize', $this->niceFilesizeFunc(...)),
@@ -411,6 +414,14 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
                 sprintf('Filter "%s" is not allowed on a "%s" object inside sandboxed content.', $filter, $var::class),
                 $filter
             );
+        }
+
+        if ($var instanceof \stdClass) {
+            // A stdClass is plain data only as far as its properties are: a page
+            // header is YAML, but PHP code can put an object in it.
+            foreach (get_object_vars($var) as $item) {
+                $this->scanSandboxDump($policy, $item, $filter, $reflective, $depth + 1);
+            }
         }
     }
 
@@ -799,6 +810,35 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
+     * `sort_by_key` as registered in Twig. Utils::sortArrayByKey() reads
+     * `$row[$key]` from every row, which on an ArrayAccess object is an
+     * offsetGet() from PHP. In sandboxed templates each object row is first
+     * checked the way Twig checks `row[key]`, as Twig's own `column` filter does.
+     *
+     * @param Environment $env
+     * @param bool $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param  array    $input
+     * @param  string   $filter
+     * @param  int      $direction
+     * @param  int      $sort_flags
+     * @return array
+     */
+    public function sortByKeyGuarded(Environment $env, bool $isSandboxed, $input, $filter, $direction = SORT_ASC, $sort_flags = SORT_REGULAR)
+    {
+        // See assertSandboxDumpSafe() for why hasExtension() is asked as well.
+        if ($isSandboxed && is_array($input) && $env->hasExtension(SandboxExtension::class)) {
+            $policy = $env->getExtension(SandboxExtension::class)->getSecurityPolicy();
+            foreach ($input as $row) {
+                if (is_object($row)) {
+                    $policy->checkPropertyAllowed($row, (string) $filter);
+                }
+            }
+        }
+
+        return $this->sortByKeyFilter($input, $filter, $direction, $sort_flags);
+    }
+
+    /**
      * Return ksorted collection.
      *
      * @param  array|null $array
@@ -989,7 +1029,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         if ((string)(int)$date === (string)$date) {
             $unix_date = $date;
         } else {
-            $unix_date = strtotime($date);
+            $unix_date = Utils::strtotime($date);
         }
 
         // check validity of date
@@ -1333,6 +1373,25 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
+     * url() as registered for templates. In sandboxed page content a stream URI
+     * is resolved only inside the media folders (`security.media.allowed_roots`,
+     * the same rule as stream images and media_directory()), and any other
+     * stream location gets `false` whether or not the file exists. Trusted theme
+     * and plugin templates are unaffected.
+     *
+     * @param  bool   $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param  string $input
+     * @param  bool   $domain
+     * @param  bool   $failGracefully
+     * @param  string|bool|null $lang
+     * @return string|false
+     */
+    public function urlGuarded(bool $isSandboxed, $input, $domain = false, $failGracefully = false, $lang = null)
+    {
+        return Utils::url($input, $domain, $failGracefully, $lang, $isSandboxed);
+    }
+
+    /**
      * Render a Twig source string and return the result.
      *
      * Goes through Twig::processString() so the same `@Var:` source-policy
@@ -1463,7 +1522,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function arrayKeyValueFunc($key, $val, $current_array = null)
     {
-        if (empty($current_array)) {
+        // Only ever extend a real array: on an ArrayAccess object the assignment
+        // below would be an offsetSet() call the sandbox policy never sees.
+        if (!is_array($current_array)) {
             return [$key => $val];
         }
 
@@ -1821,7 +1882,12 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             $exif_reader = $this->grav['exif']->getReader();
 
             if ($image && file_exists($image) && $this->config->get('system.media.auto_metadata_exif') && $exif_reader) {
-                $exif_data = $exif_reader->read($image);
+                try {
+                    $exif_data = $exif_reader->read($image);
+                } catch (Throwable $e) {
+                    $this->grav['log']->error($image . ' - ' . $e->getMessage());
+                    $exif_data = null;
+                }
 
                 if ($exif_data) {
                     if ($raw) {
@@ -1969,13 +2035,42 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function themeVarFunc($context, $var, $default = null, $page = null, $exists = false)
     {
+        return $this->themeVarGuarded($context, false, $var, $default, $page, $exists);
+    }
+
+    /**
+     * theme_var() as registered in Twig. Sandboxed content gets its `theme`
+     * variable with `security.twig_sandbox.config_denied_paths` removed (see
+     * Twig::buildSandboxVars()); this reads the same tree by name, so the
+     * fallback to the theme's configuration has to leave out the same paths.
+     *
+     * @param array $context      Twig Context
+     * @param bool $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param string $var variable to be found (using dot notation)
+     * @param null $default the default value to be used as last resort
+     * @param PageInterface|null $page an optional page to use for the current page
+     * @param bool $exists toggle to simply return the page where the variable is set, else null
+     * @return mixed
+     */
+    public function themeVarGuarded($context, bool $isSandboxed, $var, $default = null, $page = null, $exists = false)
+    {
         $page ??= $context['page'] ?? Grav::instance()['page'] ?? null;
 
         // Try to find var in the page headers
         if ($page instanceof PageInterface && $page->exists()) {
             // Loop over pages and look for header vars
             while ($page && !$page->root()) {
-                $header = new Data((array)$page->header());
+                // Read plain header data only: an `(array)` cast of any other
+                // object would also list its protected and private properties.
+                $header = $page->header();
+                if ($header instanceof Header) {
+                    $header = $header->toArray();
+                } elseif ($header instanceof \stdClass) {
+                    $header = (array)$header;
+                } else {
+                    $header = [];
+                }
+                $header = new Data($header);
                 $value = $header->get($var);
                 if (isset($value)) {
                     if ($exists) {
@@ -1992,7 +2087,22 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             return false;
         }
 
-        return Grav::instance()['config']->get('theme.' . $var, $default);
+        return $this->themeConfig($isSandboxed)->get('theme.' . $var, $default);
+    }
+
+    /**
+     * The configuration theme_var(), header_var() and body_class() fall back to:
+     * the redacting facade for a sandboxed render, the real Config otherwise.
+     *
+     * @param bool $isSandboxed
+     * @return Config|SandboxConfig
+     */
+    protected function themeConfig(bool $isSandboxed)
+    {
+        /** @var Config $config */
+        $config = Grav::instance()['config'];
+
+        return $isSandboxed ? new SandboxConfig($config, Security::effectiveConfigDeniedPaths($config)) : $config;
     }
 
     /**
@@ -2006,12 +2116,26 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function pageHeaderVarFunc($context, $var, $pages = null)
     {
+        return $this->pageHeaderVarGuarded($context, false, $var, $pages);
+    }
+
+    /**
+     * header_var() as registered in Twig, see themeVarGuarded().
+     *
+     * @param array $context
+     * @param bool $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param string $var the variable to look for in the page header
+     * @param string|string[]|null $pages array of pages to check (current page upwards if not null)
+     * @return mixed
+     */
+    public function pageHeaderVarGuarded($context, bool $isSandboxed, $var, $pages = null)
+    {
         if (is_array($pages)) {
             $page = array_shift($pages);
         } else {
             $page = null;
         }
-        return $this->themeVarFunc($context, $var, null, $page);
+        return $this->themeVarGuarded($context, $isSandboxed, $var, null, $page);
     }
 
     /**
@@ -2024,16 +2148,30 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function bodyClassFunc($context, $classes)
     {
+        return $this->bodyClassGuarded($context, false, $classes);
+    }
+
+    /**
+     * body_class() as registered in Twig, see themeVarGuarded().
+     *
+     * @param array $context
+     * @param bool $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param string|string[] $classes
+     * @return string
+     */
+    public function bodyClassGuarded($context, bool $isSandboxed, $classes)
+    {
 
         $header = $context['page']->header();
         $body_classes = $header->body_classes ?? '';
+        $config = $this->themeConfig($isSandboxed);
 
         foreach ((array)$classes as $class) {
             if (!empty($body_classes) && Utils::contains($body_classes, $class)) {
                 continue;
             }
 
-            $val = $this->config->get('theme.' . $class, false) ? $class : false;
+            $val = $config->get('theme.' . $class, false) ? $class : false;
             $body_classes .= $val ? ' ' . $val : '';
         }
 

@@ -77,6 +77,20 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
         'playsinline', 'poster',
     ];
 
+    /**
+     * Fields that say which file a medium is and where it is served from. Core
+     * fills them in from the file on disk and `media.types` (MediumFactory,
+     * Media::init(), MediaRouteUrls), and everything that opens, streams or links
+     * the medium trusts them, so a `.meta.yaml` sidecar may describe the medium
+     * but never replace these.
+     *
+     * @var string[]
+     */
+    public const RESERVED_META_KEYS = [
+        'filepath', 'path', 'filename', 'basename', 'extension', 'url',
+        'type', 'mime', 'size', 'modified', 'thumb', 'thumbnails', 'media',
+    ];
+
     /** @var array<string,true>|null Memoized lower-cased ALLOWED_ACTIONS lookup. */
     private static $allowedActionLookup = null;
 
@@ -145,7 +159,10 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      */
     public function addMetaFile($filepath)
     {
-        $this->metadata = (array)CompiledYamlFile::instance($filepath)->content();
+        // A sidecar describes the medium; it never changes which file the
+        // medium is or where it is served from.
+        $metadata = (array)CompiledYamlFile::instance($filepath)->content();
+        $this->metadata = array_diff_key($metadata, array_flip(self::RESERVED_META_KEYS));
         $this->merge($this->metadata);
     }
 

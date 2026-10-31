@@ -78,7 +78,7 @@ EOF
 
         $grav = Grav::instance();
         $cache = $grav['cache'];
-        $currentKey = $cache->getKey();
+        $currentKey = $cache->getSharedKey();
 
         // Extract just the uniqueness part (after the prefix and dash)
         $currentUniqueness = substr($currentKey, strpos($currentKey, '-') + 1);

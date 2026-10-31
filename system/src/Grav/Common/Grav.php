@@ -16,6 +16,7 @@ use Grav\Common\Config\Setup;
 use Grav\Common\Helpers\Exif;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\MarkdownOutput;
+use Grav\Common\Page\Medium\ImageFile;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Pages;
@@ -55,6 +56,7 @@ use Grav\Framework\RequestHandler\RequestHandler;
 use Grav\Framework\Route\Route;
 use Grav\Framework\Session\Messages;
 use InvalidArgumentException;
+use RangeException;
 use RuntimeException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -627,6 +629,9 @@ class Grav extends Container
             // Clean route for redirect
             $route = preg_replace("#^\/[\\\/]+\/#", '/', $route);
 
+            // Classify the configured destination before removing its redirect code.
+            $external = $uri::isExternal($route);
+
             if (null === $code) {
                 // Check for redirect code in the route: e.g. /new/[301], /new[301]/route, /new[301].html, /new[301]?a=1&b=2 or /new[301].html?a=1
                 $regex = '/.*(\[(30[1-7])\])(.\w+|\/.*?)?([?#].*)?$/';
@@ -637,7 +642,7 @@ class Grav extends Container
                 }
             }
 
-            if ($uri::isExternal($route)) {
+            if ($external) {
                 $url = $route;
             } else {
                 $url = rtrim($uri->rootUrl(), '/') . '/';
@@ -920,6 +925,8 @@ class Grav extends Container
      */
     protected static function load(array $values)
     {
+        header_register_callback([Utils::class, 'enforcePrivateCacheControl']);
+
         $container = new static($values);
 
         $container['debugger'] = new Debugger();
@@ -980,19 +987,8 @@ class Grav extends Container
         $fallback_types = $config->get('system.media.allowed_fallback_types');
         $supported_types = $config->get('media.types');
 
-        $parsed_url = parse_url(rawurldecode($uri->basename()));
-        if (isset($parsed_url['scheme']) && !preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*$/', $parsed_url['scheme'])) {
-            // getgrav/grav#3933: parse_url() misreads a basename that merely
-            // contains a literal ':' (e.g. a timestamp such as
-            // "2025-06-29T13:36:56.png") as a scheme:path split, because
-            // unlike RFC 3986 it allows a "scheme" to start with a digit.
-            // A real scheme never does, so rebuild the original basename as
-            // a plain path in that case (see Excerpts::parseUrl() for the
-            // same fix applied to markdown image/link resolution).
-            $parsed_url['path'] = $parsed_url['scheme'] . ':' . ($parsed_url['host'] ?? '') . ($parsed_url['path'] ?? '');
-            unset($parsed_url['scheme'], $parsed_url['host'], $parsed_url['port'], $parsed_url['user'], $parsed_url['pass']);
-        }
-        $media_file = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        // Decode the path basename once; encoded punctuation belongs to the filename.
+        $media_file = rawurldecode((string) $uri->basename());
 
         $event = new Event([
             'uri' => $uri,
@@ -1032,20 +1028,21 @@ class Grav extends Container
                     // through the chain of actions, so each one is measured
                     // against what the previous ones left.
                     $raster = $medium instanceof ImageMedium;
-                    $size = $raster ? @getimagesize((string) $medium->get('filepath')) : false;
+                    $size = $raster ? ImageFile::decodedSize((string) $medium->get('filepath')) : null;
                     $width = (int) ($size[0] ?? 0);
                     $height = (int) ($size[1] ?? 0);
                     foreach ($uri->query(null, true) as $action => $params) {
                         if (in_array($action, ImageMedium::$magic_actions, true)) {
                             $args = explode(',', (string) $params);
-                            // Reject resize actions whose canvas is above the
+                            // Reject actions whose canvas is above the
                             // total-pixel ceiling. The GD/Imagick buffer is allocated
                             // as width*height*4 bytes outside PHP's memory_limit, so
                             // an unbounded request exhausts RAM. The canvas is
                             // measured, not the query numbers: `forceResize=46000`
-                            // and `zoomCrop=46000,1` both allocate 46000x46000.
-                            if ($max_pixels > 0 && $raster && isset(ImageMedium::$magic_resize_actions[$action])) {
-                                $canvas = ImageMedium::urlResizeCanvas($action, $args, $width, $height);
+                            // and `zoomCrop=46000,1` both allocate 46000x46000, and
+                            // `gaussianBlur=14` 8192x8192.
+                            if ($max_pixels > 0 && $raster) {
+                                $canvas = ImageMedium::urlActionCanvas($action, $args, $width, $height);
                                 if ($canvas === null || $canvas[0] > $max_pixels) {
                                     return false;
                                 }
@@ -1055,9 +1052,25 @@ class Grav extends Container
                             call_user_func_array([&$medium, $action], $args);
                         }
                     }
+
+                    // That refuses what it can before the source is decoded, but
+                    // it only predicts the size each action starts from: the Exif
+                    // orientation fix queued ahead of the actions, or a resize
+                    // that declines to enlarge, leaves another size than it
+                    // expects. So every action is measured again as it runs, on
+                    // the image as it really is by then.
+                    if ($max_pixels > 0 && $raster) {
+                        $medium->maxPixels($max_pixels);
+                    }
                 }
 
-                Utils::download($medium->path(), false);
+                try {
+                    $file = $medium->path();
+                } catch (RangeException) {
+                    return false;
+                }
+
+                Utils::download($file, false);
             }
 
             // unsupported media type, try to download it...

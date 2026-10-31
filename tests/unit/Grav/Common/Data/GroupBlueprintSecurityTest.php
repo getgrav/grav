@@ -43,6 +43,28 @@ class GroupBlueprintSecurityTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Switching a group off takes its access map away from every member, and with
+     * it the super-admin standing that keeps their accounts out of an operator's
+     * reach, so `enabled` carries the same guard as `access`.
+     */
+    public function testAccountOperatorCannotSwitchGroupOnOrOff(): void
+    {
+        $filtered = $this->filterAs(
+            ['admin.users' => true, 'admin.users.update' => true],
+            ['groupname' => 'ops', 'enabled' => false]
+        );
+
+        self::assertArrayNotHasKey('enabled', $filtered);
+    }
+
+    public function testSuperAdminMaySwitchGroupOnOrOff(): void
+    {
+        $filtered = $this->filterAs(['admin.super' => true], ['groupname' => 'ops', 'enabled' => false]);
+
+        self::assertFalse($filtered['enabled']);
+    }
+
+    /**
      * Parity with the account form, whose groups/access fields carry the same
      * guard. If this fails the two user blueprints have drifted apart again.
      */

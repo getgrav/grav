@@ -36,6 +36,25 @@ trait UserTrait
     protected const LOGIN_ACTIONS = ['login', 'site.login', 'admin.login'];
 
     /**
+     * Account fields which hold a credential, or a one-time token that stands in for
+     * one (password reset, magic link) or proves ownership (activation, email change).
+     * Left out of jsonSerialize() and of form values: whoever reads one of these can
+     * take the account.
+     *
+     * @var string[]
+     */
+    protected const SECRET_FIELDS = [
+        'hashed_password',
+        'secret',               // 2FA secret
+        'twofa_secret',         // Alternative 2FA field name
+        'reset',
+        'activation_token',
+        'email_change_token',
+        'email_change_cancel_token',
+        'magic_login',
+    ];
+
+    /**
      * Authenticate user.
      *
      * If user password needs to be updated, new information will be saved.
@@ -114,6 +133,11 @@ trait UserTrait
         //Check group access level
         $groups = (array)$this->get('groups');
         foreach ($groups as $group) {
+            // A disabled group grants nothing, the same as UserGroupObject::authorize().
+            if (!$config->get("groups.{$group}.enabled", true)) {
+                continue;
+            }
+
             $permission = $config->get("groups.{$group}.access.{$action}");
             $authorized = Utils::isPositive($permission);
             if ($authorized === true) {
@@ -218,8 +242,12 @@ trait UserTrait
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
 
+        // The hash may be the free text `avatar_hash` account field: only use it as the filename if it is
+        // a plain name, otherwise use its digest so that the file always stays inside the storage folder.
+        $name = preg_match('/^[a-z0-9_-]{1,64}$/iD', $hash) ? $hash : md5($hash);
+
         $storage = $locator->findResource('image://multiavatar', true, true);
-        $avatar_file = "{$storage}/{$hash}.svg";
+        $avatar_file = "{$storage}/{$name}.svg";
 
         if (!file_exists($storage)) {
             Folder::create($storage);
@@ -231,7 +259,7 @@ trait UserTrait
             file_put_contents($avatar_file, $mavatar->generate($hash, null, null));
         }
 
-        $avatar_url = $locator->findResource("image://multiavatar/{$hash}.svg", false, true);
+        $avatar_url = $locator->findResource("image://multiavatar/{$name}.svg", false, true);
 
         return Utils::url($avatar_url);
 

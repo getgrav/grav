@@ -29,8 +29,9 @@ trait ImageFetchPriorityTrait
             $value = Grav::instance()['config']->get('system.images.defaults.fetchpriority', 'auto');
         }
 
-        // Validate the provided value (similar to loading and decoding attributes)
-        if ($value !== null && $value !== 'auto') {
+        // Only the keywords the attribute defines are kept (similar to loading and decoding attributes)
+        $value = strtolower((string) $value);
+        if (in_array($value, ['high', 'low'], true)) {
             $this->attributes['fetchpriority'] = $value;
         }
 

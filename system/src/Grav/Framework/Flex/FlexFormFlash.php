@@ -116,9 +116,17 @@ class FlexFormFlash extends FormFlash
             $directory = $flex && $type ? $flex->getDirectory($type) : null;
         }
 
-        if ($directory && $create && isset($data['object']['serialized'])) {
+        // The flash id comes from the request, so the flash may have been written by any other form of the session.
+        // The stored object is restored without validation: only accept it in the directory it was taken from.
+        $sameType = $directory && ($data['object']['type'] ?? null) === $directory->getFlexType();
+        if ($sameType && $create && isset($data['object']['serialized'])) {
             // TODO: update instead of create new.
-            $object = $directory->createObject($data['object']['serialized'], $data['object']['key'] ?? '');
+            $stored = $directory->createObjectFromStorage($data['object']['serialized'], $data['object']['key'] ?? '');
+
+            // A form opened for a new object must not turn into a form for an existing one.
+            if (!$object || !$stored->exists()) {
+                $object = $stored;
+            }
         }
 
         if ($object) {

@@ -172,6 +172,13 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
             ['fruit' => 'apple', 'meat' => 'steak'],
             $this->twig_ext->arrayKeyValueFunc('meat', 'steak', ['fruit' => 'apple'])
         );
+
+        $object = new \ArrayObject(['fruit' => 'apple']);
+        self::assertSame(
+            ['meat' => 'steak'],
+            $this->twig_ext->arrayKeyValueFunc('meat', 'steak', $object)
+        );
+        self::assertSame(['fruit' => 'apple'], $object->getArrayCopy());
     }
 
     public function stringFunc(): void

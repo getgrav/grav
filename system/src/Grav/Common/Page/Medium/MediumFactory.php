@@ -168,24 +168,24 @@ class MediumFactory
     /**
      * Create a new ImageMedium by scaling another ImageMedium object.
      *
+     * Returns a `['file' => Medium|null, 'size' => int]` pair; `file` is null when
+     * the medium cannot be scaled (only raster images can, not a gif, svg or plain file).
+     *
      * @param  ImageMediaInterface|MediaObjectInterface $medium
      * @param  int         $from
      * @param  int         $to
-     * @return ImageMediaInterface|MediaObjectInterface|array
+     * @return array
      */
     public static function scaledFromMedium($medium, $from, $to)
     {
-        if (!$medium instanceof ImageMedium) {
-            return $medium;
-        }
-
-        if ($to > $from) {
-            return $medium;
+        if (!$medium instanceof ImageMedium || $to > $from) {
+            return ['file' => null, 'size' => 0];
         }
 
         $ratio = $to / $from;
-        $width = $medium->get('width') * $ratio;
-        $height = $medium->get('height') * $ratio;
+        // Never go below one pixel, image adapters throw on an empty canvas.
+        $width = max(1, $medium->get('width') * $ratio);
+        $height = max(1, $medium->get('height') * $ratio);
 
         $prev_basename = $medium->get('basename');
         $basename = str_replace('@' . $from . 'x', $to !== 1 ? '@' . $to . 'x' : '', $prev_basename);

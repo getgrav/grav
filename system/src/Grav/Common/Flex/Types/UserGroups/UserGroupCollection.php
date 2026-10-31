@@ -36,14 +36,15 @@ class UserGroupCollection extends FlexCollection
      *
      * @param  string $action
      * @param  string|null $scope
+     * @param  bool $super  False if the groups may not fall back to their super user access.
      * @return bool|null
      */
-    public function authorize(string $action, ?string $scope = null): ?bool
+    public function authorize(string $action, ?string $scope = null, bool $super = true): ?bool
     {
         $authorized = null;
         /** @var UserGroupObject $object */
         foreach ($this as $object) {
-            $auth = $object->authorize($action, $scope);
+            $auth = $object->authorize($action, $scope, $super);
             if ($auth === true) {
                 $authorized = true;
             } elseif ($auth === false) {

@@ -13,6 +13,8 @@ use ArrayAccess;
 use Closure;
 use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\Common\Collections\Expr\Comparison;
+use Grav\Framework\Object\Interfaces\ObjectInterface;
+use InvalidArgumentException;
 use RuntimeException;
 use function in_array;
 use function is_array;
@@ -27,7 +29,15 @@ use function strlen;
 class ObjectExpressionVisitor extends ClosureExpressionVisitor
 {
     /**
+     * Read-only methods which can be used as field names as they are. Pages expose these fields only as methods.
+     */
+    protected const FIELD_METHODS = ['active', 'activeChild', 'filePath', 'home', 'id', 'modified', 'path', 'permalink', 'rawRoute', 'root', 'route', 'url'];
+
+    /**
      * Accesses the field of a given object.
+     *
+     * A field is resolved as a property, through a getter (get*, is*) or through one of the read-only methods listed
+     * in FIELD_METHODS; any other method is never called under the field name.
      *
      * @param object $object
      * @param string $field
@@ -45,8 +55,19 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
 
         if ($object instanceof ArrayAccess && isset($object[$field])) {
             $value = $object[$field];
+        } elseif (in_array($field, static::FIELD_METHODS, true) && is_callable([$object, $field])) {
+            $value = $object->{$field}();
         } else {
-            $accessors = ['', 'get', 'is'];
+            // Objects map their calculated properties to methods by themselves (in pages: `date`, `slug`, `order`...).
+            if ($object instanceof ObjectInterface) {
+                try {
+                    $value = $object->getProperty($field);
+                } catch (InvalidArgumentException) {
+                    // Object has a fixed set of properties and the field is not one of them.
+                }
+            }
+
+            $accessors = null === $value ? ['get', 'is'] : [];
 
             foreach ($accessors as $accessor) {
                 $accessor .= $field;

@@ -19,6 +19,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function count;
 use function in_array;
+use function is_scalar;
 use function is_string;
 
 /**
@@ -54,7 +55,9 @@ class UserCollection implements UserCollectionInterface
         // Filter username.
         $username = $this->filterUsername($username);
 
-        $filename = 'account://' . $username . YAML_EXT;
+        // The locator normalizes the path, so './admin', '\admin' or 'x/../admin' would all open admin.yaml
+        // under a username of their own. A name save() refuses is not an account: return a user which does not exist.
+        $filename = 'account://' . (User::isValidUsername($username) ? $username : '') . YAML_EXT;
         $path = $locator->findResource($filename) ?: $locator->findResource($filename, true, true);
         if (!is_string($path)) {
             throw new RuntimeException('Internal Error');
@@ -113,7 +116,9 @@ class UserCollection implements UserCollectionInterface
                 if (Utils::endsWith($file, YAML_EXT)) {
                     $find_user = $this->load(trim(Utils::pathinfo($file, PATHINFO_FILENAME)));
                     foreach ($fields as $field) {
-                        if (isset($find_user[$field]) && mb_strtolower((string) $find_user[$field]) === $query) {
+                        // A list or a map in one account must not end the search for everybody else.
+                        $value = $find_user[$field] ?? null;
+                        if (is_scalar($value) && mb_strtolower((string) $value) === $query) {
                             return $find_user;
                         }
                     }
@@ -131,9 +136,22 @@ class UserCollection implements UserCollectionInterface
      */
     public function delete($username): bool
     {
-        $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
+        if (!User::isValidUsername((string)$username)) {
+            return false;
+        }
 
-        return $file_path && unlink($file_path);
+        $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
+        if (!$file_path) {
+            return false;
+        }
+
+        // Not while User::save() is checking and writing the same file.
+        $lock = User::lockAccountFile($file_path);
+        try {
+            return unlink($file_path);
+        } finally {
+            $lock->free();
+        }
     }
 
     /**
@@ -141,9 +159,22 @@ class UserCollection implements UserCollectionInterface
      */
     public function count(): int
     {
+        $grav = Grav::instance();
+        /** @var UniformResourceLocator $locator */
+        $locator = $grav['locator'];
+
         // check for existence of a user account
-        $account_dir = $file_path = Grav::instance()['locator']->findResource('account://');
-        $accounts = glob($account_dir . '/*.yaml') ?: [];
+        $account_dir = $locator->findResource('account://');
+        if (!is_string($account_dir)) {
+            return 0;
+        }
+
+        // List the folder like find() does, not glob(): the install path would be part of the pattern,
+        // and a folder such as `site[1]` on it would match nothing (count 0 reopens the first-run setup).
+        $accounts = array_filter(
+            scandir($account_dir) ?: [],
+            static fn(string $file): bool => $file[0] !== '.' && Utils::endsWith($file, YAML_EXT)
+        );
 
         return count($accounts);
     }

@@ -20,6 +20,7 @@ use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Markdown\Excerpts;
+use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Pages;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
@@ -56,6 +57,11 @@ abstract class Utils
 
     protected const ROOTURL_REGEX = '{^((?:http[s]?:\/\/[^\/]+)|(?:\/\/[^\/]+))(.*)}';
 
+    /**
+     * Maximum length of strings accepted by the date parsers.
+     */
+    public const DATE_MAX_LENGTH = 256;
+
     // ^((?:http[s]?:)?[\/]?(?:\/))
 
     /**
@@ -67,9 +73,12 @@ abstract class Utils
      * @param string|bool|null $lang Language prefix for path input. `null`/`false` keeps the URL language-neutral,
      *                               which is what asset URLs need; `true` uses the active language; a language code
      *                               such as `'de'` uses that language. Streams and external URLs are never prefixed.
+     * @param bool $media_only Resolve a stream URI only inside the media folders in `security.media.allowed_roots`
+     *                         and return `false` for any other stream location, whether or not the file exists.
+     *                         Set for sandboxed page content.
      * @return string|false
      */
-    public static function url($input, $domain = false, $fail_gracefully = false, $lang = null)
+    public static function url($input, $domain = false, $fail_gracefully = false, $lang = null, $media_only = false)
     {
         if ((!is_string($input) && !is_callable([$input, '__toString'])) || !trim($input)) {
             if ($fail_gracefully) {
@@ -113,6 +122,12 @@ abstract class Utils
                         return str_replace(' ', '%20', $input);
                     }
 
+                    // Checked on the URI that is looked up, not on $input: parse_url() and the locator split
+                    // `account:/admin.yaml?x=://` differently, so a check on the raw string can be stepped around.
+                    if ($media_only && !GlobalMedia::isMediaUri("{$scheme}://{$host}{$path}")) {
+                        return false;
+                    }
+
                     // Attempt to find the resource (because of parse_url() we need to put host back to path).
                     $resource = $locator->findResource("{$scheme}://{$host}{$path}", false);
 
@@ -142,6 +157,10 @@ abstract class Utils
                 }
             } else {
                 // Not a valid URL (can still be a stream).
+                if ($media_only && !GlobalMedia::isMediaUri($input)) {
+                    return false;
+                }
+
                 $resource = $locator->findResource($input, false);
             }
         } else {
@@ -755,6 +774,23 @@ abstract class Utils
     }
 
     /**
+     * Turn the entities of non-ASCII characters in HTML back into characters, which is how the HTML truncator
+     * leaves them. Every other entity (`&lt;`, `&gt;`, `&amp;`, `&quot;`, `&#60;`...) is kept as written: those are
+     * what separates text from markup, so unlike with html_entity_decode() the result is still the same HTML.
+     *
+     * @param string $html
+     * @return string
+     */
+    public static function decodeNonAsciiEntities($html)
+    {
+        return (string)preg_replace_callback('/&(?:#\d+|#x[\da-f]+|[a-z][a-z\d]*);/i', static function (array $matches) {
+            $decoded = html_entity_decode($matches[0], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+            return preg_match('/[\x00-\x7F]/', $decoded) ? $matches[0] : $decoded;
+        }, (string)$html);
+    }
+
+    /**
      * Generate a random string of a given length
      *
      * @param int $length
@@ -780,6 +816,96 @@ abstract class Utils
         $bytes = random_bytes(ceil($length / 2));
 
         return $options['prefix'] . substr(bin2hex($bytes), 0, $length) . $options['suffix'];
+    }
+
+    /**
+     * Default cache policy for a response that may set a cookie.
+     */
+    public static function getCacheControl(int $expires, ?array $headers = null): string
+    {
+        $cookie = false;
+        $controls = [];
+        foreach ($headers ?? headers_list() as $header) {
+            if (stripos($header, 'Set-Cookie:') === 0) {
+                $cookie = true;
+            } elseif (stripos($header, 'Cache-Control:') === 0) {
+                $controls[] = trim(substr($header, 14));
+            }
+        }
+
+        return $cookie ? static::privateCacheControl($controls, $expires) : 'max-age=' . $expires;
+    }
+
+    /**
+     * Keep cookie responses private when PHP sends the final headers.
+     */
+    public static function enforcePrivateCacheControl(): void
+    {
+        $cookie = false;
+        $controls = [];
+        foreach (headers_list() as $header) {
+            if (stripos($header, 'Set-Cookie:') === 0) {
+                $cookie = true;
+            } elseif (stripos($header, 'Cache-Control:') === 0) {
+                $controls[] = trim(substr($header, 14));
+            }
+        }
+        if (!$cookie) {
+            return;
+        }
+
+        header('Cache-Control: ' . static::privateCacheControl($controls));
+    }
+
+    private static function privateCacheControl(array $controls, ?int $expires = null): string
+    {
+        $directives = ['private'];
+        preg_match_all('/(?:[^,"]|"[^"]*")+/', implode(',', $controls), $matches);
+        foreach ($matches[0] as $directive) {
+            $directive = trim($directive);
+            $name = strtolower(trim(explode('=', $directive, 2)[0]));
+            if ($name === 'max-age' && preg_match('/^max-age\s*=\s*"?([0-9]+)"?$/i', $directive, $age)) {
+                $expires = $expires === null ? (int)$age[1] : min($expires, (int)$age[1]);
+            } elseif ($name !== '' && !in_array($name, ['public', 'private', 's-maxage'], true)) {
+                $directives[] = $directive;
+            }
+        }
+        if ($expires !== null) {
+            $directives[] = 'max-age=' . $expires;
+        }
+
+        return implode(', ', $directives);
+    }
+
+    /**
+     * Returns the first and the last byte of a file that a Range request header asks for.
+     *
+     * Only the first range of the header is used. A header that is malformed, uses another unit than bytes or cannot
+     * be satisfied by the file is ignored, which a server is free to do (RFC 9110, 14.2): the whole file is sent.
+     *
+     * @param string $header Value of the Range header
+     * @param int $size Size of the file in bytes
+     * @return int[]|null [first, last] or null if the header is to be ignored
+     */
+    public static function getByteRange($header, $size): ?array
+    {
+        if (!preg_match('/^bytes=(\d*)-(\d*)(?:,|$)/Di', (string) $header, $matches)) {
+            return null;
+        }
+
+        [, $start, $end] = $matches;
+        if ($start !== '') {
+            $start = (int)$start;
+            $end = $end !== '' ? min((int)$end, $size - 1) : $size - 1;
+        } elseif ($end !== '') {
+            // Suffix range: the last N bytes of the file.
+            $start = max(0, $size - (int)$end);
+            $end = $size - 1;
+        } else {
+            return null;
+        }
+
+        return $start <= $end ? [$start, $end] : null;
     }
 
     /**
@@ -823,7 +949,7 @@ abstract class Utils
                 $expires = $options['expires'] ?? $grav['config']->get('system.pages.expires');
                 if ($expires > 0) {
                     $expires_date = gmdate('D, d M Y H:i:s T', time() + $expires);
-                    header('Cache-Control: max-age=' . $expires);
+                    header('Cache-Control: ' . static::getCacheControl((int)$expires));
                     header('Expires: ' . $expires_date);
                     header('Pragma: cache');
                 }
@@ -831,16 +957,9 @@ abstract class Utils
             }
 
             // multipart-download and download resuming support
-            if (isset($_SERVER['HTTP_RANGE'])) {
-                [$a, $range] = explode('=', (string) $_SERVER['HTTP_RANGE'], 2);
-                [$range] = explode(',', $range, 2);
-                [$range, $range_end] = explode('-', $range);
-                $range = (int)$range;
-                if (!$range_end) {
-                    $range_end = $size - 1;
-                } else {
-                    $range_end = (int)$range_end;
-                }
+            $byte_range = static::getByteRange($_SERVER['HTTP_RANGE'] ?? '', $size);
+            if ($byte_range) {
+                [$range, $range_end] = $byte_range;
                 $new_length = $range_end - $range + 1;
                 http_response_code(206);
                 header("Content-Length: {$new_length}");
@@ -870,7 +989,7 @@ abstract class Utils
                     fseek($fp, $range);
                 }
                 while (!feof($fp) && (!connection_aborted()) && ($bytes_send < $new_length)) {
-                    $buffer = fread($fp, $chunksize);
+                    $buffer = fread($fp, min($chunksize, $new_length - $bytes_send));
                     echo($buffer); //echo($buffer); // is also possible
                     flush();
                     usleep($sec * 1000000);
@@ -1489,7 +1608,7 @@ abstract class Utils
      *                     `date: 2022-01-06` never reaches us as a string: the YAML parser reads it as a date and
      *                     hands over a Unix timestamp, which strtotime() then misreads as a year in the far future.
      * @param string|null $format a date format to use if possible
-     * @return int the timestamp
+     * @return int|false the timestamp, or false when the value is no date
      */
     public static function date2timestamp($date, $format = null)
     {
@@ -1508,6 +1627,11 @@ abstract class Utils
                 return (int) $date;
             }
         }
+
+        if (!is_scalar($date) || strlen((string) $date) > self::DATE_MAX_LENGTH) {
+            return false;
+        }
+        $date = (string) $date;
 
         $config = Grav::instance()['config'];
         $dateformat = $format ?: $config->get('system.pages.dateformat.default');
@@ -1529,6 +1653,21 @@ abstract class Utils
         }
 
         return strtotime($date);
+    }
+
+    /**
+     * Parse scalar date values within the shared date length limit.
+     *
+     * @param mixed $value
+     * @return int|false
+     */
+    public static function strtotime($value)
+    {
+        if (!is_scalar($value) || strlen((string) $value) > self::DATE_MAX_LENGTH) {
+            return false;
+        }
+
+        return strtotime((string) $value);
     }
 
     /**

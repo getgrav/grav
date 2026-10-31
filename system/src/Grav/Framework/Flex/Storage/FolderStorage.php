@@ -287,11 +287,18 @@ class FolderStorage extends AbstractFilesystemStorage
                 $this->dataFolder,      // {FOLDER}
                 $parts['key'],          // {KEY}
                 $parts['key:2'],        // {KEY:2}
-                '***',                  // {FILE}
-                '***'                   // {EXT}
             ];
 
-            $path = rtrim(explode('***', sprintf($this->dataPattern, ...$options))[0], '/');
+            // Cut the pattern before {FILE} and {EXT}, not the formatted path: a marker in the path could be part of the key.
+            $pattern = $this->dataPattern;
+            foreach (['FILE', 'EXT'] as $name) {
+                $pos = strpos($pattern, $this->variables[$name]);
+                if ($pos !== false) {
+                    $pattern = substr($pattern, 0, $pos);
+                }
+            }
+
+            $path = rtrim(sprintf($pattern, ...$options), '/');
         }
 
         return $path;
@@ -425,6 +432,9 @@ class FolderStorage extends AbstractFilesystemStorage
             // Check if the row already exists and if the key has been changed.
             $oldKey = $row['__META']['storage_key'] ?? null;
             if (is_string($oldKey) && $oldKey !== $key) {
+                // The old key becomes a path as well.
+                $this->assertValidKey($oldKey);
+
                 $isCopy = $row['__META']['copy'] ?? false;
                 if ($isCopy) {
                     $this->copyRow($oldKey, $key);

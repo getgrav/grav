@@ -62,20 +62,22 @@ class MultipartRequestSupport implements MiddlewareInterface
     protected function processPart(array &$params, array &$files, string $part): void
     {
         $part = ltrim($part, "\r\n");
-        [$rawHeaders, $body] = explode("\r\n\r\n", $part, 2);
+        $sections = explode("\r\n\r\n", $part, 2);
+        if (count($sections) !== 2) {
+            return;
+        }
+        [$rawHeaders, $body] = $sections;
 
-        // Parse headers.
-        $rawHeaders = explode("\r\n", $rawHeaders);
-        $headers = array_reduce(
-            $rawHeaders,
-            static function (array $headers, $header) {
-                [$name, $value] = explode(':', $header);
-                $headers[strtolower($name)] = ltrim($value, ' ');
-
-                return $headers;
-            },
-            []
-        );
+        // Parse headers in place and retain colons in their values.
+        $headers = [];
+        foreach (explode("\r\n", $rawHeaders) as $header) {
+            $fields = explode(':', $header, 2);
+            if (count($fields) !== 2 || $fields[0] === '') {
+                continue;
+            }
+            [$name, $value] = $fields;
+            $headers[strtolower($name)] = ltrim($value, ' ');
+        }
 
         if (!isset($headers['content-disposition'])) {
             return;
@@ -84,6 +86,9 @@ class MultipartRequestSupport implements MiddlewareInterface
         // Parse content disposition header.
         $contentDisposition = $headers['content-disposition'];
         preg_match('/^(.+); *name="([^"]+)"(; *filename="([^"]+)")?/', (string) $contentDisposition, $matches);
+        if (!isset($matches[2])) {
+            return;
+        }
         $name = $matches[2];
         $filename = $matches[4] ?? null;
 

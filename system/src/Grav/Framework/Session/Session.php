@@ -33,6 +33,12 @@ class Session implements SessionInterface
     protected $started = false;
     /** @var bool Lock released after a read-only start; the first write re-acquires it. */
     protected $readonly = false;
+    /** @var string|null Value only this site can produce, stored in every session it creates (see setSite()). */
+    protected $site;
+    /** @var int Until when a session stored before sessions were bound is still resumed (see setSite()). */
+    protected $unboundUntil = 0;
+    /** @var string|null Domain attribute of the session cookie as sent by older versions (see setLegacyCookieDomain()). */
+    protected $legacyCookieDomain;
 
     /** @var Session */
     protected static $instance;
@@ -121,6 +127,49 @@ class Session implements SessionInterface
     public function setName($name)
     {
         session_name($name);
+
+        return $this;
+    }
+
+    /**
+     * Bind the sessions this site creates to it.
+     *
+     * Session storage is usually shared: every site run by the same PHP stores its sessions in
+     * the same session.save_path unless the server says otherwise, and the cookie name cannot
+     * keep the sites apart because the client picks the name it sends an id under. With a site
+     * value set, start() resumes only sessions carrying the same value and starts a new session
+     * for any other id, leaving the session of the other site as it is.
+     *
+     * A session that carries no site value at all was stored before this site started binding
+     * its sessions. Until `$unboundUntil` (a timestamp) such a session is resumed and bound, so
+     * an update does not sign everyone out; after that it is refused like any other.
+     *
+     * @param string|null $site
+     * @param int $unboundUntil
+     * @return $this
+     */
+    public function setSite(?string $site, int $unboundUntil = 0)
+    {
+        $this->site = $site;
+        $this->unboundUntil = $unboundUntil;
+
+        return $this;
+    }
+
+    /**
+     * Expire the session cookie which versions before 2.2.18 sent with `Domain=<host>`.
+     *
+     * A browser keeps such a cookie next to the one sent without the attribute, goes on sending
+     * it to the hosts below this one and puts it first in the requests to this one, where PHP
+     * takes it over the current cookie. When a domain is set here, every request which brings a
+     * session cookie also gets that old variant removed.
+     *
+     * @param string|null $domain
+     * @return $this
+     */
+    public function setLegacyCookieDomain(?string $domain)
+    {
+        $this->legacyCookieDomain = $domain;
 
         return $this;
     }
@@ -216,6 +265,21 @@ class Session implements SessionInterface
                 throw new RuntimeException($error);
             }
 
+            // The session was created by another site sharing the storage (or by this site before
+            // it bound its sessions). Leave it untouched and start a new one with a new id.
+            if (!$this->isSiteSession()) {
+                session_abort();
+                session_id(@session_create_id() ?: '');
+
+                $success = @session_start($options);
+                if (!$success) {
+                    $last = error_get_last();
+                    $error = $last ? $last['message'] : 'Unknown error';
+
+                    throw new RuntimeException($error);
+                }
+            }
+
             // Handle changing session id.
             if ($this->__isset('session_destroyed')) {
                 $newId = $this->__get('session_new_id');
@@ -250,6 +314,8 @@ class Session implements SessionInterface
         } catch (Exception $e) {
             throw new SessionException('Failed to start session: ' . $e->getMessage(), 500);
         }
+
+        $this->bindToSite();
 
         $this->started = true;
         $this->onSessionStart();
@@ -410,12 +476,20 @@ class Session implements SessionInterface
                 throw new RuntimeException($error);
             }
 
+            $this->bindToSite();
+
             $this->onSessionStart();
         }
 
         // New session does not have these.
         $this->__unset('session_destroyed');
         $this->__unset('session_new_id');
+
+        // PHP drops every Set-Cookie header of the session name when it sends the new id, the
+        // removal of the legacy cookie among them: send it again.
+        if (null !== $this->legacyCookieDomain) {
+            $this->setCookie();
+        }
 
         return $this;
     }
@@ -431,6 +505,7 @@ class Session implements SessionInterface
         $name = $this->getName();
         if (null !== $name) {
             $this->removeCookie();
+            $this->removeLegacyCookie();
 
             setcookie(
                 $name,
@@ -477,6 +552,7 @@ class Session implements SessionInterface
     {
         $this->reopen();
         session_unset();
+        $this->bindToSite();
 
         return $this;
     }
@@ -554,6 +630,41 @@ class Session implements SessionInterface
         return \PHP_SAPI !== 'cli' ? \PHP_SESSION_ACTIVE === session_status() : false;
     }
 
+    /**
+     * Was the current session created by this site? Every session this site creates carries its
+     * value (see bindToSite()), so a session without it, or with another site's, is not resumed.
+     * An empty session holds nothing to take over: it is as good as the new one it would be
+     * replaced with, and that is what a session which has just been created looks like.
+     *
+     * @return bool
+     */
+    protected function isSiteSession(): bool
+    {
+        if (null === $this->site || !$_SESSION) {
+            return true;
+        }
+
+        if (!array_key_exists('session_site', $_SESSION)) {
+            return time() < $this->unboundUntil;
+        }
+
+        $site = $_SESSION['session_site'];
+
+        return is_string($site) && hash_equals($this->site, $site);
+    }
+
+    /**
+     * Mark the current session as created by this site.
+     *
+     * @return void
+     */
+    protected function bindToSite(): void
+    {
+        if (null !== $this->site) {
+            $_SESSION['session_site'] = $this->site;
+        }
+    }
+
     protected function onBeforeSessionStart(): void
     {
     }
@@ -595,10 +706,33 @@ class Session implements SessionInterface
             return;
         }
 
+        $this->removeLegacyCookie();
+
         setcookie(
             $sessionName,
             $sessionId,
             $this->getCookieOptions()
+        );
+    }
+
+    /**
+     * Expire the legacy cookie of the session name (see setLegacyCookieDomain()) if the request brought a session cookie.
+     *
+     * Always sent before the current cookie, as removeCookie() strips every header of the session name.
+     *
+     * @return void
+     */
+    protected function removeLegacyCookie(): void
+    {
+        $sessionName = $this->getName();
+        if (null === $this->legacyCookieDomain || null === $sessionName || !isset($_COOKIE[$sessionName])) {
+            return;
+        }
+
+        setcookie(
+            $sessionName,
+            '',
+            ['domain' => $this->legacyCookieDomain] + $this->getCookieOptions(-42000)
         );
     }
 

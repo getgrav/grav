@@ -36,7 +36,8 @@ interface ImageManipulateInterface
     /**
      * Generate alternative image widths, using either an array of integers, or
      * a min width, a max width, and a step parameter to fill out the necessary
-     * widths. Existing image alternatives won't be overwritten.
+     * widths. Existing image alternatives won't be overwritten. Widths and steps
+     * below one are ignored.
      *
      * @param int|int[] $min_width
      * @param int $max_width
