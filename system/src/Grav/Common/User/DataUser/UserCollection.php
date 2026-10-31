@@ -135,8 +135,17 @@ class UserCollection implements UserCollectionInterface
     public function delete($username): bool
     {
         $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
+        if (!$file_path) {
+            return false;
+        }
 
-        return $file_path && unlink($file_path);
+        // Not while User::save() is checking and writing the same file.
+        $lock = User::lockAccountFile($file_path);
+        try {
+            return unlink($file_path);
+        } finally {
+            $lock->free();
+        }
     }
 
     /**
