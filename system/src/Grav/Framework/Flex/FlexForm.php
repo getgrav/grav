@@ -365,7 +365,11 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
             try {
                 $blueprint = $this->getObject()->getBlueprint($this->name);
                 if ($this->form) {
-                    // We have field overrides available.
+                    // We have field overrides available. The object caches the blueprint it
+                    // just returned and FlexObject::update() validates and filters with it,
+                    // so extend a copy: page-authored overrides change the form only and
+                    // cannot lift a `security@` / `disabled` guard off the object itself.
+                    $blueprint = clone $blueprint;
                     $blueprint->extend(['form' => $this->form], true);
                     $blueprint->init();
                 }
