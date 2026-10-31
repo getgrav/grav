@@ -144,7 +144,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('safe_email', $this->safeEmailFilter(...), ['is_safe' => ['html']]),
             new TwigFilter('safe_truncate', Utils::safeTruncate(...)),
             new TwigFilter('safe_truncate_html', Utils::safeTruncateHTML(...)),
-            new TwigFilter('sort_by_key', $this->sortByKeyFilter(...)),
+            new TwigFilter('sort_by_key', $this->sortByKeyGuarded(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
             new TwigFilter('starts_with', $this->startsWithFilter(...)),
             new TwigFilter('truncate', Utils::truncate(...)),
             new TwigFilter('truncate_html', Utils::truncateHTML(...)),
@@ -806,6 +806,35 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     public function sortByKeyFilter($input, $filter, $direction = SORT_ASC, $sort_flags = SORT_REGULAR)
     {
         return Utils::sortArrayByKey($input, $filter, $direction, $sort_flags);
+    }
+
+    /**
+     * `sort_by_key` as registered in Twig. Utils::sortArrayByKey() reads
+     * `$row[$key]` from every row, which on an ArrayAccess object is an
+     * offsetGet() from PHP. In sandboxed templates each object row is first
+     * checked the way Twig checks `row[key]`, as Twig's own `column` filter does.
+     *
+     * @param Environment $env
+     * @param bool $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param  array    $input
+     * @param  string   $filter
+     * @param  int      $direction
+     * @param  int      $sort_flags
+     * @return array
+     */
+    public function sortByKeyGuarded(Environment $env, bool $isSandboxed, $input, $filter, $direction = SORT_ASC, $sort_flags = SORT_REGULAR)
+    {
+        // See assertSandboxDumpSafe() for why hasExtension() is asked as well.
+        if ($isSandboxed && is_array($input) && $env->hasExtension(SandboxExtension::class)) {
+            $policy = $env->getExtension(SandboxExtension::class)->getSecurityPolicy();
+            foreach ($input as $row) {
+                if (is_object($row)) {
+                    $policy->checkPropertyAllowed($row, (string) $filter);
+                }
+            }
+        }
+
+        return $this->sortByKeyFilter($input, $filter, $direction, $sort_flags);
     }
 
     /**

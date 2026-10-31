@@ -1136,6 +1136,27 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * `sort_by_key` reads `row[key]` from every row. In sandboxed content an
+     * object row must pass the same property check as `row[key]` in a template;
+     * arrays of arrays and trusted templates sort as before.
+     */
+    public function testSortByKeyChecksObjectRowsUnderSourcePolicy(): void
+    {
+        $real = new \Grav\Common\Config\Config(['plugins' => ['x' => 'b']]);
+        $env = $this->sourcePolicySandboxEnv([
+            '@Var:rows' => "{{ [{'plugins.x': 'a'}, config]|sort_by_key('plugins.x')|length }}",
+            '@Var:arrays' => "{{ [{'k': 'b'}, {'k': 'a'}]|sort_by_key('k')|column('k')|join(',') }}",
+            'partials/base.html.twig' => "{{ [{'plugins.x': 'a'}, config]|sort_by_key('plugins.x')|length }}",
+        ]);
+
+        self::assertSame('a,b', $env->render('@Var:arrays'));
+        self::assertSame('2', $env->render('partials/base.html.twig', ['config' => $real]));
+
+        $this->expectException(\Twig\Sandbox\SecurityNotAllowedPropertyError::class);
+        $env->render('@Var:rows', ['config' => $real]);
+    }
+
+    /**
      * The same guard must not fire on a trusted (unsandboxed) source, or every
      * theme partial that dumps an object breaks — the regression behind #4175.
      */
