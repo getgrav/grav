@@ -16,7 +16,7 @@ use RuntimeException;
 use Symfony\Component\Yaml\Exception\DumpException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml as YamlParser;
-use RocketTheme\Toolbox\Compat\Yaml\Yaml as FallbackYamlParser;
+use RocketTheme\Toolbox\Compat\Yaml\Parser as FallbackYamlParser;
 use function function_exists;
 
 /**
@@ -120,7 +120,9 @@ class YamlFormatter extends AbstractFormatter
             return (array) YamlParser::parse($data);
         } catch (ParseException $e) {
             if ($this->useCompatibleDecoder()) {
-                return (array) FallbackYamlParser::parse($data);
+                // Call the parser itself: the static Compat\Yaml\Yaml::parse() treats a string without a
+                // line break as a file name and reads that file when it exists, but $data is always YAML.
+                return (array) (new FallbackYamlParser())->parse($data);
             }
 
             throw new RuntimeException('Decoding YAML failed: ' . $e->getMessage(), 0, $e);

@@ -106,6 +106,33 @@ class PluginMergeConfigTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * The page header is readable by whoever may read the page (sandboxed page
+     * Twig dumps it, the page API returns it), the plugin configuration is not.
+     */
+    public function testMergedConfigIsNotLeftInThePageHeader(): void
+    {
+        $page = $this->page(['limit' => 5]);
+
+        $merged = $this->plugin()->merged($page);
+        self::assertSame(5, $merged->get('limit'));
+
+        self::assertSame(['title', self::NAME], array_keys((array)$page->header()));
+    }
+
+    /**
+     * A `<plugin>.merged` key in the frontmatter is the author's data, not a cached result.
+     */
+    public function testMergedKeyInThePageHeaderIsIgnored(): void
+    {
+        $page = $this->page(['limit' => 5]);
+        $page->modifyHeader(self::NAME . '.merged', ['limit' => 99]);
+
+        $merged = $this->plugin()->merged($page);
+        self::assertSame(5, $merged->get('limit'));
+        self::assertTrue($merged->get('enabled'));
+    }
+
+    /**
      * @return Plugin
      */
     protected function plugin(): Plugin

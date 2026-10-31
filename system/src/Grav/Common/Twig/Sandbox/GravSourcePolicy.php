@@ -43,14 +43,24 @@ final class GravSourcePolicy implements CompileTimeSourcePolicyInterface
 {
     public function enableSandbox(Source $source): bool
     {
-        $name = $source->getName();
+        return self::isSandboxedName($source->getName());
+    }
+
+    /**
+     * Whether a template name is one of the editor-authored string templates
+     * registered via Twig::setTemplate(). These share the loader chain with the
+     * theme and plugin templates, so a caller that resolves a template by a name
+     * an editor controls (the page `template` header, a form action parameter)
+     * can be handed content instead of a trusted template and must check here.
+     */
+    public static function isSandboxedName(string $name): bool
+    {
         // This runs for every attribute access in every template, and trusted disk
         // templates (never '@'-prefixed) are the overwhelmingly common case.
         if ($name === '' || $name[0] !== '@') {
             return false;
         }
 
-        // Editor-authored string templates registered via Twig::setTemplate().
         // `@EmailVar:` is the Email plugin's form-action parameters (subject,
         // body, recipients). Those come from a page's `form.process.email.*`
         // front matter, so they are editor-authored too and must be sandboxed

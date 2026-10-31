@@ -571,7 +571,8 @@ trait PageContentTrait
      */
     protected function offsetPrepare_header($value)
     {
-        return $this->offsetLoad_header($value);
+        // A header set at runtime holds plain data only, as one loaded from storage does.
+        return $this->offsetLoad_header(Header::plainData($value));
     }
 
     /**

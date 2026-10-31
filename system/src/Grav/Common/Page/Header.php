@@ -35,4 +35,38 @@ class Header implements ArrayAccess, ExportInterface, JsonSerializable
     {
         return $this->toArray();
     }
+
+    /**
+     * Reduce a value to plain header data: scalars, arrays and stdClass objects,
+     * with a Header read as its array. Any other object becomes null, so a page
+     * header only ever holds data, never a service or other live object.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    public static function plainData($value)
+    {
+        if ($value instanceof self) {
+            $value = $value->toArray();
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $key => $item) {
+                $value[$key] = static::plainData($item);
+            }
+
+            return $value;
+        }
+
+        if ($value instanceof \stdClass) {
+            $object = new \stdClass();
+            foreach (get_object_vars($value) as $key => $item) {
+                $object->{$key} = static::plainData($item);
+            }
+
+            return $object;
+        }
+
+        return is_object($value) ? null : $value;
+    }
 }

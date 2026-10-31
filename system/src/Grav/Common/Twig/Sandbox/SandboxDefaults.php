@@ -68,7 +68,9 @@ final class SandboxDefaults
     {
         return [
             'apply',
-            'autoescape',
+            // `autoescape` is deliberately absent, for the same reason as the
+            // `raw` filter (see filters()): it switches output escaping off for
+            // its body. Trusted theme templates keep the tag.
             'block',
             'deprecated',
             'do',
@@ -98,7 +100,7 @@ final class SandboxDefaults
      * autoescape, so `{{ x|raw }}` on render-time-only data is the sole XSS
      * vector the save-time content scan can't see. Dropping it keeps that scan
      * complete. Trusted theme templates (.html.twig) are unsandboxed and can
-     * still use `raw`.
+     * still use `raw`. The same goes for the `autoescape` tag (see tags()).
      *
      * @return list<string>
      */
@@ -298,8 +300,9 @@ final class SandboxDefaults
      * (Twig lowercases before the check). `@media_actions` expands to
      * Medium::ALLOWED_ACTIONS at policy-build time so the media action surface
      * can never drift from the URL-trusted list. `offsetget`/`__get`,
-     * `toarray` on raw Config/Data, and the dangerous media surface are
-     * deliberately absent. (GHSA-mc5q-6hpj-rp7j, GHSA-j274-39qw-32c9)
+     * `toarray` on raw Config/Data, every by-key getter on accounts, and the
+     * dangerous media surface are deliberately absent.
+     * (GHSA-mc5q-6hpj-rp7j, GHSA-j274-39qw-32c9)
      *
      * @return list<array{class: string, methods: string}>
      */
@@ -309,14 +312,22 @@ final class SandboxDefaults
             ['class' => 'Grav\Common\Grav', 'methods' => 'offsetexists, getversion, theme'],
             ['class' => 'Grav\Common\Config\Config', 'methods' => 'get, value, default, offsetget, offsetexists'],
             ['class' => 'Grav\Common\Twig\Sandbox\SandboxConfig', 'methods' => 'get, toarray, value, offsetget, offsetexists'],
-            ['class' => 'Grav\Common\Page\Interfaces\PageInterface', 'methods' => 'content, header, title, menu, slug, route, rawroute, url, path, permalink, template, templateformat, filepath, date, dateformat, modified, media, parent, children, collection, find, findmedia, value, summary, taxonomy, visible, published, publishdate, unpublishdate, routable, language, modular, modulartwig, ismodule, ispage, isfirst, islast, adjacentsibling, prevsibling, nextsibling, metadata, id, order, breadcrumbs, home, tostring, __tostring'],
+            // path/filepath are deliberately NOT allowlisted: like most page
+            // accessors they are also setters when given an argument, and the
+            // sandbox checks the name of a call, not its arguments.
+            ['class' => 'Grav\Common\Page\Interfaces\PageInterface', 'methods' => 'content, header, title, menu, slug, route, rawroute, url, permalink, template, templateformat, date, dateformat, modified, media, parent, children, collection, find, findmedia, value, summary, taxonomy, visible, published, publishdate, unpublishdate, routable, language, modular, modulartwig, ismodule, ispage, isfirst, islast, adjacentsibling, prevsibling, nextsibling, metadata, id, order, breadcrumbs, home, tostring, __tostring'],
             ['class' => 'Grav\Common\Page\Pages', 'methods' => 'root, base, dispatch, home, all, children, instances, routes, sort'],
             ['class' => 'Grav\Common\Uri', 'methods' => 'path, url, params, param, query, host, port, scheme, route, base, extension, method, referrer, ip, addr, toarray, __tostring'],
             ['class' => 'Grav\Common\Page\Media', 'methods' => 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'],
             ['class' => 'Grav\Common\Media\Interfaces\MediaCollectionInterface', 'methods' => 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'],
             ['class' => 'Grav\Common\Page\Medium\Medium', 'methods' => 'url, html, filepath, filename, metadata, srcset, parsedownelement, __tostring, @media_actions'],
             ['class' => 'Grav\Common\Media\Interfaces\MediaLinkInterface', 'methods' => 'html, url, __tostring, parsedownelement, srcset, @media_actions'],
-            ['class' => 'Grav\Common\User\Interfaces\UserInterface', 'methods' => 'authorize, authorized, authenticated, username, fullname, email, language, offsetget, offsetexists'],
+            // offsetget/offsetexists are deliberately NOT allowlisted on accounts:
+            // they return any stored field by key, credentials included. The
+            // fields content may read are named in properties() instead, which
+            // is where Twig resolves `user.email` on an ArrayAccess object
+            // anyway. See also deniedMethods().
+            ['class' => 'Grav\Common\User\Interfaces\UserInterface', 'methods' => 'authorize'],
             ['class' => 'Grav\Common\Taxonomy', 'methods' => 'taxonomy'],
             ['class' => 'Grav\Common\Language\Language', 'methods' => 'getactive, getdefault, getlanguages, getlanguage, enabled'],
             // addcss/addjs are deliberately NOT allowlisted: the sandbox arbitrates
@@ -327,6 +338,26 @@ final class SandboxDefaults
             ['class' => 'Grav\Common\Assets', 'methods' => '__tostring'],
             ['class' => 'stdClass', 'methods' => '*'],
             ['class' => 'Grav\Common\Data\Data', 'methods' => 'get, value, items, offsetget, offsetexists, __tostring'],
+        ];
+    }
+
+    /**
+     * Per-class method denials that are built into the policy, same shape as
+     * methods(). Unlike the allowlist rows these cannot be widened from user
+     * config: GravSecurityPolicy checks them first, by instanceof, so they
+     * also hold when the object satisfies another allowlisted type. That is
+     * what keeps them honest for accounts: a regular account (DataUser\User)
+     * is a Data object, and with `twig_content.config_access` on the Data row
+     * above would hand its by-key getters straight back to every account.
+     * A site that wants content to show another account field names it under
+     * allowed_properties, never through a getter that takes the key.
+     *
+     * @return list<array{class: string, methods: string}>
+     */
+    public static function deniedMethods(): array
+    {
+        return [
+            ['class' => 'Grav\Common\User\Interfaces\UserInterface', 'methods' => 'get, value, getproperty, offsetget, offsetexists'],
         ];
     }
 
@@ -344,6 +375,10 @@ final class SandboxDefaults
         return [
             ['class' => 'Grav\Common\Page\Interfaces\PageInterface', 'methods' => 'header, media, taxonomy'],
             ['class' => 'Grav\Common\Grav', 'methods' => 'theme'],
+            // Account fields content may read. Twig resolves `user.email` on an
+            // ArrayAccess object through this list (then offsetGet), so this is
+            // the only spelling that works: the by-key getters are denied above.
+            ['class' => 'Grav\Common\User\Interfaces\UserInterface', 'methods' => 'authorized, authenticated, username, fullname, email, language'],
             ['class' => 'Grav\Common\Media\Interfaces\MediaCollectionInterface', 'methods' => '*'],
             ['class' => 'Grav\Common\Page\Media', 'methods' => '*'],
             ['class' => 'Grav\Common\Page\Medium\Medium', 'methods' => '*'],

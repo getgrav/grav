@@ -359,6 +359,15 @@ trait ParsedownGravTrait
         // if this is an image process it
         if (isset($excerpt['element']['attributes']['src'])) {
             $excerpt = $this->excerpts->processImageExcerpt($excerpt);
+
+            // The element is now the medium's, built from its file name and what its
+            // `.meta.yaml` sidecar or Exif block says (title, alt, class, id, ...): text
+            // about a file, not written by the author of the page. Parsedown escapes it for
+            // HTML only, and the content Twig pass reads the Markdown output next, so render
+            // it here with any `{{`, `{%` or `{#` opener written as an entity; the browser
+            // still reads `{`. The author's own Twig tags are placeholders at this point,
+            // see Page::processMarkdown().
+            $excerpt['markup'] = preg_replace('/{(?=[{%#])/', '&#123;', $this->element($excerpt['element']));
         }
 
         return $excerpt;

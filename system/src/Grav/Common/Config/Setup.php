@@ -267,8 +267,14 @@ class Setup extends Data
         $this->def('environment', static::$environment);
 
         // Figure out path for the current environment.
+        $validName = true;
         $envPath = defined('GRAV_ENVIRONMENT_PATH') ? GRAV_ENVIRONMENT_PATH : static::envVar('GRAV_ENVIRONMENT_PATH');
         if (null === $envPath) {
+            // The name usually comes from the `Host` header and is joined into a
+            // path below, so it has to be a single, non-hidden folder name.
+            $name = (string) $this->get('environment');
+            $validName = $name !== '' && $name[0] !== '.' && strpbrk($name, '/\\') === false;
+
             // Find common path for all environments and append current environment into it.
             $envPath = defined('GRAV_ENVIRONMENTS_PATH') ? GRAV_ENVIRONMENTS_PATH : static::envVar('GRAV_ENVIRONMENTS_PATH');
             if (null !== $envPath) {
@@ -296,12 +302,57 @@ class Setup extends Data
         // brand-new `user/env/<host>/` directory and divert writes there.
         // The dir must already exist on disk to be a valid env target — same
         // invariant the Grav 1.7 admin enforced via `findResource()`.
+        //
+        // Existing is not enough. In the Grav 1.6 layout the env folders sit
+        // next to `user/pages`, `user/data`, `user/media`... and the name comes
+        // from the `Host` header, so `Host: pages` would otherwise turn the
+        // content folder into the environment and load whatever a publisher
+        // put under `user/pages/config/` on top of the site configuration.
         $envAbsolute = $this->resolveEnvAbsolutePath($envPath);
-        if ($envAbsolute !== null && !is_dir($envAbsolute)) {
+        if (!$validName || ($envAbsolute !== null && (!is_dir($envAbsolute) || $this->isStreamFolder($envAbsolute)))) {
             $this->def('streams.schemes.environment.prefixes', ['' => []]);
         } else {
             $this->def('streams.schemes.environment.prefixes', ['' => [$envPath]]);
         }
+    }
+
+    /**
+     * Whether an existing env folder is, or lies inside, a folder that another
+     * stream already serves from `user://` (pages, data, accounts, config,
+     * plugins, themes, media, images... and whatever setup.php adds). Such a
+     * folder has a job of its own and must never double as an environment.
+     */
+    private function isStreamFolder(string $folder): bool
+    {
+        $realFolder = realpath($folder);
+        if ($realFolder === false) {
+            return false;
+        }
+        $realFolder .= DIRECTORY_SEPARATOR;
+
+        foreach ((array) $this->get('streams.schemes', []) as $config) {
+            $prefixes = (array) ($config['prefixes'] ?? []);
+            $prefixes[] = $config['paths'] ?? [];
+            foreach ($prefixes as $paths) {
+                foreach ((array) $paths as $path) {
+                    // `user://` alone is the parent of every env folder in the Grav 1.6 layout.
+                    if (!is_string($path) || !str_starts_with($path, 'user://') || trim(substr($path, 7), '/') === '') {
+                        continue;
+                    }
+                    $realRoot = realpath((string) $this->resolveEnvAbsolutePath($path));
+                    if ($realRoot === false) {
+                        continue;
+                    }
+                    // The trailing separator matters: `user/pages` must not match `user/pages.example.com`.
+                    $realRoot .= DIRECTORY_SEPARATOR;
+                    if (strncasecmp($realFolder, $realRoot, strlen($realRoot)) === 0) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

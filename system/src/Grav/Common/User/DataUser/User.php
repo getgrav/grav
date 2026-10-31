@@ -328,6 +328,8 @@ class User extends Data implements UserInterface
         unset($items['hashed_password']);
         unset($items['secret']);  // 2FA secret
         unset($items['twofa_secret']);  // Alternative 2FA field name
+        unset($items['reset']);  // Pending password-reset token
+        unset($items['email_change_cancel_token']);  // Pending e-mail change token
 
         return $items;
     }

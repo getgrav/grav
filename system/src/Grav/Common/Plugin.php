@@ -317,8 +317,6 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
     /**
      * Merge global and page configurations.
      *
-     * WARNING: This method modifies page header!
-     *
      * @param PageInterface $page The page to merge the configurations with the
      *                       plugin settings.
      * @param mixed $deep false = shallow|true = recursive|merge = recursive+unique
@@ -333,7 +331,6 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         $config = $this->config ?? $this->grav['config'];
 
         $class_name = $this->name;
-        $class_name_merged = $class_name . '.merged';
         $defaults = $config->get($type . '.' . $class_name, []);
         // A plugin that stores what this method returns back in the config
         // (`$config->set('plugins.x', $this->mergeConfig($page))`) gets that
@@ -344,7 +341,10 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         $page_header = $page->header();
         $header = [];
 
-        if (!isset($page_header->{$class_name_merged}) && isset($page_header->{$class_name})) {
+        // The result carries the plugin's whole configuration, so it is never
+        // cached in the page header: the header is visible to whoever can read
+        // the page (sandboxed page Twig, the page API), the configuration is not.
+        if (isset($page_header->{$class_name})) {
             // Get default plugin configurations and retrieve page header configuration
             $config = $page_header->{$class_name};
             if (is_bool($config)) {
@@ -353,12 +353,6 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
             }
             // Merge page header settings using deep or shallow merging technique
             $header = $this->mergeArrays($deep, $defaults, $config);
-
-            // Create new config object and set it on the page object so it's cached for next time
-            $page->modifyHeader($class_name_merged, new Data($header));
-        } elseif (isset($page_header->{$class_name_merged})) {
-            $merged = $page_header->{$class_name_merged};
-            $header = $merged->toArray();
         }
         if (empty($header)) {
             $header = $defaults;

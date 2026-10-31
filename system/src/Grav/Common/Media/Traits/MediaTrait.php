@@ -104,10 +104,8 @@ trait MediaTrait
      */
     protected function setMedia(MediaCollectionInterface $media)
     {
-        $cache = $this->getMediaCache();
-        $cacheKey = md5('media' . $this->getCacheKey());
-        $cache->set($cacheKey, $media);
-
+        // Kept on this object only. The shared media cache holds what getMedia()
+        // found in the folder, so other requests never see a collection set here.
         $this->media = $media;
 
         return $this;

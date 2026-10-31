@@ -15,6 +15,7 @@ use Grav\Common\Page\Collection;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\MarkdownOutput;
+use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
@@ -622,7 +623,7 @@ trait PageLegacyTrait
     public function metadata($var = null): array
     {
         if ($var !== null) {
-            $this->_metadata = (array)$var;
+            $this->_metadata = Page::escapeMetadata((array)$var);
         }
 
         // if not metadata yet, process it.

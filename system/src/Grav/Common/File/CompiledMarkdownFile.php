@@ -294,7 +294,7 @@ class CompiledMarkdownFile extends MarkdownFile
     protected function decode($var)
     {
         if (self::$scan === null) {
-            return parent::decode($var);
+            return $this->decodeRaw($var);
         }
 
         // Split the file the same way MarkdownFile::decode() does; the header is only reused
@@ -316,12 +316,36 @@ class CompiledMarkdownFile extends MarkdownFile
             return ['header' => $header, 'frontmatter' => $frontmatter, 'markdown' => $m[2]];
         }
 
-        $content = parent::decode($var);
+        $content = $this->decodeRaw($var);
         if (is_array($content['header'])) {
             self::$scan['current'][$key] = $content['header'];
             self::$scan['parsed']++;
             $this->scanKey = $key;
         }
+
+        return $content;
+    }
+
+    /**
+     * MarkdownFile::decode(), with a one-line frontmatter always parsed as YAML text.
+     *
+     * When neither YAML parser accepts the frontmatter, MarkdownFile::decode() hands it to the
+     * static Compat\Yaml\Yaml::parse(), which treats a string without a line break as a file name
+     * when a file of that name exists. A frontmatter of a single line is therefore passed on with
+     * a blank line after it, and the `frontmatter` text is restored afterwards.
+     *
+     * @param string $var
+     * @return array
+     */
+    private function decodeRaw($var)
+    {
+        $text = ltrim((string)preg_replace("/(\r\n|\r)/", "\n", ltrim($var, "\xef\xbb\xbf")));
+        if (!preg_match("/^---\n([^\n]+)\n---\n{0,}(.*)$/us", $text, $m)) {
+            return parent::decode($var);
+        }
+
+        $content = parent::decode("---\n{$m[1]}\n\n---\n{$m[2]}");
+        $content['frontmatter'] = $m[1];
 
         return $content;
     }
