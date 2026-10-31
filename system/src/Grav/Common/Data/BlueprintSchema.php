@@ -132,7 +132,27 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             $this->itemDepth = max($this->itemDepth, substr_count((string)$name, '.'));
         }
 
-        return $this->filterArray($data, $this->nested, '', $missingValuesAsNull, $keepEmptyValues) ?? [];
+        return $this->filterArray(static::dropMergeKeys($data), $this->nested, '', $missingValuesAsNull, $keepEmptyValues) ?? [];
+    }
+
+    /**
+     * Remove `<<` keys at any depth. YAML reads `<<` back as the merge key, so it can't be
+     * saved as data (see YamlFormatter::assertNoMergeKeys()); dropping it here lets a form
+     * save the rest of its data.
+     *
+     * @param array $data
+     * @return array
+     */
+    protected static function dropMergeKeys(array $data): array
+    {
+        unset($data['<<']);
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = static::dropMergeKeys($value);
+            }
+        }
+
+        return $data;
     }
 
     /**

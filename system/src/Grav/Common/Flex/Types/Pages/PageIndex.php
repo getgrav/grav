@@ -165,7 +165,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
             $row = array_merge_recursive($defaults, $row);
 
             /** @var PageObject $root */
-            $root = $this->getFlexDirectory()->createObject($row, '/', false);
+            $root = $this->getFlexDirectory()->createObjectFromStorage($row, '/', false);
             $root->name('root.md');
             $root->root(true);
 

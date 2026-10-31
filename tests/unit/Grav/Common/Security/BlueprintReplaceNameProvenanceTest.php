@@ -1,5 +1,6 @@
 <?php
 
+use Codeception\Util\Fixtures;
 use Grav\Common\Data\Blueprint;
 
 /**
@@ -202,6 +203,72 @@ class BlueprintReplaceNameProvenanceTest extends \PHPUnit\Framework\TestCase
         self::assertFalse(
             BlueprintReplaceNameProbe::$called,
             'A page-authored provider moved by integer-key renumbering must not be invoked'
+        );
+    }
+
+    /**
+     * An `import@` is embedded with the same merge, so it renumbers an integer-keyed
+     * field next to it too. `default` only resolves in the context Flex gives every
+     * page blueprint; the attribution has to look it up there as well, or it never
+     * sees the field move.
+     */
+    public function testInit_IntegerKeyRenumberedByImportFromOwnContextIsNotExecuted(): void
+    {
+        Fixtures::get('grav')();
+        $provider = '\\' . BlueprintReplaceNameProbe::class . '::options';
+
+        $blueprint = new Blueprint(null, ['form' => ['fields' => ['title' => ['type' => 'text']]]], true);
+        $blueprint->setContext('blueprints://pages');
+
+        $blueprint->extend(['form' => ['fields' => ['box' => ['type' => 'section', 'fields' => [
+            'import@' => ['type' => 'default:form/fields'],
+            5 => ['type' => 'select', 'data-options@' => [$provider, 'user/data']],
+        ]]]]], true);
+
+        $blueprint->init();
+
+        self::assertNotEmpty($blueprint->get('form/fields/box/fields/tabs'), 'The import must resolve');
+        self::assertSame('select', $blueprint->get('form/fields/box/fields/0/type'), 'The import must renumber the field');
+        self::assertFalse(
+            BlueprintReplaceNameProbe::$called,
+            'A page-authored provider moved by an import from the blueprint context must not be invoked'
+        );
+    }
+
+    /**
+     * Sibling: the same import named through the blueprint's overrides, which is how
+     * page types are looked up. A page-authored `import@` only resolves against
+     * blueprints:// (see BlueprintImportProvenanceTest), never through the overrides,
+     * so here the import is refused: nothing is embedded, the field is not renumbered,
+     * and the page-authored provider still must not run.
+     */
+    public function testInit_IntegerKeyRenumberedByImportFromOverridesIsNotExecuted(): void
+    {
+        Fixtures::get('grav')();
+        $provider = '\\' . BlueprintReplaceNameProbe::class . '::options';
+
+        $file = sys_get_temp_dir() . '/grav-bp-import-' . bin2hex(random_bytes(6)) . '.yaml';
+        file_put_contents($file, "form:\n  fields:\n    imported:\n      type: text\n");
+
+        try {
+            $blueprint = new Blueprint(null, ['form' => ['fields' => ['title' => ['type' => 'text']]]], true);
+            $blueprint->setOverrides(['partial' => $file]);
+
+            $blueprint->extend(['form' => ['fields' => ['box' => ['type' => 'section', 'fields' => [
+                'import@' => ['type' => 'partial:form/fields'],
+                5 => ['type' => 'select', 'data-options@' => [$provider, 'user/data']],
+            ]]]]], true);
+
+            $blueprint->init();
+        } finally {
+            @unlink($file);
+        }
+
+        self::assertNull($blueprint->get('form/fields/box/fields/imported'), 'A page-authored import must not resolve through the overrides');
+        self::assertSame('select', $blueprint->get('form/fields/box/fields/5/type'), 'Without the import the field keeps its key');
+        self::assertFalse(
+            BlueprintReplaceNameProbe::$called,
+            'A page-authored provider next to an import from the blueprint overrides must not be invoked'
         );
     }
 

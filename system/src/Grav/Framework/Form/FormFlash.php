@@ -14,6 +14,7 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
+use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
@@ -279,6 +280,9 @@ class FormFlash implements FormFlashInterface
                 if (self::exceedsDepth($index, static::MAX_INDEX_DEPTH)) {
                     throw new RuntimeException('Form flash data is nested too deep');
                 }
+
+                // YAML reads `<<` back as the merge key, so the index would not load as it was saved.
+                YamlFormatter::assertNoMergeKeys($index);
 
                 $file->content($index);
                 if (strlen($file->raw()) > static::MAX_INDEX_SIZE) {

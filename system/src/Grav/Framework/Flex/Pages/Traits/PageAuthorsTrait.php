@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Pages\Traits;
 
+use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Acl\Access;
@@ -172,7 +173,9 @@ trait PageAuthorsTrait
 
         // In admin we want to check against group permissions.
         $pageGroups = $this->getPermissions();
-        $userGroups = (array)$user->groups;
+        // Session user has no groups until the login (2FA) has been completed.
+        $userGroups = !$isMe || $user->authorized ? (array)$user->groups : [];
+        $config = Grav::instance()['config'];
 
         /** @var Access $access */
         foreach ($pageGroups as $group => $access) {
@@ -186,6 +189,9 @@ trait PageAuthorsTrait
                     continue;
                 }
             } elseif (!in_array($group, $userGroups, true)) {
+                continue;
+            } elseif (!$config->get("groups.{$group}.enabled", true)) {
+                // A disabled group has no say, the same as UserGroupObject::authorize().
                 continue;
             }
 

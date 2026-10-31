@@ -401,6 +401,10 @@ class PageStorage extends FolderStorage
                 // The page lives in the folder named by its storage key. A folder rebuilt from order and
                 // slug may differ from it (`1.blog`, `00.blog`), which would skip the move below.
                 $oldKeys['key'] = $this->extractKeysFromStorageKey($oldKey)['key'];
+                // The old key becomes a path as well: validate it like the new one, including the storage key path
+                // which the old folder is now built from.
+                $this->assertValidPageKeys($oldKeys);
+                $this->assertValidStorageKey($oldKeys['key']);
                 $oldFolder = $this->buildFolder($oldKeys);
                 $oldFilename = $this->buildFilename($oldKeys);
 

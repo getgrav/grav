@@ -9,6 +9,7 @@
 
 namespace Grav\Common\File;
 
+use Grav\Framework\File\Formatter\YamlFormatter;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\File\YamlFile;
 use function count;
@@ -210,6 +211,24 @@ class CompiledMarkdownFile extends MarkdownFile
         }
 
         return parent::setting($setting, $default);
+    }
+
+    /**
+     * Check contents and make sure it is in correct format.
+     *
+     * The frontmatter goes through the same YAML decoders as CompiledYamlFile, so a `<<`
+     * key in the header would be read back as the merge key.
+     *
+     * @param mixed $var
+     * @return array
+     */
+    protected function check($var)
+    {
+        $var = parent::check($var);
+
+        YamlFormatter::assertNoMergeKeys($var['header']);
+
+        return $var;
     }
 
     /**

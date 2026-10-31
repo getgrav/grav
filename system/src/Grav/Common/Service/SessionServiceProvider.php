@@ -50,12 +50,7 @@ class SessionServiceProvider implements ServiceProviderInterface
             $cookie_path = $config->get('system.session.path');
             $cookie_samesite = $config->get('system.session.samesite', 'Lax');
 
-            if (null === $cookie_domain) {
-                $cookie_domain = $uri->host();
-                if ($cookie_domain === 'localhost') {
-                    $cookie_domain = '';
-                }
-            }
+            [$cookie_domain, $legacy_domain] = static::resolveCookieDomain($cookie_domain, $uri->host());
 
             if (null === $cookie_path) {
                 $cookie_path = '/' . trim(Uri::filterPath($uri->rootUrl(false)), '/');
@@ -93,9 +88,7 @@ class SessionServiceProvider implements ServiceProviderInterface
             // also carries the attributes the prefix promises, and *discards the cookie
             // outright* when it does not. Preserving the name without lining the attributes
             // up would hand the site owner a silent login loop rather than the protection
-            // they asked for -- and on Grav's shipped config it would, since `domain:` is
-            // empty, which resolves to the request host below and is exactly what `__Host-`
-            // forbids.
+            // they asked for.
             if (str_starts_with($session_prefix, '__Secure-') || str_starts_with($session_prefix, '__Host-')) {
                 $cookie_secure = true;
             }
@@ -103,6 +96,7 @@ class SessionServiceProvider implements ServiceProviderInterface
                 // `__Host-` additionally forbids a Domain attribute and demands Path=/.
                 $cookie_domain = '';
                 $cookie_path = '/';
+                $legacy_domain = null;
             }
 
             $session_uniqueness = $config->get('system.session.uniqueness', 'path') === 'path' ?  substr(md5(GRAV_ROOT), 0, 7) :  md5(Security::getNonceKey());
@@ -125,6 +119,10 @@ class SessionServiceProvider implements ServiceProviderInterface
             ] + (array) $config->get('system.session.options');
 
             $session = new Session($options);
+            // The client picks the cookie name, so the name alone does not keep out the sessions
+            // of other sites sharing the session storage (or of the other side of the split).
+            $session->setSite(hash_hmac('sha256', $session_name, Security::getNonceKey()));
+            $session->setLegacyCookieDomain($legacy_domain);
             $session->setAutoStart($enabled);
             // The admin always needs its session; lazy start is for the site.
             $session->setLazy(!$is_admin && (bool)$config->get('system.session.lazy', false));
@@ -161,6 +159,30 @@ class SessionServiceProvider implements ServiceProviderInterface
 
             return $session->messages;
         };
+    }
+
+    /**
+     * Resolves the configured session cookie domain into the Domain attribute to send, and the
+     * Domain attribute older versions sent, whose cookie is expired.
+     *
+     * No domain configured: send the cookie without a Domain attribute, so the browser returns
+     * it to the host that set it and to no other. Filling in the request host instead is not the
+     * same thing: a cookie with `Domain=example.com` is also sent to every host below
+     * example.com. Versions before 2.2.18 did that, and a browser keeps such a cookie next to the
+     * new one and sends it first, so that old variant is expired (see
+     * Session::setLegacyCookieDomain()). This can go once those cookies have died out.
+     *
+     * @param mixed $domain  Configured domain (`system.session.domain`).
+     * @param string|null $host  Request host.
+     * @return array{0: string, 1: string|null}  Cookie domain and legacy cookie domain.
+     */
+    public static function resolveCookieDomain($domain, ?string $host): array
+    {
+        if (null !== $domain) {
+            return [(string)$domain, null];
+        }
+
+        return ['', $host !== null && $host !== '' && $host !== 'localhost' ? $host : null];
     }
 
     /**

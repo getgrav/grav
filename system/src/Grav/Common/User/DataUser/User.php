@@ -23,6 +23,8 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\Flex;
+use RocketTheme\Toolbox\File\File;
+use RocketTheme\Toolbox\File\FileInterface;
 use function is_array;
 
 /**
@@ -35,6 +37,8 @@ class User extends Data implements UserInterface
 
     /** @var MediaCollectionInterface */
     protected $_media;
+    /** @var array|null Content of the account file this object was built from, null if unknown (e.g. restored from the session). */
+    protected $_original;
 
     /**
      * User constructor.
@@ -113,9 +117,26 @@ class User extends Data implements UserInterface
     }
 
     /**
+     * Set or get the account file.
+     *
+     * @param FileInterface|null $storage Optionally enter a new storage.
+     * @return FileInterface|null
+     */
+    public function file(?FileInterface $storage = null)
+    {
+        if ($storage) {
+            // The file object keeps what it has read: this is the account the object was built from.
+            $this->_original = $storage->filename() ? (array)$storage->content() : [];
+        }
+
+        return parent::file($storage);
+    }
+
+    /**
      * Save user
      *
      * @return void
+     * @throws \RuntimeException
      */
     public function save()
     {
@@ -165,7 +186,27 @@ class User extends Data implements UserInterface
             }
             unset($data['authenticated'], $data['authorized']);
 
-            $file->save($data);
+            // $data is the whole account as this object knows it, not only the fields which were changed.
+            // If somebody else has saved or removed the account since this object was loaded, writing it
+            // would undo their change: an account which was just disabled, demoted or deleted would come
+            // back. Hold a lock shared by all writers of this account, make sure the file still has the
+            // content the object was built from, and only then write.
+            $lock = static::lockAccountFile($file->filename());
+            try {
+                if (null !== $this->_original) {
+                    clearstatcache(true, $file->filename());
+                    $file->load();
+                    if ((array)$file->content() !== $this->_original) {
+                        throw new \RuntimeException('User account has been changed since it was loaded', 409);
+                    }
+                }
+
+                $file->save($data);
+
+                $this->_original = (array)$file->content();
+            } finally {
+                $lock->free();
+            }
 
             // We need to signal Flex Users about the change.
             /** @var Flex|null $flex */
@@ -175,6 +216,25 @@ class User extends Data implements UserInterface
                 $users->clearCache();
             }
         }
+    }
+
+    /**
+     * Take the lock shared by everything which writes or removes the account file.
+     *
+     * @param string $filename
+     * @return File  The lock, release it with free().
+     * @internal
+     */
+    public static function lockAccountFile(string $filename): File
+    {
+        $lock = File::instance(CACHE_DIR . 'compiled/files/' . md5($filename) . '.lock');
+        try {
+            $lock->lock();
+        } catch (\RuntimeException $e) {
+            // Carry on without the lock if it cannot be created, like CompiledFile::save() does.
+        }
+
+        return $lock;
     }
 
     /**
@@ -225,7 +285,8 @@ class User extends Data implements UserInterface
     {
         return [
             'items',
-            'storage'
+            'storage',
+            '_original'
         ];
     }
 
@@ -325,13 +386,16 @@ class User extends Data implements UserInterface
         $items = parent::jsonSerialize();
 
         // Security: Remove sensitive fields that should never be exposed to frontend
-        unset($items['hashed_password']);
-        unset($items['secret']);  // 2FA secret
-        unset($items['twofa_secret']);  // Alternative 2FA field name
-        unset($items['reset']);  // Pending password-reset token
-        unset($items['email_change_cancel_token']);  // Pending e-mail change token
+        return array_diff_key($items, array_flip(static::SECRET_FIELDS));
+    }
 
-        return $items;
+    /**
+     * {@inheritdoc}
+     * Override to filter out sensitive fields like password hashes
+     */
+    public function toArray()
+    {
+        return $this->jsonSerialize();
     }
 
     /**
