@@ -24,6 +24,8 @@ use function array_key_exists;
 use function count;
 use function extension_loaded;
 use function in_array;
+use function ord;
+use function strlen;
 
 /**
  * Class ImageFile
@@ -248,5 +250,100 @@ class ImageFile extends Image
         }
 
         return $this->applyExifOrientation($exif['Orientation']);
+    }
+
+    /**
+     * Read source dimensions using the image decoder's header rules.
+     *
+     * @param string $file
+     * @return array{0:int,1:int}|null Null for a file that cannot be measured
+     */
+    public static function decodedSize(string $file): ?array
+    {
+        $type = (new Source\File($file))->guessType();
+        if ($type === 'jpeg') {
+            return static::jpegFrameSize($file);
+        }
+
+        $size = @getimagesize($file);
+        if (!$size || $size['mime'] !== 'image/' . $type) {
+            return null;
+        }
+
+        $header = (string) @file_get_contents($file, false, null, 0, 16);
+        if ($type === 'webp' && !str_starts_with($header, 'RIFF')) {
+            return null;
+        }
+        if ($type === 'png' && substr($header, 8) !== "\0\0\0\rIHDR") {
+            return null;
+        }
+
+        return [(int) $size[0], (int) $size[1]];
+    }
+
+    /**
+     * Walks the markers of a JPEG up to the frame header the way libjpeg's read_markers() does.
+     *
+     * PHP's header reader takes every marker it does not know for a segment with a
+     * length. libjpeg knows that RST0-7 and TEM have none, so behind one of them
+     * the two read different bytes and need not find the same frame header.
+     *
+     * @param string $file
+     * @return array{0:int,1:int}|null Null when there is no frame header to be found that way
+     */
+    protected static function jpegFrameSize(string $file): ?array
+    {
+        $handle = @fopen($file, 'rb');
+        if (!$handle) {
+            return null;
+        }
+
+        try {
+            if (fread($handle, 2) !== "\xFF\xD8") {
+                return null;
+            }
+
+            while (true) {
+                // Bytes that are no marker are passed over, and so are fill bytes in front of the marker code.
+                do {
+                    $byte = fgetc($handle);
+                } while ($byte !== false && $byte !== "\xFF");
+                do {
+                    $byte = fgetc($handle);
+                } while ($byte === "\xFF");
+                if ($byte === false) {
+                    return null;
+                }
+
+                $marker = ord($byte);
+                if ($marker <= 0x01 || ($marker >= 0xD0 && $marker <= 0xD7)) {
+                    // A stuffed zero is no marker, TEM and RST0-7 have no length: the next marker follows.
+                    continue;
+                }
+                if ($marker >= 0xD8 && $marker <= 0xDA) {
+                    // A second SOI, EOI or SOS: an error without a frame header before it.
+                    return null;
+                }
+
+                if ($marker >= 0xC0 && $marker <= 0xCF && !in_array($marker, [0xC4, 0xC8, 0xCC], true)) {
+                    $frame = (string) fread($handle, 7);
+                    if (strlen($frame) < 7) {
+                        return null;
+                    }
+                    $frame = unpack('nlength/Cprecision/nheight/nwidth', $frame);
+
+                    return [$frame['width'], $frame['height']];
+                }
+
+                $length = (string) fread($handle, 2);
+                $length = strlen($length) === 2 ? unpack('n', $length)[1] : 0;
+                // The length counts its own two bytes.
+                if ($length < 2 || ($length > 2 && fseek($handle, $length - 2, SEEK_CUR) !== 0)) {
+                    return null;
+                }
+            }
+        } finally {
+            fclose($handle);
+        }
     }
 }

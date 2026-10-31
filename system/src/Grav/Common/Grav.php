@@ -16,6 +16,7 @@ use Grav\Common\Config\Setup;
 use Grav\Common\Helpers\Exif;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\MarkdownOutput;
+use Grav\Common\Page\Medium\ImageFile;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Pages;
@@ -1032,7 +1033,7 @@ class Grav extends Container
                     // through the chain of actions, so each one is measured
                     // against what the previous ones left.
                     $raster = $medium instanceof ImageMedium;
-                    $size = $raster ? @getimagesize((string) $medium->get('filepath')) : false;
+                    $size = $raster ? ImageFile::decodedSize((string) $medium->get('filepath')) : null;
                     $width = (int) ($size[0] ?? 0);
                     $height = (int) ($size[1] ?? 0);
                     foreach ($uri->query(null, true) as $action => $params) {

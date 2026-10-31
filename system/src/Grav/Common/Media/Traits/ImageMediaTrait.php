@@ -68,7 +68,7 @@ trait ImageMediaTrait
     /** @var array{0:int,1:int}|null As an alternative, the size the resize actions queued so far leave this image at */
     protected $queued_size;
 
-    /** @var array<string, array{0:int,1:int}> Source dimensions by path, cached for the request */
+    /** @var array<string, array{0:int,1:int}|null> Source dimensions by path, cached for the request */
     protected static $sourceSizeCache = [];
 
     /** @var array */
@@ -597,14 +597,10 @@ trait ImageMediaTrait
         $maxPixels = (int) Grav::instance()['config']->get('system.images.max_pixels', 25000000);
         $sourcePath = (string) $this->get('filepath');
         if (!array_key_exists($sourcePath, static::$sourceSizeCache)) {
-            $sourceSize = @getimagesize($sourcePath);
-            static::$sourceSizeCache[$sourcePath] = [
-                (int) ($sourceSize[0] ?? 0),
-                (int) ($sourceSize[1] ?? 0),
-            ];
+            static::$sourceSizeCache[$sourcePath] = ImageFile::decodedSize($sourcePath);
         }
-        [$width, $height] = static::$sourceSizeCache[$sourcePath];
-        // A source getimagesize() cannot measure is refused too. Imagick decodes
+        [$width, $height] = static::$sourceSizeCache[$sourcePath] ?? [0, 0];
+        // A source whose decoded size cannot be measured is refused too. Imagick decodes
         // formats PHP cannot read the size of (JPEG XL, HEIC), so an unknown size
         // is not a small one.
         if ($maxPixels > 0 && ($width < 1 || $height < 1)) {
