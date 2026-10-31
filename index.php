@@ -94,7 +94,7 @@ if (PHP_SAPI !== 'cli') {
 
 }
 
-// Maintenance mode during core upgrade
+// Maintenance mode during a core upgrade, or while GPM swaps in a new copy of a plugin
 if (file_exists(__DIR__ . '/.upgrading')) {
     if (time() - filemtime(__DIR__ . '/.upgrading') > 300) {
         @unlink(__DIR__ . '/.upgrading'); // Stale flag (>5 min), remove it

@@ -62,7 +62,8 @@ class Plugins extends Iterator
         $plugins = [];
         /** @var SplFileInfo $directory */
         foreach ($iterator as $directory) {
-            if (!$directory->isDir()) {
+            // Hidden folders are not plugins (GPM stages a replacement in one while it swaps it in).
+            if (!$directory->isDir() || str_starts_with($directory->getFilename(), '.')) {
                 continue;
             }
             $plugins[] = $directory->getFilename();
@@ -425,6 +426,72 @@ class Plugins extends Iterator
         $obj->file($file);
 
         return $obj;
+    }
+
+    /**
+     * Lock the plugin folders: shared while a request loads its configuration and plugins,
+     * exclusive while GPM swaps an installed plugin for a new copy. A request therefore loads
+     * every plugin either before or after the swap, never while a folder is missing.
+     *
+     * A shared lock waits for the swap, which only takes two renames. An exclusive lock waits
+     * up to $timeout seconds for the requests that are loading plugins, then throws.
+     *
+     * @param bool $exclusive
+     * @param int $timeout Seconds to wait for an exclusive lock.
+     * @return resource|null The lock, or null where the filesystem cannot lock (the caller goes on without it).
+     * @throws RuntimeException When the exclusive lock is not free in time.
+     */
+    public static function lockFolders(bool $exclusive = false, int $timeout = 30)
+    {
+        $dir = Grav::instance()['locator']->findResource('tmp://', true, true);
+        if (!$dir || (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir))) {
+            return null;
+        }
+
+        $handle = @fopen($dir . '/plugins.lock', 'c');
+        if (!$handle) {
+            return null;
+        }
+
+        if (!$exclusive) {
+            if (@flock($handle, LOCK_SH)) {
+                return $handle;
+            }
+
+            fclose($handle);
+
+            return null;
+        }
+
+        $until = microtime(true) + $timeout;
+        while (true) {
+            if (@flock($handle, LOCK_EX | LOCK_NB, $wouldBlock)) {
+                return $handle;
+            }
+            if (!$wouldBlock) {
+                fclose($handle);
+
+                return null;
+            }
+            if (microtime(true) >= $until) {
+                fclose($handle);
+
+                throw new RuntimeException('Plugins are still being loaded by other requests, please try again.');
+            }
+            usleep(10000);
+        }
+    }
+
+    /**
+     * @param resource|null $lock A lock from lockFolders().
+     * @return void
+     */
+    public static function unlockFolders($lock): void
+    {
+        if (is_resource($lock)) {
+            @flock($lock, LOCK_UN);
+            fclose($lock);
+        }
     }
 
     /**

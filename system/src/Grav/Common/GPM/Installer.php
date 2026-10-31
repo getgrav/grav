@@ -12,6 +12,7 @@ namespace Grav\Common\GPM;
 use DirectoryIterator;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use Grav\Common\Plugins;
 use Grav\Common\Utils;
 use RuntimeException;
 use ZipArchive;
@@ -495,17 +496,69 @@ class Installer
     }
 
     /**
+     * Move a package into place, swapping out the installed copy if there is one.
+     *
+     * The new copy is first moved into a hidden folder beside the installed one (a slow copy
+     * when tmp/ is on another filesystem, while the site still runs the old copy), then swapped
+     * in with two renames. The swap runs under the maintenance flag and the exclusive plugin
+     * folder lock: new requests get the 503 page, and requests that are already loading plugins
+     * finish first, so no request ever loads plugins with the folder missing or half copied.
+     * If the new copy cannot be moved in, the installed one is put back. A symlinked install
+     * is replaced by the new folder; the folder it pointed to is left alone.
+     *
      * @param string            $source_path
      * @param string            $install_path
      * @return bool
      */
     public static function moveInstall($source_path, $install_path)
     {
-        if (file_exists($install_path)) {
-            Folder::delete($install_path);
-        }
+        $work = dirname($install_path) . DS . '.gpm-' . uniqid('', false);
+        $new = $work . DS . 'new';
+        $old = $work . DS . 'old';
 
-        Folder::move($source_path, $install_path);
+        try {
+            Folder::move($source_path, $new);
+
+            if (!is_link($install_path) && !file_exists($install_path)) {
+                Folder::move($new, $install_path);
+
+                return true;
+            }
+
+            $flag = GRAV_ROOT . '/.upgrading';
+            $raised = !file_exists($flag) && @file_put_contents($flag, date('Y-m-d H:i:s')) !== false;
+            try {
+                $lock = Plugins::lockFolders(true);
+                try {
+                    if (@rename($install_path, $old)) {
+                        if (!@rename($new, $install_path)) {
+                            Folder::move($old, $install_path);
+
+                            throw new RuntimeException("Could not move the new copy into {$install_path}");
+                        }
+                    } elseif (!is_link($install_path)) {
+                        // Windows refuses to rename a folder while a file in it is open: overwrite it in place instead.
+                        self::mergeInstall($new, $install_path);
+                    } else {
+                        throw new RuntimeException("Could not replace the symbolic link {$install_path}");
+                    }
+                } finally {
+                    Plugins::unlockFolders($lock);
+                }
+            } finally {
+                if ($raised) {
+                    @unlink($flag);
+                }
+                clearstatcache(true);
+            }
+        } finally {
+            // Removes the old copy (only the link, for a symlinked install) and anything left of the new one.
+            try {
+                Folder::delete($work);
+            } catch (\Throwable) {
+                // A leftover hidden folder is skipped when plugins are loaded.
+            }
+        }
 
         return true;
     }

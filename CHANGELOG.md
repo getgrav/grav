@@ -1,3 +1,9 @@
+# v2.2.20
+## 10/31/2026
+
+1. [](#bugfix)
+    * Updating or reinstalling a plugin swaps the new copy in all at once, so the site never runs with the plugin missing or half copied, and the old copy is put back if the new one cannot be moved in
+
 # v2.2.19
 ## 10/31/2026
 
