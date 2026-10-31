@@ -1210,24 +1210,35 @@ class Uri
     }
 
     /**
+     * Resolve the HTTP scheme using the configured forwarding policy.
+     */
+    public static function getSchemeFromEnvironment(array $env, bool $forwarded = false): string
+    {
+        $scheme = null;
+        if ($forwarded) {
+            $scheme = $env['HTTP_X_FORWARDED_PROTO'] ?? $env['X-FORWARDED-PROTO'] ?? $env['HTTP_CLOUDFRONT_FORWARDED_PROTO'] ?? null;
+        }
+        if ($scheme === null && empty($env['HTTPS'])) {
+            $scheme = $env['REQUEST_SCHEME'] ?? null;
+        }
+        $scheme = is_string($scheme) ? strtolower(trim($scheme)) : '';
+        if ($scheme === 'http' || $scheme === 'https') {
+            return $scheme;
+        }
+
+        $https = $env['HTTPS'] ?? '';
+
+        return empty($https) || strtolower((string)$https) === 'off' ? 'http' : 'https';
+    }
+
+    /**
      * @param array $env
      * @return void
      */
     protected function createFromEnvironment(array $env)
     {
-        // Build scheme.
-        if (isset($env['HTTP_X_FORWARDED_PROTO']) && Grav::instance()['config']->get('system.http_x_forwarded.protocol')) {
-            $this->scheme = $env['HTTP_X_FORWARDED_PROTO'];
-        } elseif (isset($env['X-FORWARDED-PROTO'])) {
-            $this->scheme = $env['X-FORWARDED-PROTO'];
-        } elseif (isset($env['HTTP_CLOUDFRONT_FORWARDED_PROTO'])) {
-            $this->scheme = $env['HTTP_CLOUDFRONT_FORWARDED_PROTO'];
-        } elseif (isset($env['REQUEST_SCHEME']) && empty($env['HTTPS'])) {
-            $this->scheme = $env['REQUEST_SCHEME'];
-        } else {
-            $https = $env['HTTPS'] ?? '';
-            $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
-        }
+        $forwarded_proto = (bool)Grav::instance()['config']->get('system.http_x_forwarded.protocol');
+        $this->scheme = static::getSchemeFromEnvironment($env, $forwarded_proto);
 
         // Build user and password.
         $this->user = $env['PHP_AUTH_USER'] ?? null;
@@ -1253,7 +1264,7 @@ class Uri
             $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
         } elseif (isset($env['X-FORWARDED-PORT'])) {
             $this->port = (int)$env['X-FORWARDED-PORT'];
-        } elseif (isset($env['HTTP_CLOUDFRONT_FORWARDED_PROTO'])) {
+        } elseif (isset($env['HTTP_CLOUDFRONT_FORWARDED_PROTO']) && $forwarded_proto) {
            // Since AWS Cloudfront does not provide a forwarded port header,
            // we have to build the port using the scheme.
             $this->port = $this->port();

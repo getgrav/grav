@@ -15,6 +15,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use function explode;
 use function fopen;
 use function function_exists;
@@ -93,11 +94,30 @@ class RequestServiceProvider implements ServiceProviderInterface
                 }
             }
 
-            return $creator->fromArrays($server, $headers, $_COOKIE, $get, $post, $_FILES, fopen('php://input', 'rb') ?: null);
+            // Setup needs the request before configuration is available.
+            $server['REQUEST_SCHEME'] = Uri::getSchemeFromEnvironment($server);
+            unset($server['HTTP_X_FORWARDED_PROTO']);
+            $request = $creator->fromArrays($server, $headers, $_COOKIE, $get, $post, $_FILES, fopen('php://input', 'rb') ?: null);
+
+            return $request->withUri($request->getUri()->withScheme($server['REQUEST_SCHEME']))->withAttribute('grav.server', $_SERVER);
         };
 
         $container['route'] = $container->factory(function () {
             return clone Uri::getCurrentRoute();
         });
+    }
+
+    /**
+     * Apply protocol forwarding once configuration has been loaded.
+     */
+    public static function applyForwardedProtocol(ServerRequestInterface $request, bool $enabled): ServerRequestInterface
+    {
+        $server = $request->getAttribute('grav.server', $request->getServerParams());
+        $uri = $request->getUri()->withScheme(Uri::getSchemeFromEnvironment($server, $enabled));
+        if ($enabled && isset($server['HTTP_CLOUDFRONT_FORWARDED_PROTO']) && !isset($server['HTTP_X_FORWARDED_PORT']) && !isset($server['X-FORWARDED-PORT'])) {
+            $uri = $uri->withPort(null);
+        }
+
+        return $request->withUri($uri);
     }
 }
