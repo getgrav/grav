@@ -226,7 +226,21 @@ abstract class BaseAsset extends PropertyObject
         $uri = $grav['uri'];
 
         if (!self::isRemoteLink($input)) {
-            $input = preg_replace('#^' . $uri->rootUrl() . '#', '', $input);
+            // Local asset URLs start with the absolute root when system.absolute_urls is on
+            // and with the relative root otherwise; strip whichever one is there to get the
+            // path under the web root.
+            foreach ([$uri->rootUrl(true), $uri->rootUrl()] as $root) {
+                if ($root !== '' && str_starts_with($input, $root . '/')) {
+                    $input = substr($input, strlen($root));
+                    break;
+                }
+            }
+
+            // Anything still carrying a scheme or host is not a file under the web root.
+            if (str_contains($input, '://') || str_starts_with($input, '//')) {
+                return '';
+            }
+
             $asset = File::instance(GRAV_WEBROOT . $input);
 
             if ($asset->exists()) {

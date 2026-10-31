@@ -1,3 +1,9 @@
+# v2.2.17
+## 10/30/2026
+
+1. [](#bugfix)
+    * With `system.absolute_urls` and asset SRI both on, Grav looked for asset files at the web root plus the full URL, so no `integrity` was added and sites with `open_basedir` got a fatal error. It now finds the real file, also in subfolders whose name has characters like `.` or `+` [#4377](https://github.com/getgrav/grav/issues/4377)
+
 # v2.2.16
 ## 10/29/2026
 
