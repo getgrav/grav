@@ -2,6 +2,7 @@
 ## mm/dd/2026
 
 1. [](#bugfix)
+    * [security] Image conversions now accept only supported image formats and keep cached files in their intended folder — Backport of the Grav 2.2.18 fix
     * [security] Responses that set cookies now stay private even when pages or plugins set their own cache headers — Backport of the Grav 2.2.18 fix
     * [security] Existing accounts are now counted correctly when the installation folder contains special characters — Backport of the Grav 2.2.18 fix
     * [security] Request URLs now respect the site's protocol forwarding setting — Backport of the Grav 2.2.18 fix

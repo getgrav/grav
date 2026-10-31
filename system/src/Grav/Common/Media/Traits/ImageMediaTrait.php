@@ -287,6 +287,15 @@ trait ImageMediaTrait
      */
     public function format($format)
     {
+        // The output type is also the cached file's extension.
+        if (!is_string($format)) {
+            return $this;
+        }
+        $format = strtolower($format);
+        if ($format !== 'guess' && !isset(ImageFile::$types[$format])) {
+            return $this;
+        }
+
         if (!$this->image) {
             $this->image();
         }

@@ -15,6 +15,7 @@ use Grav\Common\Grav;
 use Gregwar\Image\Exceptions\GenerationError;
 use Gregwar\Image\Image;
 use Gregwar\Image\Source;
+use InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
@@ -89,6 +90,11 @@ class ImageFile extends Image
     {
         if ($type === 'guess') {
             $type = $this->guessType();
+        }
+
+        // Validate before the cache looks up, removes or creates any files.
+        if (!isset(self::$types[$type])) {
+            throw new InvalidArgumentException('Given type (' . $type . ') is not valid');
         }
 
         if (!$this->forceCache && !count($this->operations) && $type === $this->guessType()) {
