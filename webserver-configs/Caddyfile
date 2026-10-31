@@ -25,7 +25,7 @@ root * .
 #    a `route` block, which executes top to bottom as written.
 
 # deny all direct access for these folders
-@denied_dirs path_regexp (?i)^/(\.git|cache|bin|logs|backups?|tmp|tests)/
+@denied_dirs path_regexp (?i)^/(\.git|cache|bin|logs|backups?|tmp|webserver-configs|tests)/
 
 # deny all direct access to these sensitive user folders, whatever the file type
 @denied_user_config path_regexp (?i)^/user/(env/[^/]+/)?config/
@@ -59,21 +59,29 @@ root * .
 @denied_cache_scripts path_regexp (?i)^/(images|assets)/.*\.(php|php2|php3|php4|php5|php7|php8|phar|phtml|pht|phtm|phps|pl|py|cgi|sh|bat)$
 
 # deny running scripts inside core system folders
-@denied_system path_regexp (?i)^/(system|vendor)/.*\.(txt|xml|md|html|htm|shtml|shtm|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
+@denied_system path_regexp (?i)^/(system|vendor)/.*\.(txt|xml|md|html|htm|shtml|shtm|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
 
 # deny running scripts inside user folder
-@denied_user_scripts path_regexp (?i)^/user/.*\.(txt|md|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
+@denied_user_scripts path_regexp (?i)^/user/.*\.(txt|md|json|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
 
 # deny access to specific files in the root folder
 @denied_root_files path_regexp (?i)^/(LICENSE\.txt|composer\.lock|composer\.json|nginx\.conf|web\.config|htaccess\.txt)$
 
-# deny hidden files and directories at any depth, except ACME challenges:
-# .htaccess, .env, .env.local, .migrating, and nested .git repositories.
+# deny Markdown source files such as README.md and CHANGELOG.md; a page route
+# ending in .md is not a file, so it still reaches Grav's Markdown output
+@denied_markdown_files {
+	path_regexp (?i)\.md$
+	file
+}
+
+# deny hidden files and directories at any depth (.htaccess, .env, .env.local,
+# .migrating, nested .git repositories), except /.well-known/ files whose own
+# names don't start with a dot (ACME challenges, security.txt).
 # Caddy matchers use RE2, which has no lookahead, so .well-known is excluded
 # with a separate `not` rather than inline in the expression.
 @denied_dotfiles {
 	path_regexp (?i)(^|/)\.
-	not path /.well-known/*
+	not path_regexp ^/\.well-known(/[^./][^/]*)+$
 }
 ## End - Security
 
@@ -89,6 +97,7 @@ route {
 	respond @denied_system 403
 	respond @denied_user_scripts 403
 	respond @denied_root_files 403
+	respond @denied_markdown_files 403
 	respond @denied_dotfiles 403
 
 	# global rewrite should come last.

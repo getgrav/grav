@@ -14,7 +14,7 @@ fastcgi / 127.0.0.1:9000 php
 
 # deny all direct access for these folders
 rewrite {
-    r       (?i)^/(\.git|cache|bin|logs|backups?|tmp|tests)/
+    r       (?i)^/(\.git|cache|bin|logs|backups?|tmp|webserver-configs|tests)/
     status  403
 }
 # deny all direct access to these sensitive user folders, whatever the file type
@@ -71,6 +71,14 @@ rewrite {
     r       (^|/)\.
     if      {path} not_match ^/\.well-known(/[^./][^/]*)+$
     status  403
+}
+# a URL ending in .md goes to Grav whether or not a file of that name exists,
+# so page routes ending in .md get Grav's Markdown output and Markdown source
+# files such as README.md and CHANGELOG.md are never served as they are
+# (Caddy 0.8 has no condition on whether a file exists)
+rewrite {
+    r       (?i)\.md$
+    to      /index.php?_url={uri}&{query}
 }
 ## End - Security
 
