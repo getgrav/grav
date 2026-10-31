@@ -14,6 +14,7 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
@@ -152,7 +153,7 @@ trait PageLegacyTrait
         if ($expires > 0) {
             $expires_date = gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
             if (!$cache_control) {
-                $headers['Cache-Control'] = 'max-age=' . $expires;
+                $headers['Cache-Control'] = Utils::getCacheControl((int)$expires);
             }
             $headers['Expires'] = $expires_date;
         }
@@ -173,10 +174,19 @@ trait PageLegacyTrait
             $headers['ETag'] = '1';
         }
 
-        // Set Vary: Accept-Encoding header.
+        // Set Vary header.
         $grav = Grav::instance();
+        $vary = [];
         if ($grav['config']->get('system.pages.vary_accept_encoding', false)) {
-            $headers['Vary'] = 'Accept-Encoding';
+            $vary[] = 'Accept-Encoding';
+        }
+        // The format of a URL without a page type extension is negotiated on
+        // `Accept` (see Utils::getPageFormat()), so shared caches must key on it.
+        if (MarkdownOutput::enabled() && !$grav['uri']->isValidExtension($grav['uri']->extension())) {
+            $vary[] = 'Accept';
+        }
+        if ($vary) {
+            $headers['Vary'] = implode(', ', $vary);
         }
 
         return $headers;

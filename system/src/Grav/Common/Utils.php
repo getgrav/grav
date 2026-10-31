@@ -783,6 +783,96 @@ abstract class Utils
     }
 
     /**
+     * Default cache policy for a response that may set a cookie.
+     */
+    public static function getCacheControl(int $expires, ?array $headers = null): string
+    {
+        $cookie = false;
+        $controls = [];
+        foreach ($headers ?? headers_list() as $header) {
+            if (stripos($header, 'Set-Cookie:') === 0) {
+                $cookie = true;
+            } elseif (stripos($header, 'Cache-Control:') === 0) {
+                $controls[] = trim(substr($header, 14));
+            }
+        }
+
+        return $cookie ? static::privateCacheControl($controls, $expires) : 'max-age=' . $expires;
+    }
+
+    /**
+     * Keep cookie responses private when PHP sends the final headers.
+     */
+    public static function enforcePrivateCacheControl(): void
+    {
+        $cookie = false;
+        $controls = [];
+        foreach (headers_list() as $header) {
+            if (stripos($header, 'Set-Cookie:') === 0) {
+                $cookie = true;
+            } elseif (stripos($header, 'Cache-Control:') === 0) {
+                $controls[] = trim(substr($header, 14));
+            }
+        }
+        if (!$cookie) {
+            return;
+        }
+
+        header('Cache-Control: ' . static::privateCacheControl($controls));
+    }
+
+    private static function privateCacheControl(array $controls, ?int $expires = null): string
+    {
+        $directives = ['private'];
+        preg_match_all('/(?:[^,"]|"[^"]*")+/', implode(',', $controls), $matches);
+        foreach ($matches[0] as $directive) {
+            $directive = trim($directive);
+            $name = strtolower(trim(explode('=', $directive, 2)[0]));
+            if ($name === 'max-age' && preg_match('/^max-age\s*=\s*"?([0-9]+)"?$/i', $directive, $age)) {
+                $expires = $expires === null ? (int)$age[1] : min($expires, (int)$age[1]);
+            } elseif ($name !== '' && !in_array($name, ['public', 'private', 's-maxage'], true)) {
+                $directives[] = $directive;
+            }
+        }
+        if ($expires !== null) {
+            $directives[] = 'max-age=' . $expires;
+        }
+
+        return implode(', ', $directives);
+    }
+
+    /**
+     * Returns the first and the last byte of a file that a Range request header asks for.
+     *
+     * Only the first range of the header is used. A header that is malformed, uses another unit than bytes or cannot
+     * be satisfied by the file is ignored, which a server is free to do (RFC 9110, 14.2): the whole file is sent.
+     *
+     * @param string $header Value of the Range header
+     * @param int $size Size of the file in bytes
+     * @return int[]|null [first, last] or null if the header is to be ignored
+     */
+    public static function getByteRange($header, $size): ?array
+    {
+        if (!preg_match('/^bytes=(\d*)-(\d*)(?:,|$)/Di', (string) $header, $matches)) {
+            return null;
+        }
+
+        [, $start, $end] = $matches;
+        if ($start !== '') {
+            $start = (int)$start;
+            $end = $end !== '' ? min((int)$end, $size - 1) : $size - 1;
+        } elseif ($end !== '') {
+            // Suffix range: the last N bytes of the file.
+            $start = max(0, $size - (int)$end);
+            $end = $size - 1;
+        } else {
+            return null;
+        }
+
+        return $start <= $end ? [$start, $end] : null;
+    }
+
+    /**
      * Provides the ability to download a file to the browser
      *
      * @param string $file the full path to the file to be downloaded
@@ -823,7 +913,7 @@ abstract class Utils
                 $expires = $options['expires'] ?? $grav['config']->get('system.pages.expires');
                 if ($expires > 0) {
                     $expires_date = gmdate('D, d M Y H:i:s T', time() + $expires);
-                    header('Cache-Control: max-age=' . $expires);
+                    header('Cache-Control: ' . static::getCacheControl((int)$expires));
                     header('Expires: ' . $expires_date);
                     header('Pragma: cache');
                 }
@@ -831,16 +921,9 @@ abstract class Utils
             }
 
             // multipart-download and download resuming support
-            if (isset($_SERVER['HTTP_RANGE'])) {
-                [$a, $range] = explode('=', (string) $_SERVER['HTTP_RANGE'], 2);
-                [$range] = explode(',', $range, 2);
-                [$range, $range_end] = explode('-', $range);
-                $range = (int)$range;
-                if (!$range_end) {
-                    $range_end = $size - 1;
-                } else {
-                    $range_end = (int)$range_end;
-                }
+            $byte_range = static::getByteRange($_SERVER['HTTP_RANGE'] ?? '', $size);
+            if ($byte_range) {
+                [$range, $range_end] = $byte_range;
                 $new_length = $range_end - $range + 1;
                 http_response_code(206);
                 header("Content-Length: {$new_length}");
@@ -870,7 +953,7 @@ abstract class Utils
                     fseek($fp, $range);
                 }
                 while (!feof($fp) && (!connection_aborted()) && ($bytes_send < $new_length)) {
-                    $buffer = fread($fp, $chunksize);
+                    $buffer = fread($fp, min($chunksize, $new_length - $bytes_send));
                     echo($buffer); //echo($buffer); // is also possible
                     flush();
                     usleep($sec * 1000000);

@@ -48,6 +48,9 @@ class Cache extends Getters
     /** @var string Cache key. */
     protected $key;
 
+    /** @var string Cache key of the entries which are the same for every host name. */
+    protected $shared_key;
+
     /** @var int */
     protected $lifetime;
 
@@ -62,6 +65,9 @@ class Cache extends Getters
 
     /** @var CacheProvider */
     protected $driver;
+
+    /** @var CacheProvider|null */
+    protected $shared_driver;
 
     /** @var CacheInterface */
     protected $simpleCache;
@@ -152,12 +158,18 @@ class Cache extends Getters
         $prefix = $this->config->get('system.cache.prefix');
         $uniqueness = substr(md5($uri->rootUrl(true) . $this->config->key() . GRAV_VERSION), 2, 8);
 
+        // Shared data uses the root path and configuration checksum; rendered
+        // content keeps the full root URL and configuration compilation key.
+        $shared = substr(md5($uri->rootUrl(false) . $this->config->checksum() . GRAV_VERSION), 2, 8);
+
         // Cache key allows us to invalidate all cache on configuration changes.
         $this->key = ($prefix ?: 'g') . '-' . $uniqueness;
-        $this->cache_dir = $grav['locator']->findResource('cache://grav/' . $uniqueness, true, true);
+        $this->shared_key = ($prefix ?: 'g') . '-' . $shared;
+        $this->cache_dir = $grav['locator']->findResource('cache://grav/' . $shared, true, true);
         $this->driver_setting = $this->config->get('system.cache.driver');
         $this->adapter = $this->getCacheAdapter();
         $this->driver = $this->getCacheDriver($this->adapter);
+        $this->shared_driver = null;
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = Grav::instance()['events'];
@@ -504,6 +516,48 @@ class Cache extends Getters
     }
 
     /**
+     * Gets an entry stored with saveShared(). If it does not exist, it returns false
+     *
+     * @param  string $id the id of the cached entry
+     * @return mixed|bool     returns the cached entry, can be any type, or false if doesn't exist
+     */
+    public function fetchShared($id)
+    {
+        if ($this->enabled) {
+            return $this->getSharedDriver()->fetch($id);
+        }
+
+        return false;
+    }
+
+    /**
+     * Stores a new cached entry which is the same for every host name the site is requested by.
+     *
+     * Regular entries keep their own root URL namespace for absolute URLs.
+     *
+     * @param  string       $id       the id of the cached entry
+     * @param  array|object|int $data     the data for the cached entry to store
+     * @param  int|null     $lifetime the lifetime to store the entry in seconds
+     */
+    public function saveShared($id, $data, $lifetime = null)
+    {
+        if ($this->enabled) {
+            if ($lifetime === null) {
+                $lifetime = $this->getLifetime();
+            }
+            $this->getSharedDriver()->save($id, $data, $lifetime);
+        }
+    }
+
+    /**
+     * @return CacheProvider
+     */
+    protected function getSharedDriver()
+    {
+        return $this->shared_driver ??= $this->getCacheDriver($this->getCacheAdapter($this->shared_key));
+    }
+
+    /**
      * Deletes an item in the cache based on the id
      *
      * @param string $id    the id of the cached data entry
@@ -526,6 +580,8 @@ class Cache extends Getters
     public function deleteAll()
     {
         if ($this->enabled) {
+            $this->getSharedDriver()->deleteAll();
+
             return $this->driver->deleteAll();
         }
 
@@ -555,6 +611,16 @@ class Cache extends Getters
     public function getKey()
     {
         return $this->key;
+    }
+
+    /**
+     * Getter method to get the cache key of the shared entries, which also names the folder of the file cache
+     *
+     * @return string
+     */
+    public function getSharedKey()
+    {
+        return $this->shared_key;
     }
 
     /**
@@ -630,6 +696,7 @@ class Cache extends Getters
                     $cache = $grav['cache'];
                     if (isset($cache->driver)) {
                         $cache->driver->deleteAll();
+                        $cache->getSharedDriver()->deleteAll();
                     }
                 }
             } catch (\Throwable $e) {

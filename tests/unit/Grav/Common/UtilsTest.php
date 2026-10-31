@@ -201,6 +201,30 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertNotEquals(Utils::generateRandomString(20), Utils::generateRandomString(20));
     }
 
+    public function testGetByteRange(): void
+    {
+        self::assertSame([0, 2], Utils::getByteRange('bytes=0-2', 10));
+        self::assertSame([0, 0], Utils::getByteRange('bytes=0-0', 10));
+        self::assertSame([4, 9], Utils::getByteRange('bytes=4-', 10));
+        self::assertSame([7, 9], Utils::getByteRange('bytes=-3', 10));
+        self::assertSame([0, 9], Utils::getByteRange('bytes=-99', 10));
+        self::assertSame([3, 5], Utils::getByteRange('bytes=3-5,7-8', 10));
+
+        // The range never reaches past the end of the file.
+        self::assertSame([0, 9], Utils::getByteRange('bytes=0-99999999', 10));
+        self::assertSame([0, 9], Utils::getByteRange('bytes=0-99999999999999999999999', 10));
+
+        // Malformed and unsatisfiable headers are ignored instead of raising an error.
+        foreach (['', 'x', '=', 'bytes', 'bytes=', 'bytes=5', 'bytes=-', 'bytes=a-b', 'bytes=1-2-3', "bytes=0-2\n", 'items=0-2'] as $header) {
+            self::assertNull(Utils::getByteRange($header, 10), $header);
+        }
+        foreach (['bytes=5-2', 'bytes=10-', 'bytes=10-12', 'bytes=-0', 'bytes=99999999999999999999999-'] as $header) {
+            self::assertNull(Utils::getByteRange($header, 10), $header);
+        }
+        self::assertNull(Utils::getByteRange('bytes=0-', 0));
+        self::assertNull(Utils::getByteRange('bytes=-5', 0));
+    }
+
     public function download(): void
     {
     }

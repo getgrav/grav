@@ -1493,7 +1493,11 @@ class Pages
                     /** @var string $found */
                     $found = preg_replace($pattern, (string) $replace, $source_url);
                     if ($found && $found !== $source_url) {
-                        $this->grav->redirectLangSafe($found);
+                        // Keep the configured destination after applying the request path.
+                        $found = $this->filterSiteRedirect((string) $replace, $found);
+                        if ($found !== null && $found !== $source_url) {
+                            $this->grav->redirectLangSafe($found);
+                        }
                     }
                 } catch (ErrorException $e) {
                     $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
@@ -1502,6 +1506,32 @@ class Pages
         }
 
         return $page;
+    }
+
+    /**
+     * Keep the result of a `site.redirects` rule on the host the rule was written for.
+     *
+     * @param string $replace Redirect target as written in the configuration.
+     * @param string $found Redirect target after the request URL has been applied to it.
+     * @return string|null Redirect target, or null if the rule should not be followed for this request.
+     */
+    protected function filterSiteRedirect(string $replace, string $found): ?string
+    {
+        if (!Uri::isExternal($replace)) {
+            return '/' . ltrim($found, '/\\');
+        }
+
+        // Everything in front of the path: scheme, user info, host and port.
+        $regex = '{^(?:[a-z][a-z0-9+.-]*:)?(?://)?[^/?#]*}i';
+        preg_match($regex, $replace, $expected);
+        preg_match($regex, $found, $actual);
+
+        // A rule which builds that part from its own captures has asked for it.
+        if (strpbrk($expected[0], '$\\') !== false) {
+            return $found;
+        }
+
+        return $actual[0] === $expected[0] ? $found : null;
     }
 
     /**
@@ -2275,7 +2305,7 @@ class Pages
      */
     protected function loadCachedPages(Cache $cache, array $pages_dirs): bool
     {
-        $cached = $cache->fetch($this->pages_cache_id);
+        $cached = $this->isIndexShared() ? $cache->fetchShared($this->pages_cache_id) : $cache->fetch($this->pages_cache_id);
         if (!$cached || $this->getVersion() !== $cached[0]) {
             return false;
         }
@@ -2318,6 +2348,14 @@ class Pages
         }
 
         return true;
+    }
+
+    /**
+     * Frontmatter Twig may put request-specific values into the page index.
+     */
+    protected function isIndexShared(): bool
+    {
+        return $this->grav['config']->get('system.pages.frontmatter.process_twig') !== true;
     }
 
     /**
@@ -2425,7 +2463,7 @@ class Pages
             if ($state_file && $this->writeScanFile($state_file, ['hash' => $hash, 'paths' => $this->scan_paths])) {
                 $interval = (int)$config->get('system.cache.check.interval', 0);
                 if ($interval > 0) {
-                    $this->grav['cache']->save($this->getPagesHashKey($pages_dirs, $method), $hash, $interval);
+                    $this->grav['cache']->saveShared($this->getPagesHashKey($pages_dirs, $method), $hash, $interval);
                 }
 
                 $this->setPagesCacheId($pages_dirs, $hash);
@@ -2473,11 +2511,16 @@ class Pages
                 $this->index_store = null;
             }
 
-            // save pages, routes, taxonomy, and sort to cache
+            // Save pages, routes, taxonomy, sort and UUIDs to the selected cache.
             if ($lazy) {
-                $cache->save($this->pages_cache_id, [$this->getVersion(), $index, [], [], [], [], true, $this->uuid_index ? $this->uuids : null]);
+                $cached = [$this->getVersion(), $index, [], [], [], [], true, $this->uuid_index ? $this->uuids : null];
             } else {
-                $cache->save($this->pages_cache_id, [$this->getVersion(), $index, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort, false, $this->uuid_index ? $this->uuids : null]);
+                $cached = [$this->getVersion(), $index, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort, false, $this->uuid_index ? $this->uuids : null];
+            }
+            if ($this->isIndexShared()) {
+                $cache->saveShared($this->pages_cache_id, $cached);
+            } else {
+                $cache->save($this->pages_cache_id, $cached);
             }
         }
     }
@@ -3128,7 +3171,7 @@ class Pages
         $cache = $this->grav['cache'];
         $cacheKey = $this->getPagesHashKey($pagesDirs, $method);
         if ($interval > 0) {
-            $cached = $cache->fetch($cacheKey);
+            $cached = $cache->fetchShared($cacheKey);
             if ($cached !== false) {
                 return $cached;
             }
@@ -3167,7 +3210,7 @@ class Pages
             }
 
             if ($interval > 0) {
-                $cache->save($cacheKey, $hash, $interval);
+                $cache->saveShared($cacheKey, $hash, $interval);
             }
         } finally {
             $this->releaseLock($lock);

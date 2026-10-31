@@ -17,6 +17,7 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Pages;
 use Grav\Common\Plugins;
 use Grav\Common\Session;
+use Grav\Common\Service\RequestServiceProvider;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\YamlFormatter;
@@ -73,6 +74,9 @@ class InitializeProcessor extends ProcessorBase
 
         // Load configuration.
         $config = $this->initializeConfig();
+        $request = RequestServiceProvider::applyForwardedProtocol($request, (bool)$config->get('system.http_x_forwarded.protocol'));
+        unset($this->container['request']);
+        $this->container['request'] = $request;
 
         // Initialize logger.
         $this->initializeLogger($config);

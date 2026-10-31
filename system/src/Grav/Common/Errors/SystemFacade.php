@@ -84,6 +84,12 @@ class SystemFacade extends \Whoops\Util\SystemFacade
 
             // Work around PHP bug #8218 (8.0.17 & 8.1.4).
             header_remove('Content-Encoding');
+
+            // Error responses replace any cache policy queued before the failure.
+            header_remove('Expires');
+            header_remove('Pragma');
+            header_remove('Last-Modified');
+            header('Cache-Control: no-store, max-age=0');
         }
 
         return http_response_code($httpCode);
