@@ -259,6 +259,8 @@ class PageStorage extends FolderStorage
             'params' => null,
             'parent_key' => $parentKey,
             'order' => is_numeric($order) ? (int)$order : null,
+            // Keep the prefix width of the existing folder (`005.blog`) across saves.
+            'order_digits' => $keyMeta['order_digits'] ?? null,
             'folder' => $folder,
             'template' => $template,
             'lang' => $lang
@@ -396,6 +398,9 @@ class PageStorage extends FolderStorage
             if (is_string($oldKey)) {
                 // Initialize all old key-related variables.
                 $oldKeys = $this->extractKeysFromRow(['__META' => $row['__META']], false);
+                // The page lives in the folder named by its storage key. A folder rebuilt from order and
+                // slug may differ from it (`1.blog`, `00.blog`), which would skip the move below.
+                $oldKeys['key'] = $this->extractKeysFromStorageKey($oldKey)['key'];
                 $oldFolder = $this->buildFolder($oldKeys);
                 $oldFilename = $this->buildFilename($oldKeys);
 
