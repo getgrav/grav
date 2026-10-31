@@ -662,7 +662,9 @@ trait PageContentTrait
 
         $summary = Utils::truncateHTML($content, $size);
 
-        return html_entity_decode($summary, ENT_COMPAT | ENT_HTML5, 'UTF-8');
+        // Only undo the entities the truncator leaves for non-ASCII characters; decoding &lt; and friends as well
+        // would turn text that the content escaped back into markup.
+        return Utils::decodeNonAsciiEntities($summary);
     }
 
     /**

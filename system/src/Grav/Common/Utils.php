@@ -755,6 +755,23 @@ abstract class Utils
     }
 
     /**
+     * Turn the entities of non-ASCII characters in HTML back into characters, which is how the HTML truncator
+     * leaves them. Every other entity (`&lt;`, `&gt;`, `&amp;`, `&quot;`, `&#60;`...) is kept as written: those are
+     * what separates text from markup, so unlike with html_entity_decode() the result is still the same HTML.
+     *
+     * @param string $html
+     * @return string
+     */
+    public static function decodeNonAsciiEntities($html)
+    {
+        return (string)preg_replace_callback('/&(?:#\d+|#x[\da-f]+|[a-z][a-z\d]*);/i', static function (array $matches) {
+            $decoded = html_entity_decode($matches[0], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+            return preg_match('/[\x00-\x7F]/', $decoded) ? $matches[0] : $decoded;
+        }, (string)$html);
+    }
+
+    /**
      * Generate a random string of a given length
      *
      * @param int $length

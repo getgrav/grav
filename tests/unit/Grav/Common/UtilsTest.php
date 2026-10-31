@@ -195,6 +195,22 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('<ol><li>item 1 <i>something</i></li><li>item 2...</li></ol>', Utils::safeTruncateHtml('<ol><li>item 1 <i>something</i></li><li>item 2 <strong>bold</strong></li></ol>', 5));
     }
 
+    public function testDecodeNonAsciiEntities(): void
+    {
+        self::assertSame('<p>é … 中 😀 ©</p>', Utils::decodeNonAsciiEntities('<p>&eacute; &hellip; &#20013; &#x1F600; &copy;</p>'));
+        self::assertSame('é … 中', Utils::decodeNonAsciiEntities(Utils::truncateHtml('é … 中 and more', 5, '')));
+
+        // Entities that stand for ASCII characters keep text apart from markup and must stay as written.
+        $kept = [
+            '&lt;b&gt;', '&LT;b&GT;', '&#60;b&#62;', '&#x3c;b&#X3E;', '&#0060;b', '&nvlt;b&nvgt;', '&amp;lt;', '&#38;lt;',
+            '<a title="&quot; onclick=&quot;x">', "<a title='&#39; onclick=&apos;x'>", '<a title=x&#32;onclick&equals;x&Tab;y>',
+            '&unknown;', '&lt', '& ;'
+        ];
+        foreach ($kept as $html) {
+            self::assertSame($html, Utils::decodeNonAsciiEntities($html));
+        }
+    }
+
     public function testGenerateRandomString(): void
     {
         self::assertNotEquals(Utils::generateRandomString(), Utils::generateRandomString());
