@@ -85,6 +85,7 @@ class PageStorage extends FolderStorage
             $params = '';
         }
         $key = ltrim($key, '/');
+        $this->assertValidStorageKey($key, $params);
 
         $keys = parent::parseKey($key, false) + ['params' => $params];
 
@@ -513,6 +514,30 @@ class PageStorage extends FolderStorage
 
         if (!preg_match('/^[\w-]*$/u', (string)($keys['lang'] ?? ''))) {
             throw new RuntimeException('Invalid page language');
+        }
+    }
+
+    /**
+     * The storage key is the path of the page folder (which is also its media
+     * folder) and the parameters are the name of the page file. Every path of an
+     * existing page is built from them, so the key cannot have a dot segment and
+     * the parameters cannot have a separator.
+     *
+     * @param string $key
+     * @param string $params
+     * @return void
+     * @throws RuntimeException
+     */
+    protected function assertValidStorageKey(string $key, string $params = ''): void
+    {
+        foreach (explode('/', $key) as $segment) {
+            if ($segment === '.' || $segment === '..' || strpbrk($segment, "\\\0") !== false) {
+                throw new RuntimeException('Invalid page storage key');
+            }
+        }
+
+        if (strpbrk($params, "/\\\0") !== false) {
+            throw new RuntimeException('Invalid page storage key');
         }
     }
 

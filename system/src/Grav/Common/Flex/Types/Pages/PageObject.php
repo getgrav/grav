@@ -279,6 +279,21 @@ class PageObject extends FlexPageObject implements PageUuidInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
+     * The storage key is never taken from submitted data. It names the folder the
+     * page and its media live in and follows from the parent, order and folder. The
+     * page blueprint does not declare it, and its loose validation passes undeclared
+     * keys through.
+     */
+    public function update(array $data, array $files = [])
+    {
+        unset($data['storage_key']);
+
+        return parent::update($data, $files);
+    }
+
+    /**
      * @param UserInterface|null $user
      */
     public function check(?UserInterface $user = null): void
