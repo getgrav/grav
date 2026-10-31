@@ -8,6 +8,7 @@
     * The bundled `nginx.conf` also keeps Markdown source files such as `CHANGELOG.md` and the `webserver-configs/` folder private, and matches root files such as `composer.json` in any letter case (nginx sites copy the updated rules from `webserver-configs/` by hand)
     * The bundled IIS `web.config` also keeps `LICENSE.txt`, `composer.json`, `composer.lock` and Markdown source files private, covers the same file types under `system/` and `vendor/` as the Apache rules, and matches its rules however a file path is written (IIS sites copy the updated rules from `webserver-configs/` by hand)
     * The `php -S` development router (`system/router.php`) keeps `tmp/`, `user/config/`, `user/accounts/` and `user/data/` private and refuses scripts in `images/` and `assets/`, the same as the shipped web-server rules
+    * [security] The Apache `.htaccess` exception for `/.well-known/` now covers that folder only, so other hidden files and folders whose names start with `well-known` stay blocked. Upgrading updates existing `.htaccess` files
 
 # v2.2.18
 ## 10/31/2026
