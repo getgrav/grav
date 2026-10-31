@@ -1,3 +1,9 @@
+# v1.7.53.8
+## mm/dd/2026
+
+1. [](#bugfix)
+    * [security] The root `.htaccess` also keeps the `tmp/` folder private, refuses scripts in `images/` and `assets/`, and refuses requests in `images/`, `assets/`, `system/`, `vendor/` and `user/` that map to a file with a path after it, and upgrading adds these rules to an existing site's `.htaccess`. Backport of the Grav 2 rules
+
 # v1.7.53.7
 ## 10/31/2026
 
