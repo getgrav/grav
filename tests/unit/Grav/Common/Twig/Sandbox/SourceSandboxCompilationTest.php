@@ -477,6 +477,105 @@ class SourceSandboxCompilationTest extends TestCase
     }
 
     /**
+     * A Twig global (Grav's `grav`) reaches a trusted partial as the real value,
+     * whether content passes a value under the same name or sets one before the
+     * include.
+     *
+     * @dataProvider globalNameProvider
+     */
+    public function testTrustedPartial_TwigGlobalsCannotBeReplaced(string $code): void
+    {
+        $this->writeTemplate('partials/member.html.twig', "{{ gate.user.authorized ? 'member' : 'guest' }}|{{ title ?? '-' }}");
+        Grav::instance()['config']->set('security.twig_sandbox.trusted_partials', ['partials/member.html.twig']);
+        $env = $this->env(['@Page:g' => $code]);
+        $env->addGlobal('gate', ['user' => ['authorized' => false]]);
+
+        self::assertSame('guest|T', $env->renderContent('@Page:g', [], []));
+        self::assertSame('guest|T', $env->render('@Page:g'));
+    }
+
+    public static function globalNameProvider(): array
+    {
+        return [
+            'passed with' => ["{% include 'partials/member.html.twig' with {gate: {user: {authorized: true}}, title: 'T'} %}"],
+            'set before the include' => ["{% set gate = {user: {authorized: true}} %}{% set title = 'T' %}{% include 'partials/member.html.twig' %}"],
+        ];
+    }
+
+    /**
+     * Through Grav's own Twig, the `grav` global from GravExtension is the one a
+     * trusted partial sees, for both ways content could name it.
+     */
+    public function testGravTwig_TrustedPartialSeesTheRealGravGlobal(): void
+    {
+        $grav = Fixtures::get('grav')();
+        $grav['config']->set('security.twig_sandbox.enabled', true);
+        $grav['locator']->addPath('theme', '', 'user/themes');
+        $twig = $grav['twig'];
+        $twig->init();
+        $twig->addPath($this->dir);
+        $this->writeTemplate('partials/marker.html.twig', "{{ grav.marker ?? 'real' }}");
+        $grav['config']->set('security.twig_sandbox.trusted_partials', ['partials/marker.html.twig']);
+
+        self::assertSame('real', $twig->processString("{% include 'partials/marker.html.twig' %}"));
+        self::assertSame('real', $twig->processString("{% include 'partials/marker.html.twig' with {grav: {marker: 'other'}} %}"));
+        self::assertSame('real', $twig->processString("{% set grav = {marker: 'other'} %}{% include 'partials/marker.html.twig' %}"));
+    }
+
+    /**
+     * `forms/data.save.txt.twig` writes literal text (escaping off) for the Form
+     * plugin's save action, which renders its body through processString()
+     * (a `@Var:` source). Included from page content or an email body, which
+     * are HTML, its output is escaped.
+     *
+     * @dataProvider textPartialProvider
+     */
+    public function testTextPartial_LiteralInVarRendersEscapedInHtmlRenders(string $prefix, string $expected): void
+    {
+        $this->writeTextPartial();
+        $env = $this->env([$prefix . 'save' => '{% include "forms/data.save.txt.twig" %}']);
+        $form = new SourceSandboxForm('<img src=x onerror=alert(1)> & "q"');
+
+        self::assertSame($expected, $env->renderContent($prefix . 'save', [], ['form' => $form]));
+        self::assertSame($expected, $env->render($prefix . 'save', ['form' => $form]));
+    }
+
+    public static function textPartialProvider(): array
+    {
+        $escaped = "Message: &lt;img src=x onerror=alert(1)&gt; &amp; &quot;q&quot;\n";
+
+        return [
+            '@Var: (form save body)' => ['@Var:', "Message: <img src=x onerror=alert(1)> & \"q\"\n"],
+            '@Page: (page content)' => ['@Page:', $escaped],
+            '@EmailVar: (email body)' => ['@EmailVar:', $escaped],
+        ];
+    }
+
+    /**
+     * Through Grav's own Twig: the Form plugin's default save body keeps writing
+     * the submitted text as is, and page content that includes the same
+     * template gets it escaped.
+     */
+    public function testGravTwig_TextPartialLiteralForSaveBodyEscapedInPageContent(): void
+    {
+        $grav = Fixtures::get('grav')();
+        $grav['config']->set('security.twig_sandbox.enabled', true);
+        $grav['locator']->addPath('theme', '', 'user/themes');
+        $twig = $grav['twig'];
+        $twig->init();
+        $twig->addPath($this->dir);
+        $this->writeTextPartial();
+        $form = new SourceSandboxForm('<img src=x onerror=alert(1)>');
+
+        // form.php: $twig->processString($params['body'] ?? '{% include "forms/data.save.txt.twig" %}', $vars)
+        self::assertSame("Message: <img src=x onerror=alert(1)>\n", $twig->processString('{% include "forms/data.save.txt.twig" %}', ['form' => $form]));
+
+        $env = $twig->twig();
+        $twig->setTemplate('@Page:form-save', 'Before {% include "forms/data.save.txt.twig" %}');
+        self::assertSame("Before Message: &lt;img src=x onerror=alert(1)&gt;\n", $env->renderContent('@Page:form-save', [], ['form' => $form]));
+    }
+
+    /**
      * Through Grav's own Twig: the page content render hands the trusted partial
      * the unfiltered variables, and an unlisted partial that steps outside the
      * policy soft-fails like the content itself.
@@ -808,6 +907,18 @@ class SourceSandboxCompilationTest extends TestCase
         return ['probe' => new SourceSandboxProbe()];
     }
 
+    /**
+     * A stand-in for the Form plugin's `forms/data.save.txt.twig`: escaping off,
+     * reading the submitted value through a method on the form object.
+     */
+    private function writeTextPartial(): void
+    {
+        if (!is_dir($this->dir . '/forms')) {
+            mkdir($this->dir . '/forms', 0777, true);
+        }
+        $this->writeTemplate('forms/data.save.txt.twig', "{%- autoescape false %}{% for field in form.fields %}{{ field.label }}: {{ form.value(field.name) ~ \"\\n\" }}{% endfor %}{%- endautoescape %}");
+    }
+
     private function writeGadgets(): void
     {
         $this->writeTemplate('partials/gadget.html.twig', "{% set result = attribute(a, b) %}{% block out %}{{ result }}{% endblock %}");
@@ -870,6 +981,25 @@ class SourceSandboxProbe
     public function __toString(): string
     {
         return 'probe';
+    }
+}
+
+/**
+ * A form with one submitted value, the way the Form plugin's data templates
+ * read it.
+ */
+class SourceSandboxForm
+{
+    /** @var array<int,array<string,string>> */
+    public $fields = [['name' => 'message', 'label' => 'Message']];
+
+    public function __construct(private string $message)
+    {
+    }
+
+    public function value(string $name): ?string
+    {
+        return $name === 'message' ? $this->message : null;
     }
 }
 

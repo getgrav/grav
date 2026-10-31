@@ -186,8 +186,10 @@ twig_sandbox:
   # would, outside the sandbox, ADDED to the built-in defaults (the Form
   # plugin's forms/form.html.twig and its forms/data.* templates, see
   # SandboxDefaults::trustedPartials). A listed partial gets Grav's own
-  # variables (page, form, config, ...); content can only add plain values
-  # (text, numbers, lists) under names Grav does not set, never objects.
+  # variables (page, form, config, ...) and globals (grav); content can only
+  # add plain values (text, numbers, lists) under names Grav does not set,
+  # never objects. forms/data.save.txt.twig writes literal text for the
+  # Form save action, so its output is escaped in page content and emails.
   # Matched by exact name, and only for `include`: embed/extends/use/import
   # of the same file stay sandboxed. Only list a partial that prints its
   # parameters escaped and doesn't use them to look things up, e.g.

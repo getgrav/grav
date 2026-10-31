@@ -11,6 +11,7 @@ namespace Grav\Common\Twig;
 
 use Closure;
 use Grav\Common\Security;
+use Grav\Common\Twig\Sandbox\SandboxDefaults;
 use ReflectionClass;
 use SplStack;
 use Twig\Environment;
@@ -37,11 +38,13 @@ class TwigEnvironment extends Environment
     /**
      * One entry per render in progress: for a sandboxed (editor-authored)
      * render, the variables PHP handed it, which trusted partials it includes
-     * render with; null for a trusted render. An object, so the clone
-     * Twig::processPage() renders with shares it with the environment that
-     * loaded any template instance it reuses.
+     * render with, and whether its output is text (a `@Var:` string, such as
+     * the Form plugin's save body) rather than page or email HTML; null for a
+     * trusted render. An object, so the clone Twig::processPage() renders with
+     * shares it with the environment that loaded any template instance it
+     * reuses.
      *
-     * @var SplStack<array|null>
+     * @var SplStack<array{vars: array, text: bool}|null>
      */
     private SplStack $renders;
 
@@ -162,6 +165,9 @@ class TwigEnvironment extends Environment
      * here. A template listed under `security.twig_sandbox.trusted_partials`
      * renders as a trusted render on the variables PHP handed the content
      * render, plus plain values from the content (see trustedPartialVariables()).
+     * A text partial (SandboxDefaults::textPartials(), templates that switch
+     * escaping off to write literal text) is inserted as is only into a `@Var:`
+     * render, and escaped in page content and email bodies, which are HTML.
      * Anything else renders with the sandbox on, like every other template
      * content loads.
      *
@@ -182,7 +188,12 @@ class TwigEnvironment extends Environment
                 return;
             }
 
-            yield $this->render($partial, $this->trustedPartialVariables($partial, $context, $variables, $only));
+            $output = $this->render($partial, $this->trustedPartialVariables($partial, $context, $variables, $only));
+            if (\in_array($partial, SandboxDefaults::textPartials(), true) && !$this->rendersText()) {
+                $output = htmlspecialchars($output, ENT_QUOTES | ENT_SUBSTITUTE, $this->getCharset());
+            }
+
+            yield $output;
 
             return;
         }
@@ -253,7 +264,7 @@ class TwigEnvironment extends Environment
         $checker->setSandboxed(false);
         $sandboxed = $checker->isSandboxed($source);
         $checker->setSandboxed($sandboxed);
-        $this->renders->push($sandboxed ? $partialContext : null);
+        $this->renders->push($sandboxed ? ['vars' => $partialContext, 'text' => str_starts_with($source->getName(), '@Var:')] : null);
         try {
             return $render();
         } finally {
@@ -293,9 +304,11 @@ class TwigEnvironment extends Environment
 
     /**
      * Variables for a trusted partial included from content: the ones PHP
-     * handed the content render, plus plain values from the content. Grav's own
-     * variables win, so content cannot replace `page`, `form` or `config`, and
-     * an object the content holds never reaches the partial.
+     * handed the content render, plus plain values from the content. Content
+     * values never take a name Grav supplies, either one of the render's own
+     * variables (`page`, `form`, `config`) or a Twig global (`grav`), whether
+     * passed with `with` or set in the content before the include. An object
+     * the content holds never reaches the partial.
      *
      * @param string $name
      * @param array $context
@@ -313,9 +326,25 @@ class TwigEnvironment extends Environment
         }
 
         $inherited = $only ? [] : array_filter($context, [self::class, 'isPlainValue']);
-        $base = $this->renders->isEmpty() ? null : $this->renders->top();
+        $frame = $this->renders->isEmpty() ? null : $this->renders->top();
+        $base = $frame['vars'] ?? [];
 
-        return ($base ?? []) + $explicit + $inherited;
+        // render() adds the globals back underneath, so they reach the partial
+        // as the real values.
+        return $base + array_diff_key($explicit + $inherited, $base, $this->getGlobals());
+    }
+
+    /**
+     * Whether the content render in progress produces text (a `@Var:` string)
+     * rather than page or email HTML. False outside a content render.
+     *
+     * @return bool
+     */
+    private function rendersText(): bool
+    {
+        $frame = $this->renders->isEmpty() ? null : $this->renders->top();
+
+        return (bool) ($frame['text'] ?? false);
     }
 
     /**

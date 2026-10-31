@@ -407,6 +407,23 @@ final class SandboxDefaults
     }
 
     /**
+     * Trusted partials that switch escaping off to write literal text: the Form
+     * plugin's `forms/data.save.txt.twig`, which its `save` action renders
+     * through Twig::processString() (a `@Var:` string) for a text file.
+     * Included from a `@Var:` string their output goes in as is; included from
+     * page content or an email body, which are HTML, it is escaped. See
+     * TwigEnvironment::includeFromContent().
+     *
+     * @return list<string>
+     */
+    public static function textPartials(): array
+    {
+        return [
+            'forms/data.save.txt.twig',
+        ];
+    }
+
+    /**
      * The full default set keyed by list name, for the effective-policy merge
      * and the admin diagnostic.
      *
