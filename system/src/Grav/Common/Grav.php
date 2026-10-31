@@ -627,6 +627,9 @@ class Grav extends Container
             // Clean route for redirect
             $route = preg_replace("#^\/[\\\/]+\/#", '/', $route);
 
+            // Classify the configured destination before removing its redirect code.
+            $external = $uri::isExternal($route);
+
             if (null === $code) {
                 // Check for redirect code in the route: e.g. /new/[301], /new[301]/route, /new[301].html, /new[301]?a=1&b=2 or /new[301].html?a=1
                 $regex = '/.*(\[(30[1-7])\])(.\w+|\/.*?)?([?#].*)?$/';
@@ -637,7 +640,7 @@ class Grav extends Container
                 }
             }
 
-            if ($uri::isExternal($route)) {
+            if ($external) {
                 $url = $route;
             } else {
                 $url = rtrim($uri->rootUrl(), '/') . '/';

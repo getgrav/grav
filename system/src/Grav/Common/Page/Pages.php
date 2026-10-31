@@ -1492,7 +1492,11 @@ class Pages
                     /** @var string $found */
                     $found = preg_replace($pattern, (string) $replace, $source_url);
                     if ($found && $found !== $source_url) {
-                        $this->grav->redirectLangSafe($found);
+                        // Keep the configured destination after applying the request path.
+                        $found = $this->filterSiteRedirect((string) $replace, $found);
+                        if ($found !== null && $found !== $source_url) {
+                            $this->grav->redirectLangSafe($found);
+                        }
                     }
                 } catch (ErrorException $e) {
                     $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
@@ -1501,6 +1505,32 @@ class Pages
         }
 
         return $page;
+    }
+
+    /**
+     * Keep the result of a `site.redirects` rule on the host the rule was written for.
+     *
+     * @param string $replace Redirect target as written in the configuration.
+     * @param string $found Redirect target after the request URL has been applied to it.
+     * @return string|null Redirect target, or null if the rule should not be followed for this request.
+     */
+    protected function filterSiteRedirect(string $replace, string $found): ?string
+    {
+        if (!Uri::isExternal($replace)) {
+            return '/' . ltrim($found, '/\\');
+        }
+
+        // Everything in front of the path: scheme, user info, host and port.
+        $regex = '{^(?:[a-z][a-z0-9+.-]*:)?(?://)?[^/?#]*}i';
+        preg_match($regex, $replace, $expected);
+        preg_match($regex, $found, $actual);
+
+        // A rule which builds that part from its own captures has asked for it.
+        if (strpbrk($expected[0], '$\\') !== false) {
+            return $found;
+        }
+
+        return $actual[0] === $expected[0] ? $found : null;
     }
 
     /**
