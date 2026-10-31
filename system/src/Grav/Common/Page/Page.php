@@ -1102,12 +1102,17 @@ class Page implements PageInterface, PageUuidInterface
                 }
             }
 
-            // Handle summary divider
+            // Handle summary divider. Markdown renders it as a block of its own, so only
+            // remove it where it stands between tags (or at either end of the content):
+            // cut out of the middle of raw HTML, what is left on both sides would join
+            // into markup (`<scr<p>===</p>ipt>`) that the tagfilter and the save-time
+            // XSS scan never saw.
             $delimiter = $config->get('site.summary.delimiter', '===');
-            $divider_pos = mb_strpos((string) $this->content, "<p>{$delimiter}</p>");
-            if ($divider_pos !== false) {
-                $this->summary_size = $divider_pos;
-                $this->content = str_replace("<p>{$delimiter}</p>", '', $this->content);
+            $divider = '~(?:\G|>)\s*\K' . preg_quote("<p>{$delimiter}</p>", '~') . '(?=\s*(?:<|$))~';
+            $parts = preg_split($divider, (string) $this->content);
+            if ($parts && count($parts) > 1) {
+                $this->summary_size = mb_strlen($parts[0]);
+                $this->content = implode('', $parts);
             }
 
             // Fire event when Page::content() is called
