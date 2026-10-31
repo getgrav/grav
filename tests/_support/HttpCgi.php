@@ -4,12 +4,17 @@ class HttpCgi
 {
     public static function run(string $code, array $server = []): array
     {
+        $binary = dirname(PHP_BINARY) . '/php-cgi';
+        if (!is_executable($binary)) {
+            \PHPUnit\Framework\Assert::markTestSkipped('php-cgi is not available next to ' . PHP_BINARY);
+        }
+
         $file = tempnam(GRAV_ROOT . '/tests/_output', 'http-');
         $autoload = var_export(GRAV_ROOT . '/vendor/autoload.php', true);
         file_put_contents($file, "<?php\ndefine('GRAV_CLI', true);\ndefine('GRAV_REQUEST_TIME', microtime(true));\nrequire {$autoload};\n" . $code);
         try {
             $process = proc_open(
-                implode(' ', array_map('escapeshellarg', [dirname(PHP_BINARY) . '/php-cgi', '-d', 'display_errors=stderr', '-d', 'output_buffering=0', '-d', 'error_reporting=' . (E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED)])),
+                implode(' ', array_map('escapeshellarg', [$binary, '-d', 'display_errors=stderr', '-d', 'output_buffering=0', '-d', 'error_reporting=' . (E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED)])),
                 [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
                 $pipes,
                 GRAV_ROOT,
