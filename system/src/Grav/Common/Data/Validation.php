@@ -859,6 +859,13 @@ class Validation
             $params['max'] = 320;
         }
 
+        // A list of addresses is only valid for a `multiple` field. Everywhere else the
+        // address is a single string, which is what the code reading it back expects
+        // (account look-ups by e-mail cast the stored value to string).
+        if (is_array($value) && empty($field['multiple'])) {
+            return false;
+        }
+
         $values = !is_array($value) ? explode(',', (string) preg_replace('/\s+/', '', (string) $value)) : $value;
 
         foreach ($values as $val) {

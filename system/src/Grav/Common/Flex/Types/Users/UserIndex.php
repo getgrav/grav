@@ -20,6 +20,7 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Monolog\Logger;
 use function count;
+use function is_scalar;
 use function is_string;
 
 /**
@@ -67,7 +68,8 @@ class UserIndex extends FlexIndex implements UserCollectionInterface
         // Username can also be number and stored as such.
         $key = (string)($data['username'] ?? $meta['key'] ?? $meta['storage_key']);
         $meta['key'] = static::filterUsername($key, $storage);
-        $meta['email'] = isset($data['email']) ? mb_strtolower((string) $data['email']) : null;
+        // An account with a list or a map as email has no address to be found by; it must not break the index.
+        $meta['email'] = is_scalar($data['email'] ?? null) ? mb_strtolower((string) $data['email']) : null;
     }
 
     /**

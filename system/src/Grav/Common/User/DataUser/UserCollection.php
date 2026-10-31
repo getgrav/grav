@@ -19,6 +19,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function count;
 use function in_array;
+use function is_scalar;
 use function is_string;
 
 /**
@@ -113,7 +114,9 @@ class UserCollection implements UserCollectionInterface
                 if (Utils::endsWith($file, YAML_EXT)) {
                     $find_user = $this->load(trim(Utils::pathinfo($file, PATHINFO_FILENAME)));
                     foreach ($fields as $field) {
-                        if (isset($find_user[$field]) && mb_strtolower((string) $find_user[$field]) === $query) {
+                        // A list or a map in one account must not end the search for everybody else.
+                        $value = $find_user[$field] ?? null;
+                        if (is_scalar($value) && mb_strtolower((string) $value) === $query) {
                             return $find_user;
                         }
                     }

@@ -523,7 +523,8 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     {
         if ($value) {
             foreach ($this as $element) {
-                if (mb_strtolower((string) $element->getProperty($field)) === mb_strtolower($value)) {
+                $property = $element->getProperty($field);
+                if (is_scalar($property) && mb_strtolower((string) $property) === mb_strtolower($value)) {
                     return $element;
                 }
             }
