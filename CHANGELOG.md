@@ -1,3 +1,9 @@
+# v2.2.19
+## 10/31/2026
+
+1. [](#bugfix)
+    * A number field given a value too large for an integer no longer causes a warning on PHP 8.5
+
 # v2.2.18
 ## 10/31/2026
 
