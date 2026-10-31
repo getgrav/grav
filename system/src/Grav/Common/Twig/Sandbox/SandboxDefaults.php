@@ -387,6 +387,26 @@ final class SandboxDefaults
     }
 
     /**
+     * Templates that `{% include %}` in page content renders as a trusted
+     * render on Grav's own variables, instead of under the sandbox. The Form
+     * plugin's form template, and the data templates its stock `save` body and
+     * the Email plugin's default body include from sandboxed strings. See
+     * TwigEnvironment::includeFromContent(). Sites add more under
+     * `security.twig_sandbox.trusted_partials`.
+     *
+     * @return list<string>
+     */
+    public static function trustedPartials(): array
+    {
+        return [
+            'forms/form.html.twig',
+            'forms/data.html.twig',
+            'forms/data.txt.twig',
+            'forms/data.save.txt.twig',
+        ];
+    }
+
+    /**
      * The full default set keyed by list name, for the effective-policy merge
      * and the admin diagnostic.
      *

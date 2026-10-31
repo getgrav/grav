@@ -875,6 +875,34 @@ class Security
     }
 
     /**
+     * Templates page content may include as trusted partials: the built-in
+     * defaults plus the site's additive `security.twig_sandbox.trusted_partials`.
+     * Names are matched exactly against the name content includes.
+     *
+     * @return list<string>
+     */
+    public static function twigTrustedPartials(?Config $config = null): array
+    {
+        if ($config === null) {
+            try {
+                $config = Grav::instance()['config'];
+            } catch (Exception) {
+                $config = null;
+            }
+        }
+
+        $user = (array) ($config?->get('security.twig_sandbox.trusted_partials', []) ?? []);
+        $out = [];
+        foreach (array_merge(SandboxDefaults::trustedPartials(), $user) as $name) {
+            if (is_string($name) && $name !== '' && !in_array($name, $out, true)) {
+                $out[] = $name;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
      * Effective config-redaction prefixes = built-in defaults ∪ the user's
      * additive `security.twig_sandbox.config_denied_paths`. Like the allowlists,
      * the defaults live in code so user config can only ADD paths to redact,

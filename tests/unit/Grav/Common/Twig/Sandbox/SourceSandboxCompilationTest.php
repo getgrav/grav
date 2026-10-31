@@ -1,7 +1,9 @@
 <?php
 
 use Codeception\Util\Fixtures;
+use Grav\Common\Grav;
 use Grav\Common\Security;
+use Grav\Common\Twig\Sandbox\ContentIncludeExtension;
 use Grav\Common\Twig\Sandbox\GravSourcePolicy;
 use Grav\Common\Twig\TwigEnvironment;
 use PHPUnit\Framework\TestCase;
@@ -38,6 +40,9 @@ class SourceSandboxCompilationTest extends TestCase
     /** @var string */
     private $dir;
 
+    /** @var mixed */
+    private $trustedPartials;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -50,6 +55,8 @@ class SourceSandboxCompilationTest extends TestCase
                 $p->setValue(null, null);
             }
         }
+
+        $this->trustedPartials = Grav::instance()['config']->get('security.twig_sandbox.trusted_partials');
 
         // A unique folder per test keeps the loader cache key, and so the
         // compiled class name, unique too.
@@ -65,6 +72,7 @@ class SourceSandboxCompilationTest extends TestCase
 
     protected function tearDown(): void
     {
+        Grav::instance()['config']->set('security.twig_sandbox.trusted_partials', $this->trustedPartials);
         $this->removeDir($this->dir);
         parent::tearDown();
     }
@@ -237,7 +245,9 @@ class SourceSandboxCompilationTest extends TestCase
         $env->render('partials/child.html.twig', $context);
         $env->render('partials/attr.html.twig', $context);
 
-        self::assertSame(0, $counter->calls, 'A trusted template should not consult the source policy when it renders.');
+        // TwigEnvironment::render() asks once per render, for the template it
+        // was given; nothing inside the render asks again.
+        self::assertSame(2, $counter->calls, 'A trusted template should not consult the source policy while it renders.');
 
         $counter = new CountingSourcePolicy();
         $legacy = $this->env([], false, $counter);
@@ -263,17 +273,229 @@ class SourceSandboxCompilationTest extends TestCase
     }
 
     // =========================================================================
-    // (c) Editor content including a disk partial behaves as before
+    // (c) A disk template that editor content loads is sandboxed with it
     // =========================================================================
 
-    public function testPageIncludingDiskPartial_PartialStaysTrusted(): void
+    public function testPageIncludingDiskPartial_PartialInsideThePolicyRenders(): void
     {
-        $templates = ['@Page:inc' => "{% include 'partials/probe.html.twig' %}|{{ name|upper }}"];
-        $context = ['probe' => new SourceSandboxProbe(), 'name' => 'grav'];
+        $templates = ['@Page:inc' => "{% include 'partials/plain.html.twig' %}|{{ name|upper }}"];
 
-        $expected = $this->env($templates, false)->render('@Page:inc', $context);
-        self::assertSame('<b>probe</b>|GRAV', $expected);
-        self::assertSame($expected, $this->env($templates)->render('@Page:inc', $context));
+        foreach ([false, true] as $sourceSandbox) {
+            self::assertSame('<i>GRAV</i>|GRAV', $this->env($templates, $sourceSandbox)->render('@Page:inc', ['name' => 'grav']));
+        }
+    }
+
+    /**
+     * The partial runs on variables the content chose, so it must not do for the
+     * content what the content may not do itself.
+     *
+     * @dataProvider sandboxedPrefixProvider
+     */
+    public function testPageIncludingDiskPartial_PartialIsChecked(string $prefix): void
+    {
+        $env = $this->env([$prefix . 'inc' => "{% include 'partials/probe.html.twig' %}"]);
+
+        $this->expectException(SecurityNotAllowedMethodError::class);
+        $env->render($prefix . 'inc', ['probe' => new SourceSandboxProbe()]);
+    }
+
+    /**
+     * `partials/gadget.html.twig` stays inside the tag, filter and function
+     * allowlists, and reads one of its variables with another, as theme and plugin
+     * templates do. Each way of loading it hands it an object the content cannot read.
+     *
+     * @dataProvider loadedFromContentProvider
+     */
+    public function testDiskTemplateLoadedFromContent_DoesNotReadForTheContent(string $code): void
+    {
+        $this->writeGadgets();
+        $context = ['probe' => new SourceSandboxProbe(), 'a' => new SourceSandboxProbe(), 'b' => 'secret'];
+
+        // Rendered by Grav on its own variables, the same file is trusted.
+        self::assertSame('secret', $this->env()->render('partials/gadget.html.twig', $context));
+
+        foreach ([false, true] as $preloaded) {
+            $env = $this->env(['@Page:load' => $code]);
+            if ($preloaded) {
+                $env->render('partials/gadget.html.twig', $context);
+                $env->load('partials/gadget_blocks.html.twig');
+                $env->load('partials/gadget_macro.html.twig');
+            }
+
+            try {
+                $output = $env->render('@Page:load', $context);
+                self::fail('The read should have been blocked, got: ' . $output);
+            } catch (SecurityNotAllowedPropertyError $e) {
+                self::assertSame('secret', $e->getPropertyName());
+            }
+            self::assertFalse($env->getExtension(SandboxExtension::class)->isSandboxed(), 'The sandbox is switched off again after the render.');
+        }
+    }
+
+    public static function loadedFromContentProvider(): array
+    {
+        return [
+            'include' => ["{% include 'partials/gadget.html.twig' with {a: probe, b: 'secret'} %}"],
+            'include, inherited context' => ["{% set a = probe %}{% include 'partials/gadget.html.twig' %}"],
+            'include, only' => ["{% include 'partials/gadget.html.twig' with {a: probe, b: 'secret'} only %}"],
+            'include, list of names' => ["{% include ['partials/missing.html.twig', 'partials/gadget.html.twig'] with {a: probe} %}"],
+            'embed' => ["{% embed 'partials/gadget.html.twig' with {a: probe, b: 'secret'} %}{% block out %}[{{ result }}]{% endblock %}{% endembed %}"],
+            'extends' => ["{% extends 'partials/gadget.html.twig' %}{% block out %}[{{ result }}]{% endblock %}"],
+            'use' => ["{% use 'partials/gadget_blocks.html.twig' %}{{ block('read') }}"],
+            'block()' => ["{{ block('read', 'partials/gadget_blocks.html.twig') }}"],
+            'import' => ["{% import 'partials/gadget_macro.html.twig' as m %}{{ m.read(probe, 'secret') }}"],
+            'from' => ["{% from 'partials/gadget_macro.html.twig' import read %}{{ read(probe, 'secret') }}"],
+            'nested include' => ["{% include 'partials/gadget_outer.html.twig' %}"],
+        ];
+    }
+
+    /**
+     * A render PHP starts on its own variables while content is rendering (a
+     * module's template behind `page.content`, a plugin's processTemplate()) is
+     * trusted, and the content is sandboxed again once it returns.
+     */
+    public function testTrustedRenderStartedInsideContent_StaysTrusted(): void
+    {
+        $env = $this->env([
+            '@Page:nested' => '{{ item.title }}',
+            '@Page:after' => "{{ item.title }}{% include 'partials/probe.html.twig' %}",
+        ]);
+        // The policy allows any member of a stdClass.
+        $item = new class($env) extends stdClass {
+            /** @var Environment */
+            private $env;
+
+            public function __construct(Environment $env)
+            {
+                $this->env = $env;
+            }
+
+            public function title(): string
+            {
+                return $this->env->render('partials/probe.html.twig', ['probe' => new SourceSandboxProbe()]);
+            }
+        };
+        $context = ['item' => $item, 'probe' => new SourceSandboxProbe()];
+
+        self::assertSame('&lt;b&gt;probe&lt;/b&gt;', $env->render('@Page:nested', $context));
+
+        $this->expectException(SecurityNotAllowedMethodError::class);
+        $env->render('@Page:after', $context);
+    }
+
+    // =========================================================================
+    // (d) Trusted partials: a trusted render on Grav's own variables
+    // =========================================================================
+
+    public function testTrustedPartials_DefaultsAndSiteAdditions(): void
+    {
+        $config = Grav::instance()['config'];
+        $config->set('security.twig_sandbox.trusted_partials', ['partials/card.html.twig', 'forms/form.html.twig', 42]);
+
+        $partials = Security::twigTrustedPartials();
+        self::assertContains('forms/form.html.twig', $partials);
+        self::assertContains('forms/data.html.twig', $partials);
+        self::assertContains('partials/card.html.twig', $partials);
+        self::assertSame(array_values(array_unique($partials)), $partials);
+        self::assertNotContains(42, $partials);
+    }
+
+    /**
+     * A listed partial reads what Grav handed the content render, as it would
+     * in a theme template, and takes plain values from the content.
+     */
+    public function testTrustedPartial_RendersOnGravVariablesAndPlainContentValues(): void
+    {
+        $env = $this->trustedPartialEnv([
+            '@Page:t' => "{% set local = 'L' %}{% include 'partials/trusted.html.twig' with {title: 'Hi', list: ['a', 'b']} %}",
+            '@Page:only' => "{% set local = 'L' %}{% include 'partials/trusted.html.twig' with {title: 'Hi'} only %}",
+        ]);
+
+        self::assertSame('secret|Hi|a,b|L|no', $env->renderContent('@Page:t', $this->contentVars(), $this->gravVars()));
+        self::assertSame('secret|Hi||-|no', $env->renderContent('@Page:only', $this->contentVars(), $this->gravVars()));
+
+        // A direct render of a content source hands its own variables to the partial.
+        self::assertSame('secret|Hi|a,b|L|no', $env->render('@Page:t', $this->gravVars()));
+        self::assertFalse($env->getExtension(SandboxExtension::class)->isSandboxed());
+    }
+
+    /**
+     * Content cannot replace a variable Grav set, and an object it holds never
+     * reaches the partial.
+     */
+    public function testTrustedPartial_GravVariablesWinAndContentObjectsStayOut(): void
+    {
+        $env = $this->trustedPartialEnv([
+            '@Page:override' => "{% set obj = 'x' %}{% include 'partials/trusted.html.twig' with {obj: {secret: 'forged'}, title: 'T'} %}",
+            '@Page:inherited' => "{% set probe2 = probe %}{% include 'partials/trusted.html.twig' with {title: 'T'} %}",
+        ]);
+
+        self::assertSame('secret|T||-|no', $env->renderContent('@Page:override', $this->contentVars(), $this->gravVars()));
+        self::assertSame('secret|T||-|no', $env->renderContent('@Page:inherited', $this->contentVars(), $this->gravVars()));
+    }
+
+    public function testTrustedPartial_RefusesObjectsPassedByContent(): void
+    {
+        $env = $this->trustedPartialEnv(['@Page:obj' => "{% include 'partials/trusted.html.twig' with {title: probe} %}"]);
+
+        $this->expectException(SecurityError::class);
+        $this->expectExceptionMessage('Only plain values can be passed to the trusted partial "partials/trusted.html.twig"');
+        $env->renderContent('@Page:obj', $this->contentVars(), $this->gravVars());
+    }
+
+    /**
+     * Only `include` of the exact listed name gets the trusted render. Any other
+     * way of loading the same file, or another spelling of its name, runs it
+     * under the sandbox.
+     *
+     * @dataProvider trustedPartialSandboxedProvider
+     */
+    public function testTrustedPartial_OtherLoadsStaySandboxed(string $code): void
+    {
+        $env = $this->trustedPartialEnv(['@Page:other' => $code]);
+
+        $this->expectException(SecurityNotAllowedPropertyError::class);
+        $env->renderContent('@Page:other', ['obj' => new SourceSandboxProbe()] + $this->contentVars(), $this->gravVars());
+    }
+
+    public static function trustedPartialSandboxedProvider(): array
+    {
+        return [
+            'embed' => ["{% embed 'partials/trusted.html.twig' %}{% endembed %}"],
+            'extends' => ["{% extends 'partials/trusted.html.twig' %}"],
+            'another spelling' => ["{% include 'partials//trusted.html.twig' %}"],
+            'from a partial content included' => ["{% include 'partials/includes_trusted.html.twig' %}"],
+        ];
+    }
+
+    public function testTrustedPartial_IgnoreMissing(): void
+    {
+        Grav::instance()['config']->set('security.twig_sandbox.trusted_partials', ['partials/not-there.html.twig']);
+        $env = $this->env(['@Page:missing' => "[{% include 'partials/not-there.html.twig' ignore missing %}]"]);
+
+        self::assertSame('[]', $env->renderContent('@Page:missing', [], []));
+    }
+
+    /**
+     * Through Grav's own Twig: the page content render hands the trusted partial
+     * the unfiltered variables, and an unlisted partial that steps outside the
+     * policy soft-fails like the content itself.
+     */
+    public function testGravTwig_ProcessStringUsesTrustedPartials(): void
+    {
+        $grav = Fixtures::get('grav')();
+        $grav['config']->set('security.twig_sandbox.enabled', true);
+        $grav['locator']->addPath('theme', '', 'user/themes');
+        $twig = $grav['twig'];
+        $twig->init();
+        $twig->addPath($this->dir);
+        $this->writeTemplate('partials/trusted.html.twig', '{{ obj.secret }}|{{ title }}');
+        $grav['config']->set('security.twig_sandbox.trusted_partials', ['partials/trusted.html.twig']);
+
+        self::assertSame('secret|Hi', $twig->processString("{% include 'partials/trusted.html.twig' with {title: 'Hi'} %}", ['obj' => new SourceSandboxProbe()]));
+
+        $code = "{% include 'partials/probe.html.twig' %}";
+        self::assertStringStartsWith($code, $twig->processString($code, ['probe' => new SourceSandboxProbe()]));
     }
 
     public function testPageIncludingDiskPartial_PageOwnCodeIsStillChecked(): void
@@ -539,17 +761,59 @@ class SourceSandboxCompilationTest extends TestCase
      * @param array<string,string> $strings String templates, name => code.
      * @param bool $sourceSandbox Whether to compile trusted templates without checks.
      * @param CompileTimeSourcePolicyInterface|null $policy
-     * @return Environment
+     * @return TwigEnvironment
      */
-    private function env(array $strings = [], bool $sourceSandbox = true, $policy = null): Environment
+    private function env(array $strings = [], bool $sourceSandbox = true, $policy = null): TwigEnvironment
     {
         $loader = new ChainLoader([new ArrayLoader($strings), new FilesystemLoader($this->dir)]);
         $env = new TwigEnvironment($loader, ['cache' => false, 'autoescape' => 'html']);
         $env->addExtension(new StringLoaderExtension());
         $policy = $policy ?? new GravSourcePolicy();
         $env->addExtension(@new SandboxExtension(Security::buildTwigSandboxPolicy(), false, $sourceSandbox ? $policy : new LegacySourcePolicy($policy)));
+        $env->addExtension(new ContentIncludeExtension());
 
         return $env;
+    }
+
+    /**
+     * An environment where `partials/trusted.html.twig` is a trusted partial. It
+     * prints `obj.secret` (an object only Grav hands in), `title`, `list`,
+     * `local`, and whether `probe2` (an object content holds) reached it.
+     *
+     * @param array<string,string> $strings
+     * @return TwigEnvironment
+     */
+    private function trustedPartialEnv(array $strings): TwigEnvironment
+    {
+        $this->writeTemplate('partials/trusted.html.twig', "{{ obj.secret }}|{{ title }}|{{ list|default([])|join(',') }}|{{ local ?? '-' }}|{{ probe2 is defined ? 'yes' : 'no' }}");
+        $this->writeTemplate('partials/includes_trusted.html.twig', "{% include 'partials/trusted.html.twig' %}");
+        Grav::instance()['config']->set('security.twig_sandbox.trusted_partials', ['partials/trusted.html.twig']);
+
+        return $this->env($strings);
+    }
+
+    /**
+     * What PHP hands a content render's trusted partials.
+     */
+    private function gravVars(): array
+    {
+        return ['obj' => new SourceSandboxProbe(), 'probe' => new SourceSandboxProbe()];
+    }
+
+    /**
+     * What the content itself sees (Twig::processPage() filters its variables).
+     */
+    private function contentVars(): array
+    {
+        return ['probe' => new SourceSandboxProbe()];
+    }
+
+    private function writeGadgets(): void
+    {
+        $this->writeTemplate('partials/gadget.html.twig', "{% set result = attribute(a, b) %}{% block out %}{{ result }}{% endblock %}");
+        $this->writeTemplate('partials/gadget_blocks.html.twig', "{% block read %}{{ attribute(a, b) }}{% endblock %}");
+        $this->writeTemplate('partials/gadget_macro.html.twig', "{% macro read(a, b) %}{{ attribute(a, b) }}{% endmacro %}");
+        $this->writeTemplate('partials/gadget_outer.html.twig', "{% include 'partials/gadget.html.twig' with {a: probe, b: 'secret'} %}");
     }
 
     /**
