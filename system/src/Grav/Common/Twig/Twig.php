@@ -495,6 +495,13 @@ class Twig
         $this->grav->fireEvent('onTwigTemplateVariables');
         $vars += $this->twig_vars;
 
+        // The name can be editor-authored (the Email plugin passes a page's
+        // `form.process.email.template`), so it can be that of a registered
+        // content string, which only ever sees the filtered variables.
+        if (is_string($template) && GravSourcePolicy::isSandboxedName($template)) {
+            $vars = $this->buildSandboxVars($vars, $this->twig_vars);
+        }
+
         try {
             $output = $this->twig->render($template, $vars);
         } catch (LoaderError $e) {
@@ -882,6 +889,13 @@ class Twig
         /** @var ExistsLoaderInterface $loader */
         $loader = $this->twig->getLoader();
 
+        // The loader chain also holds the editor-authored strings registered by
+        // processPage()/processString() (`@Page:<folder>`, `@Var:<string>`),
+        // and the `template` header is editor-authored too. The callers render
+        // the page template on the raw `config`, `system`, `site` and `theme`,
+        // so a content string is never used as a page template.
+        $exists = static fn(string $name): bool => !GravSourcePolicy::isSandboxedName($name) && $loader->exists($name);
+
         // Markdown output never falls back to an HTML template: a client that
         // asked for Markdown must not be handed the theme's HTML page. The
         // theme may provide `<template>.md.twig` or `default.md.twig`; core
@@ -890,17 +904,17 @@ class Twig
         // document converts that output, the same way it treats the page's
         // own content.
         if ($extension === MarkdownOutput::FORMAT && !$page->isModule() && MarkdownOutput::enabled()) {
-            return $loader->exists($template_file) ? $template_file : 'default' . $twig_extension;
+            return $exists($template_file) ? $template_file : 'default' . $twig_extension;
         }
 
-        if ($loader->exists($template_file)) {
+        if ($exists($template_file)) {
             // template.xxx.twig
             $page_template = $template_file;
-        } elseif ($twig_extension !== TEMPLATE_EXT && $loader->exists($template . TEMPLATE_EXT)) {
+        } elseif ($twig_extension !== TEMPLATE_EXT && $exists($template . TEMPLATE_EXT)) {
             // template.html.twig
             $page_template = $template . TEMPLATE_EXT;
             $format = 'html';
-        } elseif ($loader->exists($default . $twig_extension)) {
+        } elseif ($exists($default . $twig_extension)) {
             // default.xxx.twig
             $page_template = $default . $twig_extension;
         } else {
