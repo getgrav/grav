@@ -233,7 +233,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('regex_split', $this->regexSplit(...)),
             new TwigFunction('string', $this->stringGuarded(...), ['needs_environment' => true, 'needs_is_sandboxed' => true]),
             new TwigFunction('md5', $this->md5Filter(...)),
-            new TwigFunction('url', $this->urlFunc(...)),
+            new TwigFunction('url', $this->urlGuarded(...), ['needs_is_sandboxed' => true]),
             new TwigFunction('json_decode', $this->jsonDecodeFilter(...)),
             new TwigFunction('get_cookie', $this->getCookie(...)),
             new TwigFunction('redirect_me', $this->redirectFunc(...)),
@@ -1331,6 +1331,25 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     public function urlFunc($input, $domain = false, $failGracefully = false, $lang = null)
     {
         return Utils::url($input, $domain, $failGracefully, $lang);
+    }
+
+    /**
+     * url() as registered for templates. In sandboxed page content a stream URI
+     * is resolved only inside the media folders (`security.media.allowed_roots`,
+     * the same rule as stream images and media_directory()), and any other
+     * stream location gets `false` whether or not the file exists. Trusted theme
+     * and plugin templates are unaffected.
+     *
+     * @param  bool   $isSandboxed Whether the current render is sandboxed (injected by Twig)
+     * @param  string $input
+     * @param  bool   $domain
+     * @param  bool   $failGracefully
+     * @param  string|bool|null $lang
+     * @return string|false
+     */
+    public function urlGuarded(bool $isSandboxed, $input, $domain = false, $failGracefully = false, $lang = null)
+    {
+        return Utils::url($input, $domain, $failGracefully, $lang, $isSandboxed);
     }
 
     /**

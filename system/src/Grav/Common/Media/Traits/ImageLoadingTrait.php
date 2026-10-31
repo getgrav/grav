@@ -28,7 +28,10 @@ trait ImageLoadingTrait
         if (null === $value) {
             $value = Grav::instance()['config']->get('system.images.defaults.loading', 'auto');
         }
-        if ($value && $value !== 'auto') {
+
+        // Only the keywords the attribute defines are kept
+        $value = strtolower((string) $value);
+        if (in_array($value, ['lazy', 'eager'], true)) {
             $this->attributes['loading'] = $value;
         }
 

@@ -1286,6 +1286,58 @@ class ParsedownTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    public function testTwigTagAsLinkDestination(): void
+    {
+        self::assertSame(
+            '<p><a href="{{ url }}">a</a> <img src="{% x %}" alt="b" /> <a href="{# c #}">d [e]</a></p>',
+            $this->parsedown->text('[a]({{ url }}) ![b]({% x %}) [d [e]]({# c #})')
+        );
+        self::assertSame(
+            '<p><a href="{{ a }}{{ b }}">a</a> <a href="{{' . "\n" . 'c' . "\n" . '}}">b</a></p>',
+            $this->parsedown->text('[a]({{ a }}{{ b }}) [b]({{' . "\n" . 'c' . "\n" . '}})')
+        );
+        self::assertSame(
+            '<p><a href="{{ a }}"><img src="{{ a }}" alt="i" /></a></p>',
+            $this->parsedown->text('[![i]({{ a }})]({{ a }})')
+        );
+        self::assertSame(
+            '<p><a href="{{ u }}">{{ u }}</a> x</p>',
+            $this->parsedown->text('[{{ u }}]({{ u }}) x')
+        );
+    }
+
+    /**
+     * The Twig tag used to be looked for anywhere behind the marker, not only in the link
+     * that starts there, and a later `[label]` was taken for that of a `[` never closed.
+     */
+    public function testLinkStartsAtItsMarker(): void
+    {
+        self::assertSame(
+            '<p>Wow! [x] <a href="/item1">a</a> <a href="{{ u }}">b</a></p>',
+            $this->parsedown->text('Wow! [x] [a](/item1) [b]({{ u }})')
+        );
+        self::assertSame(
+            '<p>[b <a href="/item1">a</a> ![ <a href="/item1">a</a></p>',
+            $this->parsedown->text('[b [a] ![ [a]' . "\n\n" . '[a]: /item1')
+        );
+    }
+
+    /**
+     * The link lookups run at every `!` and `[` of a text, so they must fail fast
+     * instead of searching the whole remainder each time.
+     */
+    public function testLinkLookupFailsFast(): void
+    {
+        $tail = '[' . str_repeat(']({{', 500) . ')';
+
+        $started = microtime(true);
+        $this->parsedown->text(str_repeat('!', 4000) . $tail);
+        $this->parsedown->text(str_repeat('[', 4000) . $tail);
+        $this->parsedown->text(str_repeat('[a]({{', 4000) . ')');
+
+        self::assertLessThan(3, microtime(true) - $started);
+    }
+
 
     /**
      * @param $string

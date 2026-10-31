@@ -699,7 +699,9 @@ trait PageContentTrait
 
         $summary = Utils::truncateHTML($content, $size);
 
-        return html_entity_decode($summary, ENT_COMPAT | ENT_HTML5, 'UTF-8');
+        // Only undo the entities the truncator leaves for non-ASCII characters; decoding &lt; and friends as well
+        // would turn text that the content escaped back into markup.
+        return Utils::decodeNonAsciiEntities($summary);
     }
 
     /**
@@ -840,12 +842,15 @@ trait PageContentTrait
 
         \assert(is_string($this->_content));
 
-        // Handle summary divider
+        // Handle summary divider, only where it stands as a block of its own between tags:
+        // cut out of the middle of raw HTML, what is left would join into new markup.
+        // Mirrors Page::content().
         $delimiter = $config->get('site.summary.delimiter', '===');
-        $divider_pos = mb_strpos($this->_content, "<p>{$delimiter}</p>");
-        if ($divider_pos !== false) {
-            $this->setProperty('summary_size', $divider_pos);
-            $this->_content = str_replace("<p>{$delimiter}</p>", '', $this->_content);
+        $divider = '~(?:\G|>)\s*\K' . preg_quote("<p>{$delimiter}</p>", '~') . '(?=\s*(?:<|$))~';
+        $parts = preg_split($divider, $this->_content);
+        if ($parts && count($parts) > 1) {
+            $this->setProperty('summary_size', mb_strlen($parts[0]));
+            $this->_content = implode('', $parts);
         }
 
         // Fire event when Page::content() is called

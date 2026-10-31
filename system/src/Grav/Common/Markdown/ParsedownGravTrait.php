@@ -13,6 +13,7 @@ use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Interfaces\PageInterface;
 use function call_user_func_array;
 use function in_array;
+use function is_string;
 use function strlen;
 
 /**
@@ -35,8 +36,16 @@ trait ParsedownGravTrait
     protected $excerpts;
     /** @var array */
     protected $special_chars;
-    /** @var string */
-    protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
+    /**
+     * A link or image whose destination is a Twig tag, e.g. `[home]({{ base_url }})`.
+     *
+     * It is tried at every `!` and `[` of a text, so it has to fail fast: it is anchored to the
+     * marker, the `[label]` is matched without backtracking (as Parsedown does it) and the
+     * destination is bounded. Group 1 is the label, group 2 the destination.
+     *
+     * @var string
+     */
+    protected $twig_link_regex = '/^!?(\[(?:[^\[\]]++|(?1))*+\])\((\{([\{%#]).{0,1000}?(?:\3|\})\})\)/s';
     /** @var bool Render `- [ ]` / `- [x]` list items as checkboxes (GFM task lists). */
     protected $gfm_task_lists = true;
     /** @var bool Escape the GFM "disallowed raw HTML" tag denylist in output (tagfilter). */
@@ -251,12 +260,18 @@ trait ParsedownGravTrait
     /**
      * Setter for special chars
      *
+     * The map can be overridden from page frontmatter and each value is written to the
+     * output as `&value;`, so only values that name a character reference are kept.
+     *
      * @param array $special_chars
      * @return $this
      */
     public function setSpecialChars($special_chars)
     {
-        $this->special_chars = $special_chars;
+        $this->special_chars = array_filter(
+            (array)$special_chars,
+            static fn($entity) => is_string($entity) && preg_match('/^(?:[a-z][a-z0-9]*|#[0-9]+|#x[0-9a-f]+)$/iD', $entity)
+        );
 
         return $this;
     }
@@ -269,6 +284,12 @@ trait ParsedownGravTrait
      */
     protected function blockTwigTag($line)
     {
+        // The whole line is emitted as written, any HTML next to the tag included, so this is
+        // raw markup: stand down like Parsedown's own blockMarkup() and blockComment() do.
+        if ($this->markupEscaped || $this->safeMode) {
+            return null;
+        }
+
         if (preg_match('/(?:{{|{%|{#)(.*)(?:}}|%}|#})/', (string) $line['body'], $matches)) {
             return ['markup' => $line['body']];
         }
@@ -282,6 +303,13 @@ trait ParsedownGravTrait
      */
     protected function inlineSpecialCharacter($excerpt)
     {
+        // The special_chars map is configurable and a page header can replace it: with markup
+        // escaped it must not be able to leave `<` / `>` alone, so the fixed entities
+        // Parsedown escapes with are used.
+        if ($this->markupEscaped || $this->safeMode) {
+            return parent::inlineSpecialCharacter($excerpt);
+        }
+
         if ($excerpt['text'][0] === '&' && !preg_match('/^&#?\w+;/', (string) $excerpt['text'])) {
             return [
                 'markup' => '&amp;',
@@ -312,10 +340,11 @@ trait ParsedownGravTrait
         $extentAdjust = $this->encodeAngleBracketDestination($excerpt);
 
         if (preg_match($this->twig_link_regex, (string) $excerpt['text'], $matches)) {
-            $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
+            $twig = $matches[2];
+            $excerpt['text'] = substr_replace($excerpt['text'], '/', strlen($matches[0]) - strlen($twig) - 1, strlen($twig));
             $excerpt = parent::inlineImage($excerpt);
-            $excerpt['element']['attributes']['src'] = $matches[1];
-            $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
+            $excerpt['element']['attributes']['src'] = $twig;
+            $excerpt['extent'] = $excerpt['extent'] + strlen($twig) - 1;
 
             return $excerpt;
         }
@@ -337,10 +366,16 @@ trait ParsedownGravTrait
 
     /**
      * @param array $excerpt
-     * @return array
+     * @return array|null
      */
     protected function inlineLink($excerpt)
     {
+        // Only a `[label]` that starts at the marker can be a link. Parsedown's own label regex is
+        // not anchored: without this it searches the whole rest of the text, again at every `[`.
+        if (!preg_match('/^(\[(?:[^\[\]]++|(?1))*+\])/', (string) $excerpt['text'])) {
+            return null;
+        }
+
         $type = $excerpt['type'] ?? 'link';
 
         // Support CommonMark angle-bracket destinations, e.g. `[doc](<My file.pdf>)`, so
@@ -349,10 +384,11 @@ trait ParsedownGravTrait
 
         // do some trickery to get around Parsedown requirement for valid URL if its Twig in there
         if (preg_match($this->twig_link_regex, (string) $excerpt['text'], $matches)) {
-            $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
+            $twig = $matches[2];
+            $excerpt['text'] = substr_replace($excerpt['text'], '/', strlen($matches[0]) - strlen($twig) - 1, strlen($twig));
             $excerpt = parent::inlineLink($excerpt);
-            $excerpt['element']['attributes']['href'] = $matches[1];
-            $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
+            $excerpt['element']['attributes']['href'] = $twig;
+            $excerpt['extent'] = $excerpt['extent'] + strlen($twig) - 1;
 
             return $excerpt;
         }
@@ -366,6 +402,15 @@ trait ParsedownGravTrait
         // if this is a link
         if (isset($excerpt['element']['attributes']['href'])) {
             $excerpt = $this->excerpts->processLinkExcerpt($excerpt, $type);
+
+            // With markup escaped the page content is not trusted to bring script of its own,
+            // so a link destination that runs script is not left active either.
+            if ($this->markupEscaped) {
+                $href = (string) $excerpt['element']['attributes']['href'];
+                if (preg_match('/^(?:java|vb)script:/i', (string) preg_replace('/[\x00-\x20]+/', '', $href))) {
+                    $excerpt['element']['attributes']['href'] = str_replace(':', '%3A', $href);
+                }
+            }
         }
 
         return $excerpt;
@@ -617,18 +662,16 @@ trait ParsedownGravTrait
      */
     protected function trimAutolinkTrailing($token)
     {
-        $trailing = '';
-        while ($token !== '' && strpbrk($token[strlen($token) - 1], '?!.,:*_~') !== false) {
-            $trailing = $token[strlen($token) - 1] . $trailing;
-            $token = substr($token, 0, -1);
-        }
-        while ($token !== '' && $token[strlen($token) - 1] === ')'
-            && substr_count($token, ')') > substr_count($token, '(')) {
-            $trailing = ')' . $trailing;
-            $token = substr($token, 0, -1);
+        // Find the cut point first and cut once: peeling one character per pass
+        // re-copies (and re-counts) the whole token, quadratic on a long run.
+        $linked = rtrim($token, '?!.,:*_~');
+        $unbalanced = substr_count($linked, ')') - substr_count($linked, '(');
+        if ($unbalanced > 0) {
+            $closing = strlen($linked) - strlen(rtrim($linked, ')'));
+            $linked = substr($linked, 0, strlen($linked) - min($unbalanced, $closing));
         }
 
-        return [$token, $trailing];
+        return [$linked, substr($token, strlen($linked))];
     }
 
     /**

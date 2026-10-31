@@ -344,9 +344,24 @@ class DetectXssTest extends \PHPUnit\Framework\TestCase
             ['<a href="javascript: alert(1)">x</a>', 'space after the colon in an attribute value'],
             ["<a href='vbscript: msgbox(1)'>x</a>", 'space after the colon, single-quoted vbscript'],
             ['<a href="javascript&#x3a; alert(1)">x</a>', 'hex-entity colon followed by a space'],
+            ['<a href =  "  javascript: alert(1)">x</a>', 'space after the colon, whitespace on both sides of the quote'],
+            ['<a href=  javascript: alert(1)>x</a>', 'space after the colon, unquoted value after whitespace'],
             ['<a href="javascript&#x3a;alert(1)">x</a> &#xff;', 'hex-entity colon with a hex reference above 0x7F elsewhere'],
             ['<a href="javascript&#x3a;alert(1)">x</a> %ff', 'hex-entity colon with a percent-encoded invalid byte elsewhere'],
             ['<a href="&#x6a;avascript:alert(1)">x</a> \\xff;', 'hex-escaped first character with a backslash-hex byte elsewhere'],
         ];
+    }
+
+    /**
+     * The attribute-value protocol rule must stay linear on `=` followed by a
+     * long run of whitespace with no scheme behind it.
+     */
+    public function testDetectXss_LongWhitespaceRunAfterEqualsIsLinear(): void
+    {
+        $started = microtime(true);
+
+        self::assertNull(Security::detectXss('=' . str_repeat(' ', 100000)));
+        self::assertNull(Security::detectXss('=' . str_repeat(' ', 50000) . '"' . str_repeat(' ', 50000)));
+        self::assertLessThan(2.0, microtime(true) - $started);
     }
 }

@@ -384,7 +384,11 @@ class Security
         // of the script body, not the scheme. Inside an attribute value (right
         // after `=`, optionally quoted) there is no prose to protect, so accept
         // whitespace after the colon there.
-        $protocol_attr_regex = '#=\s*[\"\'`]?\s*(' . $protocol_alt . ')(:|\&\#58)\s+\S#iu';
+        //
+        // The whitespace after the quote only exists when the quote does, and both
+        // runs are possessive: written as `\s*["'`]?\s*` they competed for the same
+        // spaces and `=` followed by N spaces took quadratic time.
+        $protocol_attr_regex = '#=\s*+(?:[\"\'`]\s*+)?(' . $protocol_alt . ')(:|\&\#58)\s+\S#iu';
 
         // Set the patterns we'll test against
         $patterns = [

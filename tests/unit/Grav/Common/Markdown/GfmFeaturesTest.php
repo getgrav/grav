@@ -134,6 +134,48 @@ class GfmFeaturesTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Only unbalanced closing parens at the very end leave the link (GFM behavior).
+     *
+     * @dataProvider providerAutolinkTrailing
+     */
+    public function testAutolinkTrimsUnbalancedParens(string $linked, string $trailing): void
+    {
+        self::assertSame(
+            '<p><a href="http://' . $linked . '">' . $linked . '</a>' . $trailing . '</p>',
+            $this->parser()->text($linked . $trailing)
+        );
+    }
+
+    public static function providerAutolinkTrailing(): array
+    {
+        return [
+            'nothing to trim' => ['www.example.com/a', ''],
+            'punctuation run' => ['www.example.com/a', '?.,'],
+            'balanced parens stay' => ['www.example.com/a-(b)', ''],
+            'only the surplus goes' => ['www.example.com/a-(b)', '))'],
+            'parens, then punctuation' => ['www.example.com/a', ').'],
+            'punctuation before the parens stays' => ['www.example.com/a.', ')'],
+            'surplus not at the end stays' => ['www.example.com/a)b', ')'],
+        ];
+    }
+
+    /**
+     * Trimming a long trailing run must stay linear.
+     */
+    public function testAutolinkTrimsLongTrailingRunInLinearTime(): void
+    {
+        $link = '<a href="http://www.example.com/a">www.example.com/a</a>';
+        $start = microtime(true);
+
+        foreach ([')', '.'] as $char) {
+            $run = str_repeat($char, 200000);
+            self::assertSame('<p>' . $link . $run . '</p>', $this->parser()->text('www.example.com/a' . $run));
+        }
+
+        self::assertLessThan(2.0, microtime(true) - $start);
+    }
+
+    /**
      * Autolinking must not touch URLs already inside an explicit markdown link.
      */
     public function testExplicitLinkNotDoubleLinked(): void

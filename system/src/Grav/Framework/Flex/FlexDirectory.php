@@ -490,12 +490,15 @@ class FlexDirectory implements FlexDirectoryInterface
      * Encode a storage key for use as a cache key.
      * Symfony cache reserves characters: {}()/\@:
      *
+     * The escape character is encoded too, so every storage key has a cache key of
+     * its own and decodeCacheKey() always returns the storage key that was encoded.
+     *
      * @param string $key
      * @return string
      */
     protected function encodeCacheKey(string $key): string
     {
-        return str_replace(['/', '\\', '@', ':'], ['__SLASH__', '__BSLASH__', '__AT__', '__COLON__'], $key);
+        return rawurlencode($key);
     }
 
     /**
@@ -506,7 +509,7 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     protected function decodeCacheKey(string $key): string
     {
-        return str_replace(['__SLASH__', '__BSLASH__', '__AT__', '__COLON__'], ['/', '\\', '@', ':'], $key);
+        return rawurldecode($key);
     }
 
     /**

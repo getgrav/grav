@@ -87,6 +87,8 @@ class Pipeline extends PropertyObject
     protected $query = '';
     /** @var string */
     protected $asset;
+    /** @var string Base URL without scheme, host and port: used for everything that ends up inside a bundle */
+    protected $root_url;
 
     /**
      * Pipeline constructor.
@@ -107,6 +109,7 @@ class Pipeline extends PropertyObject
         $uri = Grav::instance()['uri'];
 
         $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
+        $this->root_url = rtrim($uri->rootUrl(false), '/') . '/';
         $this->assets_dir = $locator->findResource('asset://');
         if (!$this->assets_dir) {
             // Attempt to create assets folder if it doesn't exist yet.
@@ -142,7 +145,7 @@ class Pipeline extends PropertyObject
         $shouldMinify = $this->shouldMinify('css');
 
         // Compute uid based on assets and timestamp
-        $json_assets = json_encode($assets);
+        $json_assets = $this->serializeAssets($assets);
         $uid = md5($json_assets . (int)$this->css_minify . (int)$this->css_rewrite . $group);
         $file = $uid . '.css';
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
@@ -230,7 +233,7 @@ class Pipeline extends PropertyObject
         // Compute uid based on all assets. A minify failure now falls back to
         // the whole group rather than a partial bundle plus the failed assets
         // rendered separately, so there is no "successful subset" to key on.
-        $json_assets = json_encode($assets);
+        $json_assets = $this->serializeAssets($assets);
         $uid = md5($json_assets . (int)$shouldMinify . $group);
         $file = $uid . '.js';
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
@@ -282,6 +285,40 @@ class Pipeline extends PropertyObject
         }
 
         return $output;
+    }
+
+    /**
+     * Serialize the assets of a bundle for the uid that names it.
+     *
+     * With `system.absolute_urls` on, the link of a local asset starts with the scheme, host and port
+     * of the current request, and the global cache key (the `timestamp` a remote asset keeps when
+     * `assets.enable_asset_timestamp` is on) is derived from them too. Neither takes part in the uid,
+     * so the bundle is the same for every host the site answers to.
+     *
+     * @param array $assets
+     * @return string
+     */
+    protected function serializeAssets(array $assets): string
+    {
+        $cache_key = Grav::instance()['cache']->getKey();
+
+        $list = [];
+        foreach ($assets as $key => $asset) {
+            $item = $asset->jsonSerialize();
+
+            $link = (string) ($item['elements']['asset'] ?? '');
+            if ($this->base_url !== $this->root_url && Utils::startsWith($link, $this->base_url)) {
+                $item['elements']['asset'] = $this->root_url . substr($link, strlen($this->base_url));
+            }
+
+            if (($item['elements']['timestamp'] ?? null) === $cache_key) {
+                unset($item['elements']['timestamp']);
+            }
+
+            $list[$key] = $item;
+        }
+
+        return (string) json_encode($list);
     }
 
     /**
@@ -351,7 +388,8 @@ class Pipeline extends PropertyObject
                 $old_url = ltrim($old_url, '/');
             }
 
-            $new_url = ($local ? $this->base_url : '') . $old_url;
+            // Root-relative, not $this->base_url: the bundle is shared by every host the site answers to
+            $new_url = ($local ? $this->root_url : '') . $old_url;
 
             if ($isImport) {
                 return str_replace($matches[5], $new_url, $matches[0]);
@@ -392,7 +430,8 @@ class Pipeline extends PropertyObject
                 $old_url = ltrim($old_url, '/');
             }
 
-            $new_url = ($local ? $this->base_url : '') . $old_url;
+            // Root-relative, not $this->base_url: the bundle is shared by every host the site answers to
+            $new_url = ($local ? $this->root_url : '') . $old_url;
 
             return str_replace($matches[1], $new_url, $matches[0]);
         }, $file);

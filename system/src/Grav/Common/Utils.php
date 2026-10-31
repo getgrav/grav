@@ -20,6 +20,7 @@ use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Markdown\Excerpts;
+use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Pages;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
@@ -72,9 +73,12 @@ abstract class Utils
      * @param string|bool|null $lang Language prefix for path input. `null`/`false` keeps the URL language-neutral,
      *                               which is what asset URLs need; `true` uses the active language; a language code
      *                               such as `'de'` uses that language. Streams and external URLs are never prefixed.
+     * @param bool $media_only Resolve a stream URI only inside the media folders in `security.media.allowed_roots`
+     *                         and return `false` for any other stream location, whether or not the file exists.
+     *                         Set for sandboxed page content.
      * @return string|false
      */
-    public static function url($input, $domain = false, $fail_gracefully = false, $lang = null)
+    public static function url($input, $domain = false, $fail_gracefully = false, $lang = null, $media_only = false)
     {
         if ((!is_string($input) && !is_callable([$input, '__toString'])) || !trim($input)) {
             if ($fail_gracefully) {
@@ -118,6 +122,12 @@ abstract class Utils
                         return str_replace(' ', '%20', $input);
                     }
 
+                    // Checked on the URI that is looked up, not on $input: parse_url() and the locator split
+                    // `account:/admin.yaml?x=://` differently, so a check on the raw string can be stepped around.
+                    if ($media_only && !GlobalMedia::isMediaUri("{$scheme}://{$host}{$path}")) {
+                        return false;
+                    }
+
                     // Attempt to find the resource (because of parse_url() we need to put host back to path).
                     $resource = $locator->findResource("{$scheme}://{$host}{$path}", false);
 
@@ -147,6 +157,10 @@ abstract class Utils
                 }
             } else {
                 // Not a valid URL (can still be a stream).
+                if ($media_only && !GlobalMedia::isMediaUri($input)) {
+                    return false;
+                }
+
                 $resource = $locator->findResource($input, false);
             }
         } else {
@@ -757,6 +771,23 @@ abstract class Utils
     public static function safeTruncateHtml($text, $length = 25, $ellipsis = '...')
     {
         return Truncator::truncateWords($text, $length, $ellipsis);
+    }
+
+    /**
+     * Turn the entities of non-ASCII characters in HTML back into characters, which is how the HTML truncator
+     * leaves them. Every other entity (`&lt;`, `&gt;`, `&amp;`, `&quot;`, `&#60;`...) is kept as written: those are
+     * what separates text from markup, so unlike with html_entity_decode() the result is still the same HTML.
+     *
+     * @param string $html
+     * @return string
+     */
+    public static function decodeNonAsciiEntities($html)
+    {
+        return (string)preg_replace_callback('/&(?:#\d+|#x[\da-f]+|[a-z][a-z\d]*);/i', static function (array $matches) {
+            $decoded = html_entity_decode($matches[0], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+            return preg_match('/[\x00-\x7F]/', $decoded) ? $matches[0] : $decoded;
+        }, (string)$html);
     }
 
     /**

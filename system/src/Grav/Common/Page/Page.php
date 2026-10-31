@@ -931,7 +931,9 @@ class Page implements PageInterface, PageUuidInterface
 
         $summary = Utils::truncateHtml($content, $size);
 
-        return html_entity_decode($summary, ENT_COMPAT | ENT_HTML401, 'UTF-8');
+        // Only undo the entities the truncator leaves for non-ASCII characters; decoding &lt; and friends as well
+        // would turn text that the content escaped back into markup.
+        return Utils::decodeNonAsciiEntities($summary);
     }
 
     /**
@@ -1107,12 +1109,17 @@ class Page implements PageInterface, PageUuidInterface
                 }
             }
 
-            // Handle summary divider
+            // Handle summary divider. Markdown renders it as a block of its own, so only
+            // remove it where it stands between tags (or at either end of the content):
+            // cut out of the middle of raw HTML, what is left on both sides would join
+            // into markup (`<scr<p>===</p>ipt>`) that the tagfilter and the save-time
+            // XSS scan never saw.
             $delimiter = $config->get('site.summary.delimiter', '===');
-            $divider_pos = mb_strpos((string) $this->content, "<p>{$delimiter}</p>");
-            if ($divider_pos !== false) {
-                $this->summary_size = $divider_pos;
-                $this->content = str_replace("<p>{$delimiter}</p>", '', $this->content);
+            $divider = '~(?:\G|>)\s*\K' . preg_quote("<p>{$delimiter}</p>", '~') . '(?=\s*(?:<|$))~';
+            $parts = preg_split($divider, (string) $this->content);
+            if ($parts && count($parts) > 1) {
+                $this->summary_size = mb_strlen($parts[0]);
+                $this->content = implode('', $parts);
             }
 
             // Fire event when Page::content() is called
@@ -3385,8 +3392,10 @@ class Page implements PageInterface, PageUuidInterface
         // Handle publishing dates if no explicit published option set
         if (Grav::instance()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
             // unpublish if required, if not clear cache right before page should be unpublished
+            // The page is gone from the second of its unpublish date on (it is published from the second of its
+            // publish date on), so the cache is never asked to end in the current second.
             if ($this->unpublishDate()) {
-                if ($this->unpublishDate() < time()) {
+                if ($this->unpublishDate() <= time()) {
                     $this->published(false);
                 } else {
                     $this->published();

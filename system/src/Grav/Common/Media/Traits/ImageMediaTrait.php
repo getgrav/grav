@@ -252,7 +252,8 @@ trait ImageMediaTrait
     /**
      * Generate alternative image widths, using either an array of integers, or
      * a min width, a max width, and a step parameter to fill out the necessary
-     * widths. Existing image alternatives won't be overwritten.
+     * widths. Existing image alternatives won't be overwritten. Widths and steps
+     * below one are ignored.
      *
      * @param  int|int[] $min_width
      * @param  int       $max_width
@@ -272,12 +273,21 @@ trait ImageMediaTrait
 
         if (func_num_args() === 1) {
             foreach ((array) func_get_arg(0) as $width) {
-                if ($width < $base->get('width')) {
+                $width = (int) $width;
+                if ($width > 0 && $width < $base->get('width')) {
                     $widths[] = $width;
                 }
             }
         } else {
-            $max_width = min($max_width, $base->get('width'));
+            // A Markdown image URL passes whatever stands between the commas as
+            // strings. The count has to start at a width that exists and go up,
+            // or the loop never ends (`?derivatives=400,400,0`).
+            $min_width = (int) $min_width;
+            $max_width = min((int) $max_width, $base->get('width'));
+            $step = (int) $step;
+            if ($min_width < 1 || $step < 1) {
+                return $this;
+            }
 
             for ($width = $min_width; $width <= $max_width; $width += $step) {
                 if ($width >= $base->get('width')) {
@@ -334,6 +344,13 @@ trait ImageMediaTrait
                 // Same for a watermark asked for before the derivatives were.
                 if ($this->watermarked && method_exists($derivative, 'queueWatermark')) {
                     $derivative->queueWatermark($this->watermarked);
+                }
+
+                // And for the URL params that came in before them: querystring()
+                // fans each new param out to the alternatives that exist when it
+                // is called, nothing else.
+                if ($this->medium_querystring) {
+                    $derivative->querystring($this->querystring(null, false));
                 }
 
                 $this->addAlternative($ratio, $derivative);
