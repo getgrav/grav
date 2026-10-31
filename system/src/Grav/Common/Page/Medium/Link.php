@@ -13,10 +13,9 @@ use BadMethodCallException;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use RuntimeException;
-use function call_user_func_array;
 use function get_class;
 use function is_array;
-use function is_callable;
+use function method_exists;
 
 /**
  * Class Link
@@ -82,6 +81,17 @@ class Link implements RenderableInterface, MediaLinkInterface
     }
 
     /**
+     * Check the wrapper and the medium to which it forwards calls.
+     *
+     * @param string $method
+     * @return bool
+     */
+    public function hasMethod(string $method): bool
+    {
+        return method_exists($this, $method) || method_exists($this->source, $method);
+    }
+
+    /**
      * Forward the call to the source element
      *
      * @param string $method
@@ -91,12 +101,13 @@ class Link implements RenderableInterface, MediaLinkInterface
     public function __call($method, mixed $args)
     {
         $object = $this->source;
-        $callable = [$object, $method];
-        if (!is_callable($callable)) {
+
+        // Forward plain method names using the same dispatch as media actions.
+        if (!method_exists($object, $method) && !method_exists($object, '__call')) {
             throw new BadMethodCallException($object::class . '::' . $method . '() not found.');
         }
 
-        $object = call_user_func_array($callable, $args);
+        $object = $object->{$method}(...$args);
         if (!$object instanceof MediaLinkInterface) {
             // Don't start nesting links, if user has multiple link calls in his
             // actions, we will drop the previous links.
