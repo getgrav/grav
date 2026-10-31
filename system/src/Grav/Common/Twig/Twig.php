@@ -20,6 +20,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Security;
 use Grav\Common\Twig\Cache\ResilientFilesystemCache;
+use Grav\Common\Twig\Sandbox\ContentIncludeExtension;
 use Grav\Common\Twig\Sandbox\GravSourcePolicy;
 use Grav\Common\Twig\Sandbox\SandboxConfig;
 use Grav\Common\Twig\Compatibility\Twig3CompatibilityLoader;
@@ -293,9 +294,14 @@ class Twig
 
             // Content sandbox — a SourcePolicy selects per-template whether to
             // enforce. Only editor-authored string templates (@Page: / @Var:)
-            // are sandboxed; theme files on disk are always trusted. This means
-            // we don't need to toggle the sandbox around specific render calls,
-            // and {% include %}ing a theme partial from editor content is safe.
+            // are sandboxed; theme files on disk are trusted when Grav renders
+            // them. A theme or plugin file that editor content pulls in itself
+            // ({% include %}, {% embed %}, {% extends %}, ...) runs on variables
+            // the content chose, so TwigEnvironment::render() keeps the sandbox
+            // on for everything an editor-authored render reaches. The partials
+            // listed under security.twig_sandbox.trusted_partials are the
+            // exception: ContentIncludeExtension gives them a trusted render on
+            // Grav's own variables.
             // GravSourcePolicy also makes that decision at compile time (a
             // getgrav/Twig fork feature), so theme and plugin files compile
             // without any sandbox checks at all.
@@ -305,6 +311,7 @@ class Twig
                     false,
                     new GravSourcePolicy()
                 ));
+                $this->twig->addExtension(new ContentIncludeExtension());
             }
 
             /** @var Debugger $debugger */
@@ -412,7 +419,7 @@ class Twig
         try {
             // In-page Twig runs FIRST and in isolation. The editor-authored
             // body becomes an @Page: string template that the SourcePolicy
-            // sandboxes (it can still {% include %} trusted theme partials).
+            // sandboxes, along with any theme partial it {% include %}s.
             // Doing this before the modular template render keeps the two
             // concerns cleanly separated: content is always sandboxed, the
             // template never is. The body is resolved to plain HTML up front,
@@ -441,7 +448,7 @@ class Twig
                 // raw Config.
                 $sandbox_vars = $this->buildSandboxVars($twig_vars, $twig_vars);
                 try {
-                    $output = $content = $local_twig->render($name, $sandbox_vars);
+                    $output = $content = $this->renderContent($local_twig, $name, $sandbox_vars, $twig_vars);
                 } catch (SecurityError $e) {
                     $this->logSandboxViolation($e);
                     // Soft-fail: fall back to the pre-render content so the
@@ -498,12 +505,12 @@ class Twig
         // The name can be editor-authored (the Email plugin passes a page's
         // `form.process.email.template`), so it can be that of a registered
         // content string, which only ever sees the filtered variables.
-        if (is_string($template) && GravSourcePolicy::isSandboxedName($template)) {
-            $vars = $this->buildSandboxVars($vars, $this->twig_vars);
-        }
-
         try {
-            $output = $this->twig->render($template, $vars);
+            if (is_string($template) && GravSourcePolicy::isSandboxedName($template)) {
+                $output = $this->renderContent($this->twig, $template, $this->buildSandboxVars($vars, $this->twig_vars), $vars);
+            } else {
+                $output = $this->twig->render($template, $vars);
+            }
         } catch (LoaderError $e) {
             throw new RuntimeException($e->getRawMessage(), 404, $e);
         }
@@ -534,7 +541,7 @@ class Twig
         // GHSA-p597-crqc-m349). Caller-supplied values are left alone —
         // internal call sites that need a custom value (e.g. tests) can
         // still pass them through.
-        $vars = $this->buildSandboxVars($vars, $this->twig_vars);
+        $sandbox_vars = $this->buildSandboxVars($vars, $this->twig_vars);
 
         $filtered = false;
 
@@ -543,7 +550,7 @@ class Twig
 
         // SourcePolicy sandboxes @Var: sources automatically; no toggle needed.
         try {
-            $output = $this->twig->render($name, $vars);
+            $output = $this->renderContent($this->twig, $name, $sandbox_vars, $vars);
         } catch (LoaderError $e) {
             throw new RuntimeException($e->getRawMessage(), 404, $e);
         } catch (SecurityError $e) {
@@ -777,6 +784,26 @@ class Twig
         }
 
         return $vars;
+    }
+
+    /**
+     * Render an editor-authored template on its filtered variables, with the
+     * unfiltered ones for the trusted partials it includes (see
+     * TwigEnvironment::renderContent()).
+     *
+     * @param Environment $twig
+     * @param string $name
+     * @param array $vars Filtered variables, for the content.
+     * @param array $partialVars Variables PHP chose, for trusted partials.
+     * @return string
+     */
+    private function renderContent(Environment $twig, string $name, array $vars, array $partialVars): string
+    {
+        if ($twig instanceof TwigEnvironment) {
+            return $twig->renderContent($name, $vars, $partialVars);
+        }
+
+        return $twig->render($name, $vars);
     }
 
     /**

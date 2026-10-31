@@ -1226,8 +1226,9 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Trusted templates on disk are never '@'-prefixed and stay unsandboxed,
-     * which is what lets editor content `{% include %}` a theme partial.
+     * Trusted templates on disk are never '@'-prefixed and stay unsandboxed
+     * when Grav renders them. One that editor content `{% include %}`s is
+     * covered by TwigEnvironment::render(), see SourceSandboxCompilationTest.
      */
     public function testSourcePolicy_LeavesDiskTemplatesUnsandboxed(): void
     {

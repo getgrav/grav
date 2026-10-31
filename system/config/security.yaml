@@ -126,7 +126,10 @@ sanitize_svg: true
 #      site with no frontmatter at all (per-page frontmatter still overrides).
 #   2. twig_sandbox.enabled — when the gate is open, restricts what page-
 #      content Twig can do (allowlisted tags / filters / functions / methods
-#      / properties below). Violations soft-fail with a placeholder + a
+#      / properties below). A theme or plugin template that content pulls
+#      in (include, embed, extends, use, import) is held to the same lists
+#      for that render, except the trusted_partials below. Violations
+#      soft-fail with a placeholder + a
 #      logs/security.log entry. Disabling the sandbox removes the only layer
 #      of SSTI protection on editor-authored content — any site member with
 #      page-edit access (or anyone who compromises the file system) can
@@ -179,6 +182,19 @@ twig_sandbox:
   denied_functions: []
   denied_methods: []
   denied_properties: []
+  # Templates that `{% include %}` in page content renders the way the theme
+  # would, outside the sandbox, ADDED to the built-in defaults (the Form
+  # plugin's forms/form.html.twig and its forms/data.* templates, see
+  # SandboxDefaults::trustedPartials). A listed partial gets Grav's own
+  # variables (page, form, config, ...) and globals (grav); content can only
+  # add plain values (text, numbers, lists) under names Grav does not set,
+  # never objects. forms/data.save.txt.twig writes literal text for the
+  # Form save action, so its output is escaped in page content and emails.
+  # Matched by exact name, and only for `include`: embed/extends/use/import
+  # of the same file stay sandboxed. Only list a partial that prints its
+  # parameters escaped and doesn't use them to look things up, e.g.
+  #   trusted_partials: ['partials/alert.html.twig']
+  trusted_partials: []
   # Extra dot-notation config prefixes to redact from sandboxed renders, ADDED
   # to the built-in defaults (plugins, streams, security, backups, scheduler,
   # system.cache.redis.password — see SandboxDefaults::configDeniedPaths).
