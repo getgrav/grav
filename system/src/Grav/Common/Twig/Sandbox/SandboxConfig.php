@@ -13,10 +13,8 @@ use ArrayAccess;
 use Grav\Common\Config\Config;
 use function in_array;
 use function is_array;
-use function strlen;
 use function str_replace;
 use function str_starts_with;
-use function substr;
 
 /**
  * Read-only filtered facade around Grav\Common\Config\Config injected as the
@@ -188,47 +186,22 @@ final class SandboxConfig implements ArrayAccess
     }
 
     /**
-     * Walk denied paths and unset matching subtrees within $tree, treating
-     * $tree as anchored at $rootPath inside the full config (so a denied
-     * path 'plugins' against a tree rooted at 'system' is irrelevant).
+     * Walk $tree, anchored at $rootPath inside the full config, and remove
+     * every key that get() would refuse by name. The keys are tested against
+     * the denied list rather than the denied paths being split and looked up,
+     * because a key may itself contain a dot: user/config/plugins.bak/email.yaml
+     * loads as the single key 'plugins.bak', which no split path ever reaches.
      */
     private function filterArray(array $tree, string $rootPath): array
     {
-        foreach ($this->denied as $denied) {
-            if ($rootPath === '') {
-                $relative = $denied;
-            } else {
-                $rootPrefix = $rootPath . '.';
-                if (!str_starts_with($denied . '.', $rootPrefix)) {
-                    continue;
-                }
-                $relative = substr($denied, strlen($rootPrefix));
-                if ($relative === '' || $relative === false) {
-                    return [];
-                }
+        foreach ($tree as $key => $value) {
+            $path = $this->normalize($rootPath === '' ? (string) $key : $rootPath . '.' . $key, '.');
+            // A key that normalizes to nothing cannot be named by a denied path.
+            if ($path === '' || $this->isDenied($path)) {
+                unset($tree[$key]);
+            } elseif (is_array($value) && $this->hasDeniedDescendantsOf($path)) {
+                $tree[$key] = $this->filterArray($value, $path);
             }
-            $tree = $this->unsetPath($tree, explode('.', $relative));
-        }
-        return $tree;
-    }
-
-    /**
-     * @param array         $tree
-     * @param list<string>  $segments
-     * @return array
-     */
-    private function unsetPath(array $tree, array $segments): array
-    {
-        if ($segments === []) {
-            return $tree;
-        }
-        $head = array_shift($segments);
-        if ($segments === []) {
-            unset($tree[$head]);
-            return $tree;
-        }
-        if (isset($tree[$head]) && is_array($tree[$head])) {
-            $tree[$head] = $this->unsetPath($tree[$head], $segments);
         }
         return $tree;
     }

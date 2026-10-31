@@ -150,6 +150,33 @@ class SandboxConfigTest extends TestCase
         self::assertArrayHasKey('recaptcha', $arr['plugins'], 'sibling subtree untouched');
     }
 
+    public function testToArray_StripsDeniedKeysContainingDots(): void
+    {
+        // user/config/plugins.bak/email.yaml and user/config/.old/site.yaml load as the
+        // single top-level keys 'plugins.bak' and '.old'. Twig::buildSandboxConfig()
+        // denies array_keys() of the tree and expects the facade to come out empty.
+        $items = self::SAMPLE + [
+            'plugins.bak' => self::SAMPLE['plugins'],
+            '.old' => ['site' => ['key' => 'old-secret']],
+        ];
+        $sandbox = new SandboxConfig(new Config($items), array_keys($items));
+        self::assertSame([], $sandbox->toArray());
+        self::assertSame([], $sandbox->get(''));
+        self::assertSame([], $sandbox->offsetGet(''));
+
+        // The dump agrees with the read by name, which treats it as a child of 'plugins'.
+        $sandbox = new SandboxConfig(new Config($items), ['plugins']);
+        self::assertNull($sandbox->get('plugins.bak/email', null, '/'));
+        self::assertArrayNotHasKey('plugins.bak', $sandbox->toArray());
+        self::assertArrayHasKey('.old', $sandbox->toArray(), 'unrelated dotted key untouched');
+
+        // Same below the root.
+        $items = ['site' => ['keys.old' => ['api' => 'old-secret'], 'title' => 'My Site']];
+        $sandbox = new SandboxConfig(new Config($items), ['site.keys.old']);
+        self::assertSame(['title' => 'My Site'], $sandbox->get('site'));
+        self::assertSame(['site' => ['title' => 'My Site']], $sandbox->toArray());
+    }
+
     public function testToArray_NoDeniedPathsReturnsFullTree(): void
     {
         $arr = $this->build([])->toArray();
