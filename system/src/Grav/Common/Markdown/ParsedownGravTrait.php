@@ -36,8 +36,16 @@ trait ParsedownGravTrait
     protected $excerpts;
     /** @var array */
     protected $special_chars;
-    /** @var string */
-    protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
+    /**
+     * A link or image whose destination is a Twig tag, e.g. `[home]({{ base_url }})`.
+     *
+     * It is tried at every `!` and `[` of a text, so it has to fail fast: it is anchored to the
+     * marker, the `[label]` is matched without backtracking (as Parsedown does it) and the
+     * destination is bounded. Group 1 is the label, group 2 the destination.
+     *
+     * @var string
+     */
+    protected $twig_link_regex = '/^!?(\[(?:[^\[\]]++|(?1))*+\])\((\{([\{%#]).{0,1000}?(?:\3|\})\})\)/s';
     /** @var bool Render `- [ ]` / `- [x]` list items as checkboxes (GFM task lists). */
     protected $gfm_task_lists = true;
     /** @var bool Escape the GFM "disallowed raw HTML" tag denylist in output (tagfilter). */
@@ -332,10 +340,11 @@ trait ParsedownGravTrait
         $extentAdjust = $this->encodeAngleBracketDestination($excerpt);
 
         if (preg_match($this->twig_link_regex, (string) $excerpt['text'], $matches)) {
-            $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
+            $twig = $matches[2];
+            $excerpt['text'] = substr_replace($excerpt['text'], '/', strlen($matches[0]) - strlen($twig) - 1, strlen($twig));
             $excerpt = parent::inlineImage($excerpt);
-            $excerpt['element']['attributes']['src'] = $matches[1];
-            $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
+            $excerpt['element']['attributes']['src'] = $twig;
+            $excerpt['extent'] = $excerpt['extent'] + strlen($twig) - 1;
 
             return $excerpt;
         }
@@ -357,10 +366,16 @@ trait ParsedownGravTrait
 
     /**
      * @param array $excerpt
-     * @return array
+     * @return array|null
      */
     protected function inlineLink($excerpt)
     {
+        // Only a `[label]` that starts at the marker can be a link. Parsedown's own label regex is
+        // not anchored: without this it searches the whole rest of the text, again at every `[`.
+        if (!preg_match('/^(\[(?:[^\[\]]++|(?1))*+\])/', (string) $excerpt['text'])) {
+            return null;
+        }
+
         $type = $excerpt['type'] ?? 'link';
 
         // Support CommonMark angle-bracket destinations, e.g. `[doc](<My file.pdf>)`, so
@@ -369,10 +384,11 @@ trait ParsedownGravTrait
 
         // do some trickery to get around Parsedown requirement for valid URL if its Twig in there
         if (preg_match($this->twig_link_regex, (string) $excerpt['text'], $matches)) {
-            $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
+            $twig = $matches[2];
+            $excerpt['text'] = substr_replace($excerpt['text'], '/', strlen($matches[0]) - strlen($twig) - 1, strlen($twig));
             $excerpt = parent::inlineLink($excerpt);
-            $excerpt['element']['attributes']['href'] = $matches[1];
-            $excerpt['extent'] = $excerpt['extent'] + strlen($matches[1]) - 1;
+            $excerpt['element']['attributes']['href'] = $twig;
+            $excerpt['extent'] = $excerpt['extent'] + strlen($twig) - 1;
 
             return $excerpt;
         }
