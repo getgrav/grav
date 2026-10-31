@@ -706,6 +706,8 @@ class Grav extends Container
      */
     protected static function load(array $values)
     {
+        header_register_callback([Utils::class, 'enforcePrivateCacheControl']);
+
         $container = new static($values);
 
         $container['debugger'] = new Debugger();
