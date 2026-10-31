@@ -16,6 +16,7 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
+use Grav\Common\Utils;
 use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
@@ -499,6 +500,8 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
             $value = $this->getProperty($field);
             if (is_numeric($value)) {
                 $value = '@' . $value;
+            } elseif (!is_string($value) || strlen($value) > Utils::DATE_MAX_LENGTH) {
+                $value = null;
             }
             $date = $value ? new DateTime($value) : null;
         } catch (Exception $e) {

@@ -456,7 +456,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                 continue;
             }
 
-            $date = $field ? strtotime((string) $object->getNestedProperty($field)) : $object->date();
+            $date = $field ? Utils::strtotime($object->getNestedProperty($field)) : $object->date();
 
             if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
                 $entries[$key] = $object;

@@ -989,7 +989,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         if ((string)(int)$date === (string)$date) {
             $unix_date = $date;
         } else {
-            $unix_date = strtotime($date);
+            $unix_date = Utils::strtotime($date);
         }
 
         // check validity of date
