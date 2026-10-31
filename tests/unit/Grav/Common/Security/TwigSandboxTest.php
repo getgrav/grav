@@ -839,6 +839,36 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * `array_key_value(key, val, object)` only ever extends a real array. Given an
+     * object it returns a new array and leaves the object alone, since writing
+     * into it would be an offsetSet() call the policy never checks.
+     */
+    public function testArrayKeyValueDoesNotWriteIntoObjectsUnderSourcePolicy(): void
+    {
+        $assets = new \Grav\Common\Assets();
+        $collections = $assets->getCollections();
+
+        $env = $this->sourcePolicySandboxEnv([
+            '@Page:extend' => '{{ array_key_value("collections", {"a": {"/user/data/example.css": {"loading": "inline"}}}, assets)|keys|join(",") }}',
+        ]);
+
+        self::assertSame('collections', $env->render('@Page:extend', ['assets' => $assets]));
+        self::assertSame($collections, $assets->getCollections());
+    }
+
+    /**
+     * The documented use, building an associative array one key at a time.
+     */
+    public function testArrayKeyValueStillBuildsArraysUnderSourcePolicy(): void
+    {
+        $env = $this->sourcePolicySandboxEnv([
+            '@Page:ok' => '{{ array_key_value("b", 2, array_key_value("a", 1))|json_encode }}',
+        ]);
+
+        self::assertSame('{"a":1,"b":2}', html_entity_decode($env->render('@Page:ok')));
+    }
+
+    /**
      * print_r reflects private state, so it walked straight through the redacting
      * SandboxConfig facade and returned the whole config tree — the exact leak
      * GHSA-mc5q-6hpj-rp7j was supposed to close, and did not. Assert it through the

@@ -1463,7 +1463,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function arrayKeyValueFunc($key, $val, $current_array = null)
     {
-        if (empty($current_array)) {
+        // Only ever extend a real array: on an ArrayAccess object the assignment
+        // below would be an offsetSet() call the sandbox policy never sees.
+        if (!is_array($current_array)) {
             return [$key => $val];
         }
 
