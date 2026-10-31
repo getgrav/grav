@@ -145,9 +145,20 @@ class UserCollection implements UserCollectionInterface
      */
     public function count(): int
     {
-        // check for existence of a user account
-        $account_dir = $file_path = Grav::instance()['locator']->findResource('account://');
-        $accounts = glob($account_dir . '/*.yaml') ?: [];
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        $account_dir = $locator->findResource('account://');
+        if (!is_string($account_dir)) {
+            return 0;
+        }
+
+        // List the folder literally, including install paths with glob characters.
+        $accounts = array_filter(
+            scandir($account_dir) ?: [],
+            static function (string $file): bool {
+                return $file[0] !== '.' && Utils::endsWith($file, YAML_EXT);
+            }
+        );
 
         return count($accounts);
     }
