@@ -13,6 +13,7 @@ use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Interfaces\PageInterface;
 use function call_user_func_array;
 use function in_array;
+use function is_string;
 use function strlen;
 
 /**
@@ -251,12 +252,18 @@ trait ParsedownGravTrait
     /**
      * Setter for special chars
      *
+     * The map can be overridden from page frontmatter and each value is written to the
+     * output as `&value;`, so only values that name a character reference are kept.
+     *
      * @param array $special_chars
      * @return $this
      */
     public function setSpecialChars($special_chars)
     {
-        $this->special_chars = $special_chars;
+        $this->special_chars = array_filter(
+            (array)$special_chars,
+            static fn($entity) => is_string($entity) && preg_match('/^(?:[a-z][a-z0-9]*|#[0-9]+|#x[0-9a-f]+)$/iD', $entity)
+        );
 
         return $this;
     }
