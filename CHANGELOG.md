@@ -1,3 +1,9 @@
+# v1.7.53.7
+## mm/dd/2026
+
+1. [](#bugfix)
+    * [security] A media `.meta.yaml` file can no longer change which file a medium points to or where it is served from, and only files ending in `.meta.yaml` are read as media metadata. Backport of the Grav 2.2.18 fix
+
 # v1.7.53.6
 ## 10/23/2026
 

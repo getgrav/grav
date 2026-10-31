@@ -304,7 +304,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $type = 'base';
 
             while (($part = array_shift($fileParts)) !== null) {
-                if ($part !== 'meta' && $part !== 'thumb') {
+                // Only `<file>.meta.yaml` is a sidecar; any other `.meta.<ext>`
+                // file is an ordinary medium of its own.
+                $isMeta = $part === 'meta' && $fileParts === ['yaml'];
+                if (!$isMeta && $part !== 'thumb') {
                     if (null !== $extension) {
                         $name .= '.' . $extension;
                     }
