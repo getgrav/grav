@@ -276,6 +276,12 @@ trait ParsedownGravTrait
      */
     protected function blockTwigTag($line)
     {
+        // The whole line is emitted as written, any HTML next to the tag included, so this is
+        // raw markup: stand down like Parsedown's own blockMarkup() and blockComment() do.
+        if ($this->markupEscaped || $this->safeMode) {
+            return null;
+        }
+
         if (preg_match('/(?:{{|{%|{#)(.*)(?:}}|%}|#})/', (string) $line['body'], $matches)) {
             return ['markup' => $line['body']];
         }
@@ -289,6 +295,13 @@ trait ParsedownGravTrait
      */
     protected function inlineSpecialCharacter($excerpt)
     {
+        // The special_chars map is configurable and a page header can replace it: with markup
+        // escaped it must not be able to leave `<` / `>` alone, so the fixed entities
+        // Parsedown escapes with are used.
+        if ($this->markupEscaped || $this->safeMode) {
+            return parent::inlineSpecialCharacter($excerpt);
+        }
+
         if ($excerpt['text'][0] === '&' && !preg_match('/^&#?\w+;/', (string) $excerpt['text'])) {
             return [
                 'markup' => '&amp;',
