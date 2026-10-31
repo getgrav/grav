@@ -722,6 +722,11 @@ class Twig
      * $inherited) are left untouched, so internal call sites and tests can
      * still pass their own.
      *
+     * The same treatment is applied to the copies of the enclosing context
+     * that Twig's `for` tag stores in `_parent` and `loop.parent`, which
+     * evaluate_twig() / evaluate() forward along with the rest of the
+     * calling template's context.
+     *
      * @param array $vars      Variables about to be rendered.
      * @param array $inherited The base $twig_vars they were derived from.
      * @return array
@@ -747,6 +752,21 @@ class Twig
             );
 
             $vars[$key] = $filter->get($key, []);
+        }
+
+        // A `{% for %}` body carries the enclosing context twice over, as
+        // `_parent` and `loop.parent` (ForNode). When a trusted template calls
+        // evaluate_twig() from inside a loop, those copies arrive here too, so
+        // they get the same filtering. Nested loops nest the copies; recurse.
+        $parent = $vars['_parent'] ?? null;
+        if (is_array($parent)) {
+            $vars['_parent'] = $this->buildSandboxVars($parent, $inherited);
+        }
+        if (is_array($vars['loop'] ?? null) && is_array($vars['loop']['parent'] ?? null)) {
+            // ForNode sets both from the same array; reuse the filtered copy.
+            $vars['loop']['parent'] = $vars['loop']['parent'] === $parent
+                ? $vars['_parent']
+                : $this->buildSandboxVars($vars['loop']['parent'], $inherited);
         }
 
         return $vars;
