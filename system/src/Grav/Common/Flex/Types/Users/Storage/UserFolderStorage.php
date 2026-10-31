@@ -19,6 +19,8 @@ use Grav\Framework\Flex\Storage\FolderStorage;
  */
 class UserFolderStorage extends FolderStorage
 {
+    use UserStorageTrait;
+
     /**
      * Prepares the row for saving and returns the storage key for the record.
      *

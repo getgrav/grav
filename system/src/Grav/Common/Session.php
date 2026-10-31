@@ -9,6 +9,7 @@
 
 namespace Grav\Common;
 
+use Grav\Common\Flex\Types\Users\UserObject;
 use Grav\Common\Form\FormFlash;
 use Grav\Common\User\DataUser\User;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
@@ -490,6 +491,8 @@ class Session extends \Grav\Framework\Session\Session
             // made in this request against the file as it is now.
             if ($user instanceof User && $stored instanceof User && ($file = $stored->file())) {
                 $user->file($file);
+            } elseif ($user instanceof UserObject && $stored instanceof UserObject) {
+                $user->setLoadedFrom($stored);
             }
         } catch (Throwable) {
             // Keep the session as it is; the user is validated right after this.

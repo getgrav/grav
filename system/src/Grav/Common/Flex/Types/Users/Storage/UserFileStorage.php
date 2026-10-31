@@ -19,6 +19,8 @@ use Grav\Framework\Flex\Storage\FileStorage;
  */
 class UserFileStorage extends FileStorage
 {
+    use UserStorageTrait;
+
     /**
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()

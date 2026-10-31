@@ -667,7 +667,17 @@ class UserObject extends FlexObject implements UserInterface, Countable
             }
         }
 
-        $instance = parent::save();
+        try {
+            $instance = parent::save();
+        } catch (RuntimeException $e) {
+            if ($e->getCode() === 409) {
+                // The account has changed since this object was loaded. The object may have come from the object
+                // cache, which does not see two changes made within the same second: read the storage next time.
+                $this->getFlexDirectory()->getCache('object')->clear();
+            }
+
+            throw $e;
+        }
 
         // Backwards compatibility with older plugins.
         if ($fireEvents) {
@@ -675,6 +685,21 @@ class UserObject extends FlexObject implements UserInterface, Countable
         }
 
         return $instance;
+    }
+
+    /**
+     * Compare a later save against the stored account $stored was loaded from, as if this object had been
+     * loaded from it too. Used when the session's copy of the account is refreshed from the stored account.
+     *
+     * @param UserObject $stored
+     * @return void
+     * @internal
+     */
+    public function setLoadedFrom(UserObject $stored): void
+    {
+        $meta = $this->getMetaData();
+        $meta['account_checksum'] = $stored->getMetaData()['account_checksum'] ?? null;
+        $this->setMetaData($meta);
     }
 
     /**
