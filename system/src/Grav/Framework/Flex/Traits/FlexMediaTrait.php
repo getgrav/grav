@@ -579,8 +579,8 @@ trait FlexMediaTrait
         /** @var Config $config */
         $config = $grav['config'];
 
-        // If not a supported type, return
-        if (!$extension || !$config->get("media.types.{$extension}")) {
+        // If not a supported type, return (`media.types.defaults` is not a file type)
+        if (!$extension || $extension === 'defaults' || !$config->get("media.types.{$extension}")) {
             $language = $grav['language'];
             throw new RuntimeException($language->translate('PLUGIN_ADMIN.UNSUPPORTED_FILE_TYPE') . ': ' . $extension, 400);
         }
