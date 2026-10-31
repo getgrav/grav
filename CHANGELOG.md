@@ -6,6 +6,7 @@
     * [security] The bundled IIS `web.config` applies its rules in any letter case and however a file path is written, and also keeps hidden files, `.env` files, `tmp/`, root files such as `composer.json`, Markdown files and scripts in `images/` and `assets/` private (IIS sites copy the updated rules from `webserver-configs/` by hand). Backport of the Grav 2 rules
     * [security] The bundled `nginx.conf` also keeps hidden files, `.env` files, `tmp/`, `webserver-configs/`, Markdown files and scripts in `images/` and `assets/` private, and its folder rules match from the site root only, so page routes such as `/docs/cache/` reach Grav (nginx sites copy the updated rules from `webserver-configs/` by hand). Backport of the Grav 2 rules
     * [security] The bundled Caddy 2 `Caddyfile` is rebuilt so every deny rule takes effect, and both Caddyfiles protect the same folders and file types as the Apache rules (Caddy sites copy the updated rules from `webserver-configs/` by hand). Backport of the Grav 2 rules
+    * [security] The bundled `lighttpd.conf` matches its rules in any letter case, serves `/.well-known/` files such as ACME challenges, and protects the same folders and file types as the Apache rules (lighttpd sites copy the updated rules from `webserver-configs/` by hand). Backport of the Grav 2 rules
 
 # v1.7.53.7
 ## 10/31/2026
