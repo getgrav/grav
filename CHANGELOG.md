@@ -7,6 +7,7 @@
     * [security] The bundled `nginx.conf` also keeps hidden files, `.env` files, `tmp/`, `webserver-configs/`, Markdown files and scripts in `images/` and `assets/` private, and its folder rules match from the site root only, so page routes such as `/docs/cache/` reach Grav (nginx sites copy the updated rules from `webserver-configs/` by hand). Backport of the Grav 2 rules
     * [security] The bundled Caddy 2 `Caddyfile` is rebuilt so every deny rule takes effect, and both Caddyfiles protect the same folders and file types as the Apache rules (Caddy sites copy the updated rules from `webserver-configs/` by hand). Backport of the Grav 2 rules
     * [security] The bundled `lighttpd.conf` matches its rules in any letter case, serves `/.well-known/` files such as ACME challenges, and protects the same folders and file types as the Apache rules (lighttpd sites copy the updated rules from `webserver-configs/` by hand). Backport of the Grav 2 rules
+    * [security] The `php -S` development router (`system/router.php`) keeps `tmp/`, `user/config/`, `user/env/`, `user/accounts/` and `user/data/` private and refuses scripts in `images/` and `assets/`, the same as the shipped web-server rules. Backport of the Grav 2 rules
 
 # v1.7.53.7
 ## 10/31/2026
