@@ -662,18 +662,16 @@ trait ParsedownGravTrait
      */
     protected function trimAutolinkTrailing($token)
     {
-        $trailing = '';
-        while ($token !== '' && strpbrk($token[strlen($token) - 1], '?!.,:*_~') !== false) {
-            $trailing = $token[strlen($token) - 1] . $trailing;
-            $token = substr($token, 0, -1);
-        }
-        while ($token !== '' && $token[strlen($token) - 1] === ')'
-            && substr_count($token, ')') > substr_count($token, '(')) {
-            $trailing = ')' . $trailing;
-            $token = substr($token, 0, -1);
+        // Find the cut point first and cut once: peeling one character per pass
+        // re-copies (and re-counts) the whole token, quadratic on a long run.
+        $linked = rtrim($token, '?!.,:*_~');
+        $unbalanced = substr_count($linked, ')') - substr_count($linked, '(');
+        if ($unbalanced > 0) {
+            $closing = strlen($linked) - strlen(rtrim($linked, ')'));
+            $linked = substr($linked, 0, strlen($linked) - min($unbalanced, $closing));
         }
 
-        return [$token, $trailing];
+        return [$linked, substr($token, strlen($linked))];
     }
 
     /**
