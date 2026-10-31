@@ -42,6 +42,7 @@ use Grav\Framework\Psr7\Response;
 use Iterator;
 use JsonSerializable;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Throwable;
 use Traversable;
 use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
 use Twig\Environment;
@@ -1821,7 +1822,12 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             $exif_reader = $this->grav['exif']->getReader();
 
             if ($image && file_exists($image) && $this->config->get('system.media.auto_metadata_exif') && $exif_reader) {
-                $exif_data = $exif_reader->read($image);
+                try {
+                    $exif_data = $exif_reader->read($image);
+                } catch (Throwable $e) {
+                    $this->grav['log']->error($image . ' - ' . $e->getMessage());
+                    $exif_data = null;
+                }
 
                 if ($exif_data) {
                     if ($raw) {

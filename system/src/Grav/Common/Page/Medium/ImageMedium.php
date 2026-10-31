@@ -65,7 +65,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $this->set('thumbnails.media', $path);
 
         if (!($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
-            $image_info = getimagesize($path);
+            // Only the file name says this is an image; short or damaged content raises a notice or a warning.
+            $image_info = @getimagesize($path);
             if ($image_info) {
                 $this->def('width', (int) $image_info[0]);
                 $this->def('height', (int) $image_info[1]);
@@ -287,8 +288,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         }
 
         if ($this->saved_image_path && $this->auto_sizes) {
-            if (!array_key_exists('height', $this->attributes) && !array_key_exists('width', $this->attributes)) {
-                $info = getimagesize($this->saved_image_path);
+            if (!array_key_exists('height', $this->attributes) && !array_key_exists('width', $this->attributes) && ($info = @getimagesize($this->saved_image_path))) {
                 $width = (int)$info[0];
                 $height = (int)$info[1];
 

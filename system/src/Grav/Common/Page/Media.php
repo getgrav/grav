@@ -19,6 +19,7 @@ use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Medium\MediumFactory;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Throwable;
 use function in_array;
 
 /**
@@ -220,7 +221,13 @@ class Media extends AbstractMedia
                 if (file_exists($meta_path)) {
                     $types['meta']['file'] = $meta_path;
                 } elseif ($file_path && $exif_reader && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif')) {
-                    $meta = $exif_reader->read($file_path);
+                    try {
+                        $meta = $exif_reader->read($file_path);
+                    } catch (Throwable $e) {
+                        // The reader chokes on damaged files and on Exif values it does not expect.
+                        $grav['log']->error($file_path . ' - ' . $e->getMessage());
+                        $meta = null;
+                    }
 
                     if ($meta) {
                         $meta_data = $meta->getData();
