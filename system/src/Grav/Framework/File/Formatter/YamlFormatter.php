@@ -17,7 +17,9 @@ use Symfony\Component\Yaml\Exception\DumpException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 use RocketTheme\Toolbox\Compat\Yaml\Yaml as FallbackYamlParser;
+use function array_key_exists;
 use function function_exists;
+use function is_array;
 
 /**
  * Class YamlFormatter
@@ -83,6 +85,8 @@ class YamlFormatter extends AbstractFormatter
      */
     public function encode($data, $inline = null, $indent = null): string
     {
+        static::assertNoMergeKeys($data);
+
         try {
             return YamlParser::dump(
                 $data,
@@ -92,6 +96,33 @@ class YamlFormatter extends AbstractFormatter
             );
         } catch (DumpException $e) {
             throw new RuntimeException('Encoding YAML failed: ' . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Make sure that the data does not use `<<` as a key.
+     *
+     * Symfony YAML decoders read `<<` as the merge key, quoted or not, and move its value one level up:
+     * `['<<' => ['access' => ...]]` comes back as `['access' => ...]`. There is no way to write the key so that it
+     * is read back as it was, which means that data checked as an array (blueprint `security@` fields, privilege
+     * guards) would load differently. Call this before writing YAML with any other encoder.
+     *
+     * @param mixed $data
+     * @return void
+     * @throws RuntimeException
+     */
+    public static function assertNoMergeKeys($data): void
+    {
+        if (!is_array($data)) {
+            return;
+        }
+
+        if (array_key_exists('<<', $data)) {
+            throw new RuntimeException("Encoding YAML failed: '<<' cannot be used as a key");
+        }
+
+        foreach ($data as $value) {
+            static::assertNoMergeKeys($value);
         }
     }
 

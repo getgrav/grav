@@ -14,6 +14,7 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
+use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
@@ -263,7 +264,10 @@ class FormFlash implements FormFlashInterface
             // Only save if there is data or files to be saved.
             $file = $this->getTmpIndex();
             if ($file) {
-                $file->save($this->jsonSerialize());
+                $data = $this->jsonSerialize();
+                YamlFormatter::assertNoMergeKeys($data);
+
+                $file->save($data);
                 $this->exists = true;
             }
         } elseif ($this->exists) {

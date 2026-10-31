@@ -21,6 +21,7 @@ use Grav\Common\Utils;
 use Grav\Framework\Cache\Adapter\DoctrineCache;
 use Grav\Framework\Cache\Adapter\MemoryCache;
 use Grav\Framework\Cache\CacheInterface;
+use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexDirectoryInterface;
@@ -275,6 +276,8 @@ class FlexDirectory implements FlexDirectoryInterface
             'name' => $name,
             'data' => &$data,
         ]));
+
+        YamlFormatter::assertNoMergeKeys($data);
 
         $file = YamlFile::instance($filename);
         if (!empty($data)) {
