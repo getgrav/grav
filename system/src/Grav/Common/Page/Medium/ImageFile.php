@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Page\Medium;
 
+use Error;
 use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
@@ -130,7 +131,17 @@ class ImageFile extends Image
 
         // The generating function
         $generate = function ($target) use ($image, $type, $quality) {
-            $result = $image->save($target, $type, $quality);
+            try {
+                $result = $image->save($target, $type, $quality);
+            } catch (Error $e) {
+                // save() turns exceptions into the fallback image, but a GD built
+                // without AVIF or WebP fails on an undefined function instead.
+                if (!$image->useFallbackImage) {
+                    throw $e;
+                }
+
+                $result = $image->getCacheFallback();
+            }
 
             if ($result !== $target) {
                 throw new GenerationError($result);

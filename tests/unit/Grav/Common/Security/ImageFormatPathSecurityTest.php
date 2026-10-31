@@ -80,16 +80,11 @@ class ImageFormatPathSecurityTest extends \Codeception\Test\Unit
     }
 
 
-    public function testExtensionFromMetadataIsRefusedToo(): void
+    public function testUnrecognizedExtensionUsesTheContentType(): void
     {
         $medium = $this->medium();
         $medium->set('extension', "invalid/type");
 
-        try {
-            $medium->cache()->path();
-            $this->fail('An unknown type must be refused');
-        } catch (InvalidArgumentException) {
-            $this->assertDirectoryDoesNotExist($this->cache . '/' . $this->marker);
-        }
+        $this->assertStringEndsWith('.jpeg', $medium->cache()->path());
     }
 }

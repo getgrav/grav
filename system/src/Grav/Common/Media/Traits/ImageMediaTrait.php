@@ -628,8 +628,10 @@ trait ImageMediaTrait
         if ($this->format === 'guess') {
             $extension = strtolower($this->get('extension'));
             // Assigned directly: format() records a transformation, and keeping
-            // the original's own format is not one.
-            $this->format = $extension;
+            // the original's own format is not one. Not every extension media.yaml
+            // calls an image is a type ImageFile can write (`jpe` is not), and
+            // save() throws on those, so such a file is saved as what it contains.
+            $this->format = isset(ImageFile::$types[$extension]) ? $extension : $this->image->guessType();
         }
 
         if (!$this->debug_watermarked && $this->get('debug')) {
