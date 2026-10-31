@@ -310,7 +310,10 @@ final class SandboxDefaults
             ['class' => 'Grav\Common\Grav', 'methods' => 'offsetexists, getversion, theme'],
             ['class' => 'Grav\Common\Config\Config', 'methods' => 'get, value, default, offsetget, offsetexists'],
             ['class' => 'Grav\Common\Twig\Sandbox\SandboxConfig', 'methods' => 'get, toarray, value, offsetget, offsetexists'],
-            ['class' => 'Grav\Common\Page\Interfaces\PageInterface', 'methods' => 'content, header, title, menu, slug, route, rawroute, url, path, permalink, template, templateformat, filepath, date, dateformat, modified, media, parent, children, collection, find, findmedia, value, summary, taxonomy, visible, published, publishdate, unpublishdate, routable, language, modular, modulartwig, ismodule, ispage, isfirst, islast, adjacentsibling, prevsibling, nextsibling, metadata, id, order, breadcrumbs, home, tostring, __tostring'],
+            // path/filepath are deliberately NOT allowlisted: like most page
+            // accessors they are also setters when given an argument, and the
+            // sandbox checks the name of a call, not its arguments.
+            ['class' => 'Grav\Common\Page\Interfaces\PageInterface', 'methods' => 'content, header, title, menu, slug, route, rawroute, url, permalink, template, templateformat, date, dateformat, modified, media, parent, children, collection, find, findmedia, value, summary, taxonomy, visible, published, publishdate, unpublishdate, routable, language, modular, modulartwig, ismodule, ispage, isfirst, islast, adjacentsibling, prevsibling, nextsibling, metadata, id, order, breadcrumbs, home, tostring, __tostring'],
             ['class' => 'Grav\Common\Page\Pages', 'methods' => 'root, base, dispatch, home, all, children, instances, routes, sort'],
             ['class' => 'Grav\Common\Uri', 'methods' => 'path, url, params, param, query, host, port, scheme, route, base, extension, method, referrer, ip, addr, toarray, __tostring'],
             ['class' => 'Grav\Common\Page\Media', 'methods' => 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'],

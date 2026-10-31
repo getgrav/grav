@@ -525,7 +525,7 @@ class Page implements PageInterface, PageUuidInterface
             }
 
             // Force content re-processing.
-            $this->id(time() . md5((string) $this->filePath()));
+            $this->id($this->memoryId());
         }
         if (!$this->frontmatter) {
             $this->header();
@@ -569,6 +569,7 @@ class Page implements PageInterface, PageUuidInterface
     public function header($var = null)
     {
         if ($var) {
+            $var = Header::plainData($var);
             $this->header = (object)$var;
 
             // Update also file object.
@@ -578,7 +579,7 @@ class Page implements PageInterface, PageUuidInterface
             }
 
             // Force content re-processing.
-            $this->id(time() . md5((string) $this->filePath()));
+            $this->id($this->memoryId());
         }
         if (!$this->header) {
             $file = $this->file();
@@ -955,7 +956,7 @@ class Page implements PageInterface, PageUuidInterface
             }
 
             // Force re-processing.
-            $this->id(time() . md5((string) $this->filePath()));
+            $this->id($this->memoryId());
             $this->content = null;
         }
         // If no content, process it
@@ -1652,7 +1653,7 @@ class Page implements PageInterface, PageUuidInterface
         }
 
         $this->parent($parent);
-        $this->id(time() . md5((string) $this->filePath()));
+        $this->id($this->memoryId());
 
         if ($parent->path()) {
             $this->path($parent->path() . '/' . $this->folder());
@@ -1831,6 +1832,9 @@ class Page implements PageInterface, PageUuidInterface
     public function media($var = null)
     {
         if ($var) {
+            // Media set in memory belongs to this object only: a fresh id keeps the
+            // content rendered with it apart from the page's own cached content.
+            $this->id($this->memoryId());
             $this->setMedia($var);
         }
 
@@ -2168,6 +2172,43 @@ class Page implements PageInterface, PageUuidInterface
     }
 
     /**
+     * Escape the `content` of metadata entries handed to a metadata() setter the
+     * way the getter escapes the entries it builds from the header, since themes
+     * print `content` as it is. Text that is already escaped stays as it is, and
+     * anything that isn't an entry (an array of attributes) is left out.
+     *
+     * @param array $metadata
+     * @return array
+     * @internal
+     */
+    public static function escapeMetadata(array $metadata): array
+    {
+        $config = Grav::instance()['config'];
+        $escape = !$config->get('system.strict_mode.twig2_compat', false) || $config->get('system.twig.autoescape', true);
+
+        foreach ($metadata as $key => $entry) {
+            if ($entry instanceof \stdClass) {
+                $entry = get_object_vars($entry);
+            }
+            if (!is_array($entry)) {
+                unset($metadata[$key]);
+                continue;
+            }
+            if (array_key_exists('content', $entry)) {
+                $content = $entry['content'];
+                if (!is_scalar($content)) {
+                    $entry['content'] = null;
+                } elseif ($escape) {
+                    $entry['content'] = htmlspecialchars((string) $content, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
+                }
+            }
+            $metadata[$key] = $entry;
+        }
+
+        return $metadata;
+    }
+
+    /**
      * Function to merge page metadata tags and build an array of Metadata objects
      * that can then be rendered in the page.
      *
@@ -2177,7 +2218,7 @@ class Page implements PageInterface, PageUuidInterface
     public function metadata($var = null)
     {
         if ($var !== null) {
-            $this->metadata = (array)$var;
+            $this->metadata = self::escapeMetadata((array)$var);
         }
 
         // if not metadata yet, process it.
@@ -2509,6 +2550,19 @@ class Page implements PageInterface, PageUuidInterface
     }
 
     /**
+     * An id for a page whose content was set or changed in memory. The pages index
+     * builds ids from a timestamp and the file path, so this one can never be equal
+     * to an id the index gives a page, and nothing cached under it stands in for
+     * that page's own content or media.
+     *
+     * @return string
+     */
+    private function memoryId(): string
+    {
+        return 'mem-' . bin2hex(random_bytes(8)) . md5((string) $this->filePath());
+    }
+
+    /**
      * Gets and sets the identifier for this Page object.
      *
      * @param  string|null $var the identifier
@@ -2518,7 +2572,7 @@ class Page implements PageInterface, PageUuidInterface
     {
         if (null === $this->id) {
             // We need to set unique id to avoid potential cache conflicts between pages.
-            $var = time() . md5((string) $this->filePath());
+            $var = $this->memoryId();
         }
         if ($var !== null) {
             // store unique per language

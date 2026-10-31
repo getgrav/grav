@@ -307,6 +307,73 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     }
 
     // =========================================================================
+    // Page accessors are getter and setter in one method, and the policy is asked
+    // about the name of a call only. The members that name a page's file or
+    // folder stay off the PageInterface row, so content can't change them.
+    // =========================================================================
+
+    /**
+     * @dataProvider pagePathSetterProvider
+     */
+    public function testBuildPolicy_BlocksPagePathSetters(string $method): void
+    {
+        $policy = Security::buildTwigSandboxPolicy();
+
+        $this->expectException(SecurityNotAllowedMethodError::class);
+        $policy->checkMethodAllowed(new \Grav\Common\Page\Page(), $method);
+    }
+
+    public static function pagePathSetterProvider(): array
+    {
+        return [
+            'filepath' => ['filepath'],
+            'filePath' => ['filePath'],
+            'path'     => ['path'],
+            'folder'   => ['folder'],
+            'name'     => ['name'],
+        ];
+    }
+
+    /**
+     * @dataProvider pageRepointTemplateProvider
+     */
+    public function testSandboxRender_PageFileLocationCannotBeChanged(string $template): void
+    {
+        $file = tempnam(sys_get_temp_dir(), 'grav-sandbox-');
+        file_put_contents($file, 'CANARY');
+        $page = new \Grav\Common\Page\Page();
+        $env = $this->sandboxEnv(['hit' => $template]);
+
+        try {
+            $env->render('hit', ['page' => $page, 'file' => $file]);
+            self::fail('Page::filePath()/path() must not be callable from sandboxed content');
+        } catch (SecurityNotAllowedMethodError $e) {
+            self::assertNotSame($file, $page->filePath());
+            self::assertNotSame(dirname($file), $page->path());
+        } finally {
+            unlink($file);
+        }
+    }
+
+    public static function pageRepointTemplateProvider(): array
+    {
+        return [
+            'filepath + value(content)' => ["{% do page.filepath(file) %}{{ page.value('content') }}"],
+            'path + media'              => ["{% do page.path(file|split('/')|slice(0, -1)|join('/')) %}{{ page.media.all|keys|join(',') }}"],
+        ];
+    }
+
+    public function testBuildPolicy_AllowsPageMembers(): void
+    {
+        $policy = Security::buildTwigSandboxPolicy();
+        $page = new \Grav\Common\Page\Page();
+
+        foreach (['title', 'route', 'url', 'content', 'value', 'media', 'find', 'collection'] as $method) {
+            $this->assertDoesNotThrow(fn() => $policy->checkMethodAllowed($page, $method));
+        }
+    }
+
+    // =========================================================================
     // Plugin extension point: onBuildTwigSandboxPolicy lets a plugin allow its
     // own safe Twig members for editor-authored content under the sandbox.
     // =========================================================================

@@ -181,7 +181,7 @@ trait PageRoutableTrait
      */
     public function route($var = null): ?string
     {
-        if (null !== $var) {
+        if (is_string($var)) {
             // TODO: not the best approach, but works...
             $this->setNestedProperty('header.routes.default', $var);
         }
