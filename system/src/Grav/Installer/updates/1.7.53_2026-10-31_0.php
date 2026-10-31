@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Carry three deny rules from the shipped `.htaccess` to an upgraded site's root `.htaccess`.
+ * Carry three deny rules and a tightened dot-file rule from the shipped `.htaccess`
+ * to an upgraded site's root `.htaccess`.
  *
  * 1.7.53.8 adds them to the shipped file, as Grav 2 has them:
  *
@@ -11,6 +12,9 @@
  * - A rule refusing a request in `images/`, `assets/`, `system/`, `vendor/` or
  *   `user/` that maps to a file with a path after it (`file.php/x`), placed
  *   after the `^(user)/(.*)\.` file-type rule.
+ * - The dot-file rule's `.well-known` exception ends at a `/` or the end of the
+ *   path, so hidden names that only start with `well-known` stay blocked. The
+ *   line is replaced only when it appears once, unchanged.
  *
  * `.htaccess` is never replaced by an upgrade, so this postflight is the only way
  * existing Apache sites get them. Each change is independent and best-effort:
@@ -84,6 +88,12 @@ return [
                     . 'RewriteCond %{PATH_INFO} ^/' . $eol
                     . 'RewriteRule ^(images|assets|system|vendor|user)/ error [F,NC]' . $eol;
                 $updated = substr($updated, 0, $insertAt) . $rule . substr($updated, $insertAt);
+            }
+
+            // 4. Limit the dot-file exception to the `.well-known` folder itself.
+            $old = '/^' . preg_quote('RewriteRule (^|/)\.(?!well-known) - [F]', '/') . '(?=\r?\n|$)/m';
+            if (preg_match_all($old, $updated) === 1) {
+                $updated = preg_replace($old, 'RewriteRule (^|/)\\.(?!well-known(?:/|\$)) - [F]', $updated, 1);
             }
 
             if ($updated !== $contents) {
