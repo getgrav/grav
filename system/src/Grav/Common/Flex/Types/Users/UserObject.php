@@ -963,6 +963,13 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
             // Load settings for the field.
             $settings = $this->getMediaFieldSettings($field);
+
+            // Files are not filtered by the blueprint like form data: skip fields which are disabled or
+            // ignored (e.g. guarded by `security@`).
+            if (!empty($settings['disabled']) || !empty($settings['validate']['ignore'])) {
+                continue;
+            }
+
             foreach ($group as $filename => $file) {
                 if ($file) {
                     // File upload.
@@ -979,6 +986,13 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 if ($file) {
                     // Check file upload against media limits (except for max size).
                     $filename = $media->checkUploadedFile($file, $filename, ['filesize' => 0] + $settings);
+                } else {
+                    // The name of a deleted file has to be a plain filename, like an upload: deleteFile()
+                    // follows sub-folders (`original/` is added when saving).
+                    $filename = (string)$filename;
+                    if (!Utils::checkFilename($filename)) {
+                        throw new RuntimeException('File could not be deleted: Bad filename', 400);
+                    }
                 }
 
                 $self = $settings['self'];
@@ -1005,6 +1019,11 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', Utils::basename($filepath));
 
                 $list[$filename] = [$file, $settings];
+
+                // Only media fields keep a file list in the object; other field names are not object properties.
+                if (empty($settings['media_field'])) {
+                    continue;
+                }
 
                 $path = str_replace('.', "\n", $field);
                 if (null !== $data) {

@@ -287,11 +287,18 @@ class FolderStorage extends AbstractFilesystemStorage
                 $this->dataFolder,      // {FOLDER}
                 $parts['key'],          // {KEY}
                 $parts['key:2'],        // {KEY:2}
-                '***',                  // {FILE}
-                '***'                   // {EXT}
             ];
 
-            $path = rtrim(explode('***', sprintf($this->dataPattern, ...$options))[0], '/');
+            // Cut the pattern before {FILE} and {EXT}, not the formatted path: a marker in the path could be part of the key.
+            $pattern = $this->dataPattern;
+            foreach (['FILE', 'EXT'] as $name) {
+                $pos = strpos($pattern, $this->variables[$name]);
+                if ($pos !== false) {
+                    $pattern = substr($pattern, 0, $pos);
+                }
+            }
+
+            $path = rtrim(sprintf($pattern, ...$options), '/');
         }
 
         return $path;

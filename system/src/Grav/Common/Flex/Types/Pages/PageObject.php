@@ -15,6 +15,7 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexObjectTrait;
 use Grav\Common\Grav;
+use Grav\Common\Flex\Types\Pages\Storage\PageStorage;
 use Grav\Common\Flex\Types\Pages\Traits\PageContentTrait;
 use Grav\Common\Flex\Types\Pages\Traits\PageLegacyTrait;
 use Grav\Common\Flex\Types\Pages\Traits\PageRoutableTrait;
@@ -279,20 +280,51 @@ class PageObject extends FlexPageObject implements PageUuidInterface
     }
 
     /**
+     * {@inheritdoc}
+     *
+     * The storage key is never taken from submitted data. It names the folder the
+     * page and its media live in and follows from the parent, order and folder. The
+     * page blueprint does not declare it, and its loose validation passes undeclared
+     * keys through.
+     */
+    public function update(array $data, array $files = [])
+    {
+        unset($data['storage_key']);
+
+        return parent::update($data, $files);
+    }
+
+    /**
      * @param UserInterface|null $user
      */
     public function check(?UserInterface $user = null): void
     {
         parent::check($user);
 
-        if ($user && $this->isMoved()) {
+        // New and moved pages are saved under the parent given in the data (parent_key), which is not necessarily the
+        // parent implied by the key. It is that parent which needs to allow the page to be created. Like in
+        // isAuthorized(), missing user means the active user.
+        if (!$this->exists() || $this->isMoved()) {
             $parentKey = $this->getProperty('parent_key');
+            if ($parentKey === '') {
+                /** @var PageIndex $index */
+                $index = $this->getFlexDirectory()->getIndex();
+                $parent = $index->getRoot();
+            } else {
+                $parent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
+            }
 
-            /** @var PageObject|null $parent */
-            $parent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
-            if (!$parent || !$parent->isAuthorized('create', null, $user)) {
+            if (!$parent instanceof PageObject || !$parent->isAuthorized('create', null, $user)) {
                 throw new \RuntimeException('Forbidden', 403);
             }
+        }
+
+        // Saving the page in another language replaces the translation currently served for it, which has
+        // permissions of its own: being allowed to save the loaded translation is not enough. Without a user
+        // this is checked against the active user, like isAuthorized() on the loaded page.
+        $translation = $this->getReplacedTranslation();
+        if ($translation && !$translation->isAuthorized('update', null, $user)) {
+            throw new \RuntimeException('Forbidden', 403);
         }
     }
 
@@ -405,7 +437,134 @@ class PageObject extends FlexPageObject implements PageUuidInterface
             return false;
         }
 
+        $authorized = parent::isAuthorizedOverride($user, $action, $scope, $isMe);
+
+        // Special case: deleting a page can remove its folder, and with it the other translations of the page and
+        // the pages below it. Those have to allow the delete as well.
+        if ($authorized && $action === 'delete' && $this->exists() && $this->removesFolderOnDelete()) {
+            foreach ($this->getOtherTranslations() as $translation) {
+                if (!$translation->isAuthorizedByPage($user, $action, $scope, $isMe)) {
+                    return false;
+                }
+            }
+
+            if (!$this->isAuthorizedByChildren($user, $action, $scope, $isMe)) {
+                return false;
+            }
+        }
+
+        return $authorized;
+    }
+
+    /**
+     * Authorization of this page file alone, without the files deleting it would remove with it.
+     *
+     * @param UserInterface $user
+     * @param string $action
+     * @param string $scope
+     * @param bool $isMe
+     * @return bool|null
+     */
+    protected function isAuthorizedByPage(UserInterface $user, string $action, string $scope, bool $isMe): ?bool
+    {
         return parent::isAuthorizedOverride($user, $action, $scope, $isMe);
+    }
+
+    /**
+     * Check that none of the pages below this one (or their translations) refuses the action.
+     *
+     * A page which has no rule for the user follows the page above it. If it does not inherit the rules, it is
+     * left to the permissions of the user, just like when the action is targeted to the page itself.
+     *
+     * @param UserInterface $user
+     * @param string $action
+     * @param string $scope
+     * @param bool $isMe
+     * @return bool
+     */
+    protected function isAuthorizedByChildren(UserInterface $user, string $action, string $scope, bool $isMe): bool
+    {
+        // Outside of admin children() returns the pages of the site, which do not need to be Flex pages.
+        foreach (parent::children() as $child) {
+            if (!$child instanceof self) {
+                continue;
+            }
+
+            foreach (array_merge([$child], array_values($child->getOtherTranslations())) as $page) {
+                $isAuthor = !$isMe || $user->authorized ? $page->hasAuthor($user->username) : false;
+                $authorized = $page->isParentAuthorized($action, $scope, !$isMe ? $user : null, $isAuthor);
+                if (null === $authorized && !$page->getNestedProperty('header.permissions.inherit', true)) {
+                    $authorized = (bool)$page->isAuthorizedAction($user, $action, $scope, $isMe);
+                }
+
+                if (false === $authorized) {
+                    return false;
+                }
+            }
+
+            if (!$child->isAuthorizedByChildren($user, $action, $scope, $isMe)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Whether deleting this page file also removes its folder, like PageStorage::canDeleteFolder() decides it:
+     * a page without a language in its storage key takes the folder with it, a translation only when it is the
+     * last page file in the folder.
+     *
+     * @return bool
+     */
+    protected function removesFolderOnDelete(): bool
+    {
+        $storage = $this->getFlexDirectory()->getStorage();
+        if (!$storage instanceof PageStorage) {
+            return true;
+        }
+
+        if ($storage->extractKeysFromStorageKey($this->getStorageKey())['lang'] === '') {
+            return true;
+        }
+
+        $files = 0;
+        foreach ($this->getMetaData()['markdown'] ?? [] as $templates) {
+            $files += count((array)$templates);
+        }
+
+        return $files <= 1;
+    }
+
+    /**
+     * Get the other page files of this page, one for each language, as page objects.
+     *
+     * @return array<string,PageObject>
+     */
+    protected function getOtherTranslations(): array
+    {
+        $storageKey = $this->getStorageKey();
+        $storage = $this->getFlexDirectory()->getStorage();
+        $language = $storage instanceof PageStorage ? $storage->extractKeysFromStorageKey($storageKey)['lang'] : '';
+        // Build the keys from the folder: the storage key of a translation already has a file part.
+        $masterKey = $this->getMasterKey();
+        $meta = $this->getMetaData();
+
+        $list = [];
+        foreach ($this->getLanguageTemplates() as $code => $template) {
+            $code = (string)$code;
+            if ($code === $language) {
+                continue;
+            }
+
+            $key = $masterKey . '|' . $template . ($code !== '' ? '.' . $code : '');
+            $object = $this->getFlexDirectory()->loadObjects([$key => ['storage_key' => $key, 'lang' => $code, 'template' => $template] + $meta])[$key] ?? null;
+            if ($object instanceof self) {
+                $list[$code] = $object;
+            }
+        }
+
+        return $list;
     }
 
     /**
@@ -419,6 +578,30 @@ class PageObject extends FlexPageObject implements PageUuidInterface
         $newParentKey = $this->getProperty('parent_key');
 
         return $this->exists() && $oldParentKey !== $newParentKey;
+    }
+
+    /**
+     * If the page is being saved in another language, get the translation which is currently served for that
+     * language: its own file or, if there is none yet, the one the language falls back to.
+     *
+     * @return PageObject|null
+     */
+    protected function getReplacedTranslation(): ?PageObject
+    {
+        $oldLang = $this->getMetaData()['lang'] ?? '';
+        // Resolves (and keeps) the language which prepareStorage() is going to save.
+        $newLang = $this->getLanguage();
+        if ($oldLang === $newLang || !$this->exists()) {
+            return null;
+        }
+
+        // Start from the main page as this object has already been modified.
+        /** @var PageObject|null $page */
+        $page = $this->getFlexDirectory()->getObject($this->getMasterKey(), 'storage_key');
+        /** @var PageObject|null $translation */
+        $translation = $page ? $page->getTranslation($newLang, $newLang !== '') : null;
+
+        return $translation && ($translation->getMetaData()['lang'] ?? '') !== $oldLang ? $translation : null;
     }
 
     /**

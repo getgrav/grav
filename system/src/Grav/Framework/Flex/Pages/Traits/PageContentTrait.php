@@ -251,11 +251,48 @@ trait PageContentTrait
      */
     public function published($var = null): bool
     {
-        return $this->loadHeaderProperty(
+        // Only an explicit value is kept: without one, the publishing dates decide at the time of asking.
+        $published = $this->loadHeaderProperty(
             'published',
             $var,
-            static fn($value) => (bool)($value ?? true)
+            static fn($value) => null !== $value ? (bool)$value : null
         );
+
+        return $published ?? $this->isPublishedByDates();
+    }
+
+    /**
+     * Handle publishing dates when there is no explicit published option, like Page::setPublishState() does.
+     * Routing, menus, collections and taxonomy all ask published(), so the dates are applied there. The cache
+     * lifetime is shortened to the next date, so cached data does not outlive a publish or unpublish.
+     *
+     * @return bool
+     */
+    protected function isPublishedByDates(): bool
+    {
+        $grav = Grav::instance();
+        if (!$grav['config']->get('system.pages.publish_dates')) {
+            return true;
+        }
+
+        $time = time();
+        $start = $this->publishDate();
+        if ($start && $start > $time) {
+            $grav['cache']->setLifetime($start);
+
+            return false;
+        }
+
+        $stop = $this->unpublishDate();
+        if ($stop) {
+            if ($stop < $time) {
+                return false;
+            }
+
+            $grav['cache']->setLifetime($stop);
+        }
+
+        return true;
     }
 
     /**

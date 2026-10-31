@@ -1445,8 +1445,9 @@ class Pages
         if ($page) {
             $routable = $page->routable();
             if ($redirect) {
-                if ($page->redirect()) {
-                    // Follow a redirect page.
+                if ($page->redirect() && $page->published()) {
+                    // Follow a redirect page. It does not need to be routable (a folder that
+                    // only forwards), but it has to be published, like any page that is found.
                     $this->grav->redirectLangSafe($page->redirect());
                 }
 
@@ -2076,6 +2077,9 @@ class Pages
         $debugger = $this->grav['debugger'];
         $debugger->addMessage('Page cache missed, rebuilding Flex Pages..');
 
+        // Pages waiting for a publishing date shorten the cache lifetime while they are built.
+        $lifetime = $this->grav['cache']->getLifetime();
+
         $root = $collection->getRoot();
         $root_path = $root->path();
         $this->routes = [];
@@ -2168,8 +2172,16 @@ class Pages
             $taxonomy = $this->grav['taxonomy'];
             $taxonomy_map = $taxonomy->taxonomy();
 
+            // Expire the cached taxonomy and lists when the next page is published or unpublished.
+            $ttl = null;
+            $next = $this->grav['cache']->getLifetime();
+            if ($next < $lifetime) {
+                $configured = (int)$directory->getConfig('object.cache.index.lifetime', 60);
+                $ttl = $configured > 0 ? min($configured, $next) : $next;
+            }
+
             // save pages, routes, taxonomy, and sort to cache
-            $cache->set($this->pages_cache_id, [$this->getVersion(), $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort, $this->uuid_index ? $this->uuids : null]);
+            $cache->set($this->pages_cache_id, [$this->getVersion(), $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort, $this->uuid_index ? $this->uuids : null], $ttl);
         }
     }
 
@@ -2309,7 +2321,7 @@ class Pages
     }
 
     /**
-     * Set the pages cache id from the pages hash, the change stamp, the configuration and the language.
+     * Set the pages cache id from the pages hash, the change stamp, the configuration, the language and the scope.
      *
      * @param array $pages_dirs
      * @param string|int $hash
@@ -2321,7 +2333,10 @@ class Pages
         $language = $this->grav['language'];
 
         $this->simple_pages_hash = json_encode($pages_dirs) . $hash . $this->getChangeStamp() . $this->grav['config']->checksum();
-        $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive());
+
+        // Page::header() builds a page differently in admin scope: frontmatter.yaml is not merged and
+        // frontmatter Twig is not processed. Pages built there must never be the ones the site loads.
+        $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive() . (Utils::isAdminPlugin() ? 'admin' : ''));
     }
 
     protected function getPagesPaths(): array
@@ -2569,7 +2584,8 @@ class Pages
 
         // Stable name per page dirs + language; content changes are detected via
         // the cache id stored inside the file, so the file gets rewritten in place.
-        $name = 'index-' . md5(json_encode($pagesDirs) . (string)$this->active_lang);
+        // Admin scope keeps its own file, or the two scopes would rewrite each other's index.
+        $name = 'index-' . md5(json_encode($pagesDirs) . (string)$this->active_lang . (Utils::isAdminPlugin() ? 'admin' : ''));
 
         return PageIndexStore::open($dir, $name);
     }

@@ -51,11 +51,12 @@ trait PageRoutableTrait
 
         $filesystem = Filesystem::getInstance(false);
 
-        // FIXME: this does not work, needs to use $pages->get() with cached parent id!
-        $key = $this->getKey();
-        $parent_route = $filesystem->dirname('/' . $key);
+        // Parent is the folder the page is in. Its route does not tell which one that is: any page can claim a route.
+        $path = $this->path();
+        $parent = null !== $path ? $pages->get($filesystem->dirname($path)) : null;
 
-        return $parent_route !== '/' ? $pages->find($parent_route) : $pages->root();
+        // New pages have no folder yet, and a folder which shares its raw route with another one is not in pages.
+        return $parent ?? parent::parent();
     }
 
     /**
