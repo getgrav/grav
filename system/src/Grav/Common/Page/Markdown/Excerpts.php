@@ -108,17 +108,11 @@ class Excerpts
 
         // If there is a query, then parse it and build action calls.
         if (isset($url_parts['query'])) {
-            $actions = array_reduce(
-                explode('&', (string) $url_parts['query']),
-                static function ($carry, $item) {
-                    $parts = explode('=', $item, 2);
-                    $value = isset($parts[1]) ? rawurldecode($parts[1]) : true;
-                    $carry[$parts[0]] = $value;
-
-                    return $carry;
-                },
-                []
-            );
+            $actions = [];
+            foreach (explode('&', (string) $url_parts['query']) as $item) {
+                $parts = explode('=', $item, 2);
+                $actions[$parts[0]] = isset($parts[1]) ? rawurldecode($parts[1]) : true;
+            }
 
             // Valid attributes supported.
             $valid_attributes = $grav['config']->get('system.pages.markdown.valid_link_attributes') ?? [];
@@ -288,17 +282,10 @@ class Excerpts
 
         // if there is a query, then parse it and build action calls
         if (isset($url_parts['query'])) {
-            $actions = array_reduce(
-                explode('&', (string) $url_parts['query']),
-                static function ($carry, $item) {
-                    $parts = explode('=', $item, 2);
-                    $value = $parts[1] ?? null;
-                    $carry[] = ['method' => $parts[0], 'params' => $value];
-
-                    return $carry;
-                },
-                []
-            );
+            foreach (explode('&', (string) $url_parts['query']) as $item) {
+                $parts = explode('=', $item, 2);
+                $actions[] = ['method' => $parts[0], 'params' => $parts[1] ?? null];
+            }
         }
 
         // Block any real, undocumented medium method from being invoked by an
