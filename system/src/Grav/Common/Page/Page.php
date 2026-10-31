@@ -800,7 +800,7 @@ class Page implements PageInterface, PageUuidInterface
         if ($expires > 0) {
             $expires_date = gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT';
             if (!$cache_control) {
-                $headers['Cache-Control'] = 'max-age=' . $expires;
+                $headers['Cache-Control'] = Utils::getCacheControl((int)$expires);
             }
             $headers['Expires'] = $expires_date;
         }
