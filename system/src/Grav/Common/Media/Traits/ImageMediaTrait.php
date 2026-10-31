@@ -589,7 +589,17 @@ trait ImageMediaTrait
             ];
         }
         [$width, $height] = static::$sourceSizeCache[$sourcePath];
-        if ($maxPixels > 0 && $width > 0 && $height > intdiv($maxPixels, $width)) {
+        // A source getimagesize() cannot measure is refused too. Imagick decodes
+        // formats PHP cannot read the size of (JPEG XL, HEIC), so an unknown size
+        // is not a small one.
+        if ($maxPixels > 0 && ($width < 1 || $height < 1)) {
+            Grav::instance()['log']->warning(sprintf(
+                'Refusing to process image source whose size cannot be read (system.images.max_pixels): %s',
+                $sourcePath
+            ));
+            return parent::path(false);
+        }
+        if ($maxPixels > 0 && $height > intdiv($maxPixels, $width)) {
             Grav::instance()['log']->warning(sprintf(
                 'Refusing to process image source above system.images.max_pixels: %s (%dx%d)',
                 $sourcePath, $width, $height

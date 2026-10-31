@@ -1581,7 +1581,7 @@ types:
         - font/woff
     woff2:
         - font/woff2
-    image:
+    avif:
         - image/avif
     cgm:
         - image/cgm
