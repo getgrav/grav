@@ -18,6 +18,7 @@ use Grav\Common\Data\ValidationException;
 use Grav\Common\Debugger;
 use Grav\Common\Form\FormFlash;
 use Grav\Common\Grav;
+use Grav\Common\Helpers\JsonBody;
 use Grav\Common\Twig\Twig;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
@@ -27,6 +28,8 @@ use Grav\Framework\Form\FormFlashFile;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Interfaces\FormInterface;
 use Grav\Framework\Session\SessionInterface;
+use JsonException;
+use LengthException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
@@ -850,21 +853,27 @@ trait FormTrait
     /**
      * Recursively JSON decode POST data.
      *
+     * All the fields of one post share the allowance of one JSON request body.
+     *
      * @param  array $data
+     * @param  int|null $allowance Shared between the recursive calls.
      * @return array
      */
-    protected function jsonDecode(array $data): array
+    protected function jsonDecode(array $data, ?int &$allowance = null): array
     {
         foreach ($data as $key => &$value) {
             if (is_array($value)) {
-                $value = $this->jsonDecode($value);
+                $value = $this->jsonDecode($value, $allowance);
             } elseif (trim((string) $value) === '') {
                 unset($data[$key]);
             } else {
-                $value = json_decode((string) $value, true);
-                if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
+                try {
+                    $value = JsonBody::decode((string) $value, null, $allowance);
+                } catch (JsonException|LengthException $e) {
                     unset($data[$key]);
-                    $this->setError("Badly encoded JSON data (for {$key}) was sent to the form");
+                    $this->setError($e instanceof LengthException
+                        ? "JSON data (for {$key}) sent to the form is too large: {$e->getMessage()}"
+                        : "Badly encoded JSON data (for {$key}) was sent to the form");
                 }
             }
         }

@@ -14,6 +14,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Errors\Errors;
 use Grav\Common\Grav;
+use Grav\Common\Helpers\JsonBody;
 use Grav\Common\Page\Pages;
 use Grav\Common\Plugins;
 use Grav\Common\Session;
@@ -80,6 +81,8 @@ class InitializeProcessor extends ProcessorBase
             // Load configuration.
             $config = $this->initializeConfig();
             $request = RequestServiceProvider::applyForwardedProtocol($request, (bool)$config->get('system.http_x_forwarded.protocol'));
+            // A JSON body is decoded here, once, within the configured limits.
+            $request = JsonBody::parseRequest($request, JsonBody::limits($config));
             unset($this->container['request']);
             $this->container['request'] = $request;
 
@@ -91,6 +94,14 @@ class InitializeProcessor extends ProcessorBase
 
             // Initialize debugger.
             $debugger = $this->initializeDebugger();
+
+            // A JSON body over the limits is refused before plugins and pages load.
+            $response = JsonBody::rejection($request);
+            if ($response) {
+                $this->stopTimer('_init');
+
+                return $response;
+            }
 
             // Debugger can return response right away.
             $response = $this->handleDebuggerRequest($debugger, $request);

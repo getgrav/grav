@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Updating or reinstalling a plugin swaps the new copy in all at once, so the site never runs with the plugin missing or half copied, and the old copy is put back if the new one cannot be moved in
+    * JSON sent to the site is now checked against size limits before it is read, so an oversized request is turned away quickly instead of tying up the server (limits are under `request.json` in `system.yaml`)
 
 # v2.2.19
 ## 10/31/2026

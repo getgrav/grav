@@ -30,10 +30,13 @@ use DebugBar\DebugBar;
 use DebugBar\DebugBarException;
 use DebugBar\JavascriptRenderer;
 use Grav\Common\Config\Config;
+use Grav\Common\Helpers\JsonBody;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Processors\ProcessorInterface;
 use Grav\Common\Twig\TwigClockworkDataSource;
 use Grav\Framework\Psr7\Response;
+use JsonException;
+use LengthException;
 use Monolog\Logger;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -488,7 +491,11 @@ class Debugger
         $data = $request instanceof ServerRequestInterface ? $request->getParsedBody() : null;
         if (!is_array($data) || $data === []) {
             $body = (string)$request->getBody();
-            $data = json_decode($body, true);
+            try {
+                $data = JsonBody::decode($body);
+            } catch (JsonException|LengthException) {
+                $data = null;
+            }
             if (!is_array($data)) {
                 $data = [];
                 parse_str($body, $data);
