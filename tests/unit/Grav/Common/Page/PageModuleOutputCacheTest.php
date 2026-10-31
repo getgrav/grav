@@ -12,8 +12,8 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  * A module's Twig pass renders its body and its theme template, so its output can depend on the
  * visitor and is never cached by default (GHSA-pp89-h475-7gj6). A modular page can opt in with
  * `cache_modules: true`. These tests pin that the opt-in only ever caches what renders the same
- * for everyone: no module Twig, no forms, no logged-in visitors, no POSTs, one entry per URL, and
- * that a cached module still adds its assets.
+ * for everyone: no module Twig, no forms, no logged-in visitors, no POSTs, no query string or URL
+ * params, and that a cached module still adds its assets.
  *
  * Each module template prints the `render_mark` Twig variable, which every simulated request
  * changes, so a cached render shows the mark of the request that stored it.
@@ -129,12 +129,31 @@ class PageModuleOutputCacheTest extends \PHPUnit\Framework\TestCase
         self::assertStringContainsString('<b>posted</b>', $this->render('/landing', 'Intro', 'posted'));
     }
 
-    public function testEveryUrlGetsItsOwnEntry(): void
+    public function testQueryStringOrUrlParamsRenderEveryTimeAndStoreNothing(): void
     {
         $this->render('/landing', 'Intro', 'plain', '/landing');
-        self::assertStringContainsString('<b>query</b>', $this->render('/landing', 'Intro', 'query', '/landing?page=2'));
+        foreach (['/landing?page=2', '/landing?=2', '/landing?&', '/landing?', '/landing/page:2'] as $url) {
+            self::assertStringContainsString('<b>fresh</b>', $this->render('/landing', 'Intro', 'fresh', $url), $url);
+        }
         self::assertStringContainsString('<b>plain</b>', $this->render('/landing', 'Intro', 'again', '/landing'));
+        self::assertCount(1, $this->moduleEntries());
+    }
+
+    public function testSpellingsOfOnePathShareAnEntryAndFormatsDoNot(): void
+    {
+        $this->render('/landing', 'Intro', 'plain', '/landing');
+        self::assertStringContainsString('<b>plain</b>', $this->render('/landing', 'Intro', 'slashes', '///landing'));
+        self::assertStringContainsString('<b>json</b>', $this->render('/landing', 'Intro', 'json', '/landing.json'));
         self::assertCount(2, $this->moduleEntries());
+    }
+
+    public function testUnregisteredPathsDoNotStoreModuleOutput(): void
+    {
+        $this->grav['config']->set('site.routes', ['/alias/(.*)' => '/landing']);
+        foreach (['/missing-one', '/missing-two', '/alias/one', '/alias/two'] as $url) {
+            self::assertStringContainsString('<b>fresh</b>', $this->render('/landing', 'Intro', 'fresh', $url));
+        }
+        self::assertSame([], $this->moduleEntries());
     }
 
     public function testCachedModuleStillAddsItsAssets(): void

@@ -1328,9 +1328,10 @@ class Page implements PageInterface, PageUuidInterface
      * - neither page sets `never_cache_twig`, and neither has a form or an access rule;
      * - the module body has no Twig of its own (it is request-aware even in the sandbox);
      * - the request is a GET or HEAD from a visitor who is not logged in, so a logged-in
-     *   render is never stored and never served.
+     *   render is never stored and never served;
+     * - the request has no query string or URL params and resolves to a registered page route.
      * The id covers the page and config (as the page content cache does), the language and the
-     * whole request URL, so pages that read the query or URL params keep one entry per URL.
+     * cleaned path and extension of the request.
      * A stored render is used only while the module's template file is older than it; partials
      * that template includes are not checked, so editing only a partial needs a cache clear.
      *
@@ -1372,8 +1373,19 @@ class Page implements PageInterface, PageUuidInterface
         /** @var Uri $uri */
         $uri = $grav['uri'];
 
-        // The request URI as sent: path, URL params, extension and query string.
-        return md5('module-output' . $this->getPageContentCacheKey($grav['config']) . '|' . $parent->path() . '|' . $grav['language']->getActive() . '|' . $uri->base() . '|' . $uri->uri());
+        // Query strings and URL parameters render fresh, including empty query strings.
+        if (str_contains($uri->uri(), '?') || str_contains((string)($_SERVER['REQUEST_URI'] ?? ''), '?') || $uri->params(null, true)) {
+            return null;
+        }
+
+        $path = $uri->path();
+        if (!$grav['pages']->find($path === '' ? '/' : $path, true) instanceof PageInterface) {
+            return null;
+        }
+
+        // The cleaned path and the format, not the URI as sent: `//landing` shares the entry of
+        // `/landing`, while `/landing.json` has its own.
+        return md5('module-output' . $this->getPageContentCacheKey($grav['config']) . '|' . $parent->path() . '|' . $grav['language']->getActive() . '|' . $uri->base() . '|' . $uri->path() . '|' . $uri->extension());
     }
 
     /**
