@@ -10,6 +10,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Helpers\JsonBody;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
@@ -17,6 +18,8 @@ use Grav\Framework\Route\Route;
 use Grav\Framework\Route\RouteFactory;
 use Grav\Framework\Uri\UriFactory;
 use Grav\Framework\Uri\UriPartsFilter;
+use JsonException;
+use LengthException;
 use RocketTheme\Toolbox\Event\Event;
 use RuntimeException;
 use function array_key_exists;
@@ -1457,8 +1460,14 @@ class Uri implements \Stringable
         if (!$this->post) {
             $content_type = $this->getContentType();
             if ($content_type === 'application/json') {
-                $json = file_get_contents('php://input');
-                $this->post = json_decode($json, true);
+                // Decoded within the configured limits; a body the request service has
+                // decoded already is not parsed again.
+                try {
+                    $post = JsonBody::decode((string)file_get_contents('php://input'));
+                    $this->post = is_array($post) ? $post : null;
+                } catch (JsonException|LengthException) {
+                    $this->post = null;
+                }
             } elseif (!empty($_POST)) {
                 $this->post = (array)$_POST;
             }

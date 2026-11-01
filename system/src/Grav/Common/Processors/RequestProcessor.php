@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Processors;
 
+use Grav\Common\Helpers\JsonBody;
 use Grav\Common\Processors\Events\RequestHandlerEvent;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -36,16 +37,15 @@ class RequestProcessor extends ProcessorBase
     {
         $this->startTimer();
 
-        $header = $request->getHeaderLine('Content-Type');
-        $type = trim(strstr($header, ';', true) ?: $header);
-        if ($type === 'application/json') {
-            // withParsedBody() accepts an array, an object or null. A JSON scalar
-            // ("a string", 12345, true) decodes to none of those, and handing it
-            // over threw an InvalidArgumentException that answered the request
-            // with a 500 before any route ran. A scalar is not a body a handler
-            // can read, so it is treated as no body at all.
-            $decoded = json_decode($request->getBody()->getContents(), true);
-            $request = $request->withParsedBody(is_array($decoded) ? $decoded : null);
+        // InitializeProcessor has already decoded a JSON body; this only does it for a
+        // request that did not pass through there. A JSON scalar ("a string", 12345,
+        // true) is not a body a handler can read, so it leaves no parsed body.
+        $request = JsonBody::parseRequest($request);
+        $response = JsonBody::rejection($request);
+        if ($response) {
+            $this->stopTimer();
+
+            return $response;
         }
 
         $uri = $request->getUri();

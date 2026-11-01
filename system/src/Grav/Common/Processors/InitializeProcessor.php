@@ -14,6 +14,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Errors\Errors;
 use Grav\Common\Grav;
+use Grav\Common\Helpers\JsonBody;
 use Grav\Common\Page\Pages;
 use Grav\Common\Plugins;
 use Grav\Common\Session;
@@ -72,37 +73,55 @@ class InitializeProcessor extends ProcessorBase
     {
         $this->startTimer('_init', 'Initialize');
 
-        // Load configuration.
-        $config = $this->initializeConfig();
-        $request = RequestServiceProvider::applyForwardedProtocol($request, (bool)$config->get('system.http_x_forwarded.protocol'));
-        unset($this->container['request']);
-        $this->container['request'] = $request;
+        // Keep GPM from swapping a plugin folder while this request reads the plugins'
+        // configuration and loads them, so it never runs with one missing (a missing Login
+        // would leave access-restricted pages open).
+        $lock = Plugins::lockFolders();
+        try {
+            // Load configuration.
+            $config = $this->initializeConfig();
+            $request = RequestServiceProvider::applyForwardedProtocol($request, (bool)$config->get('system.http_x_forwarded.protocol'));
+            // A JSON body is decoded here, once, within the configured limits.
+            $request = JsonBody::parseRequest($request, JsonBody::limits($config));
+            unset($this->container['request']);
+            $this->container['request'] = $request;
 
-        // Initialize logger.
-        $this->initializeLogger($config);
+            // Initialize logger.
+            $this->initializeLogger($config);
 
-        // Initialize error handlers.
-        $this->initializeErrors();
+            // Initialize error handlers.
+            $this->initializeErrors();
 
-        // Initialize debugger.
-        $debugger = $this->initializeDebugger();
+            // Initialize debugger.
+            $debugger = $this->initializeDebugger();
 
-        // Debugger can return response right away.
-        $response = $this->handleDebuggerRequest($debugger, $request);
-        if ($response) {
-            $this->stopTimer('_init');
+            // A JSON body over the limits is refused before plugins and pages load.
+            $response = JsonBody::rejection($request);
+            if ($response) {
+                $this->stopTimer('_init');
 
-            return $response;
+                return $response;
+            }
+
+            // Debugger can return response right away.
+            $response = $this->handleDebuggerRequest($debugger, $request);
+            if ($response) {
+                $this->stopTimer('_init');
+
+                return $response;
+            }
+
+            // Initialize output buffering.
+            $this->initializeOutputBuffering($config);
+
+            // Set timezone, locale.
+            $this->initializeLocale($config);
+
+            // Load plugins.
+            $this->initializePlugins();
+        } finally {
+            Plugins::unlockFolders($lock);
         }
-
-        // Initialize output buffering.
-        $this->initializeOutputBuffering($config);
-
-        // Set timezone, locale.
-        $this->initializeLocale($config);
-
-        // Load plugins.
-        $this->initializePlugins();
 
         // Load pages.
         $this->initializePages($config);
