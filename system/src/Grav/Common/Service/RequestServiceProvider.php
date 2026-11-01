@@ -15,6 +15,7 @@ use Nyholm\Psr7Server\ServerRequestCreator;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 use function explode;
 use function fopen;
 use function function_exists;
@@ -99,7 +100,7 @@ class RequestServiceProvider implements ServiceProviderInterface
             unset($server['HTTP_X_FORWARDED_PROTO']);
             $request = $creator->fromArrays($server, $headers, $_COOKIE, $get, $post, $_FILES, fopen('php://input', 'rb') ?: null);
 
-            return $request->withUri($request->getUri()->withScheme($server['REQUEST_SCHEME']))->withAttribute('grav.server', $_SERVER);
+            return $request->withUri(self::withoutStandardPort($request->getUri()->withScheme($server['REQUEST_SCHEME'])))->withAttribute('grav.server', $_SERVER);
         };
 
         $container['route'] = $container->factory(fn() => clone Uri::getCurrentRoute());
@@ -116,7 +117,17 @@ class RequestServiceProvider implements ServiceProviderInterface
             $uri = $uri->withPort(null);
         }
 
-        return $request->withUri($uri);
+        return $request->withUri(self::withoutStandardPort($uri));
+    }
+
+    /**
+     * Drop port 80 or 443 whichever scheme the request ends up with, as Uri::hasStandardPort() does.
+     * Behind a proxy that ends TLS, the web server reports HTTPS=on on port 80, and keeping the port
+     * would send redirects to https://host:80/.
+     */
+    private static function withoutStandardPort(UriInterface $uri): UriInterface
+    {
+        return in_array($uri->getPort(), [80, 443], true) ? $uri->withPort(null) : $uri;
     }
 
     /**
