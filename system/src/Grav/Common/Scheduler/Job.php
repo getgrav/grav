@@ -127,6 +127,12 @@ class Job
         } else {
             if (is_string($command)) {
                 $this->id = md5($command);
+            } elseif (is_array($command)) {
+                // A method callable such as [$this, 'method'] gets an id from its class and method
+                // name, so it stays the same on every run and can be disabled like any other job.
+                $target = reset($command);
+                $method = next($command);
+                $this->id = md5((is_object($target) ? get_class($target) : (string) $target) . '::' . (string) $method);
             } else {
                 /* @var object $command */
                 $this->id = spl_object_hash($command);
@@ -797,7 +803,9 @@ class Job
         $return_data = '';
         ob_start();
         try {
-            $return_data = call_user_func_array($this->command, $this->args);
+            // Arguments given as a single value rather than a list are passed as one argument.
+            $args = is_array($this->args) ? $this->args : ($this->args === null || $this->args === '' ? [] : [$this->args]);
+            $return_data = call_user_func_array($this->command, $args);
             $this->successful = true;
         } catch (\Throwable $e) {
             // Any failure, not only a RuntimeException: one that escaped here used to end the
