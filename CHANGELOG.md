@@ -1,3 +1,9 @@
+# v1.7.53.9
+## 10/31/2026
+
+1. [](#bugfix)
+    * Sites behind a proxy that ends HTTPS (such as Cloudflare in front of a server on port 80) no longer redirect visitors to the address with `:80` added, for example when reloading the admin
+
 # v1.7.53.8
 ## 10/31/2026
 
