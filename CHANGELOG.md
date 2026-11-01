@@ -1,3 +1,9 @@
+# v2.2.21
+## 11/01/2026
+
+1. [](#bugfix)
+    * A plugin that adds a scheduler job as a class method (such as `[$this, 'method']`) without an id, or with its id where the job's arguments go, no longer crashes every scheduler run and empties the admin's job list [#4380](https://github.com/getgrav/grav/issues/4380)
+
 # v2.2.20
 ## 10/31/2026
 
