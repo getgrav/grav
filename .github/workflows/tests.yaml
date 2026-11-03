@@ -123,6 +123,7 @@ jobs:
           php bin/grav webroot:sync --check
           # The stored target of the symlinked plugin (relative or absolute) after the move.
           if [ "$RUNNER_OS" = "Windows" ]; then MSYS_NO_PATHCONV=1 cmd /c 'dir public\user\plugins' | grep -i SYMLINK; else ls -l public/user/plugins | grep -- '->'; fi
+          test -f public/user/plugins/github-markdown-alerts/blueprints.yaml
 
       - name: Public webroot layout
         run: php tests/smoke/public-webroot-check.php split
@@ -143,6 +144,7 @@ jobs:
           php bin/grav webroot:status
           test ! -e public
           if [ "$RUNNER_OS" = "Windows" ]; then MSYS_NO_PATHCONV=1 cmd /c 'dir user\plugins' | grep -i SYMLINK; else ls -l user/plugins | grep -- '->'; fi
+          test -f user/plugins/github-markdown-alerts/blueprints.yaml
           php tests/smoke/public-webroot-check.php single
 
       - name: Server log

@@ -248,14 +248,16 @@ final class WebrootStatus
             }
         }
 
+        // On Windows every link is checked, as PHP can't tell relative links from absolute ones there.
+        $kind = \DIRECTORY_SEPARATOR === '\\' ? 'symlink' : 'relative symlink';
         if ($broken) {
-            return $this->result('symlinks', self::FAIL, 'Relative symlinks in user/ point outside it and are broken.', $broken);
+            return $this->result('symlinks', self::FAIL, sprintf('%ss in user/ point outside it and are broken.', ucfirst($kind)), $broken);
         }
         if ($links) {
-            return $this->result('symlinks', self::PASS, sprintf('%d relative symlink(s) in user/ point outside it, and all of them work.', \count($links)));
+            return $this->result('symlinks', self::PASS, sprintf('%d %s(s) in user/ point outside it, and all of them work.', \count($links), $kind));
         }
 
-        return $this->result('symlinks', self::PASS, 'No relative symlinks in user/ point outside it.');
+        return $this->result('symlinks', self::PASS, sprintf('No %ss in user/ point outside it.', $kind));
     }
 
     /**

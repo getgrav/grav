@@ -79,7 +79,7 @@ try {
 
     $check(str_contains($html, 'smoke.png'), 'original page image is on the homepage');
     $check((bool) preg_match('`/images/[0-9a-f/]+-smoke\.png`', $html), 'resized page image points into /images/');
-    $check(str_contains($html, 'github-markdown-alerts'), 'symlinked plugin adds its assets to the page');
+    $check(str_contains($html, '/user/plugins/github-markdown-alerts/assets/'), 'symlinked plugin adds its assets to the page');
 
     foreach (['/composer.json', '/vendor/autoload.php', '/system/defines.php', '/system/config/system.yaml', '/user/config/system.yaml', '/user/pages/01.home/default.md', '/bin/grav'] as $private) {
         [$status] = $get($private);

@@ -239,6 +239,26 @@ class WebrootPlannerTest extends \PHPUnit\Framework\TestCase
         self::assertFileExists($this->base . '/dev-plugins/foo/foo.php');
     }
 
+    public function testWindowsRewritesEveryLinkToWhereItsTargetEndsUp(): void
+    {
+        // PHP's readlink() on Windows returns the resolved folder, so links look absolute there.
+        mkdir($this->root . '/user/plugins/inner');
+        symlink($this->base . '/dev-plugins/foo', $this->root . '/user/plugins/foo');
+        symlink($this->root . '/user/config', $this->root . '/user/pages/config-link');
+
+        $webroot = $this->root . '/public';
+        $moves = [$this->root . '/user' => $webroot . '/user'];
+        self::assertSame([
+            $webroot . '/user/pages/config-link' => ['from' => $this->root . '/user/config', 'to' => $webroot . '/user/config'],
+            $webroot . '/user/plugins/foo' => ['from' => $this->base . '/dev-plugins/foo', 'to' => $this->base . '/dev-plugins/foo'],
+        ], WebrootPlanner::linkRewrites($moves, true));
+
+        // Every link outside user/ is checked on Windows, absolute or not.
+        $outside = WebrootPlanner::outsideLinks($this->root . '/user', true);
+        self::assertSame([$this->root . '/user/plugins/foo'], array_keys($outside));
+        self::assertSame([], WebrootPlanner::outsideLinks($this->root . '/user', false));
+    }
+
     public function testRelativeAndNormalize(): void
     {
         self::assertSame('../../../a/b', WebrootPlanner::relative('/x/y/z', '/a/b'));

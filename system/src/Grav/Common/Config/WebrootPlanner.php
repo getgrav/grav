@@ -158,16 +158,31 @@ final class WebrootPlanner
      * (it is inside one of the moved entries) it is followed to its new place. The rewritten
      * link stays relative and points at the same file or folder as before.
      *
+     * PHP's readlink() on Windows returns the folder a link resolves to, not the target it
+     * stores, so a relative link can't be told from an absolute one there. On Windows every link
+     * is pointed at where its target is after the move, as an absolute path (the only kind PHP
+     * creates on Windows).
+     *
      * @param array<string,string> $moves Absolute path => new absolute path.
+     * @param bool|null $windows Defaults to the running system.
      * @return array<string,array{from:string,to:string}> By the link's path after the move.
      */
-    public static function linkRewrites(array $moves): array
+    public static function linkRewrites(array $moves, ?bool $windows = null): array
     {
+        $windows = $windows ?? \DIRECTORY_SEPARATOR === '\\';
         $rewrites = [];
         foreach ($moves as $from => $to) {
             foreach (self::linksUnder($from) as $link) {
                 $target = readlink($link);
-                if ($target === false || $target === '' || InstallLayout::isAbsolute($target)) {
+                if ($target === false || $target === '') {
+                    continue;
+                }
+                if ($windows) {
+                    $resolved = self::normalize(InstallLayout::isAbsolute(str_replace('\\', '/', $target)) ? $target : \dirname($link) . '/' . $target);
+                    $rewrites[$to . substr($link, \strlen($from))] = ['from' => $target, 'to' => self::mapPath($resolved, $moves)];
+                    continue;
+                }
+                if (InstallLayout::isAbsolute($target)) {
                     continue;
                 }
 
@@ -186,19 +201,29 @@ final class WebrootPlanner
     /**
      * Relative symlinks under a folder whose target is outside it, with whether they work.
      *
+     * On Windows, where readlink() can't tell relative links from absolute ones, every link is
+     * checked, and a link readlink() can't read at all is listed as broken.
+     *
      * @param string $dir
+     * @param bool|null $windows Defaults to the running system.
      * @return array<string,array{target:string,broken:bool}>
      */
-    public static function outsideLinks(string $dir): array
+    public static function outsideLinks(string $dir, ?bool $windows = null): array
     {
+        $windows = $windows ?? \DIRECTORY_SEPARATOR === '\\';
         $dir = self::canonical($dir);
         $links = [];
         foreach (self::linksUnder($dir) as $link) {
             $target = readlink($link);
-            if ($target === false || InstallLayout::isAbsolute($target)) {
+            if ($target === false && $windows) {
+                $links[$link] = ['target' => '?', 'broken' => true];
                 continue;
             }
-            $resolved = self::normalize(\dirname($link) . '/' . $target);
+            $absolute = $target !== false && InstallLayout::isAbsolute(str_replace('\\', '/', $target));
+            if ($target === false || ($absolute && !$windows)) {
+                continue;
+            }
+            $resolved = self::normalize($absolute ? $target : \dirname($link) . '/' . $target);
             if ($resolved !== $dir && !str_starts_with($resolved, $dir . '/')) {
                 $links[$link] = ['target' => $target, 'broken' => !file_exists($link)];
             }
