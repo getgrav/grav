@@ -1,3 +1,10 @@
+# v2.2.23
+## 11/03/2026
+
+1. [](#bugfix)
+    * [security] The `svg_image()` Twig function now escapes the classes it adds to the SVG. Thanks @manus-pi
+    * [security] The `svg_image()` Twig function only inlines real `.svg` files, so a theme that takes the image path from a page header can no longer be pointed at other files on the server
+
 # v2.2.22
 ## 11/02/2026
 

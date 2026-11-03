@@ -2189,11 +2189,21 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     {
         $path = Utils::fullPath($path);
 
+        // Themes print this with |raw and often take the path from config or a page
+        // header, so only ever inline an actual SVG file.
+        if (!is_string($path) || strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'svg') {
+            return null;
+        }
+
         $classes = $classes ?: '';
 
         if (file_exists($path) && !is_dir($path)) {
-            $svg = file_get_contents($path);
-            $classes = " inline-block $classes";
+            $svg = (string) file_get_contents($path);
+            if (!preg_match('/<svg\b/i', $svg)) {
+                return null;
+            }
+
+            $classes = ' inline-block ' . htmlspecialchars((string) $classes, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             $matched = false;
 
             //Remove xml tag if it exists
@@ -2210,7 +2220,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             //Look for existing class
             $svg = preg_replace_callback('/^<svg[^>]*(class=\"([^"]*)\")[^>]*>/', function($matches) use ($classes, &$matched) {
                 if (isset($matches[2])) {
-                    $new_classes = $matches[2] . $classes;
+                    $new_classes = rtrim($matches[2] . $classes);
                     $matched = true;
                     return str_replace($matches[1], "class=\"$new_classes\"", $matches[0]);
                 }
@@ -2218,16 +2228,14 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             }, (string) $svg
             );
 
-            // no matches found just add the class
-            if (!$matched) {
+            // no matches found just add the class to the root element
+            $svg = trim((string) $svg);
+            if (!$matched && ($pos = strpos($svg, '<svg')) !== false) {
                 $classes = trim($classes);
-                if (!$matched) {
-                    $classes = trim($classes);
-                    $svg = str_replace('<svg', "<svg class=\"$classes\" ", trim($svg));
-                }
+                $svg = substr_replace($svg, "<svg class=\"$classes\" ", $pos, 4);
             }
 
-            return trim((string) $svg);
+            return trim($svg);
         }
 
         return null;
