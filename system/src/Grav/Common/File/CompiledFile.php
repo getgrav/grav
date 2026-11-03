@@ -60,7 +60,7 @@ trait CompiledFile
                 // enabled) and use it as long as it still matches the source file.
                 if ($modified && is_file($cacheFilename)) {
                     try {
-                        $cache = (array)include $cacheFilename;
+                        $cache = (array)CompiledFileLock::load($cacheFilename);
 
                         if (($cache['@class'] ?? null) === $class
                             && ($cache['modified'] ?? null) === $modified
@@ -108,14 +108,11 @@ trait CompiledFile
                     || $cache['filename'] !== $filename
                 ) {
                     // Attempt to lock the file for writing.
-                    try {
-                        $locked = $file->lock(false);
-                    } catch (Exception $e) {
-                        $locked = false;
-
+                    $lock = CompiledFileLock::acquire($cacheFilename);
+                    if ($lock === null) {
                         /** @var Debugger $debugger */
                         $debugger = Grav::instance()['debugger'];
-                        $debugger->addMessage(sprintf('%s(): Cannot obtain a lock for compiling cache file for %s: %s', __METHOD__, $this->filename, $e->getMessage()), 'warning');
+                        $debugger->addMessage(sprintf('%s(): Cannot obtain a lock for compiling cache file for %s', __METHOD__, $this->filename), 'warning');
                     }
 
                     // Decode RAW file into compiled array.
@@ -129,8 +126,12 @@ trait CompiledFile
                     ];
 
                     // If compiled file wasn't already locked by another process, save it.
-                    if ($locked) {
-                        $this->saveCompiled($file, $cache);
+                    if ($lock) {
+                        try {
+                            $this->saveCompiled($file, $cache);
+                        } finally {
+                            CompiledFileLock::release($lock);
+                        }
                     }
                 }
                 $file->free();
@@ -176,19 +177,22 @@ trait CompiledFile
         // Make sure that the cache file is always up to date!
         $key = md5($this->filename);
         $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
-        try {
-            $locked = $file->lock();
-        } catch (Exception $e) {
-            $locked = false;
-
+        $lock = CompiledFileLock::acquire($file->filename(), true);
+        if (!$lock) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
-            $debugger->addMessage(sprintf('%s(): Cannot obtain a lock for compiling cache file for %s: %s', __METHOD__, $this->filename, $e->getMessage()), 'warning');
+            $debugger->addMessage(sprintf('%s(): Cannot obtain a lock for compiling cache file for %s', __METHOD__, $this->filename), 'warning');
         }
 
-        parent::save($data);
+        try {
+            parent::save($data);
+        } catch (Throwable $e) {
+            CompiledFileLock::release($lock);
 
-        if ($locked) {
+            throw $e;
+        }
+
+        if ($lock) {
             $modified = $this->modified();
             $filename = $this->filename;
             $class = get_class($this);
@@ -210,7 +214,11 @@ trait CompiledFile
                 'data' => $data
             ];
 
-            $this->saveCompiled($file, $cache);
+            try {
+                $this->saveCompiled($file, $cache);
+            } finally {
+                CompiledFileLock::release($lock);
+            }
         }
     }
 
@@ -258,16 +266,15 @@ trait CompiledFile
      * "old complete file" to "new complete file" in one step. Writing through the locked
      * handle would truncate the file first and fill it afterwards, and a request that
      * includes it in between sees a syntax error. Writing to a temporary name next to the
-     * target and renaming over it is atomic on every filesystem Grav runs on. The flock
-     * taken by the caller stays what it always was: a mutex so that parallel requests do
-     * not all do the same work. It is released before the rename because Windows will not
-     * replace a file that still has an open handle.
+     * target and renaming over it is atomic on every filesystem Grav runs on. The caller
+     * holds the writer lock (CompiledFileLock, a separate `.lock` file): a mutex so that
+     * parallel requests do not all do the same work.
      *
      * A cache file that cannot be written is a cache miss, not an error: the data has
      * already been decoded from the source, so the request goes on and the next one tries
      * again. The failure is reported to the debugger like a failed lock is.
      *
-     * @param PhpFile $file  Locked compiled cache file.
+     * @param PhpFile $file  Compiled cache file.
      * @param array $cache   Compiled payload to store.
      */
     private function saveCompiled(PhpFile $file, array $cache): void
@@ -284,10 +291,7 @@ trait CompiledFile
 
         $written = @file_put_contents($tmp, $raw) !== false;
 
-        // Release the lock and close the handle before the rename.
-        $file->unlock();
-
-        if (!$written || @rename($tmp, $cacheFilename) === false) {
+        if (!$written || !CompiledFileLock::replace($tmp, $cacheFilename)) {
             @unlink($tmp);
 
             try {
@@ -350,8 +354,8 @@ trait CompiledFile
     /**
      * Tell whether another process currently holds the write lock on a compiled cache file.
      *
-     * Writers take an exclusive flock on the file for the duration of the regeneration, so
-     * a shared lock that would block means a write is in flight. On a filesystem without
+     * Writers hold the compiled file's writer lock (CompiledFileLock) for the duration of the
+     * regeneration, so a held lock means a write is in flight. On a filesystem without
      * lock support the probe cannot tell and answers no, which errs on the side of logging.
      *
      * @param string $cacheFilename
@@ -359,21 +363,6 @@ trait CompiledFile
      */
     private function isBeingRegenerated(string $cacheFilename): bool
     {
-        $handle = @fopen($cacheFilename, 'rb');
-        if (!$handle) {
-            return false;
-        }
-
-        try {
-            $wouldBlock = 0;
-            $acquired = flock($handle, LOCK_SH | LOCK_NB, $wouldBlock);
-            if ($acquired) {
-                flock($handle, LOCK_UN);
-            }
-
-            return !$acquired && $wouldBlock === 1;
-        } finally {
-            fclose($handle);
-        }
+        return CompiledFileLock::isHeld($cacheFilename);
     }
 }

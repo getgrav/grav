@@ -312,6 +312,12 @@ $this->class = Filesystem::getInstance();
 
             if (function_exists($method) && !strpos($path, '://')) {
                 $cmp_result = $method($path);
+                // The native functions use backslashes on Windows; Grav's always use forward slashes.
+                if (DIRECTORY_SEPARATOR !== '/') {
+                    $cmp_result = is_array($cmp_result) && isset($cmp_result['dirname'])
+                        ? ['dirname' => str_replace('\\', '/', $cmp_result['dirname'])] + $cmp_result
+                        : (is_string($cmp_result) ? str_replace('\\', '/', $cmp_result) : $cmp_result);
+                }
 
                 self::assertSame($cmp_result, $result, "Compare to original {$method}('{$path}')");
             }

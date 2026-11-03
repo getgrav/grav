@@ -17,14 +17,15 @@ class ComposerTest extends \PHPUnit\Framework\TestCase
     {
         $composerLocation = Composer::getComposerLocation();
         self::assertIsString($composerLocation);
-        self::assertSame('/', $composerLocation[0]);
+        // A global composer is an absolute path; Windows always uses the bundled one.
+        self::assertTrue($composerLocation === Composer::DEFAULT_PATH || $composerLocation[0] === '/', $composerLocation);
     }
 
     public function testGetComposerExecutor(): void
     {
         $composerExecutor = Composer::getComposerExecutor();
         self::assertIsString($composerExecutor);
-        self::assertSame('/', $composerExecutor[0]);
+        self::assertMatchesRegularExpression('#^(/|[A-Za-z]:)#', $composerExecutor);
         self::assertNotNull(strstr($composerExecutor, 'php'));
         self::assertNotNull(strstr($composerExecutor, 'composer'));
     }

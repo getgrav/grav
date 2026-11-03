@@ -149,7 +149,8 @@ class CompiledBaseTest extends \PHPUnit\Framework\TestCase
                     (new \\Grav\\Common\\Config\\CompiledConfig(\$workDir . '/cache', \$files, \$workDir))->name('master-test')->load();
                 } else {
                     try {
-                        \$raw = include \$compiled;
+                        // How Grav reads a compiled file (on Windows it waits out a replace in progress).
+                        \$raw = \\Grav\\Common\\File\\CompiledFileLock::load(\$compiled);
                         if (!is_array(\$raw) || !isset(\$raw['@class'], \$raw['data']['system']['key_2999'])) {
                             \$stats['partial']++;
                             if (count(\$stats['samples']) < 3) {

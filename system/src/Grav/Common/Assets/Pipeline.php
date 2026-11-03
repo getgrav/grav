@@ -567,7 +567,7 @@ class Pipeline extends PropertyObject
             }
 
             try {
-                $file = self::minifyCss($file) . PHP_EOL;
+                $file = self::minifyCss($file) . "\n";
                 $buffer .= $file;
             } catch (\Throwable $e) {
                 $failed[$key] = $asset;
@@ -644,7 +644,7 @@ class Pipeline extends PropertyObject
             // Try to minify this individual file
             try {
                 $file = JSMinifier::minify($file);
-                $file = rtrim($file) . PHP_EOL;
+                $file = rtrim($file) . "\n";
                 $buffer .= $file;
             } catch (\Throwable $e) {
                 // Track the failure so renderJs() can fall back to bundling the

@@ -239,11 +239,19 @@ class Filesystem implements FilesystemInterface
             $info = pathinfo($path, $options);
         }
 
+        // In Windows pathinfo() may return the dirname with backslashes, fix that.
+        $windows = DIRECTORY_SEPARATOR !== '/';
+
         if (!is_array($info)) {
-            return rawurldecode($info);
+            $info = rawurldecode($info);
+
+            return $windows && $options === PATHINFO_DIRNAME ? str_replace('\\', '/', $info) : $info;
         }
 
         $info = array_map('rawurldecode', $info);
+        if ($windows && isset($info['dirname'])) {
+            $info['dirname'] = str_replace('\\', '/', $info['dirname']);
+        }
 
         if (null !== $scheme) {
             $info['scheme'] = $scheme;
@@ -252,11 +260,6 @@ class Filesystem implements FilesystemInterface
             $dirname = $info['dirname'] ?? '.';
 
             if ('' !== $dirname && '.' !== $dirname) {
-                // In Windows dirname may be using backslashes, fix that.
-                if (DIRECTORY_SEPARATOR !== '/') {
-                    $dirname = str_replace(DIRECTORY_SEPARATOR, '/', $dirname);
-                }
-
                 $info['dirname'] = $scheme . '://' . $dirname;
             } else {
                 $info = ['dirname' => $scheme . '://'] + $info;

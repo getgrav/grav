@@ -99,8 +99,8 @@ class CompiledFileTest extends \PHPUnit\Framework\TestCase
         $compiled = $this->compiledPath($source);
         file_put_contents($compiled, "<?php\nreturn [\n    'data' => [\n");
 
-        // Another process is mid-regeneration: it holds the exclusive lock on the file.
-        $writer = fopen($compiled, 'cb+');
+        // Another process is mid-regeneration: it holds the writer lock (a separate .lock file).
+        $writer = fopen($compiled . '.lock', 'c');
         self::assertTrue(flock($writer, LOCK_EX | LOCK_NB));
 
         try {
@@ -179,7 +179,8 @@ class CompiledFileTest extends \PHPUnit\Framework\TestCase
                     rename(\$tmp, \$source);
                 } else {
                     try {
-                        \$raw = include \$compiled;
+                        // How Grav reads a compiled file (on Windows it waits out a replace in progress).
+                        \$raw = \\Grav\\Common\\File\\CompiledFileLock::load(\$compiled);
                         if (!is_array(\$raw) || !isset(\$raw['@class'], \$raw['data'])) {
                             \$stats['partial']++;
                             if (count(\$stats['samples']) < 3) {

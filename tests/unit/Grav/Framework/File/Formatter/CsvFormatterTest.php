@@ -16,7 +16,7 @@ class CsvFormatterTest extends \PHPUnit\Framework\TestCase
 
         $encoded = (new CsvFormatter())->encode($data);
 
-        $lines = array_filter(explode(PHP_EOL, $encoded));
+        $lines = array_filter(explode("\n", $encoded));
 
         self::assertCount(3, $lines);
         self::assertEquals('col1,col2,col3', $lines[0]);
@@ -34,7 +34,7 @@ class CsvFormatterTest extends \PHPUnit\Framework\TestCase
 
         $encoded = (new CsvFormatter())->encode($data);
 
-        $lines = array_filter(explode(PHP_EOL, $encoded));
+        $lines = array_filter(explode("\n", $encoded));
 
         self::assertCount(2, $lines);
         self::assertEquals('0,1,2', $lines[0]);
