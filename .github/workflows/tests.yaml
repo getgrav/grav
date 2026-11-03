@@ -21,12 +21,16 @@ jobs:
             os: windows-latest
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
 
     defaults:
       run:
         shell: bash
 
     steps:
+      # Check out LF files on Windows too: the release zips ship LF, and the tests compare output byte for byte.
+      - run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v7
 
       - name: Setup PHP ${{ matrix.php }}
@@ -64,12 +68,16 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
 
     defaults:
       run:
         shell: bash
 
     steps:
+      # Check out LF files on Windows too: the release zips ship LF, and the tests compare output byte for byte.
+      - run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v7
 
       - name: Setup PHP 8.3
