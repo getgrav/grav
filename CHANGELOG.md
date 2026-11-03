@@ -2,6 +2,7 @@
 ## 11/03/2026
 
 1. [](#bugfix)
+    * When a cache file can't be deleted, the cache purge job and `bin/grav clear` now name the file and the reason (such as "Permission denied") instead of "Unknown error", and carry on with the rest of the cache instead of stopping at the first one ([#4384](https://github.com/getgrav/grav/issues/4384))
     * [security] The `svg_image()` Twig function now escapes the classes it adds to the SVG. Thanks @manus-pi
     * [security] The `svg_image()` Twig function only inlines real `.svg` files, so a theme that takes the image path from a page header can no longer be pointed at other files on the server
 
