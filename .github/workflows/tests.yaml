@@ -12,20 +12,32 @@ permissions:
 jobs:
   unit-tests:
     strategy:
+      fail-fast: false
       matrix:
         php: [8.5, 8.4, 8.3]
         os: [ubuntu-latest]
+        include:
+          - php: 8.3
+            os: windows-latest
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
+      # Check out LF files on Windows too: the release zips ship LF, and the tests compare output byte for byte.
+      - run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v7
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: opcache, gd
+          extensions: opcache, gd, zip, fileinfo, mbstring, curl, openssl, intl, exif, iconv, dom, simplexml, pdo_sqlite
           tools: composer:v2
           coverage: none
         env:
@@ -47,6 +59,97 @@ jobs:
 
       - name: Run test suite
         run: php -d register_argc_argv=On vendor/bin/codecept run
+
+  layout-smoke:
+    name: Layout smoke (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Check out LF files on Windows too: the release zips ship LF, and the tests compare output byte for byte.
+      - run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: opcache, gd, zip, fileinfo, mbstring, curl, openssl, intl, exif, iconv, dom, simplexml, pdo_sqlite
+          tools: composer:v2
+          coverage: none
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies, plugins and theme
+        run: |
+          composer install --prefer-dist --no-progress
+          php bin/grav install
+
+      - name: Add page media and a relative symlinked plugin
+        run: |
+          php -r '$i = imagecreatetruecolor(80, 60); imagepng($i, "user/pages/01.home/smoke.png");'
+          printf '\n\n![smoke](smoke.png)\n\n![smoke resized](smoke.png?resize=40,30)\n' >> user/pages/01.home/default.md
+          mkdir extra
+          mv user/plugins/github-markdown-alerts extra/
+          # PHP's symlink() on Windows always stores an absolute target, so make a real relative link there with mklink.
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            (cd user/plugins && MSYS_NO_PATHCONV=1 cmd /c 'mklink /D github-markdown-alerts ..\..\extra\github-markdown-alerts')
+          else
+            ln -s ../../extra/github-markdown-alerts user/plugins/github-markdown-alerts
+          fi
+          php -r 'var_dump(readlink("user/plugins/github-markdown-alerts"));'
+          test -f user/plugins/github-markdown-alerts/blueprints.yaml
+
+      - name: Single-folder layout
+        run: |
+          php bin/grav webroot:status
+          php tests/smoke/public-webroot-check.php single
+
+      - name: Split into public/
+        run: |
+          php bin/grav webroot:split --dry-run
+          php bin/grav webroot:split -y
+          php bin/grav webroot:status
+          php bin/grav webroot:sync --check
+          # The stored target of the symlinked plugin (relative or absolute) after the move.
+          if [ "$RUNNER_OS" = "Windows" ]; then MSYS_NO_PATHCONV=1 cmd /c 'dir public\user\plugins' | grep -i SYMLINK; else ls -l public/user/plugins | grep -- '->'; fi
+          test -f public/user/plugins/github-markdown-alerts/blueprints.yaml
+
+      - name: Public webroot layout
+        run: php tests/smoke/public-webroot-check.php split
+
+      - name: CLI in the public webroot layout
+        run: |
+          php bin/grav clear
+          php bin/grav backup
+          php bin/gpm install random -y
+          test -d public/user/plugins/random
+          test ! -e user
+          php bin/gpm uninstall random -y
+          test ! -e public/user/plugins/random
+
+      - name: Join back into one folder
+        run: |
+          php bin/grav webroot:join -y
+          php bin/grav webroot:status
+          test ! -e public
+          if [ "$RUNNER_OS" = "Windows" ]; then MSYS_NO_PATHCONV=1 cmd /c 'dir user\plugins' | grep -i SYMLINK; else ls -l user/plugins | grep -- '->'; fi
+          test -f user/plugins/github-markdown-alerts/blueprints.yaml
+          php tests/smoke/public-webroot-check.php single
+
+      - name: Server log
+        if: always()
+        run: cat tmp/smoke-server.log || true
 
 #  slack:
 #      name: Slack

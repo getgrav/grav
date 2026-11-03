@@ -197,14 +197,17 @@ class Setup extends Data
      */
     public function __construct($container)
     {
-        // Configure main streams.
-        $abs = str_starts_with(GRAV_SYSTEM_PATH, '/');
-        $this->streams['system']['prefixes'][''] = $abs ? ['system', GRAV_SYSTEM_PATH] : ['system'];
+        // Configure main streams. The locator resolves relative paths against GRAV_WEBROOT, while
+        // system, cache, logs, tmp and backup live in GRAV_ROOT. Those are the same folder in the
+        // single-folder layout; in the public webroot layout rootPath() makes them absolute.
+        $system = InstallLayout::rootPath(GRAV_SYSTEM_PATH);
+        $abs = InstallLayout::isAbsolute($system);
+        $this->streams['system']['prefixes'][''] = $abs ? ['system', $system] : ['system'];
         $this->streams['user']['prefixes'][''] = [GRAV_USER_PATH];
-        $this->streams['cache']['prefixes'][''] = [GRAV_CACHE_PATH];
-        $this->streams['log']['prefixes'][''] = [GRAV_LOG_PATH];
-        $this->streams['tmp']['prefixes'][''] = [GRAV_TMP_PATH];
-        $this->streams['backup']['prefixes'][''] = [GRAV_BACKUP_PATH];
+        $this->streams['cache']['prefixes'][''] = [InstallLayout::rootPath(GRAV_CACHE_PATH)];
+        $this->streams['log']['prefixes'][''] = [InstallLayout::rootPath(GRAV_LOG_PATH)];
+        $this->streams['tmp']['prefixes'][''] = [InstallLayout::rootPath(GRAV_TMP_PATH)];
+        $this->streams['backup']['prefixes'][''] = [InstallLayout::rootPath(GRAV_BACKUP_PATH)];
 
         // If environment is not set, look for the environment variable and then the constant.
         $environment = static::$environment ??
@@ -537,7 +540,7 @@ class Setup extends Data
             // fall through to the shared user paths.
             if (!$locator->findResource('log://grav.log', true, true)) {
                 $prefixes = (array) $this->get('streams.schemes.log.prefixes.', []);
-                $prefixes[''] = array_merge($prefixes[''] ?? [], [GRAV_LOG_PATH]);
+                $prefixes[''] = array_merge($prefixes[''] ?? [], [InstallLayout::rootPath(GRAV_LOG_PATH)]);
 
                 $this->set('streams.schemes.log.prefixes', $prefixes);
                 // Force the fallback so it survives even when `logs/` does not yet

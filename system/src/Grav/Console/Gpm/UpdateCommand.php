@@ -63,7 +63,8 @@ class UpdateCommand extends GpmCommand
                 'd',
                 InputOption::VALUE_OPTIONAL,
                 'The grav instance location where the updates should be applied to. By default this would be where the grav cli has been launched from',
-                GRAV_ROOT
+                // The webroot holds user/; it is GRAV_ROOT itself in the single-folder layout.
+                GRAV_WEBROOT
             )
             ->addOption(
                 'all-yes',

@@ -74,7 +74,7 @@ class YamlLinter
     public static function lintEnvironments(?callable $callback = null, bool $strict = false)
     {
         $lint_errors = [];
-        $user_path = GRAV_ROOT . '/' . GRAV_USER_PATH;
+        $user_path = GRAV_WEBROOT . '/' . GRAV_USER_PATH;
 
         // Scan Grav 1.6 style: user/<hostname>/config/
         foreach (glob($user_path . '/*/config', GLOB_ONLYDIR) as $envConfigDir) {

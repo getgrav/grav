@@ -10,7 +10,7 @@ return [
         function () {
             /** @var VersionUpdate $this */
             try {
-                $yaml = YamlUpdater::instance(GRAV_ROOT . '/user/config/system.yaml');
+                $yaml = YamlUpdater::instance(GRAV_WEBROOT . '/user/config/system.yaml');
 
                 if ($yaml->exists('strict_mode.twig_compat')) {
                     $value = $yaml->get('strict_mode.twig_compat');

@@ -150,7 +150,7 @@ class GravCore extends AbstractPackageCollection
      */
     public function isSymlink()
     {
-        return is_link(GRAV_ROOT . DS . 'index.php');
+        return is_link(GRAV_WEBROOT . DS . 'index.php');
     }
 
     /**

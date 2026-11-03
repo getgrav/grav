@@ -286,9 +286,10 @@ abstract class Utils
 
         if ($locator->isStream($path)) {
             $path = $locator->findResource($path, true);
-        } elseif (!static::startsWith($path, GRAV_ROOT)) {
+        } elseif (!static::startsWith($path, GRAV_WEBROOT) && !static::startsWith($path, GRAV_ROOT)) {
+            // A site path or URL, which is relative to the webroot.
             $base_url = Grav::instance()['base_url'];
-            $path = GRAV_ROOT . '/' . ltrim(static::replaceFirstOccurrence($base_url, '', $path), '/');
+            $path = GRAV_WEBROOT . '/' . ltrim(static::replaceFirstOccurrence($base_url, '', $path), '/');
         }
 
         return $path;

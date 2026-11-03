@@ -84,7 +84,7 @@ class Installer
     {
         $destination = rtrim($destination, DS);
         $options = array_merge(self::$options, $options);
-        $install_path = rtrim($destination . DS . ltrim((string) $options['install_path'], DS), DS);
+        $install_path = self::resolveInstallPath($destination, (string) $options['install_path']);
 
         if (!self::isGravInstance($destination) || !self::isValidDestination(
             $install_path,
@@ -175,6 +175,57 @@ class Installer
         self::$error = self::OK;
 
         return true;
+    }
+
+    /**
+     * Absolute folder a package with the given install path goes to.
+     *
+     * In the public webroot layout the user folder lives in GRAV_WEBROOT, not in GRAV_ROOT.
+     * Callers, third-party ones included, pass GRAV_ROOT as the destination, so an install
+     * path into the user folder is sent to the webroot. In the single-folder layout the two
+     * roots are the same folder and nothing changes.
+     *
+     * @param string $destination The Grav instance, usually GRAV_ROOT or GRAV_WEBROOT.
+     * @param string $install_path Path relative to the instance, ie. 'user/plugins/email'.
+     * @return string
+     */
+    public static function resolveInstallPath(string $destination, string $install_path): string
+    {
+        $destination = rtrim($destination, DS);
+        $relative = ltrim($install_path, DS);
+
+        if ($relative !== '' && self::isCurrentInstance($destination)) {
+            foreach (array_unique([GRAV_USER_PATH, 'user']) as $user) {
+                if ($relative === $user || str_starts_with($relative, $user . '/')) {
+                    $destination = GRAV_WEBROOT;
+                    break;
+                }
+            }
+        }
+
+        return rtrim($destination . DS . $relative, DS);
+    }
+
+    /**
+     * True when the folder is GRAV_ROOT or GRAV_WEBROOT of the running site and those two differ.
+     *
+     * @param string $folder
+     * @return bool
+     */
+    protected static function isCurrentInstance(string $folder): bool
+    {
+        if (GRAV_ROOT === GRAV_WEBROOT) {
+            return false;
+        }
+
+        $folder = rtrim(str_replace('\\', '/', $folder), '/');
+        if ($folder === GRAV_ROOT || $folder === GRAV_WEBROOT) {
+            return true;
+        }
+
+        $real = realpath($folder);
+
+        return $real !== false && ($real === realpath(GRAV_ROOT) || $real === realpath(GRAV_WEBROOT));
     }
 
     /**
@@ -525,7 +576,8 @@ class Installer
                 return true;
             }
 
-            $flag = GRAV_ROOT . '/.upgrading';
+            // index.php looks for the flag next to itself, in the webroot.
+            $flag = GRAV_WEBROOT . '/.upgrading';
             $raised = !file_exists($flag) && @file_put_contents($flag, date('Y-m-d H:i:s')) !== false;
             try {
                 $lock = Plugins::lockFolders(true);
@@ -589,7 +641,7 @@ class Installer
     public static function sophisticatedInstall($source_path, $install_path, $ignores = [], $keep_source = false)
     {
         // Set maintenance mode flag and clear opcache before file operations
-        @file_put_contents(GRAV_ROOT . '/.upgrading', date('Y-m-d H:i:s'));
+        @file_put_contents(GRAV_WEBROOT . '/.upgrading', date('Y-m-d H:i:s'));
         if (function_exists('opcache_reset')) {
             @opcache_reset();
         }
@@ -634,7 +686,7 @@ class Installer
         }
 
         // Remove maintenance mode flag and clear opcache after file operations
-        @unlink(GRAV_ROOT . '/.upgrading');
+        @unlink(GRAV_WEBROOT . '/.upgrading');
         clearstatcache(true);
         if (function_exists('opcache_reset')) {
             @opcache_reset();
@@ -879,10 +931,18 @@ class Installer
         self::$error = 0;
         self::$target = $target;
 
-        if (!file_exists($target . DS . 'index.php') ||
-            !file_exists($target . DS . 'bin') ||
-            !file_exists($target . DS . 'user') ||
-            !file_exists($target . DS . 'system' . DS . 'config' . DS . 'system.yaml')
+        // In the public webroot layout index.php and user/ live in GRAV_WEBROOT while bin/ and
+        // system/ live in GRAV_ROOT; either of the two folders names the running site.
+        $root = $webroot = $target;
+        if (self::isCurrentInstance($target)) {
+            $root = GRAV_ROOT;
+            $webroot = GRAV_WEBROOT;
+        }
+
+        if (!file_exists($webroot . DS . 'index.php') ||
+            !file_exists($root . DS . 'bin') ||
+            !file_exists($webroot . DS . 'user') ||
+            !file_exists($root . DS . 'system' . DS . 'config' . DS . 'system.yaml')
         ) {
             self::$error = self::NOT_GRAV_ROOT;
         }

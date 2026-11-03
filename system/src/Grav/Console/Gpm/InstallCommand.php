@@ -78,7 +78,8 @@ class InstallCommand extends GpmCommand
                 'd',
                 InputOption::VALUE_OPTIONAL,
                 'The destination where the package should be installed at. By default this would be where the grav instance has been launched from',
-                GRAV_ROOT
+                // The webroot holds user/; it is GRAV_ROOT itself in the single-folder layout.
+                GRAV_WEBROOT
             )
             ->addArgument(
                 'package',

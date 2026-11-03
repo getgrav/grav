@@ -20,7 +20,7 @@ use function rtrim;
 /**
  * Rewrites page media URLs to go through the page route.
  *
- * By default `Medium::url()` returns the file's path on disk with GRAV_ROOT
+ * By default `Medium::url()` returns the file's path on disk with GRAV_WEBROOT
  * stripped, so a page's media is linked as `/user/pages/02.my-page/report.pdf`.
  * The web server answers that path itself and Grav is never started, which is
  * why `onPageFallBackUrl` listeners (the Login plugin's `access` check, for one)

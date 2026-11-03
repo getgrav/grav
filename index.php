@@ -94,6 +94,34 @@ if (PHP_SAPI !== 'cli') {
 
 }
 
+// Find the Grav install. By default everything lives next to this file. In the public
+// webroot layout this folder is only the web server docroot (index.php, .htaccess, user/,
+// assets/, images/) and the rest of Grav (system/, vendor/, cache/, .env...) lives in the
+// folder above it. A GRAV_ROOT server variable (Apache SetEnv, nginx fastcgi_param) points
+// at the install for any other layout.
+$gravRoot = null;
+foreach ([$_SERVER['GRAV_ROOT'] ?? null, getenv('GRAV_ROOT')] as $value) {
+    if (is_string($value) && $value !== '') {
+        $gravRoot = $value;
+        break;
+    }
+}
+if ($gravRoot === null
+    && !is_file(__DIR__ . '/vendor/autoload.php')
+    && is_file(\dirname(__DIR__) . '/vendor/autoload.php')
+    && is_file(\dirname(__DIR__) . '/system/defines.php')
+) {
+    $gravRoot = \dirname(__DIR__);
+}
+if ($gravRoot !== null && !\defined('GRAV_ROOT') && (realpath($gravRoot) ?: $gravRoot) !== __DIR__) {
+    \define('GRAV_ROOT', rtrim(str_replace('\\', '/', $gravRoot), '/'));
+    if (!getenv('GRAV_WEBROOT') && empty($_SERVER['GRAV_WEBROOT'])) {
+        \define('GRAV_WEBROOT', str_replace('\\', '/', __DIR__));
+    }
+} else {
+    $gravRoot = __DIR__;
+}
+
 // Maintenance mode during a core upgrade, or while GPM swaps in a new copy of a plugin
 if (file_exists(__DIR__ . '/.upgrading')) {
     if (time() - filemtime(__DIR__ . '/.upgrading') > 300) {
@@ -108,7 +136,10 @@ if (file_exists(__DIR__ . '/.upgrading')) {
 }
 
 // Ensure vendor libraries exist
-$autoload = __DIR__ . '/vendor/autoload.php';
+$autoload = $gravRoot . '/vendor/autoload.php';
+if (!is_file($autoload)) {
+    $autoload = __DIR__ . '/vendor/autoload.php';
+}
 if (!is_file($autoload)) {
     die('Please run: <i>bin/grav install</i>');
 }

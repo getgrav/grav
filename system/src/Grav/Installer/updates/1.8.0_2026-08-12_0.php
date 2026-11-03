@@ -31,7 +31,7 @@ return [
         function () {
             /** @var VersionUpdate $this */
             try {
-                $file = GRAV_ROOT . '/user/config/security.yaml';
+                $file = GRAV_WEBROOT . '/user/config/security.yaml';
                 if (!is_file($file)) {
                     return; // no user overrides → defaults apply, nothing to migrate
                 }

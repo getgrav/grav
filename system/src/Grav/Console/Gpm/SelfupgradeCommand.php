@@ -806,7 +806,7 @@ class SelfupgradeCommand extends GpmCommand
             return;
         }
 
-        $configPath = GRAV_ROOT . '/user/config/plugins/' . $slug . '.yaml';
+        $configPath = GRAV_WEBROOT . '/user/config/plugins/' . $slug . '.yaml';
         Folder::create(dirname($configPath));
 
         $configuration = is_file($configPath) ? Yaml::parse(file_get_contents($configPath)) : [];

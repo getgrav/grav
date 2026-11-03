@@ -25,7 +25,7 @@ return [
         function () {
             /** @var VersionUpdate $this */
             try {
-                $yaml = YamlUpdater::instance(GRAV_ROOT . '/user/config/security.yaml');
+                $yaml = YamlUpdater::instance(GRAV_WEBROOT . '/user/config/security.yaml');
 
                 $changed = false;
                 foreach (['twig_content.xss_scan_output', 'content.xss_scan_output', 'xss_allowed_iframe_hosts'] as $key) {

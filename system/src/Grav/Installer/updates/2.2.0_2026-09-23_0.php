@@ -212,7 +212,7 @@ return [
 
                 $healed = [];
                 foreach ($replacements as $relative => $contents) {
-                    $file = GRAV_ROOT . '/' . $relative;
+                    $file = GRAV_WEBROOT . '/' . $relative;
                     if (!is_file($file) || !is_writable($file)) {
                         continue;
                     }

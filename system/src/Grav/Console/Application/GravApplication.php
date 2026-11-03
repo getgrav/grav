@@ -23,6 +23,10 @@ use Grav\Console\Cli\SandboxCommand;
 use Grav\Console\Cli\SchedulerCommand;
 use Grav\Console\Cli\SecurityCommand;
 use Grav\Console\Cli\ServerCommand;
+use Grav\Console\Cli\WebrootJoinCommand;
+use Grav\Console\Cli\WebrootSplitCommand;
+use Grav\Console\Cli\WebrootStatusCommand;
+use Grav\Console\Cli\WebrootSyncCommand;
 use Grav\Console\Cli\YamlLinterCommand;
 
 /**
@@ -51,6 +55,10 @@ class GravApplication extends Application
             new ServerCommand(),
             new PageSystemValidatorCommand(),
             new PageIdsCommand(),
+            new WebrootStatusCommand(),
+            new WebrootSplitCommand(),
+            new WebrootJoinCommand(),
+            new WebrootSyncCommand(),
         ]);
     }
 }

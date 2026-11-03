@@ -1,3 +1,22 @@
+# v2.3.0
+## 11/02/2026
+
+1. [](#new)
+    * Optional public webroot layout: Grav can live in a private folder with only its `public/` subfolder (holding `index.php`, `.htaccess`, `robots.txt`, `user/`, `assets/` and `images/`) served by the web server, so `system/`, `vendor/`, `bin/`, `cache/`, `logs/`, `tmp/`, `backup/`, `.env` and the Composer files are out of the web server's reach. It needs no configuration: `index.php` finds the Grav folder above it, and `bin/grav`, `bin/gpm` and `bin/plugin` run from the private folder and find a `public/`, `public_html/`, `web/`, `www/` or `htdocs/` folder that holds `index.php` and `user/`. A `GRAV_ROOT` server variable (Apache `SetEnv`, nginx `fastcgi_param`) points `index.php` at the Grav folder for other layouts. The default single-folder layout works exactly as before
+    * `bin/grav webroot:status` shows which layout a site uses, where the Grav folder and the webroot are and how the webroot was found, then checks the layout: private files inside the webroot, missing webroot files, a stray `index.php` or `user/` in the private folder, the published system files, `index.php`, and broken relative symlinks in `user/`. In the public webroot layout it prints the docroot setting for Apache, nginx and Caddy. `--json` prints the result as JSON, and the command exits with 1 when a check fails
+    * `bin/grav webroot:split` moves a single-folder site to the public webroot layout: it creates `public/` (or `--dir=public_html`, `web`, `www`, `htdocs`), moves `index.php`, `.htaccess`, `robots.txt`, `user/`, `assets/` and `images/` into it under the maintenance page, rewrites relative symlinks in them that point outside (such as `user/plugins/foo -> ../../../grav-plugin-foo`) so they still work, publishes the system files, clears the cache and prints the docroot change to make. Top-level files it doesn't know, like `favicon.ico` or `.well-known/`, stay private and are listed; `--move=NAME` makes one public. `--dry-run` prints the plan and changes nothing
+    * `bin/grav webroot:join` undoes the split: it moves the webroot's contents back into the Grav folder, removes the published system files and the empty webroot, puts relative symlinks back and clears the cache. It refuses to start when a name exists in both folders
+    * `bin/grav webroot:sync` publishes the files of `system/assets/` and `system/images/` that are linked by URL (jQuery, the debugger's CSS and JS, the media type icons) into `system/` in the webroot, since the real `system/` folder is private in the public webroot layout. Only static files are copied, never PHP, YAML, Twig or config, and a manifest lets it remove files that are gone from `system/` without touching anything else. `--check` changes nothing and exits with 1 when the copy is stale. Core upgrades run it on their own
+2. [](#improved)
+    * `bin/gpm install`, `update` and `direct-install`, and plugins that install packages through GPM with `GRAV_ROOT` as the destination (such as the API plugin), put plugins and themes in the webroot's `user/` folder in the public webroot layout
+    * Self-upgrade knows the public webroot layout: the new `index.php` goes to the webroot, everything else to the private folder, and the upgrade's `.htaccess` and `user/` updates, its maintenance page flag and its plugin checks use the webroot
+3. [](#bugfix)
+    * A relative `GRAV_SYSTEM_PATH`, `GRAV_CACHE_PATH`, `GRAV_LOG_PATH`, `GRAV_TMP_PATH` or `GRAV_BACKUP_PATH` now always resolves against the Grav folder; when `GRAV_WEBROOT` was set to another folder the streams used the webroot instead, so those paths had to be absolute
+    * A `.env` is read from the Grav folder named by a `GRAV_ROOT` constant set before Grav starts, rather than from the current working directory
+    * With `GRAV_WEBROOT` set to another folder, page media and resized image URLs no longer include the path from the Grav folder to the webroot, the CSS and JS pipelines no longer leave out every local file, and Flex page and storage paths that are not streams resolve against the webroot
+    * The maintenance page shown during plugin updates and core upgrades is raised next to `index.php`, which is where `index.php` looks for it, when `GRAV_WEBROOT` is not the Grav folder
+    * The error page loads its styles from the configured system folder when `GRAV_SYSTEM_PATH` points somewhere else
+
 # v2.2.22
 ## 11/02/2026
 

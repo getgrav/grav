@@ -228,7 +228,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $image_path = (string)($locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true));
         $saved_image_path = $this->saved_image_path = $this->saveImage();
 
-        $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $saved_image_path) ?: $saved_image_path;
+        $output = preg_replace('|^' . preg_quote(GRAV_WEBROOT, '|') . '|', '', $saved_image_path) ?: $saved_image_path;
 
         if ($locator->isStream($output)) {
             $output = (string)($locator->findResource($output, false) ?: $locator->findResource($output, false, true));

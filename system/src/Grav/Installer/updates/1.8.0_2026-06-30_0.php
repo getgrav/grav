@@ -63,7 +63,7 @@ return [
     'postflight' =>
         function () use ($rootBlock, $accountsCarveOut) {
             // ---- Site root: open user/accounts to avatar images. ----
-            $root = GRAV_ROOT . '/.htaccess';
+            $root = GRAV_WEBROOT . '/.htaccess';
             if (is_file($root) && is_writable($root)) {
                 $contents = file_get_contents($root);
                 // Already healed (carve-out present) - nothing to do. Idempotent.
@@ -86,7 +86,7 @@ return [
             }
 
             // ---- Per-folder backup: convert the blanket deny-all to the carve-out. ----
-            $accountsHtaccess = GRAV_ROOT . '/user/accounts/.htaccess';
+            $accountsHtaccess = GRAV_WEBROOT . '/user/accounts/.htaccess';
             if (is_file($accountsHtaccess) && is_writable($accountsHtaccess)) {
                 $contents = file_get_contents($accountsHtaccess);
                 if ($contents !== false

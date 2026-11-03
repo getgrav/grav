@@ -11,7 +11,7 @@ return [
             /** @var VersionUpdate $this */
             try {
                 // Keep old defaults for backwards compatibility.
-                $yaml = YamlUpdater::instance(GRAV_ROOT . '/user/config/system.yaml');
+                $yaml = YamlUpdater::instance(GRAV_WEBROOT . '/user/config/system.yaml');
                 $yaml->define('twig.autoescape', false);
                 $yaml->define('strict_mode.yaml_compat', true);
                 $yaml->define('strict_mode.twig2_compat', true);

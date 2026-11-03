@@ -27,8 +27,8 @@ return [
     'preflight' => null,
     'postflight' =>
         function (?string $file = null, ?string $envFile = null) {
-            $file ??= GRAV_ROOT . '/.htaccess';
-            $envFile ??= GRAV_ROOT . '/user/env/.htaccess';
+            $file ??= GRAV_WEBROOT . '/.htaccess';
+            $envFile ??= GRAV_WEBROOT . '/user/env/.htaccess';
 
             $contents = is_file($file) && is_readable($file) && is_writable($file) ? file_get_contents($file) : false;
             if (is_string($contents)) {
