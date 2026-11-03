@@ -183,7 +183,7 @@ class CompiledFileTest extends \PHPUnit\Framework\TestCase
                         if (!is_array(\$raw) || !isset(\$raw['@class'], \$raw['data'])) {
                             \$stats['partial']++;
                             if (count(\$stats['samples']) < 3) {
-                                \$stats['samples'][] = 'include returned ' . gettype(\$raw);
+                                \$stats['samples'][] = 'include returned ' . gettype(\$raw) . ': ' . (error_get_last()['message'] ?? 'no error');
                             }
                         }
                     } catch (Throwable \$e) {
@@ -216,15 +216,17 @@ class CompiledFileTest extends \PHPUnit\Framework\TestCase
 
         // Warm the cache so every reader starts from a complete file.
         $this->assertSame([], glob($compiled . '.*.tmp'));
-        $this->assertNotEmpty(shell_exec(sprintf(
-            'cd %s && GRAV_ROOT=%s GRAV_CACHE_PATH=%s GRAV_LOG_PATH=%s %s -r %s',
-            escapeshellarg($root),
-            escapeshellarg($root),
-            escapeshellarg($cacheDir),
-            escapeshellarg($logDir),
-            escapeshellarg(PHP_BINARY),
-            escapeshellarg('require ' . $autoload . '; echo count(\Grav\Common\File\CompiledYamlFile::instance(' . var_export($source, true) . ')->content()["form"]["fields"]);')
-        )));
+        // proc_open() with an argument list and an environment, so no shell syntax is needed (cmd.exe has none of it).
+        $warm = proc_open(
+            [PHP_BINARY, '-r', 'require ' . $autoload . '; echo count(\Grav\Common\File\CompiledYamlFile::instance(' . var_export($source, true) . ')->content()["form"]["fields"]);'],
+            [1 => ['file', $this->workDir . '/warm.out', 'w'], 2 => ['file', $this->workDir . '/warm.err', 'w']],
+            $pipes,
+            $root,
+            $env
+        );
+        self::assertIsResource($warm);
+        self::assertSame(0, proc_close($warm), (string)file_get_contents($this->workDir . '/warm.err'));
+        $this->assertNotEmpty(file_get_contents($this->workDir . '/warm.out'));
         self::assertFileExists($compiled);
 
         $roles = ['writer', 'writer', 'reader', 'reader', 'reader', 'reader'];
@@ -232,7 +234,9 @@ class CompiledFileTest extends \PHPUnit\Framework\TestCase
         foreach ($roles as $n => $role) {
             $process = proc_open(
                 [PHP_BINARY, '-d', 'error_reporting=-1', '-d', 'display_errors=stderr', $child, $role, $source, $compiled, $base, (string)$seconds],
-                [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+                // Files, not pipes: Windows pipes hold 4 KB, so a child writing more to one stream
+                // than that blocks while the parent waits for EOF on the other.
+                [1 => ['file', "{$this->workDir}/child-{$n}.out", 'w'], 2 => ['file', "{$this->workDir}/child-{$n}.err", 'w']],
                 $pipes,
                 $root,
                 $env
@@ -242,12 +246,10 @@ class CompiledFileTest extends \PHPUnit\Framework\TestCase
         }
 
         $results = [];
-        foreach ($processes as $n => [$process, $pipes]) {
-            $stdout = stream_get_contents($pipes[1]);
-            $stderr = stream_get_contents($pipes[2]);
-            fclose($pipes[1]);
-            fclose($pipes[2]);
+        foreach ($processes as $n => [$process]) {
             $exit = proc_close($process);
+            $stdout = (string)file_get_contents("{$this->workDir}/child-{$n}.out");
+            $stderr = (string)file_get_contents("{$this->workDir}/child-{$n}.err");
             self::assertSame(0, $exit, "Child {$n} ({$roles[$n]}) failed: {$stderr}");
             $result = json_decode($stdout, true);
             self::assertIsArray($result, "Child {$n} output: {$stdout} {$stderr}");

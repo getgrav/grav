@@ -12,20 +12,32 @@ permissions:
 jobs:
   unit-tests:
     strategy:
+      fail-fast: false
       matrix:
         php: [8.5, 8.4, 8.3]
         os: [ubuntu-latest]
+        include:
+          - php: 8.3
+            os: windows-latest
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
+      # Check out LF files on Windows too: the release zips ship LF, and the tests compare output byte for byte.
+      - run: git config --global core.autocrlf false
+
       - uses: actions/checkout@v7
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: opcache, gd
+          extensions: opcache, gd, zip, fileinfo, mbstring, curl, openssl, intl, exif, iconv, dom, simplexml, pdo_sqlite
           tools: composer:v2
           coverage: none
         env:

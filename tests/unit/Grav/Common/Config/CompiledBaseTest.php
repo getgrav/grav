@@ -153,7 +153,7 @@ class CompiledBaseTest extends \PHPUnit\Framework\TestCase
                         if (!is_array(\$raw) || !isset(\$raw['@class'], \$raw['data']['system']['key_2999'])) {
                             \$stats['partial']++;
                             if (count(\$stats['samples']) < 3) {
-                                \$stats['samples'][] = 'include returned ' . gettype(\$raw);
+                                \$stats['samples'][] = 'include returned ' . gettype(\$raw) . ': ' . (error_get_last()['message'] ?? 'no error');
                             }
                         }
                     } catch (Throwable \$e) {
@@ -187,7 +187,9 @@ class CompiledBaseTest extends \PHPUnit\Framework\TestCase
         foreach ($roles as $n => $role) {
             $process = proc_open(
                 [PHP_BINARY, '-d', 'error_reporting=-1', '-d', 'display_errors=stderr', $child, $role, $this->workDir, (string)$seconds],
-                [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+                // Files, not pipes: Windows pipes hold 4 KB, so a child writing more to one stream
+                // than that blocks while the parent waits for EOF on the other.
+                [1 => ['file', "{$this->workDir}/child-{$n}.out", 'w'], 2 => ['file', "{$this->workDir}/child-{$n}.err", 'w']],
                 $pipes,
                 $root,
                 $env
@@ -197,12 +199,10 @@ class CompiledBaseTest extends \PHPUnit\Framework\TestCase
         }
 
         $results = [];
-        foreach ($processes as $n => [$process, $pipes]) {
-            $stdout = stream_get_contents($pipes[1]);
-            $stderr = stream_get_contents($pipes[2]);
-            fclose($pipes[1]);
-            fclose($pipes[2]);
+        foreach ($processes as $n => [$process]) {
             $exit = proc_close($process);
+            $stdout = (string)file_get_contents("{$this->workDir}/child-{$n}.out");
+            $stderr = (string)file_get_contents("{$this->workDir}/child-{$n}.err");
             self::assertSame(0, $exit, "Child {$n} ({$roles[$n]}) failed: {$stderr}");
             $result = json_decode($stdout, true);
             self::assertIsArray($result, "Child {$n} output: {$stdout} {$stderr}");
