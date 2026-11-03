@@ -159,7 +159,7 @@ return [
 
                 $healed = [];
                 foreach ($replacements as $relative => $contents) {
-                    $file = GRAV_ROOT . '/' . $relative;
+                    $file = GRAV_WEBROOT . '/' . $relative;
                     if (!is_file($file) || !is_writable($file)) {
                         // Missing: the folder may not exist on this site, and
                         // user/.htaccess is planted by the 2026-08-13 postflight.

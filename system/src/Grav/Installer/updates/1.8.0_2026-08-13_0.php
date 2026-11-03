@@ -29,7 +29,7 @@ return [
     'preflight' => null,
     'postflight' =>
         function () {
-            $dir = GRAV_ROOT . '/user';
+            $dir = GRAV_WEBROOT . '/user';
             if (!is_dir($dir) || !is_writable($dir)) {
                 return;
             }

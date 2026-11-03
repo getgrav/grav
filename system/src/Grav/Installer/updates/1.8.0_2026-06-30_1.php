@@ -25,7 +25,7 @@ return [
     'preflight' => null,
     'postflight' =>
         function () {
-            $root = GRAV_ROOT . '/.htaccess';
+            $root = GRAV_WEBROOT . '/.htaccess';
             if (is_file($root) && is_writable($root)) {
                 $contents = file_get_contents($root);
                 if ($contents !== false) {

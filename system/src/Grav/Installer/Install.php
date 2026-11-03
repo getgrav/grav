@@ -41,6 +41,7 @@ use function strtolower;
 use function strpos;
 use function preg_match;
 use const GRAV_ROOT;
+use const GRAV_WEBROOT;
 
 /**
  * Grav installer.
@@ -121,6 +122,15 @@ final class Install
         '.htaccess',
         'robots.txt'
     ];
+
+    /**
+     * @var array Top-level package entries that belong in the webroot. Only used in the public
+     * webroot layout, where GRAV_WEBROOT (usually `public/`) is not GRAV_ROOT itself; in the
+     * single-folder layout both are the same folder. Kept here rather than read from
+     * InstallLayout because this class runs under the Grav version being upgraded, which may
+     * not have that class.
+     */
+    private $webrootEntries = ['index.php', '.htaccess', 'robots.txt', 'assets', 'images', 'user'];
 
     /** @var array */
     private $classMap = [
@@ -302,7 +312,7 @@ ERR;
         // Locate the new Grav update and the target site from the filesystem.
         $this->ensureLocation();
         $location = realpath(__DIR__);
-        $target = realpath(GRAV_ROOT . '/index.php');
+        $target = realpath(GRAV_WEBROOT . '/index.php');
 
         if (!$location) {
             throw new RuntimeException('Internal Error', 500);
@@ -374,10 +384,17 @@ ERR;
             // only pending, the copy fails, and the file vanishes when the request ends.
             $rootFiles = $this->packageRootFiles();
 
+            // In the public webroot layout the webroot folders of the package (assets/) are never
+            // written into the private GRAV_ROOT; the site's own copies in the webroot stay as they are.
+            $ignores = array_merge($this->ignores, $rootFiles);
+            if (self::isSplitLayout()) {
+                $ignores = array_merge($ignores, $this->webrootEntries);
+            }
+
             $installResult = Installer::install(
                 $this->zip ?? '',
                 GRAV_ROOT,
-                ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => array_merge($this->ignores, $rootFiles)],
+                ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $ignores],
                 $this->location,
                 !($this->zip && is_file($this->zip))
             );
@@ -408,12 +425,23 @@ ERR;
         }
 
         foreach ($rootFiles as $name) {
-            if (!self::replaceFile($this->location . DS . $name, GRAV_ROOT . DS . $name)) {
+            // index.php goes next to the site's .htaccess, in the webroot. The stock index.php finds
+            // the private GRAV_ROOT by itself, so replacing it keeps the public webroot layout working.
+            $root = self::isSplitLayout() && in_array($name, $this->webrootEntries, true) ? GRAV_WEBROOT : GRAV_ROOT;
+            if (!self::replaceFile($this->location . DS . $name, $root . DS . $name)) {
                 $message = sprintf('Could not replace %s, so the previous copy was kept. Copy %s from the update package by hand to finish the upgrade.', $name, $name);
                 $this->relayProgress('warning', $message, null);
                 $this->logInstallError($message);
             }
         }
+    }
+
+    /**
+     * True in the public webroot layout, where the webroot is not GRAV_ROOT itself.
+     */
+    private static function isSplitLayout(): bool
+    {
+        return GRAV_ROOT !== GRAV_WEBROOT;
     }
 
     /**
@@ -771,7 +799,7 @@ ERR;
         $repoPlugins = $this->packagesToArray($gpm->getRepositoryPlugins());
         $repoThemes = $this->packagesToArray($gpm->getRepositoryThemes());
 
-        $scanRoot = GRAV_ROOT ?: getcwd();
+        $scanRoot = GRAV_WEBROOT ?: getcwd();
 
         $localPlugins = $this->scanLocalPackageVersions($scanRoot . '/user/plugins');
         foreach ($localPlugins as $slug => $version) {
@@ -945,7 +973,7 @@ ERR;
     private function detectPsrLogConflicts(): array
     {
         $conflicts = [];
-        $pluginRoots = glob(GRAV_ROOT . '/user/plugins/*', GLOB_ONLYDIR) ?: [];
+        $pluginRoots = glob(GRAV_WEBROOT . '/user/plugins/*', GLOB_ONLYDIR) ?: [];
         foreach ($pluginRoots as $path) {
             $composerFile = $path . '/composer.json';
             if (!is_file($composerFile)) {
@@ -988,7 +1016,7 @@ ERR;
     private function detectMonologConflicts(): array
     {
         $conflicts = [];
-        $pluginRoots = glob(GRAV_ROOT . '/user/plugins/*', GLOB_ONLYDIR) ?: [];
+        $pluginRoots = glob(GRAV_WEBROOT . '/user/plugins/*', GLOB_ONLYDIR) ?: [];
         $pattern = '/->add(?:Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)\s*\(/i';
 
         foreach ($pluginRoots as $path) {
@@ -1020,7 +1048,7 @@ ERR;
                 }
 
                 if (preg_match($pattern, $contents, $match)) {
-                    $relative = str_replace(GRAV_ROOT . '/', '', $file->getPathname());
+                    $relative = str_replace(GRAV_WEBROOT . '/', '', $file->getPathname());
                     $conflicts[$slug][] = [
                         'file' => $relative,
                         'method' => trim($match[0]),
@@ -1034,7 +1062,7 @@ ERR;
 
     private function isPluginEnabled(string $slug, ?string $root = null): bool
     {
-        $configPath = ($root ?? GRAV_ROOT) . '/user/config/plugins/' . $slug . '.yaml';
+        $configPath = ($root ?? GRAV_WEBROOT) . '/user/config/plugins/' . $slug . '.yaml';
         if (is_file($configPath)) {
             try {
                 $contents = @file_get_contents($configPath);
@@ -1054,7 +1082,7 @@ ERR;
 
     private function isThemeEnabled(string $slug, ?string $root = null): bool
     {
-        $configPath = ($root ?? GRAV_ROOT) . '/user/config/system.yaml';
+        $configPath = ($root ?? GRAV_WEBROOT) . '/user/config/system.yaml';
         if (is_file($configPath)) {
             try {
                 $contents = @file_get_contents($configPath);
@@ -1091,7 +1119,7 @@ ERR;
 
         $blocking = [];
         $warnings = [];
-        $scanRoot = $root ?? GRAV_ROOT ?? getcwd();
+        $scanRoot = $root ?? GRAV_WEBROOT ?? getcwd();
 
         // Scan plugins
         $pluginDirs = glob($scanRoot . '/user/plugins/*', GLOB_ONLYDIR) ?: [];

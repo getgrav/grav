@@ -19,7 +19,7 @@ return [
     'preflight' => null,
     'postflight' =>
         function () {
-            $file = GRAV_ROOT . '/.htaccess';
+            $file = GRAV_WEBROOT . '/.htaccess';
             if (!is_file($file) || !is_readable($file) || !is_writable($file)) {
                 return;
             }

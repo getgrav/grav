@@ -50,7 +50,7 @@ return [
 
             HTACCESS;
 
-            $dataDir = GRAV_ROOT . '/user/data';
+            $dataDir = GRAV_WEBROOT . '/user/data';
             $dataHtaccess = $dataDir . '/.htaccess';
             if (is_dir($dataDir) && is_writable($dataDir) && is_file($dataHtaccess)) {
                 $existing = (string) @file_get_contents($dataHtaccess);
@@ -63,7 +63,7 @@ return [
             }
 
             // ---- Site root: swap the blanket folder rule for the media-aware one. ----
-            $root = GRAV_ROOT . '/.htaccess';
+            $root = GRAV_WEBROOT . '/.htaccess';
             if (!is_file($root) || !is_writable($root)) {
                 return;
             }

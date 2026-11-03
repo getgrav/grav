@@ -75,7 +75,7 @@ return [
 
             // Drop a backup .htaccess into each sensitive folder that exists.
             foreach (['accounts', 'config', 'data', 'env'] as $folder) {
-                $dir = GRAV_ROOT . '/user/' . $folder;
+                $dir = GRAV_WEBROOT . '/user/' . $folder;
                 if (!is_dir($dir) || !is_writable($dir)) {
                     continue;
                 }
@@ -86,7 +86,7 @@ return [
             }
 
             // Patch the site root .htaccess to block the sensitive folders outright.
-            $root = GRAV_ROOT . '/.htaccess';
+            $root = GRAV_WEBROOT . '/.htaccess';
             if (!is_file($root) || !is_writable($root)) {
                 return;
             }

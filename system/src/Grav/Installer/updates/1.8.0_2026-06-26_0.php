@@ -81,7 +81,7 @@ return [
     'postflight' =>
         function () use ($narrowMediaExt, $fullMediaExt, $dataCarveOut) {
             // ---- Site root: case-insensitive deny rules + widened user/data allowlist. ----
-            $root = GRAV_ROOT . '/.htaccess';
+            $root = GRAV_WEBROOT . '/.htaccess';
             if (is_file($root) && is_writable($root)) {
                 $contents = file_get_contents($root);
                 if ($contents !== false) {
@@ -98,7 +98,7 @@ return [
             }
 
             // ---- Per-folder backup: widen and/or case-fold the user/data carve-out. ----
-            $dataHtaccess = GRAV_ROOT . '/user/data/.htaccess';
+            $dataHtaccess = GRAV_WEBROOT . '/user/data/.htaccess';
             if (is_file($dataHtaccess) && is_writable($dataHtaccess)) {
                 $contents = file_get_contents($dataHtaccess);
                 if ($contents !== false) {

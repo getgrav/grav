@@ -167,7 +167,7 @@ return [
 
                 $healed = [];
                 foreach ($replacements as $relative => $contents) {
-                    $file = GRAV_ROOT . '/' . $relative;
+                    $file = GRAV_WEBROOT . '/' . $relative;
                     if (!is_file($file) || !is_writable($file)) {
                         // Missing: most sites have no user/env folder at all, and
                         // user/.htaccess is planted by the 2026-08-13 postflight.
