@@ -2707,7 +2707,7 @@ class Page implements PageInterface, PageUuidInterface
      */
     public function filePathClean()
     {
-        return str_replace(GRAV_ROOT . DS, '', $this->filePath());
+        return str_replace(GRAV_WEBROOT . DS, '', $this->filePath());
     }
 
     /**

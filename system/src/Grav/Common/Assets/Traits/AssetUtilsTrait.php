@@ -91,7 +91,7 @@ trait AssetUtilsTrait
                 }
 
                 $relative_dir = dirname((string) $relative_path);
-                $link = GRAV_ROOT . '/' . $relative_path;
+                $link = GRAV_WEBROOT . '/' . $relative_path;
             }
 
             $file = $this->fetchAssetContents($link, $local);

@@ -106,7 +106,7 @@ class Errors
             case 1:
                 $error_page = new PrettyPageHandler();
                 $error_page->setPageTitle('Crikey! There was an error...');
-                $error_page->addResourcePath(GRAV_ROOT . '/system/assets');
+                $error_page->addResourcePath(SYSTEM_DIR . 'assets');
                 $error_page->addCustomCss('whoops.css');
                 $whoops->prependHandler($error_page);
                 break;

@@ -183,7 +183,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
         $locator = Grav::instance()['locator'];
 
         if (!$locator->isStream($path)) {
-            return GRAV_ROOT . "/{$path}";
+            return GRAV_WEBROOT . "/{$path}";
         }
 
         return $locator->getResource($path);

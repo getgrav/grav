@@ -271,7 +271,8 @@ class InstallCommand extends GravCommand
 
             $io->writeln('<green>SUCCESS</green> symlinked <magenta>' . $options['src'] . '</magenta> -> <cyan>' . $options['path'] . '</cyan>');
         } else {
-            $to = GRAV_ROOT;
+            // hebe.json destinations are site paths such as /user/plugins/<name>, under the webroot.
+            $to = GRAV_WEBROOT;
             $name = $options['name'];
             $io->writeln("Processing <magenta>{$name}</magenta>");
             foreach ($hebe as $section => $symlinks) {
