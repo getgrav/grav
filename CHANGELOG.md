@@ -1,3 +1,10 @@
+# v2.2.22
+## 11/02/2026
+
+1. [](#bugfix)
+    * On servers with the PHP `yaml` extension, a YAML file with a plain `y`, `yes`, `on`, `off`, `n` or `no` key keeps that key instead of turning it into `1` or `0`, so settings such as an image's `y:` size and the `YES`/`NO` language strings load the same as on servers without the extension
+    * An asset added by the site's own full URL, such as `url('theme://css/custom.css', true)`, or by a link that starts with the site's subfolder, no longer renders with the host or subfolder twice
+
 # v2.2.21
 ## 11/01/2026
 

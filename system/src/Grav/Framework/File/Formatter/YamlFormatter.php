@@ -127,13 +127,34 @@ class YamlFormatter extends AbstractFormatter
     }
 
     /**
+     * Check whether the YAML has a plain `y`, `n`, `yes`, `no`, `on` or `off` key.
+     *
+     * The yaml extension follows YAML 1.1 and reads those keys as booleans, so `y: 630` comes back as `1 => 630`
+     * and the language strings under `YES:` and `NO:` are lost. Symfony follows YAML 1.2 and keeps them as text,
+     * which is also how the file loads on every host without the extension, so a file with one of these keys is
+     * parsed by Symfony. Quoted keys and false matches (such as `no:` inside a block of text) only cost the faster
+     * parser. Only files with such a key change parser, so a hand-written `enabled: no` in any other file still
+     * reads as `false` with the extension.
+     *
+     * @param string $data
+     * @return bool
+     */
+    public static function hasBooleanLikeKey(string $data): bool
+    {
+        return (bool) preg_match(
+            '/(?:^[ \t]*(?:-[ \t]+)*|[{,][ \t]*)(?:[yYnN]|yes|Yes|YES|no|No|NO|on|On|ON|off|Off|OFF)[ \t]*:(?:[ \t]|$)/m',
+            $data
+        );
+    }
+
+    /**
      * {@inheritdoc}
      * @see FileFormatterInterface::decode()
      */
     public function decode($data): array
     {
         // Try native PECL YAML PHP extension first if available.
-        if (function_exists('yaml_parse') && $this->useNativeDecoder()) {
+        if (function_exists('yaml_parse') && $this->useNativeDecoder() && !static::hasBooleanLikeKey((string) $data)) {
             // Safely decode YAML.
             $saved = @ini_get('yaml.decode_php');
             @ini_set('yaml.decode_php', '0');

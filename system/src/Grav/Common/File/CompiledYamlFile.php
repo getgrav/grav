@@ -37,4 +37,30 @@ class CompiledYamlFile extends YamlFile
 
         return $var;
     }
+
+    /**
+     * Decode RAW string into contents.
+     *
+     * A file with a plain `y:`, `yes:`, `on:` or `off:` key (or `n:`, `no:`) is parsed by Symfony, because
+     * libyaml reads those keys as booleans. Configuration, blueprints and languages then get the same keys with
+     * or without the yaml extension. See YamlFormatter::hasBooleanLikeKey().
+     *
+     * @param string $var
+     * @return array
+     */
+    protected function decode($var)
+    {
+        if (function_exists('yaml_parse') && $this->setting('native', true)
+            && YamlFormatter::hasBooleanLikeKey((string)$var)) {
+            $settings = $this->settings;
+            $this->settings = ['native' => false] + $settings;
+            try {
+                return parent::decode($var);
+            } finally {
+                $this->settings = $settings;
+            }
+        }
+
+        return parent::decode($var);
+    }
 }
