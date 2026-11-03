@@ -45,7 +45,15 @@ class CacheHostNamespaceTest extends \PHPUnit\Framework\TestCase
         // Close the lazy page index the test's Pages holds open: Windows won't delete an open file.
         unset($this->grav['pages']);
         gc_collect_cycles();
-        Folder::delete($this->root);
+        try {
+            Folder::delete($this->root);
+        } catch (\RuntimeException $e) {
+            // On Windows a Pages object this process still references keeps the index file open;
+            // the folder is in tests/_output and goes with the next run's cleanup.
+            if (DIRECTORY_SEPARATOR !== '\\') {
+                throw $e;
+            }
+        }
         parent::tearDown();
     }
 
