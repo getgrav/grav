@@ -1,3 +1,18 @@
+# v2.2.23
+## 11/02/2026
+
+1. [](#new)
+    * Optional public webroot layout: Grav can live in a private folder with only its `public/` subfolder (holding `index.php`, `.htaccess`, `robots.txt`, `user/`, `assets/` and `images/`) served by the web server, so `system/`, `vendor/`, `bin/`, `cache/`, `logs/`, `tmp/`, `backup/`, `.env` and the Composer files are out of the web server's reach. It needs no configuration: `index.php` finds the Grav folder above it, and `bin/grav`, `bin/gpm` and `bin/plugin` run from the private folder and find a `public/`, `public_html/`, `web/`, `www/` or `htdocs/` folder that holds `index.php` and `user/`. A `GRAV_ROOT` server variable (Apache `SetEnv`, nginx `fastcgi_param`) points `index.php` at the Grav folder for other layouts. The default single-folder layout works exactly as before
+2. [](#improved)
+    * `bin/gpm install`, `update` and `direct-install`, and plugins that install packages through GPM with `GRAV_ROOT` as the destination (such as the API plugin), put plugins and themes in the webroot's `user/` folder in the public webroot layout
+    * Self-upgrade knows the public webroot layout: the new `index.php` goes to the webroot, everything else to the private folder, and the upgrade's `.htaccess` and `user/` updates, its maintenance page flag and its plugin checks use the webroot
+3. [](#bugfix)
+    * A relative `GRAV_SYSTEM_PATH`, `GRAV_CACHE_PATH`, `GRAV_LOG_PATH`, `GRAV_TMP_PATH` or `GRAV_BACKUP_PATH` now always resolves against the Grav folder; when `GRAV_WEBROOT` was set to another folder the streams used the webroot instead, so those paths had to be absolute
+    * A `.env` is read from the Grav folder named by a `GRAV_ROOT` constant set before Grav starts, rather than from the current working directory
+    * With `GRAV_WEBROOT` set to another folder, page media and resized image URLs no longer include the path from the Grav folder to the webroot, the CSS and JS pipelines no longer leave out every local file, and Flex page and storage paths that are not streams resolve against the webroot
+    * The maintenance page shown during plugin updates and core upgrades is raised next to `index.php`, which is where `index.php` looks for it, when `GRAV_WEBROOT` is not the Grav folder
+    * The error page loads its styles from the configured system folder when `GRAV_SYSTEM_PATH` points somewhere else
+
 # v2.2.22
 ## 11/02/2026
 
