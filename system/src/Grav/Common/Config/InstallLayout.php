@@ -90,6 +90,28 @@ final class InstallLayout
     }
 
     /**
+     * How the running site found its webroot: 'single' (GRAV_ROOT is the webroot), 'env' (a
+     * GRAV_WEBROOT environment variable or .env entry) or 'candidate' (a folder from
+     * WEBROOT_CANDIDATES that holds index.php and the user folder).
+     *
+     * @return string
+     */
+    public static function webrootSource(): string
+    {
+        if (!static::isSplit()) {
+            return 'single';
+        }
+
+        foreach ([$_SERVER['GRAV_WEBROOT'] ?? null, $_ENV['GRAV_WEBROOT'] ?? null, getenv('GRAV_WEBROOT')] as $value) {
+            if (\is_string($value) && $value !== '') {
+                return 'env';
+            }
+        }
+
+        return 'candidate';
+    }
+
+    /**
      * Path of a folder that lives in GRAV_ROOT (system, cache, logs, tmp, backup), as the
      * resource locator needs it.
      *
