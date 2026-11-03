@@ -5,6 +5,7 @@ use Grav\Common\Config\WebrootPlanner;
 use Grav\Common\Config\WebrootPublisher;
 use Grav\Common\Config\WebrootStatus;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Utils;
 
 /**
  * Planning and carrying out webroot:split and webroot:join, symlink rewriting included.
@@ -20,8 +21,9 @@ class WebrootPlannerTest extends \PHPUnit\Framework\TestCase
     {
         $base = sys_get_temp_dir() . '/grav-planner-' . bin2hex(random_bytes(6));
         mkdir($base . '/site', 0777, true);
-        // sys_get_temp_dir() is behind a symlink on macOS; the planner works with real paths.
-        $this->base = realpath($base);
+        // sys_get_temp_dir() is behind a symlink on macOS; the planner works with real paths, with
+        // forward slashes on Windows too.
+        $this->base = str_replace('\\', '/', realpath($base));
         $this->root = $this->base . '/site';
 
         foreach (['index.php', '.htaccess', 'robots.txt', 'composer.json', '.env', 'favicon.ico', 'bin/grav', 'vendor/autoload.php', 'cache/x', 'assets/x.css', 'images/x.jpg', 'system/config/system.yaml', 'system/assets/jquery.js', 'user/config/system.yaml', 'user/pages/01.home/default.md'] as $file) {
@@ -73,6 +75,10 @@ class WebrootPlannerTest extends \PHPUnit\Framework\TestCase
 
     public function testRelativeSymlinksAreRewrittenToTheSameTarget(): void
     {
+        if (Utils::isWindows()) {
+            $this->markTestSkipped('PHP on Windows always stores a symlink target as an absolute path, and only to a target that exists.');
+        }
+
         // Outside user/ and outside the site, outside user/ but inside the site, inside user/,
         // into another folder that moves too, absolute, and already broken.
         symlink('../../../dev-plugins/foo', $this->root . '/user/plugins/foo');
@@ -116,6 +122,10 @@ class WebrootPlannerTest extends \PHPUnit\Framework\TestCase
 
     public function testSymlinkedTopLevelEntryIsRewritten(): void
     {
+        if (Utils::isWindows()) {
+            $this->markTestSkipped('PHP on Windows always stores a symlink target as an absolute path, and only to a target that exists.');
+        }
+
         Folder::delete($this->root . '/user');
         mkdir($this->base . '/shared-user/config', 0777, true);
         symlink('../shared-user', $this->root . '/user');
@@ -179,6 +189,10 @@ class WebrootPlannerTest extends \PHPUnit\Framework\TestCase
 
     public function testStatusFindsPrivateFilesAndStrayEntries(): void
     {
+        if (Utils::isWindows()) {
+            $this->markTestSkipped('PHP on Windows always stores a symlink target as an absolute path, and only to a target that exists.');
+        }
+
         WebrootPlanner::split($this->root)->apply();
         $webroot = $this->root . '/public';
         $this->write('public/vendor/autoload.php');
@@ -204,6 +218,10 @@ class WebrootPlannerTest extends \PHPUnit\Framework\TestCase
 
     public function testCopyFallbackKeepsSymlinksAndNeverFollowsThem(): void
     {
+        if (Utils::isWindows()) {
+            $this->markTestSkipped('PHP on Windows always stores a symlink target as an absolute path, and only to a target that exists.');
+        }
+
         // The path move() takes when rename() fails (another filesystem).
         symlink('../../../dev-plugins/foo', $this->root . '/user/plugins/foo');
         $copy = new ReflectionMethod(WebrootPlan::class, 'copyTree');

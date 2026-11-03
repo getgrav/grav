@@ -101,7 +101,14 @@ jobs:
           printf '\n\n![smoke](smoke.png)\n\n![smoke resized](smoke.png?resize=40,30)\n' >> user/pages/01.home/default.md
           mkdir extra
           mv user/plugins/github-markdown-alerts extra/
-          php -r 'chdir("user/plugins"); if (!symlink("../../extra/github-markdown-alerts", "github-markdown-alerts")) { exit(1); }'
+          # PHP's symlink() on Windows always stores an absolute target, so make a real relative link there with mklink.
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            (cd user/plugins && MSYS_NO_PATHCONV=1 cmd /c 'mklink /D github-markdown-alerts ..\..\extra\github-markdown-alerts')
+          else
+            ln -s ../../extra/github-markdown-alerts user/plugins/github-markdown-alerts
+          fi
+          php -r 'var_dump(readlink("user/plugins/github-markdown-alerts"));'
+          test -f user/plugins/github-markdown-alerts/blueprints.yaml
 
       - name: Single-folder layout
         run: |

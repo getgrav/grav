@@ -16,7 +16,8 @@ class PublicWebrootBootstrapTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-        $this->root = (realpath(sys_get_temp_dir()) ?: sys_get_temp_dir()) . '/grav-webroot-' . bin2hex(random_bytes(6));
+        // Grav keeps paths with forward slashes on Windows too.
+        $this->root = str_replace('\\', '/', realpath(sys_get_temp_dir()) ?: sys_get_temp_dir()) . '/grav-webroot-' . bin2hex(random_bytes(6));
         mkdir($this->root . '/system/config', 0777, true);
         mkdir($this->root . '/bin');
         mkdir($this->root . '/public/user', 0777, true);

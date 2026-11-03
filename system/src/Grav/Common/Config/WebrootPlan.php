@@ -153,13 +153,26 @@ final class WebrootPlan
             return false;
         }
 
+        return self::symlink($target, $link);
+    }
+
+    /**
+     * PHP on Windows resolves a relative symlink target against the working directory, not the
+     * link's folder, and stores it as an absolute path. Resolve it from the link's folder there.
+     */
+    private static function symlink(string $target, string $link): bool
+    {
+        if (\DIRECTORY_SEPARATOR === '\\' && !InstallLayout::isAbsolute($target)) {
+            $target = \dirname($link) . '/' . $target;
+        }
+
         return @symlink($target, $link);
     }
 
     private static function copyTree(string $from, string $to): void
     {
         if (is_link($from)) {
-            if (!@symlink((string) readlink($from), $to)) {
+            if (!self::symlink((string) readlink($from), $to)) {
                 throw new RuntimeException(sprintf('Could not copy the symlink %s.', $from));
             }
 
