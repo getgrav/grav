@@ -46,11 +46,13 @@ $grav_env = static function (string $name): ?string {
 // overrides. Real server-set environment variables always take precedence.
 // The class_exists() guard keeps this file safe to include on its own (e.g. a
 // build step reading GRAV_VERSION), where the Composer autoloader isn't present.
+// A GRAV_ROOT constant set before this file runs (index.php does that for the
+// public webroot layout) is where the .env lives.
 if (
     !defined("GRAV_DOTENV_DISABLE") &&
     class_exists(\Grav\Common\Config\Env::class)
 ) {
-    $root = rtrim(
+    $root = defined("GRAV_ROOT") ? GRAV_ROOT : rtrim(
         str_replace(DIRECTORY_SEPARATOR, DS, $grav_env("GRAV_ROOT") ?: getcwd()),
         DS,
     );
@@ -66,15 +68,26 @@ if (!defined("GRAV_ROOT")) {
     );
     define("GRAV_ROOT", $path ?: DS);
 }
-// Absolute path to Grav webroot. This is the path where your site is located in.
-if (!defined("GRAV_WEBROOT")) {
-    $path = rtrim($grav_env("GRAV_WEBROOT") ?: GRAV_ROOT, DS);
-    define("GRAV_WEBROOT", $path ?: DS);
-}
 // Relative path to user folder. This path needs to be located under GRAV_WEBROOT.
 if (!defined("GRAV_USER_PATH")) {
     $path = rtrim($grav_env("GRAV_USER_PATH") ?: "user", DS);
     define("GRAV_USER_PATH", $path);
+}
+// Absolute path to Grav webroot. This is the path where your site is located in.
+// Defaults to GRAV_ROOT. When GRAV_ROOT has no index.php of its own (the public
+// webroot layout, seen from the CLI), the first of public/, public_html/, web/,
+// www/ or htdocs/ that holds index.php and the user folder is the webroot.
+if (!defined("GRAV_WEBROOT")) {
+    $path = $grav_env("GRAV_WEBROOT");
+    if (
+        $path === null &&
+        !is_file(GRAV_ROOT . "/index.php") &&
+        class_exists(\Grav\Common\Config\InstallLayout::class)
+    ) {
+        $path = \Grav\Common\Config\InstallLayout::detectWebroot(GRAV_ROOT, GRAV_USER_PATH);
+    }
+    $path = rtrim($path ?: GRAV_ROOT, DS);
+    define("GRAV_WEBROOT", $path ?: DS);
 }
 // Absolute or relative path to system folder. Defaults to GRAV_ROOT/system
 // If system folder is outside of webroot, see https://github.com/getgrav/grav/issues/3297#issuecomment-810294972

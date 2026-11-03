@@ -32,7 +32,8 @@ date_default_timezone_set(@date_default_timezone_get());
 @ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');
 
-if (!file_exists(GRAV_ROOT . '/index.php')) {
+// GRAV_WEBROOT is GRAV_ROOT itself, or the public folder of the public webroot layout.
+if (!file_exists(GRAV_WEBROOT . '/index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
