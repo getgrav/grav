@@ -49,7 +49,7 @@ class CacheHostNamespaceTest extends \PHPUnit\Framework\TestCase
             Folder::delete($this->root);
         } catch (\RuntimeException $e) {
             // On Windows a Pages object this process still references keeps the index file open;
-            // the folder is in tests/_output and goes with the next run's cleanup.
+            // the leftover folder is in tests/_output, which git ignores.
             if (DIRECTORY_SEPARATOR !== '\\') {
                 throw $e;
             }
