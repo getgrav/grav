@@ -1,3 +1,15 @@
+# v2.2.23
+## 11/03/2026
+
+1. [](#bugfix)
+    * Windows: requests no longer fail to read the compiled config, blueprint, language and file caches while another request rebuilds them. The rebuilding request locked the cache file itself, and a lock on Windows blocks every reader; it now locks a separate `.lock` file
+    * Windows: links to other pages in Markdown (`../other-page`) point at the page's route again, not at its folder name, and an image at the site root such as `![](/image.jpg?resize=200)` is resized again
+    * Windows: the lazy page index (`system.pages.lazy_index`) is used instead of falling back to the classic page cache on every rebuild
+    * Windows: updating a plugin or theme installed as a symlinked folder no longer fails, and leaves no `.gpm-*` folder behind
+    * Asset pipeline bundles join files with `\n` on every system, so a bundle is the same on Windows as elsewhere
+1. [](#improved)
+    * The unit tests run on Windows in CI as well
+
 # v2.2.22
 ## 11/02/2026
 

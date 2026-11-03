@@ -42,6 +42,9 @@ class CacheHostNamespaceTest extends \PHPUnit\Framework\TestCase
 
     protected function tearDown(): void
     {
+        // Close the lazy page index the test's Pages holds open: Windows won't delete an open file.
+        unset($this->grav['pages']);
+        gc_collect_cycles();
         Folder::delete($this->root);
         parent::tearDown();
     }

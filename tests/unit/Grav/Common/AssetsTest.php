@@ -22,6 +22,8 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->assets = $this->grav['assets'];
+        // Grav skips minifying on Windows unless asked to; test the minifier there too.
+        $this->assets->config(['css_minify_windows' => true, 'js_minify_windows' => true]);
 
         // The pipeline writes minified output to a deterministic UID file in
         // GRAV_ROOT/assets and re-uses it on subsequent runs. If a previous

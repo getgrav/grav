@@ -60,11 +60,6 @@ jobs:
       - name: Run test suite
         run: php -d register_argc_argv=On vendor/bin/codecept run
 
-      # TEMP: why CSS minification fails on Windows
-      - name: Minification errors
-        if: failure()
-        run: grep -rh "Minification failed" logs tests/_output 2>/dev/null | sort | uniq -c | head -20 || true
-
 #  slack:
 #      name: Slack
 #      needs: unit-tests
