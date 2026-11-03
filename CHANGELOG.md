@@ -8,6 +8,7 @@
     * Windows: updating a plugin or theme installed as a symlinked folder no longer fails, and leaves no `.gpm-*` folder behind
     * Asset pipeline bundles join files with `\n` on every system, so a bundle is the same on Windows as elsewhere
 1. [](#improved)
+    * Windows: CSS and JS in the asset pipeline are minified on Windows too, following `css_minify` and `js_minify` like everywhere else. The `css_minify_windows` override is gone: it was added because the old CSS minifier's regexes overflowed Apache's thread stack on Windows, and the current minifier no longer uses them
     * The unit tests run on Windows in CI as well
 
 # v2.2.22
