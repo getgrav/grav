@@ -128,6 +128,18 @@ abstract class BaseAsset extends PropertyObject
 
                 $locator = Grav::instance()['locator'];
 
+                // An asset given as a URL of this site, such as url('theme://x.css', true) or a link
+                // that starts with the subfolder, is a file under the web root: drop the root so the
+                // link below is not built with the host or subfolder twice.
+                if (!$locator->isStream($asset)) {
+                    foreach ([$uri->rootUrl(true), $uri->rootUrl()] as $root) {
+                        if ($root !== '' && str_starts_with($asset, $root . '/')) {
+                            $asset = substr($asset, strlen($root));
+                            break;
+                        }
+                    }
+                }
+
                 if ($locator->isStream($asset)) {
                     $path = $locator->findResource($asset, true);
                 } else {
