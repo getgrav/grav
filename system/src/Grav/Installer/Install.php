@@ -437,6 +437,40 @@ ERR;
     }
 
     /**
+     * In the public webroot layout, copy the system files linked by URL (system/assets,
+     * system/images) into the webroot, so the upgraded jQuery, debugger assets and media icons
+     * are the ones served. Same as `bin/grav webroot:sync`. A failure is reported, never fatal.
+     */
+    private function publishWebrootFiles(): void
+    {
+        if (!self::isSplitLayout()) {
+            return;
+        }
+
+        // The class comes with the upgraded core; load it from there when the autoloader can't.
+        $class = 'Grav\\Common\\Config\\WebrootPublisher';
+        $file = GRAV_ROOT . '/system/src/Grav/Common/Config/WebrootPublisher.php';
+        if (!class_exists($class) && is_file($file)) {
+            require_once $file;
+        }
+        if (!class_exists($class) || !method_exists($class, 'forSite')) {
+            return;
+        }
+
+        try {
+            $publisher = $class::forSite();
+            if ($publisher) {
+                $plan = $publisher->sync();
+                $this->relayProgress('finalizing', sprintf('Published %d system file(s) to %s.', count($plan['copy']) + count($plan['update']), $publisher->target()), null);
+            }
+        } catch (Throwable $e) {
+            $message = 'Could not publish the system files to the webroot. Run bin/grav webroot:sync. ' . $e->getMessage();
+            $this->relayProgress('warning', $message, null);
+            $this->logInstallError($message, $e);
+        }
+    }
+
+    /**
      * True in the public webroot layout, where the webroot is not GRAV_ROOT itself.
      */
     private static function isSplitLayout(): bool
@@ -548,6 +582,8 @@ ERR;
         $this->updater->postflight();
 
         $this->ensureExecutablePermissions();
+
+        $this->publishWebrootFiles();
 
         Cache::clearCache('all');
 
