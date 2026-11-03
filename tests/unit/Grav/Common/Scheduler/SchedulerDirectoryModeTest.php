@@ -21,12 +21,18 @@ class SchedulerDirectoryModeTest extends \Codeception\Test\Unit
 
     protected function _before(): void
     {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            $this->markTestSkipped('Windows has no POSIX folder modes or umask.');
+        }
         $this->root = sys_get_temp_dir() . '/grav-scheduler-mode-' . bin2hex(random_bytes(4));
         $this->umask = umask(0002);
     }
 
     protected function _after(): void
     {
+        if ($this->root === null) {
+            return;
+        }
         umask($this->umask);
         Folder::delete($this->root);
     }

@@ -43,7 +43,7 @@ class PageIdentityTest extends \PHPUnit\Framework\TestCase
         $this->grav['language']->setLanguages([]);
         $this->grav['language']->init();
 
-        $this->root = sys_get_temp_dir() . '/grav-page-identity-' . bin2hex(random_bytes(4));
+        $this->root = str_replace('\\', '/', sys_get_temp_dir()) . '/grav-page-identity-' . bin2hex(random_bytes(4));
         $this->pagesDir = $this->root . '/pages';
         $this->writePage('01.home/default.md', 'Home');
         $this->writePage('02.about/default.md', 'About');

@@ -84,7 +84,7 @@ class PagesLazyIndexTest extends \PHPUnit\Framework\TestCase
         unset($this->grav['cache']);
         $this->grav['cache'] = $cache;
 
-        $this->root = sys_get_temp_dir() . '/grav-lazy-index-' . bin2hex(random_bytes(4));
+        $this->root = str_replace('\\', '/', sys_get_temp_dir()) . '/grav-lazy-index-' . bin2hex(random_bytes(4));
         $this->pagesDir = $this->root . '/pages';
         $this->writePage('01.home/default.md', ['title' => 'Home']);
         $this->writePage('02.blog/blog.md', ['title' => 'Blog', 'content' => ['items' => '@self.children', 'order' => ['by' => 'date', 'dir' => 'desc']]]);

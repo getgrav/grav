@@ -579,7 +579,8 @@ abstract class Folder
     {
         // Special case for symbolic links.
         if ($include_target && is_link($folder)) {
-            if (!@unlink($folder)) {
+            // A link to a folder is removed with rmdir() on Windows; the folder it points to is left alone.
+            if (!@unlink($folder) && !@rmdir($folder)) {
                 $failure = $failure ?? self::deleteFailure('remove symlink', $folder);
                 return false;
             }

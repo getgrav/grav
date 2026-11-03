@@ -23,7 +23,7 @@ class ThemesTest extends \PHPUnit\Framework\TestCase
 
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
-        $this->themeDir = sys_get_temp_dir() . '/grav-theme-blueprints-' . bin2hex(random_bytes(6));
+        $this->themeDir = str_replace('\\', '/', sys_get_temp_dir()) . '/grav-theme-blueprints-' . bin2hex(random_bytes(6));
         mkdir($this->themeDir, 0775, true);
 
         /** @var UniformResourceLocator $locator */

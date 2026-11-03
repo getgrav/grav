@@ -21,7 +21,8 @@ class InstallerDestinationTest extends \PHPUnit\Framework\TestCase
 
     protected function tearDown(): void
     {
-        @unlink($this->root . '/linked');
+        // A link to a folder is removed with rmdir() on Windows.
+        @unlink($this->root . '/linked') || @rmdir($this->root . '/linked');
         chmod($this->root . '/plugin/nested', 0700);
         chmod($this->root . '/plugin/nested/file.php', 0600);
         chmod($this->root . '/user/themes/demo/template.twig', 0600);

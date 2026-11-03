@@ -47,6 +47,9 @@ class FolderStoragePathTest extends \PHPUnit\Framework\TestCase
 
     private function createPages(string ...$names): void
     {
+        if (DIRECTORY_SEPARATOR === '\\' && strpbrk(implode('', $names), '*?|:') !== false) {
+            self::markTestSkipped('Windows does not allow * in a folder name.');
+        }
         foreach ($names as $name) {
             mkdir("{$this->root}/{$name}", 0777, true);
             file_put_contents("{$this->root}/{$name}/default.md", "---\ntitle: {$name}\n---\n");

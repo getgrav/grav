@@ -826,9 +826,10 @@ class Installer
                         continue;
                     }
                     if ($entry->isDir()) {
-                        $directories[] = $entry->getPathname();
+                        // Forward slashes on Windows too, like every other Grav path.
+                        $directories[] = str_replace('\\', '/', $entry->getPathname());
                     } elseif ($overwriteFiles && !$entry->isWritable()) {
-                        return 'File cannot be overwritten: ' . $entry->getPathname();
+                        return 'File cannot be overwritten: ' . str_replace('\\', '/', $entry->getPathname());
                     }
                 }
             } catch (\UnexpectedValueException $e) {
