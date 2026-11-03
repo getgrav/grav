@@ -59,7 +59,8 @@ class DirectInstallCommand extends GpmCommand
                 'd',
                 InputOption::VALUE_OPTIONAL,
                 'The destination where the package should be installed at. By default this would be where the grav instance has been launched from',
-                GRAV_ROOT
+                // The webroot holds user/; it is GRAV_ROOT itself in the single-folder layout.
+                GRAV_WEBROOT
             )
             ->setDescription('Installs Grav, plugin, or theme directly from a file or a URL')
             ->setHelp('The <info>direct-install</info> command installs Grav, plugin, or theme directly from a file or a URL');
@@ -234,16 +235,17 @@ class DirectInstallCommand extends GpmCommand
                     return 1;
                 }
 
+                // Relative to the webroot, like every relative path the locator returns.
                 $install_path = GPM::getInstallPath($type, $name);
-                $is_update = file_exists($install_path);
+                $is_update = file_exists(GRAV_WEBROOT . DS . $install_path);
 
                 $io->write('  |- Checking destination...  ');
 
-                Installer::isValidDestination(GRAV_ROOT . DS . $install_path);
+                Installer::isValidDestination(GRAV_WEBROOT . DS . $install_path);
                 if (Installer::lastErrorCode() === Installer::IS_LINK) {
                     $io->write("\x0D");
                     $io->writeln('  |- Checking destination...  <yellow>symbolic link</yellow>');
-                    $io->writeln("  '- <red>ERROR: symlink found...</red>  <yellow>" . GRAV_ROOT . DS . $install_path . '</yellow>');
+                    $io->writeln("  '- <red>ERROR: symlink found...</red>  <yellow>" . GRAV_WEBROOT . DS . $install_path . '</yellow>');
                     $io->newLine();
                     Folder::delete($tmp_source);
                     Folder::delete($tmp_zip);
