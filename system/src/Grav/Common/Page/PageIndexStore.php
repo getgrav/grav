@@ -497,11 +497,17 @@ final class PageIndexStore
             $metaInsert->execute(['complete', '1']);
             $pdo->exec('COMMIT');
 
-            // Close the build connection before the rename.
+            // Close the build connection, and this store's own connection to the live file,
+            // before the rename: Windows won't replace a file that has an open handle.
             $pdo = null;
+            $insert = $metaInsert = null;
+            $this->pdo = null;
+            $this->readStatement = null;
+            $this->statements = [];
 
-            if (!@rename($tmp, $this->file)) {
+            if (!\Grav\Common\File\CompiledFileLock::replace($tmp, $this->file)) {
                 @unlink($tmp);
+                $this->pdo = self::connect($this->engine, $this->file);
 
                 return false;
             }

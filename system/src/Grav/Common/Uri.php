@@ -918,8 +918,10 @@ class Uri implements \Stringable
             if ($normalized_url === '/' || $just_path === $page->path()) {
                 $url_path = $normalized_url;
             } else {
-                $url_bits = static::parseUrl($normalized_path);
-                $full_path = $url_bits['path'];
+                // parse_url() reads a Windows drive letter as a URL scheme and drops it from the path.
+                $drive = preg_match('#^[A-Za-z]:(?=/)#', (string) $normalized_path, $driveMatch) ? $driveMatch[0] : '';
+                $url_bits = static::parseUrl(substr((string) $normalized_path, strlen($drive)));
+                $full_path = $drive . $url_bits['path'];
                 $raw_full_path = rawurldecode((string) $full_path);
 
                 if (file_exists($raw_full_path)) {
@@ -1145,8 +1147,10 @@ class Uri implements \Stringable
             return $normalized_url;
         }
 
-        $url_bits = parse_url($normalized_path);
-        $full_path = $url_bits['path'];
+        // parse_url() reads a Windows drive letter as a URL scheme and drops it from the path.
+        $drive = preg_match('#^[A-Za-z]:(?=/)#', (string) $normalized_path, $driveMatch) ? $driveMatch[0] : '';
+        $url_bits = parse_url(substr((string) $normalized_path, strlen($drive)));
+        $full_path = $drive . $url_bits['path'];
 
         if (file_exists($full_path)) {
             // do nothing

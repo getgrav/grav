@@ -22,7 +22,7 @@ class PluginAutoloaderTest extends \PHPUnit\Framework\TestCase
     {
         parent::setUp();
 
-        $this->root = sys_get_temp_dir() . '/grav-plugin-autoloader-' . bin2hex(random_bytes(4));
+        $this->root = str_replace('\\', '/', sys_get_temp_dir()) . '/grav-plugin-autoloader-' . bin2hex(random_bytes(4));
         $ns = 'GravAutoloadTest' . bin2hex(random_bytes(3));
 
         // a: PSR-4 for the shared namespace. b: a class map entry for the same class, and a deeper
@@ -66,8 +66,9 @@ class PluginAutoloaderTest extends \PHPUnit\Framework\TestCase
             self::assertSame($this->chain($class), $index->findFile($class), $class);
         }
 
-        self::assertSame($this->root . '/a/Dup.php', $index->findFile("{$this->ns}\\Shared\\Dup"), 'An earlier PSR-4 match beats a later class map');
-        self::assertSame($this->root . '/b/deep/Thing.php', $index->findFile("{$this->ns}\\Shared\\Deep\\Thing"), 'An earlier loader beats a later one with a wider prefix');
+        // Composer joins PSR-4 paths with DIRECTORY_SEPARATOR, so compare with forward slashes.
+        self::assertSame($this->root . '/a/Dup.php', str_replace('\\', '/', (string)$index->findFile("{$this->ns}\\Shared\\Dup")), 'An earlier PSR-4 match beats a later class map');
+        self::assertSame($this->root . '/b/deep/Thing.php', str_replace('\\', '/', (string)$index->findFile("{$this->ns}\\Shared\\Deep\\Thing")), 'An earlier loader beats a later one with a wider prefix');
     }
 
     public function testClassMapOrderIsKept(): void

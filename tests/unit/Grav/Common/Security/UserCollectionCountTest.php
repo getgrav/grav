@@ -31,7 +31,7 @@ class UserCollectionCountTest extends \PHPUnit\Framework\TestCase
         parent::setUp();
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
-        $this->root = sys_get_temp_dir() . '/grav-count-' . bin2hex(random_bytes(4));
+        $this->root = str_replace('\\', '/', sys_get_temp_dir()) . '/grav-count-' . bin2hex(random_bytes(4));
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
@@ -58,6 +58,9 @@ class UserCollectionCountTest extends \PHPUnit\Framework\TestCase
      */
     public function testCountDoesNotDependOnTheInstallFolder(string $name): void
     {
+        if (DIRECTORY_SEPARATOR === '\\' && strpbrk($name, '?*') !== false) {
+            self::markTestSkipped('Windows does not allow ? or * in a folder name.');
+        }
         $folder = "{$this->root}/{$name}/user/accounts";
         mkdir($folder . '/avatars', 0777, true);
 

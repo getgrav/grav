@@ -115,7 +115,7 @@ trait AssetUtilsTrait
                 $file = $this->jsRewrite($file, $relative_dir, $local);
             }
 
-            $file = rtrim((string) $file) . PHP_EOL;
+            $file = rtrim((string) $file) . "\n";
             $buffer .= $file;
         }
 

@@ -1219,17 +1219,6 @@ form:
               validate:
                 type: bool
 
-            assets.css_minify_windows:
-              type: toggle
-              label: PLUGIN_ADMIN.CSS_MINIFY_WINDOWS_OVERRIDE
-              help: PLUGIN_ADMIN.CSS_MINIFY_WINDOWS_OVERRIDE_HELP
-              highlight: 0
-              options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-              validate:
-                type: bool
-
             assets.css_rewrite:
               type: toggle
               label: PLUGIN_ADMIN.CSS_REWRITE

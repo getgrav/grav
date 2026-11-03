@@ -49,6 +49,9 @@ class NonceKeyFilePermissionsTest extends TestCase
 
     public function testWriteNonceKeyTempFileIsPrivateFromCreation(): void
     {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            self::markTestSkipped('Windows has no POSIX file modes or umask.');
+        }
         $path = $this->dir . '/security-private.php';
         $previous = umask(0022);
         try {

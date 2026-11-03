@@ -10,7 +10,7 @@
 namespace Grav\Common\Config;
 
 use BadMethodCallException;
-use Exception;
+use Grav\Common\File\CompiledFileLock;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\File\PhpFile;
 use RuntimeException;
@@ -208,7 +208,7 @@ abstract class CompiledBase
         }
 
         try {
-            $cache = include $filename;
+            $cache = CompiledFileLock::load($filename);
         } catch (Throwable) {
             // A broken compiled file is rebuilt from the source files. (#4356)
             return false;
@@ -261,9 +261,9 @@ abstract class CompiledBase
      *
      * The compiled file is include()d by every request without a lock, so it is written to a
      * temporary name next to the target and renamed over it: a reader only ever sees the old
-     * complete file or the new one, never a truncated one. The flock stays a mutex so that
-     * parallel requests do not all do the same work, and is released before the rename because
-     * Windows will not replace a file that still has an open handle. (#4356)
+     * complete file or the new one, never a truncated one. Writers lock a separate `.lock`
+     * file, which keeps parallel requests from all doing the same work; locking the compiled
+     * file itself would block every reader on Windows, where locks are mandatory. (#4356)
      *
      * @param string $filename
      * @param callable(): array $payload Builds the data to store, called only once the lock is held.
@@ -272,19 +272,13 @@ abstract class CompiledBase
      */
     protected function writeCompiledFile(string $filename, callable $payload): bool
     {
-        $file = PhpFile::instance($filename);
-
-        // Attempt to lock the file for writing.
-        try {
-            $file->lock(false);
-        } catch (Exception) {
-            // Another process has locked the file; we will check this in a bit.
-        }
-
-        if ($file->locked() === false) {
-            // File was already locked by another process.
+        $lock = CompiledFileLock::acquire($filename);
+        if ($lock === false) {
+            // Another process is writing the file.
             return false;
         }
+
+        $file = PhpFile::instance($filename);
 
         // The compiled file is a cache and can always be rebuilt from the source
         // YAML. If it cannot be written we serve the request from the freshly
@@ -302,14 +296,7 @@ abstract class CompiledBase
                 $tmp = $filename . '.' . bin2hex(random_bytes(4)) . '.tmp';
             } while (file_exists($tmp));
 
-            if (@file_put_contents($tmp, $raw) === false) {
-                throw new RuntimeException('Failed to save file ' . $filename);
-            }
-
-            // Release the lock and close the handle before the rename.
-            $file->unlock();
-
-            if (@rename($tmp, $filename) === false) {
+            if (@file_put_contents($tmp, $raw) === false || !CompiledFileLock::replace($tmp, $filename)) {
                 throw new RuntimeException('Failed to save file ' . $filename);
             }
 
@@ -325,10 +312,11 @@ abstract class CompiledBase
 
             static::logCacheWriteFailure($filename, $e->getMessage());
 
-            $file->unlock();
             $file->free();
 
             return false;
+        } finally {
+            CompiledFileLock::release($lock);
         }
     }
 

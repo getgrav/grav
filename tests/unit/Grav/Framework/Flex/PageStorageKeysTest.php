@@ -217,6 +217,9 @@ class PageStorageKeysTest extends \PHPUnit\Framework\TestCase
      */
     public function testIndexLeavesOutFoldersThatHaveNoStorageKey(string $folder): void
     {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            self::markTestSkipped('Windows does not allow | in a folder name, and a backslash there is a separator.');
+        }
         mkdir($this->root . '/pages/01.blog/post');
         touch($this->root . '/pages/01.blog/default.md');
         touch($this->root . '/pages/01.blog/post/default.md');

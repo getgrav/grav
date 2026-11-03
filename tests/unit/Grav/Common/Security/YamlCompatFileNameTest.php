@@ -25,6 +25,10 @@ class YamlCompatFileNameTest extends \PHPUnit\Framework\TestCase
     {
         parent::setUp();
 
+        if (DIRECTORY_SEPARATOR === '\\') {
+            self::markTestSkipped('The folder name has to read as YAML (y: @z), and Windows does not allow : in a folder name.');
+        }
+
         $this->folder = sys_get_temp_dir() . '/grav-yaml-compat-' . bin2hex(random_bytes(4)) . '/y: @z';
         $this->secret = $this->folder . '/secret.yaml';
         mkdir($this->folder, 0777, true);
@@ -33,6 +37,12 @@ class YamlCompatFileNameTest extends \PHPUnit\Framework\TestCase
 
     protected function tearDown(): void
     {
+        if ($this->folder === null) {
+            parent::tearDown();
+
+            return;
+        }
+
         CompiledMarkdownFile::endScan();
         @unlink($this->secret);
         foreach (glob($this->folder . '/page*.md') ?: [] as $page) {

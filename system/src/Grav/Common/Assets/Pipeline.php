@@ -62,7 +62,7 @@ class Pipeline extends PropertyObject
     // Following variables come from the configuration:
     /** @var bool */
     protected $css_minify = false;
-    /** @var bool */
+    /** @var bool @deprecated 2.2.23 Unused: CSS is minified on Windows too (css_minify) */
     protected $css_minify_windows = false;
     /** @var bool */
     protected $css_rewrite = false;
@@ -70,7 +70,7 @@ class Pipeline extends PropertyObject
     protected $css_pipeline_include_externals = true;
     /** @var bool */
     protected $js_minify = false;
-    /** @var bool */
+    /** @var bool @deprecated 2.2.23 Unused: JS is minified on Windows too (js_minify) */
     protected $js_minify_windows = false;
     /** @var bool */
     protected $js_pipeline_include_externals = true;
@@ -446,18 +446,8 @@ class Pipeline extends PropertyObject
     private function shouldMinify($type = 'css')
     {
         $check = $type . '_minify';
-        $win_check = $type . '_minify_windows';
 
-        $minify = (bool) $this->$check;
-
-        // If this is a Windows server, and minify_windows is false (default value) skip the
-        // minification process because it will cause Apache to die/crash due to insufficient
-        // ThreadStackSize in httpd.conf - See: https://bugs.php.net/bug.php?id=47689
-        if (stripos(php_uname('s'), 'WIN') === 0 && !$this->{$win_check}) {
-            $minify = false;
-        }
-
-        return $minify;
+        return (bool) $this->$check;
     }
 
     /**
@@ -567,7 +557,7 @@ class Pipeline extends PropertyObject
             }
 
             try {
-                $file = self::minifyCss($file) . PHP_EOL;
+                $file = self::minifyCss($file) . "\n";
                 $buffer .= $file;
             } catch (\Throwable $e) {
                 $failed[$key] = $asset;
@@ -644,7 +634,7 @@ class Pipeline extends PropertyObject
             // Try to minify this individual file
             try {
                 $file = JSMinifier::minify($file);
-                $file = rtrim($file) . PHP_EOL;
+                $file = rtrim($file) . "\n";
                 $buffer .= $file;
             } catch (\Throwable $e) {
                 // Track the failure so renderJs() can fall back to bundling the

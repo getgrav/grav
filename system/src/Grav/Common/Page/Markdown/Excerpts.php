@@ -218,7 +218,8 @@ class Excerpts
 
             if ($local_file) {
                 $filename = Utils::basename($url_parts['path']);
-                $folder = dirname((string) $url_parts['path']);
+                // dirname() of a URL path, so forward slashes on Windows too ('/' and not '\\' at the root).
+                $folder = str_replace('\\', '/', dirname((string) $url_parts['path']));
 
                 // Get the local path to page media if possible.
                 if ($this->page && $folder === $this->page->url(false, false, false)) {
