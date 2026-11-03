@@ -83,11 +83,11 @@ HELP
 
         $io->success(sprintf('The site now lives in %s, with %s as its webroot.', $plan->root, $plan->webroot));
         $io->writeln('<white>What you need to do now:</white>');
-        $io->writeln('1. Point the web server docroot at ' . $plan->webroot . ':');
+        $io->writeln('1. If you have not done it already, point the web server docroot at ' . $plan->webroot . ':');
         $this->printDocrootSnippets($plan->webroot);
         $io->writeln('2. Run <info>bin/grav webroot:status</info> to check the result.');
         $io->newLine();
-        $io->warning('Until the docroot changes, the web server serves the private folder without Grav\'s .htaccess rules, so change it now.');
+        $io->warning(sprintf('If the docroot still points at %s, the web server is serving the private folder without Grav\'s .htaccess rules. Change it now.', $plan->root));
 
         return 0;
     }
