@@ -15,6 +15,9 @@ jobs:
       matrix:
         php: [8.5, 8.4, 8.3]
         os: [ubuntu-latest]
+        include:
+          - php: 8.3
+            os: windows-latest
 
     runs-on: ${{ matrix.os }}
 
@@ -47,6 +50,81 @@ jobs:
 
       - name: Run test suite
         run: php -d register_argc_argv=On vendor/bin/codecept run
+
+  layout-smoke:
+    name: Layout smoke (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: opcache, gd, zip
+          tools: composer:v2
+          coverage: none
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies, plugins and theme
+        run: |
+          composer install --prefer-dist --no-progress
+          php bin/grav install
+
+      - name: Add page media and a relative symlinked plugin
+        run: |
+          php -r '$i = imagecreatetruecolor(80, 60); imagepng($i, "user/pages/01.home/smoke.png");'
+          printf '\n\n![smoke](smoke.png)\n\n![smoke resized](smoke.png?resize=40,30)\n' >> user/pages/01.home/default.md
+          mkdir extra
+          mv user/plugins/github-markdown-alerts extra/
+          php -r 'chdir("user/plugins"); if (!symlink("../../extra/github-markdown-alerts", "github-markdown-alerts")) { exit(1); }'
+
+      - name: Single-folder layout
+        run: |
+          php bin/grav webroot:status
+          php tests/smoke/public-webroot-check.php single
+
+      - name: Split into public/
+        run: |
+          php bin/grav webroot:split --dry-run
+          php bin/grav webroot:split -y
+          php bin/grav webroot:status
+          php bin/grav webroot:sync --check
+
+      - name: Public webroot layout
+        run: php tests/smoke/public-webroot-check.php split
+
+      - name: CLI in the public webroot layout
+        run: |
+          php bin/grav clear
+          php bin/grav backup
+          php bin/gpm install random -y
+          test -d public/user/plugins/random
+          test ! -e user
+          php bin/gpm uninstall random -y
+          test ! -e public/user/plugins/random
+
+      - name: Join back into one folder
+        run: |
+          php bin/grav webroot:join -y
+          php bin/grav webroot:status
+          test ! -e public
+          php tests/smoke/public-webroot-check.php single
+
+      - name: Server log
+        if: always()
+        run: cat tmp/smoke-server.log || true
 
 #  slack:
 #      name: Slack
