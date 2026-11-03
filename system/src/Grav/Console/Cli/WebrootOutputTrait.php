@@ -49,7 +49,7 @@ trait WebrootOutputTrait
         }
 
         if ($plan->links) {
-            $io->writeln('Rewrite relative symlinks so they point at the same place:');
+            $io->writeln('Rewrite symlinks so they point at the same place:');
             foreach ($plan->links as $link => $change) {
                 $io->writeln(sprintf('    %s: %s  ->  %s', $this->shortPath($link, $plan), $change['from'], $change['to']));
             }

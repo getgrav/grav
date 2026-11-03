@@ -179,7 +179,7 @@ final class WebrootPlanner
                 }
                 if ($windows) {
                     $resolved = self::normalize(InstallLayout::isAbsolute(str_replace('\\', '/', $target)) ? $target : \dirname($link) . '/' . $target);
-                    $rewrites[$to . substr($link, \strlen($from))] = ['from' => $target, 'to' => self::mapPath($resolved, $moves)];
+                    $rewrites[$to . substr($link, \strlen($from))] = ['from' => str_replace('\\', '/', $target), 'to' => self::mapPath($resolved, $moves)];
                     continue;
                 }
                 if (InstallLayout::isAbsolute($target)) {
