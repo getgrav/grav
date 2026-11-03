@@ -12,6 +12,7 @@ permissions:
 jobs:
   unit-tests:
     strategy:
+      fail-fast: false
       matrix:
         php: [8.5, 8.4, 8.3]
         os: [ubuntu-latest]
@@ -21,6 +22,10 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - uses: actions/checkout@v7
 
@@ -28,7 +33,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: opcache, gd
+          extensions: opcache, gd, zip, fileinfo, mbstring, curl, openssl, intl, exif, iconv, dom, simplexml, pdo_sqlite
           tools: composer:v2
           coverage: none
         env:
@@ -71,7 +76,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.3
-          extensions: opcache, gd, zip
+          extensions: opcache, gd, zip, fileinfo, mbstring, curl, openssl, intl, exif, iconv, dom, simplexml, pdo_sqlite
           tools: composer:v2
           coverage: none
         env:
