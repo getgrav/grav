@@ -1,5 +1,5 @@
 # v1.7.53.10
-## xx/xx/2026
+## 11/03/2026
 
 1. [](#bugfix)
     * When a cache file can't be deleted, the cache purge job and `bin/grav clear` now name the file and the reason (such as "Permission denied") instead of "Unknown error", and carry on with the rest of the cache instead of stopping at the first one ([#4384](https://github.com/getgrav/grav/issues/4384))
