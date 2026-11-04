@@ -431,7 +431,17 @@ abstract class Folder
         }
 
         $failure = null;
-        $success = self::doDelete($target, $include_target, $failure);
+        // Grav's own error handler (Debugger::deprecatedErrorHandler) swallows warnings,
+        // which leaves error_get_last() empty, so the failure message lost its reason
+        // ("Permission denied") and the fallback became "Unknown error". Let PHP record them.
+        set_error_handler(static function () {
+            return false;
+        });
+        try {
+            $success = self::doDelete($target, $include_target, $failure);
+        } finally {
+            restore_error_handler();
+        }
 
         if (!$success) {
             // Prefer the precise reason captured at the first failing path

@@ -84,6 +84,9 @@ class Cache extends Getters
     /** @var string */
     protected $cache_dir;
 
+    /** @var string[] Paths the last purgeOldCache() run could not delete, with the reason. */
+    protected $purge_failures = [];
+
     protected static $standard_remove = [
         'cache://twig/',
         'cache://doctrine/',
@@ -200,6 +203,7 @@ class Cache extends Getters
         $max_age_seconds = $max_age_days * 86400; // Convert days to seconds
         $now = time();
         $count = 0;
+        $this->purge_failures = [];
         
         // First, clean up old orphaned cache directories (not the current one)
         $cache_dir = dirname($this->cache_dir);
@@ -214,8 +218,13 @@ class Cache extends Getters
             // Check if directory is old and empty or very old (90+ days)
             $dir_age = $now - $file->getMTime();
             if ($dir_age > 7776000) { // 90 days
-                Folder::delete($file->getPathname());
-                $count++;
+                // One folder we cannot delete must not stop the rest of the purge.
+                try {
+                    Folder::delete($file->getPathname());
+                    $count++;
+                } catch (\RuntimeException $e) {
+                    $this->purge_failures[] = $e->getMessage();
+                }
             }
         }
         
@@ -229,8 +238,7 @@ class Cache extends Getters
             foreach ($iterator as $file) {
                 if ($file->isFile()) {
                     $file_age = $now - $file->getMTime();
-                    if ($file_age > $max_age_seconds) {
-                        @unlink($file->getPathname());
+                    if ($file_age > $max_age_seconds && $this->purgeFile($file->getPathname())) {
                         $count++;
                     }
                 }
@@ -252,8 +260,7 @@ class Cache extends Getters
                 if ($file->isFile()) {
                     $file_age = $now - $file->getMTime();
                     // Compiled files can be kept longer (60 days)
-                    if ($file_age > ($max_age_seconds * 2)) {
-                        @unlink($file->getPathname());
+                    if ($file_age > ($max_age_seconds * 2) && $this->purgeFile($file->getPathname())) {
                         $count++;
                     }
                 }
@@ -261,6 +268,37 @@ class Cache extends Getters
         }
 
         return $count;
+    }
+
+    /**
+     * Deletes one file for purgeOldCache(), recording why when it cannot.
+     *
+     * @param string $path
+     * @return bool
+     */
+    private function purgeFile(string $path): bool
+    {
+        // Grav's error handler swallows warnings and leaves error_get_last() empty.
+        set_error_handler(static function () {
+            return false;
+        });
+        try {
+            $deleted = @unlink($path);
+        } finally {
+            restore_error_handler();
+        }
+
+        if (!$deleted && file_exists($path)) {
+            $error = error_get_last();
+            $reason = $error['message'] ?? 'unknown reason';
+            // Strip the "unlink(/path): " prefix, leaving the OS reason.
+            if (($pos = strpos($reason, '): ')) !== false) {
+                $reason = substr($reason, $pos + 3);
+            }
+            $this->purge_failures[] = sprintf('Unable to delete file: %s (%s)', $path, $reason);
+        }
+
+        return $deleted;
     }
 
     /**
@@ -725,13 +763,20 @@ class Cache extends Getters
                         } elseif (is_file($file)) {
                             if (@unlink($file)) {
                                 $anything = true;
+                            } elseif (file_exists($file)) {
+                                $output[] = '<red>ERROR: </red>Unable to delete file: ' . $file;
                             }
                         } elseif (is_dir($file)) {
                             if (basename($file) === 'grav-snapshots' || $file === $images_path) {
                                 continue;
                             }
-                            if (Folder::delete($file, false)) {
-                                $anything = true;
+                            // Report a folder we cannot empty and carry on with the rest.
+                            try {
+                                if (Folder::delete($file, false)) {
+                                    $anything = true;
+                                }
+                            } catch (\RuntimeException $e) {
+                                $output[] = '<red>ERROR: </red>' . $e->getMessage();
                             }
                         }
                     }
@@ -868,7 +913,25 @@ class Cache extends Getters
         $max_age = $cache->config->get('system.cache.purge_max_age_days', 30);
         $msg = 'Purged ' . $deleted_items . ' old cache items (files older than ' . $max_age . ' days)';
 
+        $failures = $cache->purge_failures;
+        if ($failures) {
+            $total = count($failures);
+            $msg .= sprintf(
+                "\nCould not delete %d cache %s; check the owner and permissions of these files and their folders:\n  %s",
+                $total,
+                $total === 1 ? 'path' : 'paths',
+                implode("\n  ", array_slice($failures, 0, 10))
+            );
+            if ($total > 10) {
+                $msg .= sprintf("\n  ...and %d more", $total - 10);
+            }
+        }
+
         if ($echo) {
+            if ($failures) {
+                // Fail the scheduled job with the full report rather than "Unknown error".
+                throw new \RuntimeException($msg);
+            }
             echo $msg;
         } else {
             return $msg;
