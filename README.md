@@ -59,6 +59,11 @@ composer create-project getgrav/grav ~/webroot/grav
 
 Check out the [install procedures](https://learn.getgrav.org/basics/installation) for more information.
 
+# One-Click Deploy
+
+<a href="https://repocloud.io/details/Grav/"><img src="https://d16t0pc4846x52.cloudfront.net/deploylobe.svg" alt="Deploy on RepoCloud" height="42"></a>
+<a href="https://railway.com/deploy/grav"><img src="https://railway.com/button.svg" alt="Deploy on Railway" height="42"></a>
+
 # Adding Functionality
 
 You can download [plugins](https://getgrav.org/downloads/plugins) or [themes](https://getgrav.org/downloads/themes) manually from the appropriate tab on the [Downloads page on https://getgrav.org](https://getgrav.org/downloads), but the preferred solution is to use the [Grav Package Manager](https://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
