@@ -2,6 +2,7 @@
 ## 11/05/2026
 
 1. [](#bugfix)
+    * A scheduled job that its plugin switches off with `when()` (such as YetiSearch Pro's embed job while semantic search is off) is no longer run and recorded as a failure each time it comes due. The scheduler leaves it out of the run and out of the health check, and `Job::passesWhen()` tells other tools whether a job's condition lets it run
     * [security] A media link's attributes now go through the same name check as `attribute()`, so page content can no longer put an event handler on the link. Thanks @R0X4R
 
 # v2.2.24
