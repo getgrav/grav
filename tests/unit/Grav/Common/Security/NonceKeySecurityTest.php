@@ -191,6 +191,44 @@ class NonceKeySecurityTest extends \PHPUnit\Framework\TestCase
         }
     }
 
+    public function testIsGravInstall_OnlyWhereTheSystemFolderHoldsDefines(): void
+    {
+        $method = new ReflectionMethod(Security::class, 'isGravInstall');
+        $method->setAccessible(true);
+
+        $root = sys_get_temp_dir() . '/grav-nonce-root-' . bin2hex(random_bytes(4));
+        $elsewhere = sys_get_temp_dir() . '/grav-nonce-system-' . bin2hex(random_bytes(4));
+        mkdir($root, 0775, true);
+        mkdir($elsewhere, 0775, true);
+        try {
+            // A plugin checkout running its own tests: GRAV_ROOT is the plugin
+            // folder, which has no system/ of its own.
+            self::assertFalse($method->invoke(null, $root, 'system'), 'not an install, so no user/config/ is created there');
+
+            mkdir("{$root}/system", 0775, true);
+            touch("{$root}/system/defines.php");
+            self::assertTrue($method->invoke(null, $root, 'system'));
+            self::assertTrue($method->invoke(null, $root . '/', 'system'), 'a trailing slash on the root');
+
+            // GRAV_SYSTEM_PATH can be absolute, outside the webroot (#3297).
+            self::assertFalse($method->invoke(null, $root, $elsewhere));
+            touch("{$elsewhere}/defines.php");
+            self::assertTrue($method->invoke(null, '/nowhere', $elsewhere));
+        } finally {
+            Folder::delete($root);
+            Folder::delete($elsewhere);
+        }
+    }
+
+    public function testGetNonceKey_TheTestSuitesOwnRootIsAnInstall(): void
+    {
+        // The real call: Grav's own suite runs from a Grav checkout, so the key
+        // is kept on disk as on any site.
+        $method = new ReflectionMethod(Security::class, 'isGravInstall');
+        $method->setAccessible(true);
+        self::assertTrue($method->invoke(null, GRAV_ROOT, GRAV_SYSTEM_PATH));
+    }
+
     public function testGetNonceKey_IgnoresEmptyStringInConfig(): void
     {
         // An empty `salt:` in user config should NOT be migrated; we should generate instead.

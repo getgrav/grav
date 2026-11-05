@@ -2208,8 +2208,15 @@ class Security
         // environment overlay first, so keeping it there gave every new
         // user/env/<host>/ folder a fresh key and broke every nonce and
         // session signed with the old one.
-        $baseFolder = $locator->findResource('user://config', true) ?: $configFolder;
+        $userConfig = $locator->findResource('user://config', true);
+        $baseFolder = $userConfig ?: $configFolder;
         $privateFile = "{$baseFolder}/security-private.php";
+        // With no user/config folder yet, only a real Grav install creates one.
+        // Code that loads Grav's classes from somewhere else (a plugin's test
+        // suite, say) has GRAV_ROOT at whatever folder it ran from, and used to
+        // leave a user/config/security-private.php there for `git add -A` to
+        // pick up; it gets a key for this process only instead.
+        $persist = $userConfig !== false || self::isGravInstall(GRAV_ROOT, GRAV_SYSTEM_PATH);
 
         $value = self::readNonceKeyFile($privateFile);
         if ($value !== null) {
@@ -2237,7 +2244,9 @@ class Security
         $config = $grav['config'];
         $legacy = $config->get('security.salt');
         if (is_string($legacy) && $legacy !== '') {
-            self::writeNonceKey($privateFile, $legacy);
+            if ($persist) {
+                self::writeNonceKey($privateFile, $legacy);
+            }
             $config->set('security.salt', null);
 
             $securityYaml = "{$configFolder}/security.yaml";
@@ -2256,9 +2265,22 @@ class Security
         }
 
         $generated = bin2hex(random_bytes(32));
-        self::writeNonceKey($privateFile, $generated);
+        if ($persist) {
+            self::writeNonceKey($privateFile, $generated);
+        }
 
         return self::$nonceKey = $generated;
+    }
+
+    /**
+     * Whether $root is a Grav install: its system folder (GRAV_SYSTEM_PATH,
+     * relative to the root unless absolute) holds Grav's defines.php.
+     */
+    private static function isGravInstall(string $root, string $systemPath): bool
+    {
+        $system = preg_match('#^(/|\\\\|[A-Za-z]:)#', $systemPath) ? $systemPath : rtrim($root, '/\\') . '/' . $systemPath;
+
+        return is_file($system . '/defines.php');
     }
 
     private static function readNonceKeyFile(string $path): ?string

@@ -1,3 +1,9 @@
+# v2.2.24
+## 11/04/2026
+
+1. [](#bugfix)
+    * Running a plugin's test suite against a Grav checkout no longer leaves a `user/config/security-private.php` in the plugin's folder, where a `git add -A` could commit it into the plugin's release. Grav now creates the key file only in a real Grav install, and code that loads Grav's classes from anywhere else gets a key that lasts for that process
+
 # v2.2.23
 ## 11/03/2026
 
