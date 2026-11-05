@@ -487,6 +487,14 @@ trait MediaObjectTrait
      */
     public function link($reset = true, array $attributes = [])
     {
+        // Content Twig can call link(), so its attribute names get the same check
+        // as attribute(): no event handlers or script-context names on the anchor.
+        $attributes = array_filter(
+            $attributes,
+            static fn ($name): bool => is_string($name) && self::isSafeAttributeName($name),
+            ARRAY_FILTER_USE_KEY
+        );
+
         if ($this->mode !== 'source') {
             $this->display('source');
         }

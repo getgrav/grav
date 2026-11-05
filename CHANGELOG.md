@@ -1,3 +1,9 @@
+# v2.2.25
+## 11/05/2026
+
+1. [](#bugfix)
+    * [security] A media link's attributes now go through the same name check as `attribute()`, so page content can no longer put an event handler on the link. Thanks @R0X4R
+
 # v2.2.24
 ## 11/04/2026
 
