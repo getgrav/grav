@@ -318,8 +318,9 @@ class Session implements SessionInterface
         $this->bindToSite();
 
         $this->started = true;
-        $this->onSessionStart();
 
+        // Check the stored user before announcing the session: listeners of the start event
+        // (such as the login plugin) expect a real user object and would crash on anything else.
         try {
             $user = $this->__get('user');
             if ($user && (!$user instanceof UserInterface || (method_exists($user, 'isValid') && !$user->isValid()))) {
@@ -329,6 +330,8 @@ class Session implements SessionInterface
             $this->invalidate();
             throw new SessionException('Invalid User object, session destroyed.', 500);
         }
+
+        $this->onSessionStart();
 
 
         // Extend the lifetime of the session.

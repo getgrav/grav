@@ -577,11 +577,23 @@ class InitializeProcessor extends ProcessorBase
 
             try {
                 $session->init();
-            } catch (SessionException) {
-                $session->init();
-                $message = 'Session corruption detected, restarting session...';
-                $this->addMessage($message);
-                $this->container['messages']->add($message, 'error');
+            } catch (SessionException $e) {
+                // init() only runs once per request, so retry with start(). An unusable session
+                // (bad user object, obsolete id) has been destroyed by now and a fresh one starts;
+                // if PHP itself can't start sessions (e.g. session.save_path is missing), the retry
+                // fails the same way and the site carries on without a session.
+                try {
+                    $session->start((bool) $config->get('system.session.read_and_close', false));
+
+                    $this->container['log']->warning('Session could not be resumed, started a new one: ' . $e->getMessage());
+                    $message = 'Session corruption detected, restarting session...';
+                    $this->addMessage($message);
+                    $this->container['messages']->add($message, 'error');
+                } catch (SessionException $e) {
+                    // Nothing a visitor can do about this, so it goes to the log, not the page.
+                    $this->container['log']->error('PHP sessions are not working, check session.save_path: ' . $e->getMessage());
+                    $this->addMessage('Session could not be started: ' . $e->getMessage(), 'error');
+                }
             }
 
             $this->stopTimer('_init_session');
