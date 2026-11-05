@@ -523,6 +523,18 @@ class Job
     }
 
     /**
+     * Whether the job's when() condition lets it run. A job whose condition is false is
+     * switched off for now (by its plugin's own setting, say), so the scheduler leaves it out
+     * of a run instead of recording a failed run it never attempted.
+     *
+     * @return bool
+     */
+    public function passesWhen(): bool
+    {
+        return $this->truthTest === true;
+    }
+
+    /**
      * Run the job.
      *
      * @return bool

@@ -232,7 +232,9 @@ class Scheduler
         $background = [];
         $foreground = [];
         foreach ($this->jobs as $job) {
-            if ($all || $job->getEnabled()) {
+            // A job whose when() condition is false is off for now: leave it out of the run, or
+            // it is recorded as a failed run every time it comes due.
+            if ($all || ($job->getEnabled() && $job->passesWhen())) {
                 if ($job->runInBackground()) {
                     $background[] = $job;
                 } else {
@@ -533,6 +535,11 @@ class Scheduler
      */
     public function isOverdue(Job $job, ?DateTime $runTime = null, ?array $states = null): bool
     {
+        // A job its when() condition keeps off is never late.
+        if (!$job->passesWhen()) {
+            return false;
+        }
+
         $expression = $job->getCronExpression();
         if (!$expression) {
             return false;
