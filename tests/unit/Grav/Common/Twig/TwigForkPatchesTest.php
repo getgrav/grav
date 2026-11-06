@@ -166,7 +166,7 @@ TWIG,
         file_put_contents($dir . '/t.twig', '{{ item.title }}');
         try {
             $env = new Environment(new FilesystemLoader($dir), ['cache' => false]);
-            $env->addExtension(@new SandboxExtension(new SecurityPolicy(), false, new GravSourcePolicy()));
+            $env->addExtension(new SandboxExtension(new SecurityPolicy(), false, new GravSourcePolicy()));
             $code = $env->compileSource($env->getLoader()->getSourceContext('t.twig'));
 
             self::assertStringNotContainsString('checkSecurity', $code);
