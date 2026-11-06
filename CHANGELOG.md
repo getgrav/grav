@@ -1,3 +1,11 @@
+# v2.2.26
+## 11/05/2026
+
+1. [](#bugfix)
+    * When PHP can't start sessions (for example, `session.save_path` points at a folder that no longer exists after a server move), Grav now writes the reason to `grav.log` instead of showing "Session corruption detected" on every page to every visitor
+    * A session holding an unusable user object is now actually replaced with a fresh one, instead of crashing every page with an error until the visitor clears their cookies
+    * The debug bar no longer reports Twig deprecations on every page, one for Grav's sandbox source policy and one for how page content Twig is rendered [#4387](https://github.com/getgrav/grav/issues/4387)
+
 # v2.2.25
 ## 11/05/2026
 

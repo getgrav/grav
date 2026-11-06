@@ -4193,12 +4193,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Twig.git",
-                "reference": "d1f6cc220f095f1b30d017ef91ed1e88cd65836e"
+                "reference": "e29a8268bd113154b2f53c62a3b5c98bb8dbae28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Twig/zipball/d1f6cc220f095f1b30d017ef91ed1e88cd65836e",
-                "reference": "d1f6cc220f095f1b30d017ef91ed1e88cd65836e",
+                "url": "https://api.github.com/repos/getgrav/Twig/zipball/e29a8268bd113154b2f53c62a3b5c98bb8dbae28",
+                "reference": "e29a8268bd113154b2f53c62a3b5c98bb8dbae28",
                 "shasum": ""
             },
             "require": {
@@ -4259,7 +4259,7 @@
             "support": {
                 "source": "https://github.com/getgrav/Twig/tree/3.x"
             },
-            "time": "2026-09-29T18:41:33+00:00"
+            "time": "2026-11-06T02:42:03+00:00"
         },
         {
             "name": "wikimedia/minify",

@@ -412,7 +412,7 @@ class Twig
         $twig_vars['page'] = $item;
         $twig_vars['media'] = $item->media();
         $twig_vars['header'] = $item->header();
-        $local_twig = clone $this->twig;
+        $local_twig = $this->twig;
 
         $output = '';
 
