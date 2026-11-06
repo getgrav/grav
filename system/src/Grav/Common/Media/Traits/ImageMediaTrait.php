@@ -262,11 +262,16 @@ trait ImageMediaTrait
      */
     public function derivatives($min_width, $max_width = 2500, $step = 200)
     {
-        if (!empty($this->alternatives)) {
-            $max = max(array_keys($this->alternatives));
-            $base = $this->alternatives[$max];
-        } else {
-            $base = $this;
+        // Resize from the largest real image: this one or a retina file. The
+        // derivatives from an earlier call are narrower than the image they
+        // were made from, and their width is the one they will be resized to,
+        // not the width of their file, which is the full-size source.
+        // getgrav/grav#4389.
+        $base = $this;
+        foreach ($this->alternatives as $width => $alternative) {
+            if ($width > $base->get('width')) {
+                $base = $alternative;
+            }
         }
 
         $widths = [];
@@ -322,7 +327,8 @@ trait ImageMediaTrait
                 $basename = preg_replace('/(@\d+x)?$/', "@{$width}w", $base->get('basename'), 1);
                 $derivative->setImagePrettyName($basename);
 
-                $ratio = $base->get('width') / $width;
+                // Width and height both from the file being resized.
+                $ratio = $derivative->get('width') / $width;
                 $height = $derivative->get('height') / $ratio;
 
                 $derivative->resize($width, $height);

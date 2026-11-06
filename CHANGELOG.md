@@ -1,3 +1,9 @@
+# v2.2.27
+## 11/06/2026
+
+1. [](#bugfix)
+    * Showing the same image twice with different `derivatives()` ranges, for example in two modules on one page, no longer stretches the second set of responsive images, and the second set can now go up to the full width of the original [#4389](https://github.com/getgrav/grav/issues/4389)
+
 # v2.2.26
 ## 11/05/2026
 
