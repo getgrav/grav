@@ -359,7 +359,12 @@ trait ImageMediaTrait
                     $derivative->querystring($this->querystring(null, false));
                 }
 
-                $this->addAlternative($ratio, $derivative);
+                // An alternative's ratio is its width over this image's, as for
+                // a retina file (`@2x` is 2): a resize on this image is scaled by
+                // it for each alternative. The ratio above is the inverse, the
+                // source over the derivative, and made a derivative grow when this
+                // image shrank (cropZoom(300, 300) turned the 400w one 891 wide).
+                $this->addAlternative($width / ($this->get('width') ?: $derivative->get('width')), $derivative);
             }
         }
 

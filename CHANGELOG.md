@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Showing the same image twice with different `derivatives()` ranges, for example in two modules on one page, no longer stretches the second set of responsive images, and the second set can now go up to the full width of the original [#4389](https://github.com/getgrav/grav/issues/4389)
+    * Cropping or resizing an image after `derivatives()`, such as `derivatives(400, 800, 400).cropZoom(300, 300)`, scales its responsive images down with it instead of making them larger than the image itself
     * Links and images to media files with `#`, `?` or `%` in their names work again, written percent-encoded (`Invoice%20%2312.pdf`) or in angle brackets. Media URLs now come out percent-encoded too, so a space is `%20` [#4388](https://github.com/getgrav/grav/issues/4388)
 
 # v2.2.26

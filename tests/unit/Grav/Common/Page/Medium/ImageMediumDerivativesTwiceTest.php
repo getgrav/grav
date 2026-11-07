@@ -90,6 +90,29 @@ class ImageMediumDerivativesTwiceTest extends \Codeception\Test\Unit
     }
 
     /**
+     * A resize after derivatives() scales each derivative by its share of this
+     * image's width, as it does a retina file. The ratio was stored the other way
+     * round, so cropZoom(300, 300) made the 400w derivative 891 x 891, larger
+     * than the image it is a smaller copy of.
+     */
+    public function testResizeAfterDerivativesScalesThemDown(): void
+    {
+        $medium = MediumFactory::fromFile($this->jpeg('photo.jpg', 1188, 1113));
+        $medium->derivatives(400, 801, 400)->cropZoom(300, 300);
+
+        $sizes = [];
+        foreach (explode(', ', $medium->srcset(false)) as $entry) {
+            [$url, $width] = explode(' ', $entry);
+            $file = GRAV_ROOT . '/' . ltrim(rawurldecode((string) parse_url($url, PHP_URL_PATH)), '/');
+            [$w, $h] = getimagesize($file);
+            $sizes[(int) $width] = [$w, $h];
+        }
+
+        // Every file is the same square crop, at its srcset width's share of 1188.
+        $this->assertSame([400 => [101, 101], 800 => [202, 202], 1188 => [300, 300]], $sizes);
+    }
+
+    /**
      * @dataProvider retinaFolders
      */
     public function testRetinaFileIsStillTheBase(bool $withRegularFile): void
