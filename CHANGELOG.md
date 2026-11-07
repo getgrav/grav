@@ -1,3 +1,9 @@
+# v2.2.28
+## 11/07/2026
+
+1. [](#bugfix)
+    * `Browser::isHuman()` no longer counts link-preview fetchers (such as `facebookexternalhit`, which loads a page each time a shared link or ad is shown), AI fetchers (`ChatGPT-User`, `ClaudeBot`, `PerplexityBot` and others), uptime and monitoring services, and headless or auditing tools like HeadlessChrome and Lighthouse as people, so page statistics stop counting requests nobody made. Facebook's and Instagram's in-app browsers are real visitors and stay human
+
 # v2.2.27
 ## 11/06/2026
 
