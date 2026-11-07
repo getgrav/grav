@@ -17,14 +17,102 @@ use function donatj\UserAgent\parse_user_agent;
  */
 class Browser
 {
+    /**
+     * Clients that are not a person reading the page, matched case-insensitively
+     * anywhere in the raw User-Agent header.
+     *
+     * The user-agent parser reports many of these as an ordinary browser (for
+     * example `facebookexternalhit` or `chatgpt-user`), so the `bot`/`crawl`
+     * test on the parsed name lets them through. Nothing listed here may appear
+     * in a real browser's User-Agent: Facebook's in-app browser (`FBAN`/`FBAV`,
+     * `FB_IAB`) and Instagram's, for instance, are people and must stay human.
+     *
+     * @var string[]
+     */
+    protected const NON_HUMAN_AGENTS = [
+        // Link-preview and social fetchers
+        'facebookexternalhit',
+        'facebookcatalog',
+        'meta-externalagent',
+        'meta-externalfetcher',
+        'twitterbot',
+        'linkedinbot',
+        'slackbot',
+        'slack-imgproxy',
+        'discordbot',
+        'whatsapp/',
+        'telegrambot',
+        'skypeuripreview',
+        'iframely',
+        'embedly',
+        'redditbot',
+        'pinterestbot',
+        'pinterest.com/bot',
+        'vkshare',
+        'applebot',
+
+        // AI fetchers and crawlers
+        'chatgpt-user',
+        'oai-searchbot',
+        'gptbot',
+        'claudebot',
+        'claude-user',
+        'claude-searchbot',
+        'anthropic-ai',
+        'perplexitybot',
+        'perplexity-user',
+        'google-extended',
+        'bytespider',
+        'ccbot',
+        'cohere-ai',
+        'amazonbot',
+        'duckassistbot',
+        'mistralai-user',
+
+        // Uptime and monitoring services
+        'uptimerobot',
+        'pingdom',
+        'statuscake',
+        'site24x7',
+        'better uptime',
+        'betteruptime',
+        'betterstack',
+        'uptime-kuma',
+        'freshping',
+        'hetrixtools',
+        'datadog',
+        'newrelicpinger',
+        'checkly',
+        'guardprobe',
+        'guardpinger',
+        'gravguard',
+
+        // Generic tokens
+        'spider',
+        'crawler',
+        'scraper',
+        'headlesschrome',
+        'lighthouse',
+        'preview',
+        'monitor',
+        'uptime',
+        'externalhit',
+        'fetcher',
+    ];
+
     /** @var string[] */
     protected $useragent = [];
+
+    /** @var string */
+    protected $rawAgent = '';
 
     /**
      * Browser constructor.
      */
     public function __construct()
     {
+        $this->rawAgent = (string)($_SERVER['HTTP_USER_AGENT'] ?? '');
+
         try {
             $this->useragent = parse_user_agent();
         } catch (InvalidArgumentException) {
@@ -122,7 +210,8 @@ class Browser
     }
 
     /**
-     * Determine if the request comes from a human, or from a bot/crawler
+     * Determine if the request comes from a human, or from a bot, crawler, link-preview
+     * fetcher, AI fetcher or uptime monitor
      *
      * @return bool
      */
@@ -135,6 +224,15 @@ class Browser
 
         if (preg_match('~(bot|crawl)~i', $browser)) {
             return false;
+        }
+
+        if ($this->rawAgent !== '') {
+            $agent = strtolower($this->rawAgent);
+            foreach (static::NON_HUMAN_AGENTS as $token) {
+                if (str_contains($agent, $token)) {
+                    return false;
+                }
+            }
         }
 
         return true;
