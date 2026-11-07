@@ -18,6 +18,7 @@ use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageDecodingTrait;
 use Grav\Common\Media\Traits\ImageFetchPriorityTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
+use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Gregwar\Image\Image;
 use RocketTheme\Toolbox\Event\Event;
@@ -243,7 +244,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $this->reset();
         }
 
-        return $this->withHost(trim($grav['base_url'] . '/' . $this->urlQuerystring($output), '\\'), $include_host);
+        return $this->withHost(trim($grav['base_url'] . '/' . $this->urlQuerystring(Uri::encodePath($output)), '\\'), $include_host);
     }
 
     /**
@@ -266,7 +267,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         foreach ($this->alternatives as $ratio => $medium) {
             $srcset[] = $medium->url($reset) . ' ' . $medium->get('width') . 'w';
         }
-        $srcset[] = str_replace(' ', '%20', $this->url($reset)) . ' ' . $this->get('width') . 'w';
+        $srcset[] = $this->url($reset) . ' ' . $this->get('width') . 'w';
 
         return implode(', ', $srcset);
     }

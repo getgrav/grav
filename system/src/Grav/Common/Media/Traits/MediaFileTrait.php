@@ -10,6 +10,7 @@
 namespace Grav\Common\Media\Traits;
 
 use Grav\Common\Grav;
+use Grav\Common\Uri;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -119,7 +120,7 @@ trait MediaFileTrait
             return $this->withHost((string)$url, $include_host);
         }
 
-        $path = $this->relativePath($reset);
+        $path = Uri::encodePath($this->relativePath($reset));
 
         return $this->withHost(trim($this->getGrav()['base_url'] . '/' . $this->urlQuerystring($path), '\\'), $include_host);
     }
