@@ -22,7 +22,8 @@ use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Yaml\Yaml;
 use Monolog\Logger;
 use Monolog\Handler\FingersCrossedHandler;
-use Monolog\Handler\StreamHandler;
+use Grav\Common\Log\LogRotator;
+use Grav\Common\Log\RotatingStreamHandler;
 use function is_callable;
 use function is_string;
 
@@ -214,6 +215,8 @@ class Scheduler
         if (isset($grav['backups'])) {
             $grav['backups']->init();
         }
+
+        LogRotator::registerJob($this);
 
         // Trigger event to load system jobs (cache-purge, cache-clear, backups, etc.)
         $grav->fireEvent('onSchedulerInitialized', new \RocketTheme\Toolbox\Event\Event(['scheduler' => $this]));
@@ -1075,10 +1078,10 @@ class Scheduler
         
         // Single scheduler log file. Debug lines are held back until something at INFO or
         // above is logged, so a run where nothing was due writes nothing, while a run that
-        // did work still gets its debug context. Cron fires every minute and nothing rotates
-        // this file (#4355).
+        // did work still gets its debug context. Cron fires every minute, so the file
+        // rotates by size like grav.log (#4355).
         $logFile = $locator->findResource('log://scheduler.log', true, true);
-        $this->logger->pushHandler(new FingersCrossedHandler(new StreamHandler($logFile, Logger::DEBUG), Logger::INFO, 0, true, false));
+        $this->logger->pushHandler(new FingersCrossedHandler(new RotatingStreamHandler($logFile, Logger::DEBUG), Logger::INFO, 0, true, false));
     }
     
     /**

@@ -1409,6 +1409,50 @@ form:
               help: PLUGIN_ADMIN.SYSLOG_TAG_HELP
               placeholder: "grav"
 
+            log.rotate.enabled:
+              type: toggle
+              label: PLUGIN_ADMIN.LOG_ROTATE
+              help: PLUGIN_ADMIN.LOG_ROTATE_HELP
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            log.rotate.max_size:
+              type: text
+              size: x-small
+              label: PLUGIN_ADMIN.LOG_ROTATE_MAX_SIZE
+              help: PLUGIN_ADMIN.LOG_ROTATE_MAX_SIZE_HELP
+              placeholder: "10M"
+              validate:
+                pattern: '\s*\d+(\.\d+)?\s*[KkMmGg]?[Bb]?\s*'
+
+            log.rotate.max_files:
+              type: number
+              size: x-small
+              label: PLUGIN_ADMIN.LOG_ROTATE_MAX_FILES
+              help: PLUGIN_ADMIN.LOG_ROTATE_MAX_FILES_HELP
+              placeholder: 5
+              validate:
+                type: int
+                min: 1
+                max: 100
+
+            log.rotate.compress:
+              type: toggle
+              label: PLUGIN_ADMIN.LOG_ROTATE_COMPRESS
+              help: PLUGIN_ADMIN.LOG_ROTATE_COMPRESS_HELP
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
         debugger:
           type: tab
           title: PLUGIN_ADMIN.DEBUGGER

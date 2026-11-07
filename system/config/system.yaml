@@ -185,6 +185,11 @@ log:
   syslog:
     facility: local6                            # Syslog facilities output
     tag: grav                                   # Syslog tag. Default: "grav".
+  rotate:
+    enabled: true                               # Rotate log files in logs/ when they reach max_size
+    max_size: 10M                               # Size at which a log is rotated (K, M or G)
+    max_files: 5                                # Rotated files to keep per log (grav.log.1, grav.log.2.gz, ...)
+    compress: true                              # Gzip rotated files from .2 onwards
 
 debugger:
   enabled: false                                 # Enable Grav debugger and following settings
