@@ -821,6 +821,20 @@ class Uri implements \Stringable
     }
 
     /**
+     * Percent-encode the characters of a decoded URL path that would otherwise change
+     * its meaning: `%` (read as the start of an escape), `?` and `#` (read as the start
+     * of the query and fragment) and the space. Everything else is left as written, so
+     * a path that has none of them is returned unchanged.
+     *
+     * @param string $path A decoded path, e.g. a file name as it is on disk.
+     * @return string
+     */
+    public static function encodePath(string $path): string
+    {
+        return strtr($path, ['%' => '%25', ' ' => '%20', '#' => '%23', '?' => '%3F']);
+    }
+
+    /**
      * The opposite of built-in PHP method parse_url()
      *
      * @param array $parsed_url

@@ -1286,6 +1286,53 @@ class ParsedownTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    /**
+     * A file name with a `%`, `#` or `?` in it can only be written percent-encoded,
+     * and the encoded form has to stay part of the name: decoding it before the URL
+     * was split read `%23` as a fragment and `%3F` as a query. The URL written out
+     * encodes those characters again, so it names the same file. getgrav/grav#4388.
+     */
+    public function testPercentEncodedReservedCharactersInMediaFileName(): void
+    {
+        $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
+        $folder = '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/';
+
+        // Page media image `a#b 100%.jpg`, encoded and in angle brackets.
+        self::assertSame(
+            '<p><img alt="" src="' . $folder . 'a%23b%20100%25.jpg" /></p>',
+            $this->parsedown->text('![](a%23b%20100%25.jpg)')
+        );
+        self::assertSame(
+            '<p><img alt="" src="' . $folder . 'a%23b%20100%25.jpg" /></p>',
+            $this->parsedown->text('![](<a%23b 100%25.jpg>)')
+        );
+        // Media actions still apply to it.
+        self::assertMatchesRegularExpression(
+            '|<p><img alt="" src="/images/./././././[0-9a-f]+-ab-100\.jpg" /></p>|',
+            $this->parsedown->text('![](a%23b%20100%25.jpg?resize=10,10)')
+        );
+
+        // Links: the encoded characters stay in the path, a real fragment and query still work.
+        self::assertSame(
+            '<p><a href="/item2/item2-2/Invoice%20%2312%20%3F%20100%25.pdf#page=2">x</a></p>',
+            $this->parsedown->text('[x](Invoice%20%2312%20%3F%20100%25.pdf#page=2)')
+        );
+        self::assertSame(
+            '<p><a href="/item2/item2-2/my%20doc.pdf" target="_blank">x</a></p>',
+            $this->parsedown->text('[x](<my doc.pdf?target=_blank>)')
+        );
+        // A literal `%20` in a name is written `%2520` and stays that.
+        self::assertSame(
+            '<p><a href="/item2/item2-2/100%2520x.pdf">x</a></p>',
+            $this->parsedown->text('[x](100%2520x.pdf)')
+        );
+        // Stream links resolve the decoded name and encode it again.
+        self::assertSame(
+            '<p><a href="/user/pages/02.item2/02.item2-2/a%23b.pdf">x</a></p>',
+            $this->parsedown->text('[x](user://pages/02.item2/02.item2-2/a%23b.pdf)')
+        );
+    }
+
     public function testTwigTagAsLinkDestination(): void
     {
         self::assertSame(

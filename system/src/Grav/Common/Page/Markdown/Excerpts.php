@@ -104,8 +104,7 @@ class Excerpts
         }
 
         $grav = Grav::instance();
-        $url = htmlspecialchars_decode(rawurldecode((string) $excerpt['element']['attributes']['href']));
-        $url_parts = $this->parseUrl($url);
+        $url_parts = $this->parseDestination((string) $excerpt['element']['attributes']['href']);
 
         // If there is a query, then parse it and build action calls.
         if (isset($url_parts['query'])) {
@@ -159,12 +158,14 @@ class Excerpts
             // Handle custom streams.
             /** @var UniformResourceLocator $locator */
             $locator = $grav['locator'];
-            if ($type === 'link' && $locator->isStream($url)) {
-                $path = $locator->findResource($url, false) ?: $locator->findResource($url, false, true);
+            $stream_url = $url_parts['scheme'] . '://' . $url_parts['path'];
+            if ($type === 'link' && $locator->isStream($stream_url)) {
+                $path = $locator->findResource($stream_url, false) ?: $locator->findResource($stream_url, false, true);
                 $url_parts['path'] = $grav['base_url_relative'] . '/' . $path;
                 unset($url_parts['stream'], $url_parts['scheme']);
             }
 
+            $url_parts['path'] = Uri::encodePath((string) $url_parts['path']);
             $excerpt['element']['attributes']['href'] = Uri::buildUrl($url_parts);
 
             return $excerpt;
@@ -172,6 +173,9 @@ class Excerpts
 
         // Handle paths and such.
         $url_parts = Uri::convertUrl($this->page, $url_parts, $type);
+        if (is_array($url_parts) && isset($url_parts['path'])) {
+            $url_parts['path'] = Uri::encodePath((string) $url_parts['path']);
+        }
 
         // Build the URL from the component parts and set it on the element.
         $excerpt['element']['attributes']['href'] = Uri::buildUrl($url_parts);
@@ -194,10 +198,12 @@ class Excerpts
             return $excerpt;
         }
 
-        // rawurldecode(), as for links: a '+' in a URL path is a literal plus
-        // (e.g. "a+b.png"), not an encoded space.
-        $url = htmlspecialchars_decode(rawurldecode((string) $excerpt['element']['attributes']['src']));
-        $url_parts = $this->parseUrl($url);
+        $url_parts = $this->parseDestination((string) $excerpt['element']['attributes']['src']);
+        // The query holds the media actions (`?resize=400,200`), which the link pass
+        // before this one wrote back encoded.
+        if (isset($url_parts['query'])) {
+            $url_parts['query'] = rawurldecode((string) $url_parts['query']);
+        }
 
         $media = null;
         $filename = null;
@@ -262,6 +268,9 @@ class Excerpts
             $excerpt['element'] = $medium->parsedownElement($title, $alt, $class, $id, true);
         } else {
             // Not a current page media file, see if it needs converting to relative.
+            if (isset($url_parts['path']) && empty($url_parts['stream'])) {
+                $url_parts['path'] = Uri::encodePath((string) $url_parts['path']);
+            }
             $excerpt['element']['attributes']['src'] = Uri::buildUrl($url_parts);
         }
 
@@ -348,6 +357,27 @@ class Excerpts
         }
 
         return $medium;
+    }
+
+    /**
+     * Split a link or image destination into its parts, then decode the path.
+     *
+     * The path is decoded only after the split, so an encoded `%23`, `%3F` or `%25`
+     * in a file name (`Invoice%20%2312.pdf`) stays part of the name instead of turning
+     * into a fragment, a query or the start of another escape. rawurldecode(), so a
+     * `+` in a path stays a literal plus (e.g. "a+b.png"), not an encoded space.
+     *
+     * @param string $destination
+     * @return array
+     */
+    protected function parseDestination(string $destination): array
+    {
+        $url_parts = $this->parseUrl(htmlspecialchars_decode($destination));
+        if (isset($url_parts['path'])) {
+            $url_parts['path'] = rawurldecode((string) $url_parts['path']);
+        }
+
+        return $url_parts;
     }
 
     /**

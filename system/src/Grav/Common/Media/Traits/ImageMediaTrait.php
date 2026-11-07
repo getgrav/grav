@@ -262,11 +262,16 @@ trait ImageMediaTrait
      */
     public function derivatives($min_width, $max_width = 2500, $step = 200)
     {
-        if (!empty($this->alternatives)) {
-            $max = max(array_keys($this->alternatives));
-            $base = $this->alternatives[$max];
-        } else {
-            $base = $this;
+        // Resize from the largest real image: this one or a retina file. The
+        // derivatives from an earlier call are narrower than the image they
+        // were made from, and their width is the one they will be resized to,
+        // not the width of their file, which is the full-size source.
+        // getgrav/grav#4389.
+        $base = $this;
+        foreach ($this->alternatives as $width => $alternative) {
+            if ($width > $base->get('width')) {
+                $base = $alternative;
+            }
         }
 
         $widths = [];
@@ -322,7 +327,8 @@ trait ImageMediaTrait
                 $basename = preg_replace('/(@\d+x)?$/', "@{$width}w", $base->get('basename'), 1);
                 $derivative->setImagePrettyName($basename);
 
-                $ratio = $base->get('width') / $width;
+                // Width and height both from the file being resized.
+                $ratio = $derivative->get('width') / $width;
                 $height = $derivative->get('height') / $ratio;
 
                 $derivative->resize($width, $height);
@@ -353,7 +359,12 @@ trait ImageMediaTrait
                     $derivative->querystring($this->querystring(null, false));
                 }
 
-                $this->addAlternative($ratio, $derivative);
+                // An alternative's ratio is its width over this image's, as for
+                // a retina file (`@2x` is 2): a resize on this image is scaled by
+                // it for each alternative. The ratio above is the inverse, the
+                // source over the derivative, and made a derivative grow when this
+                // image shrank (cropZoom(300, 300) turned the 400w one 891 wide).
+                $this->addAlternative($width / ($this->get('width') ?: $derivative->get('width')), $derivative);
             }
         }
 
