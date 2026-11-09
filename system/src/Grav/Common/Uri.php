@@ -682,26 +682,63 @@ class Uri
      */
     public static function ip()
     {
-        $ip = 'UNKNOWN';
+        $forwarded = (array)Grav::instance()['config']->get('system.http_x_forwarded', []);
 
-        if (getenv('HTTP_CLIENT_IP')) {
-            $ip = getenv('HTTP_CLIENT_IP');
-        } elseif (getenv('HTTP_CF_CONNECTING_IP')) {
-            $ip = getenv('HTTP_CF_CONNECTING_IP');
-        } elseif (getenv('HTTP_X_FORWARDED_FOR') && Grav::instance()['config']->get('system.http_x_forwarded.ip')) {
-            $ips = array_map('trim', explode(',', getenv('HTTP_X_FORWARDED_FOR')));
-            $ip = array_shift($ips);
-        } elseif (getenv('HTTP_X_FORWARDED') && Grav::instance()['config']->get('system.http_x_forwarded.ip')) {
-            $ip = getenv('HTTP_X_FORWARDED');
-        } elseif (getenv('HTTP_FORWARDED_FOR')) {
-            $ip = getenv('HTTP_FORWARDED_FOR');
-        } elseif (getenv('HTTP_FORWARDED')) {
-            $ip = getenv('HTTP_FORWARDED');
-        } elseif (getenv('REMOTE_ADDR')) {
-            $ip = getenv('REMOTE_ADDR');
+        // Request variables come from $_SERVER, which every SAPI populates.
+        // getenv() answers only where the SAPI provides a hook for it: PHP's
+        // built-in server has none, and some CGI/FastCGI hosts do not answer
+        // either, so every caller used to come back as UNKNOWN there. getenv()
+        // stays as the fallback, including when $_SERVER carries the name with
+        // an empty or non-string value, so nothing changes on a host where
+        // getenv() already worked.
+        $server = static function (string $name): string {
+            $value = $_SERVER[$name] ?? null;
+            if (!is_string($value) || $value === '') {
+                $value = getenv($name);
+            }
+
+            return is_string($value) ? $value : '';
+        };
+
+        // Each forwarded header is opt-in. Defaults are false (Grav 1.7.53.11 and 2.0):
+        // only enable for a header when the request genuinely comes through a
+        // proxy that sets and overwrites it (e.g. cf_connecting_ip behind
+        // Cloudflare, ip behind nginx that sets X-Forwarded-For). Without the
+        // gate, any client can spoof these headers and bypass IP-based
+        // throttling, banning, or audit logging.
+        $candidates = [];
+
+        if (!empty($forwarded['client_ip']) && $server('HTTP_CLIENT_IP')) {
+            $candidates[] = $server('HTTP_CLIENT_IP');
+        }
+        if (!empty($forwarded['cf_connecting_ip']) && $server('HTTP_CF_CONNECTING_IP')) {
+            $candidates[] = $server('HTTP_CF_CONNECTING_IP');
+        }
+        if (!empty($forwarded['ip'])) {
+            if ($server('HTTP_X_FORWARDED_FOR')) {
+                $ips = array_map('trim', explode(',', $server('HTTP_X_FORWARDED_FOR')));
+                $candidates[] = array_shift($ips);
+            }
+            if ($server('HTTP_X_FORWARDED')) {
+                $candidates[] = $server('HTTP_X_FORWARDED');
+            }
+            if ($server('HTTP_FORWARDED_FOR')) {
+                $candidates[] = $server('HTTP_FORWARDED_FOR');
+            }
+            if ($server('HTTP_FORWARDED')) {
+                $candidates[] = $server('HTTP_FORWARDED');
+            }
         }
 
-        return $ip;
+        foreach ($candidates as $candidate) {
+            if ($candidate && filter_var($candidate, FILTER_VALIDATE_IP)) {
+                return $candidate;
+            }
+        }
+
+        $remote = $server('REMOTE_ADDR');
+
+        return $remote && filter_var($remote, FILTER_VALIDATE_IP) ? $remote : 'UNKNOWN';
     }
 
     /**

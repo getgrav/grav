@@ -14,7 +14,9 @@ http_x_forwarded:                                # Configuration options for the
   protocol: true                                # X-Forwarded-Proto / CloudFront-Forwarded-Proto
   host: false
   port: true
-  ip: true
+  ip: false                                      # X-Forwarded-For / X-Forwarded / Forwarded-For / Forwarded. Only enable behind a proxy that overwrites these headers: any visitor can send them
+  client_ip: false                               # Client-IP (rare; usually only set by specific load balancers)
+  cf_connecting_ip: false                        # CF-Connecting-IP. Only enable when the server accepts web traffic from Cloudflare alone; restoring the IP in the web server (nginx real_ip, Apache mod_remoteip) is better
 
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]

@@ -1832,8 +1832,33 @@ form:
             http_x_forwarded.ip:
               type: toggle
               label: HTTP_X_FORWARDED IP Enabled
-              highlight: 1
-              default: 1
+              help: "Trust X-Forwarded-For and the other forwarded headers for the visitor's IP. Only enable behind a proxy that overwrites them, since any visitor can send them."
+              highlight: 0
+              default: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            http_x_forwarded.client_ip:
+              type: toggle
+              label: HTTP Client-IP Enabled
+              help: "Trust the Client-IP header for the visitor's IP. Only a few load balancers set it."
+              highlight: 0
+              default: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            http_x_forwarded.cf_connecting_ip:
+              type: toggle
+              label: HTTP CF-Connecting-IP Enabled
+              help: "Trust Cloudflare's CF-Connecting-IP header for the visitor's IP. Only enable when the server accepts web traffic from Cloudflare alone, or restore the IP in the web server instead."
+              highlight: 0
+              default: 0
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO

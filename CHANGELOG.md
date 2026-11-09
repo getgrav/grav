@@ -1,3 +1,9 @@
+# v1.7.53.11
+## 11/09/2026
+
+1. [](#bugfix)
+    * [security] The visitor's IP no longer comes from headers any visitor can send. `Client-IP`, `CF-Connecting-IP`, `X-Forwarded-For` and the other forwarded headers are each trusted only when switched on under `system.http_x_forwarded` (`client_ip`, `cf_connecting_ip`, `ip`), and all are off by default, so login throttling, form limits and logs see the real address. A site behind Cloudflare or another proxy keeps real visitor IPs by restoring them in the web server (nginx `real_ip`, Apache `mod_remoteip`), or by switching on the matching header when nothing but the proxy can reach the server. Backport of the Grav 2 rules
+
 # v1.7.53.10
 ## 11/03/2026
 
