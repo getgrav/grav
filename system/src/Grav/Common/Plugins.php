@@ -264,6 +264,8 @@ class Plugins extends Iterator
                     try {
                         $autoloader = $instance->autoload();
                         if ($autoloader instanceof \Composer\Autoload\ClassLoader) {
+                            // A plugin's vendor dump carries a fixed APCu prefix too.
+                            Grav::scopeApcuPrefix($autoloader);
                             // Composer registers plugin loaders prepended, which forces every
                             // core/vendor class loaded after this point through each plugin's
                             // loader first. Move the plugin loader behind the core one; the

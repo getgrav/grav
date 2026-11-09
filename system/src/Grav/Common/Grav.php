@@ -189,6 +189,8 @@ class Grav extends Container
             /** @var ClassLoader|null $loader */
             $loader = self::$instance['loader'] ?? null;
             if ($loader) {
+                static::scopeApcuPrefix($loader);
+
                 // Load fix for Deferred Twig Extension
                 $loader->addPsr4('Phive\\Twig\\Extensions\\Deferred\\', LIB_DIR . 'Phive/Twig/Extensions/Deferred/', true);
             }
@@ -200,6 +202,33 @@ class Grav extends Container
         }
 
         return self::$instance;
+    }
+
+    /**
+     * Make the class loader's APCu cache keys unique to this install.
+     *
+     * Composer bakes one random APCu prefix into vendor/composer/autoload_real.php when the
+     * autoloader is dumped, so every site unpacked from the same release zip shares it. APCu
+     * memory is shared by every PHP-FPM pool of one master process, so without this a class
+     * that one site finds outside the classmap (for example an orphaned vendor file left by an
+     * upgrade) is cached under a key every other site on the server reads, and those sites
+     * then include the first site's file path.
+     *
+     * @param ClassLoader $loader
+     * @param string|null $root Install root, GRAV_ROOT by default.
+     * @return void
+     */
+    public static function scopeApcuPrefix(ClassLoader $loader, ?string $root = null): void
+    {
+        $prefix = $loader->getApcuPrefix();
+        if (null === $prefix) {
+            return;
+        }
+
+        $suffix = '-' . substr(md5($root ?? GRAV_ROOT), 0, 12);
+        if (!str_ends_with($prefix, $suffix)) {
+            $loader->setApcuPrefix($prefix . $suffix);
+        }
     }
 
     /**
