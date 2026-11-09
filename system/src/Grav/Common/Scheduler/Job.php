@@ -641,8 +641,13 @@ class Job
                 $this->successful = true;
                 $this->output =  $process->getOutput();
             } else {
+                // Keep both streams: console commands (Symfony's $io->error() among them) print
+                // their errors to stdout, so stderr alone is often empty and the reason is lost.
                 $this->successful = false;
-                $this->output =  $process->getErrorOutput();
+                $this->output = trim(implode("\n", array_filter([
+                    trim($process->getOutput()),
+                    trim($process->getErrorOutput()),
+                ], 'strlen')));
             }
 
             $this->postRun();
