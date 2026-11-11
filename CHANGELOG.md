@@ -4,6 +4,7 @@
 1. [](#new)
     * Log files in `logs/` now rotate when they reach 10 MB: `grav.log` becomes `grav.log.1`, older copies are gzipped (`grav.log.2.gz` and on), and five are kept. `grav.log`, `security.log` and `scheduler.log` rotate as they are written, an hourly `log-rotate` scheduler job catches plugin logs, and `bin/grav logrotate` runs it by hand. Change or turn it off under `system.log.rotate` (Configuration → System → Error handler)
 1. [](#bugfix)
+    * A backup profile's Scheduled Backup switch now decides on its own whether the backup runs. An old Enabled or Disabled entry for the backup job in `user/config/scheduler.yaml`, which classic admin wrote whenever its Scheduler page was saved, used to override it, so backups could stop with the switch on [#4397](https://github.com/getgrav/grav/issues/4397)
     * A scheduler job that fails now keeps what it printed to standard output as well as its error output, so the reason shows in the job's history, `user/data/scheduler/status.yaml` and the output file. Most console commands print their errors to standard output, so a failed run used to be recorded with no output at all
     * Several Grav sites on one server no longer try to load each other's files. The class loader's APCu cache is now kept separate for each site, so a class found in one site's `vendor/` folder is never looked up at another site's path [#4392](https://github.com/getgrav/grav/issues/4392)
 

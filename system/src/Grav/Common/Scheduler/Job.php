@@ -180,9 +180,9 @@ class Job
     /**
      * Set the enabled state of this job
      *
-     * Used to seed a default state at registration time (e.g. from a profile
-     * flag). An explicit entry in the scheduler `status` config still takes
-     * precedence, as that is applied in the constructor.
+     * Overrides the state the constructor read from the scheduler `status`
+     * config, for a job whose on/off switch lives elsewhere (a backup
+     * profile's Scheduled Backup flag).
      *
      * @param bool $enabled
      * @return $this
