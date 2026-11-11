@@ -1,5 +1,5 @@
 # v2.2.29
-## 11/07/2026
+## 11/10/2026
 
 1. [](#new)
     * Log files in `logs/` now rotate when they reach 10 MB: `grav.log` becomes `grav.log.1`, older copies are gzipped (`grav.log.2.gz` and on), and five are kept. `grav.log`, `security.log` and `scheduler.log` rotate as they are written, an hourly `log-rotate` scheduler job catches plugin logs, and `bin/grav logrotate` runs it by hand. Change or turn it off under `system.log.rotate` (Configuration → System → Error handler)
