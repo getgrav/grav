@@ -7,6 +7,7 @@
 1. [](#bugfix)
     * A backup profile's Scheduled Backup switch now decides on its own whether the backup runs. An old Enabled or Disabled entry for the backup job in `user/config/scheduler.yaml`, which classic admin wrote whenever its Scheduler page was saved, used to override it, so backups could stop with the switch on [#4397](https://github.com/getgrav/grav/issues/4397)
     * A scheduler job that fails now keeps what it printed to standard output as well as its error output, so the reason shows in the job's history, `user/data/scheduler/status.yaml` and the output file. Most console commands print their errors to standard output, so a failed run used to be recorded with no output at all
+    * A page with a link or image whose address is longer than any file path, such as an inline image written as `/data:image/png;base64,...`, no longer turns into an error page on servers with `open_basedir` set
     * Several Grav sites on one server no longer try to load each other's files. The class loader's APCu cache is now kept separate for each site, so a class found in one site's `vendor/` folder is never looked up at another site's path [#4392](https://github.com/getgrav/grav/issues/4392)
     * The Page IDs option and the GFM and table Markdown options in Configuration → System use translation keys instead of English written into the blueprint, so they can be translated. The English comes from Admin2 2.2.13 and Admin 1.10.63
 

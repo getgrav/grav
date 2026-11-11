@@ -879,6 +879,22 @@ class Uri implements \Stringable
     }
 
     /**
+     * file_exists() for a path built from a link in page content. A value longer than any
+     * real path (such as an inline `data:` image written as `/data:image/png;base64,...`)
+     * is not a file, and with open_basedir set PHP raises a warning for it instead of
+     * returning false, which turned the whole page into an error.
+     *
+     * @param string|null $path
+     * @return bool
+     */
+    protected static function pathExists($path): bool
+    {
+        $path = (string) $path;
+
+        return $path !== '' && strlen($path) < PHP_MAXPATHLEN && file_exists($path);
+    }
+
+    /**
      * Converts links from absolute '/' or relative (../..) to a Grav friendly format
      *
      * @param PageInterface $page the current page to use as reference
@@ -936,9 +952,9 @@ class Uri implements \Stringable
                 $full_path = $url_bits['path'];
                 $raw_full_path = rawurldecode((string) $full_path);
 
-                if (file_exists($raw_full_path)) {
+                if (static::pathExists($raw_full_path)) {
                     $full_path = $raw_full_path;
-                } elseif (!file_exists($full_path)) {
+                } elseif (!static::pathExists($full_path)) {
                     $full_path = false;
                 }
 
@@ -1162,9 +1178,9 @@ class Uri implements \Stringable
         $url_bits = parse_url($normalized_path);
         $full_path = $url_bits['path'];
 
-        if (file_exists($full_path)) {
+        if (static::pathExists($full_path)) {
             // do nothing
-        } elseif (file_exists(rawurldecode($full_path))) {
+        } elseif (static::pathExists(rawurldecode((string) $full_path))) {
             $full_path = rawurldecode($full_path);
         } else {
             return $normalized_url;
