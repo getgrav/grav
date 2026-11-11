@@ -87,6 +87,8 @@ class Page implements PageInterface, PageUuidInterface
     protected $visible;
     /** @var bool */
     protected $published;
+    /** @var string|null Raw route of the ancestor whose `cascade_unpublish` unpublishes this page, set when the pages are built */
+    protected $unpublished_by;
     /** @var int */
     protected $publish_date;
     /** @var int|null */
@@ -2107,12 +2109,50 @@ class Page implements PageInterface, PageUuidInterface
             $this->published = (bool)$var;
         }
 
+        // A page under an unpublished parent that cascades is unpublished whatever its own setting says.
+        // Its own value is kept, so it comes back as it was when the parent is published again.
+        $published = $this->published !== false && null === $this->unpublished_by;
+
         // If not published, should not be visible in menus either
-        if ($this->published === false) {
+        if (!$published) {
             $this->visible = false;
         }
 
-        return $this->published;
+        return $published;
+    }
+
+    /**
+     * Whether unpublishing this page also unpublishes every page below it: the page's `cascade_unpublish`
+     * header, or `system.pages.cascade_unpublish` when the page doesn't set it.
+     *
+     * @return bool
+     */
+    public function cascadesUnpublish(): bool
+    {
+        $header = $this->header();
+        $value = \is_object($header) ? ($header->cascade_unpublish ?? null) : null;
+        if (null === $value || '' === $value) {
+            $value = Grav::instance()['config']->get('system.pages.cascade_unpublish', false);
+        }
+
+        return (bool)$value;
+    }
+
+    /**
+     * The raw route of the ancestor that unpublishes this page through `cascade_unpublish`, or null when
+     * no ancestor does. A page unpublished by its own setting or dates returns null.
+     *
+     * @param string|null $var
+     * @return string|null
+     * @internal Set by Pages while it builds the page tree.
+     */
+    public function unpublishedBy(?string $var = null): ?string
+    {
+        if (func_num_args()) {
+            $this->unpublished_by = $var;
+        }
+
+        return $this->unpublished_by;
     }
 
     /**

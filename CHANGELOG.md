@@ -3,10 +3,12 @@
 
 1. [](#new)
     * Log files in `logs/` now rotate when they reach 10 MB: `grav.log` becomes `grav.log.1`, older copies are gzipped (`grav.log.2.gz` and on), and five are kept. `grav.log`, `security.log` and `scheduler.log` rotate as they are written, an hourly `log-rotate` scheduler job catches plugin logs, and `bin/grav logrotate` runs it by hand. Change or turn it off under `system.log.rotate` (Configuration → System → Error handler)
+    * A page can unpublish everything below it along with itself. Set `cascade_unpublish: true` on a page (Options → "Unpublish child pages too"), and while that page is unpublished, by `published: false` or by its `publish_date` / `unpublish_date`, every page below it is unpublished too: left out of menus, collections, the sitemap and search, and not served. The pages below keep their own `published` setting, so they are back as they were once the parent is published again, and a section given a `publish_date` goes live all at once. `system.pages.cascade_unpublish` (Configuration → System → Content) sets the default for every page, and is off. `$page->unpublishedBy()` returns the route of the page that hides a page
 1. [](#bugfix)
     * A backup profile's Scheduled Backup switch now decides on its own whether the backup runs. An old Enabled or Disabled entry for the backup job in `user/config/scheduler.yaml`, which classic admin wrote whenever its Scheduler page was saved, used to override it, so backups could stop with the switch on [#4397](https://github.com/getgrav/grav/issues/4397)
     * A scheduler job that fails now keeps what it printed to standard output as well as its error output, so the reason shows in the job's history, `user/data/scheduler/status.yaml` and the output file. Most console commands print their errors to standard output, so a failed run used to be recorded with no output at all
     * Several Grav sites on one server no longer try to load each other's files. The class loader's APCu cache is now kept separate for each site, so a class found in one site's `vendor/` folder is never looked up at another site's path [#4392](https://github.com/getgrav/grav/issues/4392)
+    * The Page IDs option and the GFM and table Markdown options in Configuration → System use translation keys instead of English written into the blueprint, so they can be translated. The English comes from Admin2 2.2.13 and Admin 1.10.63
 
 # v2.2.28
 ## 11/07/2026

@@ -258,7 +258,53 @@ trait PageContentTrait
             static fn($value) => null !== $value ? (bool)$value : null
         );
 
-        return $published ?? $this->isPublishedByDates();
+        // A page under an unpublished parent that cascades is unpublished whatever its own setting says.
+        return ($published ?? $this->isPublishedByDates()) && null === $this->unpublishedBy();
+    }
+
+    /**
+     * Whether unpublishing this page also unpublishes every page below it: the page's `cascade_unpublish`
+     * header, or `system.pages.cascade_unpublish` when the page doesn't set it.
+     *
+     * @return bool
+     */
+    public function cascadesUnpublish(): bool
+    {
+        $value = $this->getNestedProperty('header.cascade_unpublish');
+        if (null === $value || '' === $value) {
+            $value = Grav::instance()['config']->get('system.pages.cascade_unpublish', false);
+        }
+
+        return (bool)$value;
+    }
+
+    /**
+     * The raw route of the ancestor that unpublishes this page through `cascade_unpublish`, or null when
+     * no ancestor does. A page unpublished by its own setting or dates returns null.
+     *
+     * @return string|null
+     */
+    public function unpublishedBy(): ?string
+    {
+        if ($this->root()) {
+            return null;
+        }
+
+        $parent = $this->parent();
+        if (!$parent || $parent->root()) {
+            return null;
+        }
+
+        // The ancestor furthest up wins, the same as Pages does when it builds the tree.
+        if (method_exists($parent, 'unpublishedBy') && null !== ($by = $parent->unpublishedBy())) {
+            return $by;
+        }
+
+        if (method_exists($parent, 'cascadesUnpublish') && $parent->cascadesUnpublish() && !$parent->published()) {
+            return $parent->rawRoute();
+        }
+
+        return null;
     }
 
     /**

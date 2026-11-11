@@ -2805,6 +2805,16 @@ class Pages
             }
         }
 
+        // Under a parent that is unpublished and cascades (`cascade_unpublish`), or one already unpublished
+        // by such an ancestor, this page is unpublished too. Set before init() so onPageProcessed sees it.
+        if ($parent instanceof Page) {
+            $unpublishedBy = $parent->unpublishedBy()
+                ?? (!$parent->published() && $parent->cascadesUnpublish() ? $parent->rawRoute() : null);
+            if (null !== $unpublishedBy) {
+                $page->unpublishedBy($unpublishedBy);
+            }
+        }
+
         $content_exists = false;
         if ($parent && $page_found) {
             $page->init(new SplFileInfo($page_found), $page_extension);
