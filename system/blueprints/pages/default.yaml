@@ -67,6 +67,19 @@ form:
                   validate:
                     type: bool
 
+                header.cascade_unpublish:
+                  type: toggle
+                  toggleable: true
+                  label: PLUGIN_ADMIN.CASCADE_UNPUBLISH
+                  help: PLUGIN_ADMIN.CASCADE_UNPUBLISH_HELP
+                  highlight: 1
+                  size: medium
+                  options:
+                    1: PLUGIN_ADMIN.YES
+                    0: PLUGIN_ADMIN.NO
+                  validate:
+                    type: bool
+
                 header.date:
                   type: datetime
                   label: PLUGIN_ADMIN.DATE

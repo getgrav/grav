@@ -53,6 +53,7 @@ pages:
     short: 'jS M Y'                              # Short date format
     long: 'F jS \a\t g:ia'                       # Long date format
   publish_dates: true                            # automatically publish/unpublish based on dates
+  cascade_unpublish: false                       # When a page is unpublished (published: false, or by its dates), unpublish every page below it too. A page's `cascade_unpublish` header overrides this
   media_route_urls: false                        # Link page media through the page route instead of its path on disk, so plugins can apply the page's `access` rules to it. Half of a two-part change, and deliberately not exposed in the admin panel: set this BEFORE uncommenting the `user/pages` deny rule in .htaccess (or your webserver-configs equivalent), because enabling that rule on its own turns every media URL on the site into a 403
   process:
     markdown: true                               # Process Markdown
@@ -185,6 +186,11 @@ log:
   syslog:
     facility: local6                            # Syslog facilities output
     tag: grav                                   # Syslog tag. Default: "grav".
+  rotate:
+    enabled: true                               # Rotate log files in logs/ when they reach max_size
+    max_size: 10M                               # Size at which a log is rotated (K, M or G)
+    max_files: 5                                # Rotated files to keep per log (grav.log.1, grav.log.2.gz, ...)
+    compress: true                              # Gzip rotated files from .2 onwards
 
 debugger:
   enabled: false                                 # Enable Grav debugger and following settings

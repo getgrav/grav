@@ -180,9 +180,9 @@ class Job
     /**
      * Set the enabled state of this job
      *
-     * Used to seed a default state at registration time (e.g. from a profile
-     * flag). An explicit entry in the scheduler `status` config still takes
-     * precedence, as that is applied in the constructor.
+     * Overrides the state the constructor read from the scheduler `status`
+     * config, for a job whose on/off switch lives elsewhere (a backup
+     * profile's Scheduled Backup flag).
      *
      * @param bool $enabled
      * @return $this
@@ -641,8 +641,13 @@ class Job
                 $this->successful = true;
                 $this->output =  $process->getOutput();
             } else {
+                // Keep both streams: console commands (Symfony's $io->error() among them) print
+                // their errors to stdout, so stderr alone is often empty and the reason is lost.
                 $this->successful = false;
-                $this->output =  $process->getErrorOutput();
+                $this->output = trim(implode("\n", array_filter([
+                    trim($process->getOutput()),
+                    trim($process->getErrorOutput()),
+                ], 'strlen')));
             }
 
             $this->postRun();

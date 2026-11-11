@@ -9,7 +9,7 @@
 
 namespace Grav\Common\Service;
 
-use Monolog\Handler\StreamHandler;
+use Grav\Common\Log\RotatingStreamHandler;
 use Monolog\Logger;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
@@ -34,7 +34,7 @@ class LoggerServiceProvider implements ServiceProviderInterface
             $locator = $c['locator'];
 
             $log_file = $locator->findResource('log://grav.log', true, true);
-            $log->pushHandler(new StreamHandler($log_file, Logger::DEBUG));
+            $log->pushHandler(new RotatingStreamHandler($log_file, Logger::DEBUG));
 
             return $log;
         };
@@ -46,7 +46,7 @@ class LoggerServiceProvider implements ServiceProviderInterface
             $locator = $c['locator'];
 
             $log_file = $locator->findResource('log://security.log', true, true);
-            $log->pushHandler(new StreamHandler($log_file, Logger::WARNING));
+            $log->pushHandler(new RotatingStreamHandler($log_file, Logger::WARNING));
 
             return $log;
         };
