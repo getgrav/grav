@@ -259,7 +259,7 @@ class Media extends AbstractMedia
                     $alternatives = $types['alternative'];
                     $max = max(array_keys($alternatives));
 
-                    for ($i=$max; $i > 1; $i--) {
+                    for ($i = min($max, static::MAX_GENERATED_RETINA_SCALE); $i > 1; $i--) {
                         if (isset($alternatives[$i])) {
                             continue;
                         }

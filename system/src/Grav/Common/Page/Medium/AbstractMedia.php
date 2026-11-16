@@ -597,13 +597,20 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
-     * Highest `@Nx` filename suffix treated as a retina alternative.
-     *
-     * The scale is a loop bound: Media::init() and GlobalMedia::addMedium() render
-     * one image for every missing step below it, and the filename can come from an
-     * upload. Matches the `images.cls.retina_scale` options and debug overlays.
+     * Highest `@Nx` filename suffix treated as a retina alternative of its base
+     * image. Above it, `photo@1000x.png` is a regular file with `@` in its name.
+     * 1.7 grouped any scale, and `@5x`/`@6x` sets exist in the wild.
      */
-    public const MAX_RETINA_SCALE = 4;
+    public const MAX_RETINA_SCALE = 10;
+
+    /**
+     * Highest scale a missing retina step is rendered for. Media::init() and
+     * GlobalMedia::addMedium() render one image for every missing step below
+     * the largest file, and that filename can come from an upload, so this
+     * bounds the work: steps above it are only used when the file exists.
+     * Matches the `images.cls.retina_scale` options and debug overlays.
+     */
+    public const MAX_GENERATED_RETINA_SCALE = 4;
 
     /**
      * Get filename, extension and meta part.

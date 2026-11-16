@@ -231,8 +231,10 @@ class GlobalMedia extends AbstractMedia
 
                 if (file_exists($altFilename)) {
                     $scaled = MediumFactory::fromFile($altFilename);
-                } else {
+                } elseif ($i <= static::MAX_GENERATED_RETINA_SCALE) {
                     $scaled = MediumFactory::scaledFromMedium($altMedium, $scale, $i)['file'];
+                } else {
+                    $scaled = null;
                 }
 
                 if ($scaled) {

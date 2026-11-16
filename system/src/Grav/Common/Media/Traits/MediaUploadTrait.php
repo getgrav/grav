@@ -14,6 +14,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Security;
@@ -601,10 +602,11 @@ trait MediaUploadTrait
         // Anchor both ends. Without a leading `^` the name matches as a suffix of
         // a longer one, so deleting `banner.jpg` also swept `my-banner@2x.jpg` and
         // `other-banner.jpg.meta.yaml`, which belong to a different media item.
-        $pattern = "`^(?:{$preg_name}@\d+x\.{$preg_ext}(?:\.meta\.yaml)?|{$preg_filename}\.meta\.yaml)$`";
+        $pattern = "`^(?:{$preg_name}@(\d+)x\.{$preg_ext}(?:\.meta\.yaml)?|{$preg_filename}\.meta\.yaml)$`";
 
         foreach ($dir as $file) {
-            if (preg_match($pattern, $file)) {
+            // A scale above the limit is a medium of its own (see AbstractMedia::getFileParts()).
+            if (preg_match($pattern, $file, $matches) && (int) ($matches[1] ?? 0) <= AbstractMedia::MAX_RETINA_SCALE) {
                 $testPath = $targetPath . '/' . $file;
                 if ($locator->isStream($testPath)) {
                     $testPath = (string)$locator->findResource($testPath, true, true);
