@@ -690,7 +690,9 @@ trait PageContentTrait
      */
     protected function processSummary($size = null, $textOnly = false): string
     {
-        $config = (array)Grav::instance()['config']->get('site.summary');
+        // An empty `summary:` in user/config/site.yaml replaces the shipped settings with null, so fall back to the
+        // shipped defaults for anything missing.
+        $config = array_merge(['enabled' => true, 'format' => 'short', 'size' => 300], (array)Grav::instance()['config']->get('site.summary'));
         $config_page = (array)$this->getNestedProperty('header.summary');
         if ($config_page) {
             $config = array_merge($config, $config_page);

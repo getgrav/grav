@@ -873,7 +873,9 @@ class Page implements PageInterface, PageUuidInterface
      */
     public function summary($size = null, $textOnly = false)
     {
-        $config = (array)Grav::instance()['config']->get('site.summary');
+        // An empty `summary:` in user/config/site.yaml replaces the shipped settings with null, so fall back to the
+        // shipped defaults for anything missing.
+        $config = array_merge(['enabled' => true, 'format' => 'short', 'size' => 300], (array)Grav::instance()['config']->get('site.summary'));
         // `summary` in a page header is the summary settings. A page that uses
         // it for its own lede text holds a string there, which is not settings.
         if (isset($this->header->summary) && \is_array($this->header->summary)) {

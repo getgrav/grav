@@ -1,3 +1,9 @@
+# v2.2.30
+## 11/16/2026
+
+1. [](#bugfix)
+    * A `summary:` setting left empty in `user/config/site.yaml`, such as one whose lines are all commented out, no longer stops page summaries with an "Undefined array key" error (seen on simplesearch results). Summaries fall back to the shipped settings instead [simplesearch#211](https://github.com/getgrav/grav-plugin-simplesearch/issues/211)
+
 # v2.2.29
 ## 11/10/2026
 
