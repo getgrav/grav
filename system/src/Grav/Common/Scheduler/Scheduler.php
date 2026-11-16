@@ -511,6 +511,12 @@ class Scheduler
      */
     private function shouldRun(Job $job, DateTime $runTime, string $mode, array $states): bool
     {
+        // A run started by hand on a host where this job can't start is skipped, not recorded
+        // as failed: the job may run fine from cron, whose PHP often allows proc_open.
+        if ($this->runTrigger === 'manual' && !static::canRun($job)) {
+            return false;
+        }
+
         if ($mode === self::RUN_ALL) {
             return true;
         }
@@ -884,6 +890,19 @@ class Scheduler
     public static function isProcessAvailable(): bool
     {
         return function_exists('proc_open');
+    }
+
+    /**
+     * Whether this job can run in the current PHP process. A job that calls a PHP function,
+     * such as a backup or a cache purge, runs inside the request and always can. A command
+     * job needs proc_open.
+     *
+     * @param Job $job
+     * @return bool
+     */
+    public static function canRun(Job $job): bool
+    {
+        return is_callable($job->getCommand()) || static::isProcessAvailable();
     }
 
     /**

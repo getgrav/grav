@@ -103,6 +103,7 @@ class LanguageCodes
         'ml'         => [ 'name' => 'Malayalam',                 'nativeName' => 'മലയാളം' ],
         'mn'         => [ 'name' => 'Mongolian',                 'nativeName' => 'Монгол' ],
         'mr'         => [ 'name' => 'Marathi',                   'nativeName' => 'मराठी' ],
+        'mt'         => [ 'name' => 'Maltese',                   'nativeName' => 'Malti' ],
         'my'         => [ 'name' => 'Myanmar (Burmese)',         'nativeName' => 'ဗမာी' ],
         'no'         => [ 'name' => 'Norwegian',                 'nativeName' => 'Norsk' ],
         'nb'         => [ 'name' => 'Norwegian',                 'nativeName' => 'Norsk' ],

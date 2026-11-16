@@ -1,3 +1,13 @@
+# v2.2.30
+## 11/16/2026
+
+1. [](#improved)
+    * Added Maltese (`mt`, Malti) to the language codes [#4408](https://github.com/getgrav/grav/pull/4408)
+1. [](#bugfix)
+    * A scheduler run started from the admin on a host where PHP's `proc_open` is disabled skips the command jobs it can't start instead of recording them as failed, and still runs the jobs that call PHP, such as backups. `Scheduler::canRun($job)` tells the two apart [#4397](https://github.com/getgrav/grav/issues/4397)
+    * Retina images up to `@10x` are grouped with their base image again, as on 1.7, instead of `@5x` and higher showing up as separate media. Missing steps are still only generated up to `@4x`, and deleting the base image no longer removes files above the limit that are listed on their own [admin2#214](https://github.com/getgrav/grav-plugin-admin2/issues/214)
+    * A `summary:` setting left empty in `user/config/site.yaml`, such as one whose lines are all commented out, no longer stops page summaries with an "Undefined array key" error (seen on simplesearch results). Summaries fall back to the shipped settings instead [simplesearch#211](https://github.com/getgrav/grav-plugin-simplesearch/issues/211)
+
 # v2.2.29
 ## 11/10/2026
 

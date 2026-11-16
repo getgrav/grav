@@ -78,7 +78,7 @@ class MediaRetinaScaleLimitTest extends \Codeception\Test\Unit
 
     public function testRetinaImagesStillGetTheirSteps(): void
     {
-        $max = AbstractMedia::MAX_RETINA_SCALE;
+        $max = AbstractMedia::MAX_GENERATED_RETINA_SCALE;
         $this->png('team@3x.png', 30, 30);
         $this->png("logo@{$max}x.png", 10 * $max, 10 * $max);
 
@@ -89,6 +89,65 @@ class MediaRetinaScaleLimitTest extends \Codeception\Test\Unit
         self::assertSame(['logo.png', 'team.png'], $names);
         self::assertSame([10, 20, 30], array_keys($media['team.png']->getAlternatives()));
         self::assertCount($max, $media['logo.png']->getAlternatives());
+    }
+
+    /**
+     * A full set of retina files up to `@Nx` is one medium, as on 1.7 (admin2#214).
+     *
+     * @dataProvider retinaSetProvider
+     */
+    public function testFullRetinaSetIsOneMedium(int $top): void
+    {
+        $this->png('pic.png', 10, 10);
+        for ($i = 2; $i <= $top; $i++) {
+            $this->png("pic@{$i}x.png", 10 * $i, 10 * $i);
+        }
+
+        $media = new Media($this->dir);
+
+        self::assertSame(['pic.png'], array_keys($media->all()));
+        self::assertSame(range(10, 10 * $top, 10), array_keys($media['pic.png']->getAlternatives()));
+    }
+
+    public static function retinaSetProvider(): array
+    {
+        return [
+            '5x' => [5],
+            '6x' => [6],
+            'limit' => [AbstractMedia::MAX_RETINA_SCALE],
+        ];
+    }
+
+    /**
+     * A lone top-scale file is grouped, but missing steps are only rendered up
+     * to MAX_GENERATED_RETINA_SCALE, so an upload can't make Grav render more.
+     */
+    public function testMissingStepsAreOnlyRenderedUpToTheGenerationLimit(): void
+    {
+        $top = AbstractMedia::MAX_RETINA_SCALE;
+        $this->png("pic@{$top}x.png", 10 * $top, 10 * $top);
+
+        $media = new Media($this->dir);
+        $expected = array_merge(range(10, 10 * AbstractMedia::MAX_GENERATED_RETINA_SCALE, 10), [10 * $top]);
+
+        self::assertSame(['pic.png'], array_keys($media->all()));
+        self::assertSame($expected, array_keys($media['pic.png']->getAlternatives()));
+
+        $medium = (new GlobalMedia())["retinatest://pic@{$top}x.png"];
+        self::assertSame($expected, array_keys($medium->getAlternatives()));
+    }
+
+    public function testDeleteKeepsFilesAboveTheLimit(): void
+    {
+        $above = AbstractMedia::MAX_RETINA_SCALE + 2;
+        $this->png('pic.png', 10, 10);
+        $this->png('pic@2x.png', 20, 20);
+        $this->png("pic@{$above}x.png", 10 * $above, 10 * $above);
+
+        (new Media($this->dir))->deleteFile('pic.png');
+
+        // `pic@12x.png` is listed as a medium of its own, so deleting `pic.png` leaves it.
+        self::assertSame(["pic@{$above}x.png"], array_values(array_diff(scandir($this->dir), ['.', '..'])));
     }
 
     public function testScalingNeverReachesZeroPixels(): void
