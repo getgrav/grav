@@ -24,4 +24,11 @@ class LanguageCodesTest extends \PHPUnit\Framework\TestCase
         self::assertTrue(LanguageCodes::isRtl('ar'));
         self::assertFalse(LanguageCodes::isRtl('fr'));
     }
+
+    public function testMaltese(): void
+    {
+        self::assertSame('Maltese', LanguageCodes::getName('mt'));
+        self::assertSame('Malti', LanguageCodes::getNativeName('mt'));
+        self::assertFalse(LanguageCodes::isRtl('mt'));
+    }
 }
