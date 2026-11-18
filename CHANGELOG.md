@@ -1,3 +1,9 @@
+# v2.2.31
+## 11/18/2026
+
+1. [](#bugfix)
+    * Media of an unpublished page, including a page unpublished by a parent with `cascade_unpublish`, is no longer served through the page route. Thanks @MAYASEVEN and @fazilsubair
+
 # v2.2.30
 ## 11/16/2026
 

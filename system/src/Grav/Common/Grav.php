@@ -1012,6 +1012,18 @@ class Grav extends Container
         $pages = $this['pages'];
         $page = $pages->find($path_parts['dirname'], true);
 
+        // The lookup includes pages that are not routable, so media kept in a
+        // `routable: false` folder or a module is still served. Media of an
+        // unpublished page is not, any more than the page itself: a module goes
+        // with the page that includes it, and a page under an unpublished parent
+        // with `cascade_unpublish` reports itself unpublished.
+        for ($owner = $page; $owner instanceof PageInterface; $owner = $owner->isModule() ? $owner->parent() : null) {
+            if (!$owner->published()) {
+                $page = null;
+                break;
+            }
+        }
+
         $uri_extension = strtolower($uri->extension() ?? '');
         $fallback_types = $config->get('system.media.allowed_fallback_types');
         $supported_types = $config->get('media.types');
