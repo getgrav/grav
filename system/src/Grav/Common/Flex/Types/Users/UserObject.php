@@ -48,6 +48,7 @@ use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\FileInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use function in_array;
 use function is_array;
 use function is_bool;
 use function is_object;
@@ -82,6 +83,25 @@ class UserObject extends FlexObject implements UserInterface, Countable
     use UserTrait;
     use UserObjectLegacyTrait;
     use FlexRelationshipsTrait;
+
+    /**
+     * Account fields which hold a credential, or a one-time token that stands in for
+     * one (password reset, magic link) or proves ownership (activation, email change).
+     * Whoever reads one of these can take the account, so they are never handed to a
+     * form as extra data.
+     *
+     * @var string[]
+     */
+    public const SECRET_FIELDS = [
+        'hashed_password',
+        'secret',
+        'twofa_secret',
+        'reset',
+        'activation_token',
+        'email_change_token',
+        'email_change_cancel_token',
+        'magic_login',
+    ];
 
     /** @var Closure|null */
     static public $authorizeCallable;
@@ -534,7 +554,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
      */
     public function extra()
     {
-        return $this->getBlueprint()->extra($this->toArray());
+        // Forms carry extra data back as hidden fields, which would show the account's
+        // credentials to whoever can open its form.
+        return array_diff_key($this->getBlueprint()->extra($this->toArray()), array_flip(static::SECRET_FIELDS));
     }
 
     /**
@@ -796,7 +818,76 @@ class UserObject extends FlexObject implements UserInterface, Countable
             return $action !== 'delete';
         }
 
+        // Managing user accounts does not reach the super-admin tier: an account that
+        // is not super itself may not create, update or delete one that is, whatever
+        // rule grants it user management. Otherwise it could reset the super-admin's
+        // password and sign in as them. The classic admin's own user form holds the
+        // same line; this is the guard for Flex saves, including the Accounts page.
+        if (in_array($action, ['create', 'update', 'delete'], true)
+            && $this->hasSuperAccess()
+            && !$this->actorHasSuperAccess($user, $isMe)
+        ) {
+            return false;
+        }
+
         return parent::isAuthorizedOverride($user, $action, $scope, $isMe);
+    }
+
+    /**
+     * Whether this account holds super-admin access, through its own access map or
+     * through any of its groups. Read straight from the ACL, not through
+     * authorize(), so it answers for an account loaded from storage whatever its
+     * session or account state. Every group is asked on its own, with the `test`
+     * scope, so a disabled group still counts: it can be enabled again.
+     *
+     * @return bool
+     */
+    protected function hasSuperAccess(): bool
+    {
+        $access = $this->getAccess();
+        $groups = $this->getGroups();
+        foreach (['admin.super', 'api.super'] as $rule) {
+            if ($access->authorize($rule) === true) {
+                return true;
+            }
+
+            foreach ($groups as $group) {
+                if ($group->authorize($rule, 'test') === true) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param UserInterface $user
+     * @param bool $isMe
+     * @return bool
+     */
+    protected function actorHasSuperAccess(UserInterface $user, bool $isMe): bool
+    {
+        $scope = $isMe ? null : 'test';
+
+        return $user->authorize('admin.super', $scope) === true
+            || $user->authorize('api.super', $scope) === true;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * The password hash and the session flags are never taken from submitted data.
+     * The account blueprint does not declare them, and its loose validation passes
+     * undeclared keys through, so a form save could otherwise write a hash of the
+     * submitter's choosing. A new password goes through `password`, which save()
+     * hashes.
+     */
+    public function update(array $data, array $files = [])
+    {
+        unset($data['hashed_password'], $data['authenticated'], $data['authorized']);
+
+        return parent::update($data, $files);
     }
 
     /**

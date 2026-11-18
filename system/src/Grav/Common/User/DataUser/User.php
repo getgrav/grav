@@ -13,6 +13,7 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
+use Grav\Common\Flex\Types\Users\UserObject;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
@@ -110,6 +111,19 @@ class User extends Data implements UserInterface
         parent::merge($data);
 
         return $this;
+    }
+
+    /**
+     * Get extra items which haven't been defined in blueprints.
+     *
+     * Forms carry extra data back as hidden fields, which would show the account's
+     * credentials to whoever can open its form.
+     *
+     * @return array
+     */
+    public function extra()
+    {
+        return array_diff_key(parent::extra(), array_flip(UserObject::SECRET_FIELDS));
     }
 
     /**
