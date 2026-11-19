@@ -51,7 +51,7 @@ composer create-project getgrav/grav ~/webroot/grav
    git clone https://github.com/getgrav/grav.git
    ```
 
-2. Install the **plugin** and **theme dependencies** by using the [Grav CLI application](https://learn.getgrav.org/advanced/grav-cli) `bin/grav`:
+2. Install the **plugin** and **theme dependencies** by using the [Grav CLI application](https://learn.getgrav.org/cli-console/grav-cli) `bin/grav`:
    ```bash
    cd ~/webroot/grav
    bin/grav install

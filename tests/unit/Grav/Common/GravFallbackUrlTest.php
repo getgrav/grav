@@ -67,6 +67,59 @@ class GravFallbackUrlTest extends \Codeception\Test\Unit
         $this->assertNull($this->request('/item2/item2-2/' . $basename));
     }
 
+    public function testUnpublishedPageMediaIsNotServed(): void
+    {
+        $page = $this->grav['pages']->find('/item2/item2-2', true);
+        $page->published(false);
+        try {
+            $this->assertNull($this->request('/item2/item2-2/sample-image.jpg'));
+        } finally {
+            $page->published(true);
+        }
+    }
+
+    public function testMediaUnderACascadingUnpublishedParentIsNotServed(): void
+    {
+        $page = $this->grav['pages']->find('/item2/item2-2', true);
+        $page->unpublishedBy('/item2');
+        try {
+            $this->assertNull($this->request('/item2/item2-2/sample-image.jpg'));
+        } finally {
+            $page->unpublishedBy(null);
+        }
+    }
+
+    public function testModuleMediaOfAnUnpublishedPageIsNotServed(): void
+    {
+        $pages = $this->grav['pages'];
+        $parent = $pages->find('/item2', true);
+        $module = $pages->find('/item2/item2-2', true);
+        $module->modularTwig(true);
+        try {
+            $this->assertSame('sample-image.jpg', $this->request('/item2/item2-2/sample-image.jpg'));
+
+            $this->served = null;
+            $parent->published(false);
+            $this->assertNull($this->request('/item2/item2-2/sample-image.jpg'));
+        } finally {
+            $parent->published(true);
+            $module->modularTwig(false);
+            $module->routable(true);
+            $module->visible(true);
+        }
+    }
+
+    public function testNonRoutablePublishedPageMediaIsServed(): void
+    {
+        $page = $this->grav['pages']->find('/item2/item2-2', true);
+        $page->routable(false);
+        try {
+            $this->assertSame('sample-image.jpg', $this->request('/item2/item2-2/sample-image.jpg'));
+        } finally {
+            $page->routable(true);
+        }
+    }
+
     public function refusedProvider(): array
     {
         return [

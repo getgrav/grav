@@ -140,7 +140,7 @@ Text<sub>Subscripted</sub> `<sub>`
 
 ### Alerts
 
-Grav 2.0 replaces the legacy `markdown-notices` plugin with [`github-markdown-alerts`](https://github.com/grav/grav-plugin-github-markdown-alerts), which renders [GitHub-flavored Markdown alerts](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts). Five types are available, each with an accent stripe, icon, and label:
+Grav 2.0 replaces the legacy `markdown-notices` plugin with [`github-markdown-alerts`](https://github.com/trilbymedia/grav-plugin-github-markdown-alerts), which renders [GitHub-flavored Markdown alerts](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts). Five types are available, each with an accent stripe, icon, and label:
 
 > [!NOTE]
 > Highlights information that users should take into account, even when skimming.
