@@ -137,6 +137,49 @@ class MediaRetinaScaleLimitTest extends \Codeception\Test\Unit
         self::assertSame($expected, array_keys($medium->getAlternatives()));
     }
 
+    /**
+     * A stream URI naming the base image gets the srcset of its `@Nx` files,
+     * as the same file does in page media (admin2#222).
+     */
+    public function testStreamBaseImageGetsItsRetinaFiles(): void
+    {
+        $this->png('pic.png', 10, 10);
+        $this->png('pic@2x.png', 20, 20);
+        $this->png('pic@3x.png', 30, 30);
+
+        $medium = (new GlobalMedia())['retinatest://pic.png'];
+
+        self::assertSame($this->dir . '/pic.png', $medium->get('filepath'));
+        self::assertSame([10, 20, 30], array_keys($medium->getAlternatives()));
+        self::assertStringContainsString('pic@3x.png 30w', $medium->parsedownElement()['attributes']['srcset'] ?? '');
+    }
+
+    /**
+     * Missing steps below the largest file are rendered as in page media, but
+     * only up to MAX_GENERATED_RETINA_SCALE.
+     */
+    public function testStreamBaseImageRendersMissingStepsUpToTheLimit(): void
+    {
+        $top = AbstractMedia::MAX_RETINA_SCALE;
+        $this->png('pic.png', 10, 10);
+        $this->png("pic@{$top}x.png", 10 * $top, 10 * $top);
+
+        $medium = (new GlobalMedia())['retinatest://pic.png'];
+        $expected = array_merge(range(10, 10 * AbstractMedia::MAX_GENERATED_RETINA_SCALE, 10), [10 * $top]);
+
+        self::assertSame($expected, array_keys($medium->getAlternatives()));
+    }
+
+    public function testStreamBaseImageWithoutRetinaFilesHasNoSrcset(): void
+    {
+        $this->png('pic.png', 10, 10);
+        $this->png('pic@200x.png', 2000, 2000);
+
+        $medium = (new GlobalMedia())['retinatest://pic.png'];
+
+        self::assertSame([10], array_keys($medium->getAlternatives()));
+    }
+
     public function testDeleteKeepsFilesAboveTheLimit(): void
     {
         $above = AbstractMedia::MAX_RETINA_SCALE + 2;
