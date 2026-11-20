@@ -1,3 +1,10 @@
+# v2.2.32
+## 11/20/2026
+
+1. [](#bugfix)
+    * Images referenced through a stream such as `media://` now get a `srcset` from their `@2x`/`@3x` siblings, the same as page media [admin2#222](https://github.com/getgrav/grav-plugin-admin2/issues/222)
+    * The Template select on a page's Advanced tab in classic admin follows the "Hide page types" and "Hide module types" settings, and keeps a page's own template when it is hidden [admin#2244](https://github.com/getgrav/grav-plugin-admin/issues/2244)
+
 # v2.2.31
 ## 11/18/2026
 

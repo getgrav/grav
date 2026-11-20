@@ -1900,20 +1900,32 @@ class Pages
     /**
      * Get template types based on page type (standard or modular)
      *
+     * In classic admin the list honours its hide_page_types / hide_modular_page_types settings
+     * and keeps the edited page's own template.
+     *
      * @param string|null $type
+     * @param PageInterface|null $page
      * @return array
      */
-    public static function pageTypes($type = null)
+    public static function pageTypes($type = null, $page = null)
     {
-        if (null === $type && isset(Grav::instance()['admin'])) {
-            /** @var Admin $admin */
-            $admin = Grav::instance()['admin'];
+        $grav = Grav::instance();
+        $admin = $grav['admin'] ?? null;
 
+        if (null === $type && $admin) {
             /** @var PageInterface|null $page */
-            $page = $admin->page();
+            $page = $page ?? $admin->page();
 
             $type = $page && $page->isModule() ? 'modular' : 'standard';
         }
+
+        if (($type === 'standard' || $type === 'modular')
+            && $admin instanceof \Grav\Plugin\Admin\Admin
+            && is_callable(['Grav\Plugin\AdminPlugin', 'pageTemplateTypes'])
+        ) {
+            return \Grav\Plugin\AdminPlugin::pageTemplateTypes($page, $type === 'modular');
+        }
+
         return match ($type) {
             'standard' => static::types(),
             'modular' => static::modularTypes(),
