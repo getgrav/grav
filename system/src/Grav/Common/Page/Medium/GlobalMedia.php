@@ -241,6 +241,8 @@ class GlobalMedia extends AbstractMedia
                     $medium->addAlternative($i, $scaled);
                 }
             }
+        } else {
+            $this->addRetinaFiles($medium, $path, $basename, (string) $ext);
         }
 
         $meta = "{$path}/{$basename}.{$ext}.yaml";
@@ -260,5 +262,58 @@ class GlobalMedia extends AbstractMedia
         $this->add($stream, $medium);
 
         return $medium;
+    }
+
+    /**
+     * Give a base image the `@Nx` files beside it as alternatives, as page
+     * media does, so `media://photo.jpg` gets the same srcset as `photo.jpg`
+     * in a page folder (admin2#222). Missing steps below the largest file are
+     * rendered only up to MAX_GENERATED_RETINA_SCALE.
+     *
+     * @param MediaObjectInterface $medium
+     * @param string $path
+     * @param string $basename
+     * @param string $ext
+     * @return void
+     */
+    protected function addRetinaFiles(MediaObjectInterface $medium, string $path, string $basename, string $ext): void
+    {
+        if ($ext === '' || $medium->get('type') !== 'image') {
+            return;
+        }
+
+        $files = [];
+        for ($i = static::MAX_RETINA_SCALE; $i > 1; $i--) {
+            $altFilename = "{$path}/{$basename}@{$i}x.{$ext}";
+            if (is_file($altFilename) && static::isMediaPath($altFilename)) {
+                $files[$i] = $altFilename;
+            }
+        }
+        if (!$files) {
+            return;
+        }
+
+        $max = max(array_keys($files));
+        $maxMedium = MediumFactory::fromFile($files[$max]);
+        if (null === $maxMedium) {
+            return;
+        }
+
+        // Smallest first, the same srcset order as page media.
+        for ($i = 2; $i <= $max; $i++) {
+            if ($i === $max) {
+                $scaled = $maxMedium;
+            } elseif (isset($files[$i])) {
+                $scaled = MediumFactory::fromFile($files[$i]);
+            } elseif ($i <= static::MAX_GENERATED_RETINA_SCALE) {
+                $scaled = MediumFactory::scaledFromMedium($maxMedium, $max, $i)['file'];
+            } else {
+                $scaled = null;
+            }
+
+            if ($scaled) {
+                $medium->addAlternative($i, $scaled);
+            }
+        }
     }
 }

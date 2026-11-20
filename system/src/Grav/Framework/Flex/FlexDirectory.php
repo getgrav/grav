@@ -961,7 +961,8 @@ class FlexDirectory implements FlexDirectoryInterface
 
         $object = $call['object'];
         if ($function === '\Grav\Common\Page\Pages::pageTypes') {
-            $params = [$object instanceof PageInterface && $object->isModule() ? 'modular' : 'standard'];
+            $page = $object instanceof PageInterface ? $object : null;
+            $params = [$page && $page->isModule() ? 'modular' : 'standard', $page];
         }
 
         // Security guard. A registered `data` handler makes Blueprint::init()
