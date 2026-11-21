@@ -520,24 +520,11 @@ trait PageRoutableTrait
     public function activeChild(): bool
     {
         $grav = Grav::instance();
-        /** @var Uri $uri */
-        $uri = $grav['uri'];
         /** @var Pages $pages */
         $pages = $grav['pages'];
-        $uri_path = rtrim(urldecode($uri->path()), '/');
-        if (null !== $pages->routePath($uri_path)) {
-            $page = $pages->find($uri->route());
-            /** @var PageInterface|null $child_page */
-            $child_page = $page ? $page->parent() : null;
-            while ($child_page && !$child_page->root()) {
-                if ($this->path() === $child_page->path()) {
-                    return true;
-                }
-                $child_page = $child_page->parent();
-            }
-        }
+        $path = $this->path();
 
-        return false;
+        return null !== $path && isset($pages->activeTrail()[$path]);
     }
 
     /**
