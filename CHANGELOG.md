@@ -10,6 +10,8 @@
     * Smaller savings: linked CSS/JS pipeline bundles aren't read from disk on every request, the summary-divider regex only runs when the content has a divider, and `Collection::isFirst()`/`isLast()` no longer copy the item list
 1. [](#bugfix)
     * `Utils::replaceLastOccurrence()` no longer cuts in the wrong place when the text has multibyte characters before the match (`/blog/über-uns.json` came out as `/blog/über-uns.`)
+    * `Uri::post()` with a filter no longer logs a PHP deprecation on every call. It compared against the deprecated `FILTER_SANITIZE_STRING` constant, which PHP 9 removes
+    * Removed a call to `ArrayAdapter::setNamespace()`, which doesn't exist in Symfony Cache 7, from the `array` cache driver, plus a few smaller static-analysis cleanups
 
 # v2.2.32
 ## 11/20/2026

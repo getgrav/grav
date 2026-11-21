@@ -821,7 +821,7 @@ class Page implements PageInterface, PageUuidInterface
         // Set Last-Modified header
         if ($this->lastModified()) {
             $last_modified = $this->modified();
-            foreach ($this->children()->modular() as $cpage) {
+            foreach ($this->children()->modules() as $cpage) {
                 $modular_mtime = $cpage->modified();
                 if ($modular_mtime > $last_modified) {
                     $last_modified = $modular_mtime;

@@ -482,8 +482,8 @@ class Cache extends Getters
                 break;
 
             case 'array':
+                // Every call gets its own in-memory store, so there is nothing to namespace.
                 $adapter = new ArrayAdapter($defaultLifetime, false);
-                $adapter->setNamespace($namespace);
                 $resolved_driver_name = 'array';
                 break;
 

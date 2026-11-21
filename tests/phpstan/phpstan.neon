@@ -53,6 +53,11 @@ parameters:
         # TODO: Errors that needs some more thinking (bad design?)
         - '#Access to an undefined property RocketTheme\\Toolbox\\Event\\Event::#'
         - '#Instantiation of deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        - '#Call to method __construct\(\) of deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        # Admin classes come from the admin plugin, which isn't analysed; callers check instanceof first.
+        - '#Class Grav\\Plugin\\Admin\\Admin not found#'
+        # Declared with @property on the interface, which phpstan doesn't read through instanceof here.
+        - '#Access to an undefined property Grav\\Common\\User\\Interfaces\\UserInterface::\$authenticated#'
         - '#extends deprecated class RocketTheme\\Toolbox\\Event\\Event#'
         - '#Access to an undefined property Grav\\Common\\Data\\Blueprint::#'
         -

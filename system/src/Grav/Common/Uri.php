@@ -1512,7 +1512,9 @@ class Uri implements \Stringable
         if ($this->post && null !== $element) {
             $item = Utils::getDotNotation($this->post, $element);
             if ($filter_type) {
-                if ($filter_type === FILTER_SANITIZE_STRING || $filter_type === GRAV_SANITIZE_STRING) {
+                // 513 is FILTER_SANITIZE_STRING, still accepted from older plugins. Reading the
+                // constant itself logs a deprecation since PHP 8.1, and it goes away in PHP 9.
+                if ($filter_type === 513 || $filter_type === GRAV_SANITIZE_STRING) {
                     $item = htmlspecialchars(strip_tags((string) $item), ENT_QUOTES, 'UTF-8');
                 } else {
                     $item = filter_var($item, $filter_type);

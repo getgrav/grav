@@ -835,7 +835,7 @@ abstract class Utils
             }
         }
 
-        return $cookie ? static::privateCacheControl($controls, $expires) : 'max-age=' . $expires;
+        return $cookie ? self::privateCacheControl($controls, $expires) : 'max-age=' . $expires;
     }
 
     /**
@@ -856,7 +856,7 @@ abstract class Utils
             return;
         }
 
-        header('Cache-Control: ' . static::privateCacheControl($controls));
+        header('Cache-Control: ' . self::privateCacheControl($controls));
     }
 
     private static function privateCacheControl(array $controls, ?int $expires = null): string
@@ -2296,7 +2296,7 @@ abstract class Utils
     }
 
     /**
-     * @param string|array|Closure $name
+     * @param string|array|\Closure $name
      * @return bool
      */
     public static function isDangerousFunction($name): bool
