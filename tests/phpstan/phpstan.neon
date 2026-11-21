@@ -3,9 +3,6 @@ includes:
     #- '../../vendor/phpstan/phpstan-strict-rules/rules.neon'
     - '../../vendor/phpstan/phpstan-deprecation-rules/rules.neon'
     - 'extension.neon'
-    # Errors that existed when the baseline was made (2026-11-20). Fix them over time and
-    # regenerate with `composer phpstan -- --generate-baseline tests/phpstan/phpstan-baseline.neon`.
-    - 'phpstan-baseline.neon'
 parameters:
     fileExtensions:
         - php
