@@ -1112,8 +1112,10 @@ class Pages
             return [];
         }
 
-        $lookup = md5(json_encode($items) . json_encode($orderManual) . $orderBy . $orderDir);
-        if (!isset($this->sortOf($lookup)[$orderBy])) {
+        // The lookup key is a per-request memo, never a stored folder path, so
+        // check memory only: asking the index store for it is always a miss.
+        $lookup = hash('xxh128', serialize([$items, $orderManual, $orderBy, $orderDir]));
+        if (!isset($this->sort[$lookup][$orderBy])) {
             $this->buildSort($lookup, $items, $orderBy, $orderManual, $sort_flags);
         }
 
