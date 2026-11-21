@@ -53,17 +53,8 @@ class VectorImageMedium extends StaticImageMedium
         $svg = preg_replace('/<!DOCTYPE\b[^>]*(?:\[[^\]]*\])?[^>]*>/is', '', $svg) ?? $svg;
         $svg = preg_replace('/<!ENTITY\b[^>]*>/i', '', $svg) ?? $svg;
 
-        $previousEntityLoader = null;
-        if (\PHP_VERSION_ID < 80000 && function_exists('libxml_disable_entity_loader')) {
-            $previousEntityLoader = libxml_disable_entity_loader(true);
-        }
-        try {
-            $xml = simplexml_load_string($svg, 'SimpleXMLElement', LIBXML_NONET | LIBXML_NOERROR | LIBXML_NOWARNING);
-        } finally {
-            if ($previousEntityLoader !== null) {
-                libxml_disable_entity_loader($previousEntityLoader);
-            }
-        }
+        // PHP 8 never loads external entities unless LIBXML_NOENT asks for it.
+        $xml = simplexml_load_string($svg, 'SimpleXMLElement', LIBXML_NONET | LIBXML_NOERROR | LIBXML_NOWARNING);
         $attr = $xml ? $xml->attributes() : null;
         if (!$attr instanceof \SimpleXMLElement) {
             return;

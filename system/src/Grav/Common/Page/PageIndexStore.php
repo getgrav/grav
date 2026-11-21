@@ -45,10 +45,10 @@ final class PageIndexStore
      */
     private const BATCH_SIZE = 500;
 
-    /** @var object|null Prepared point-read statement, created on first read. */
+    /** @var \PDOStatement|null Prepared point-read statement, created on first read (errors throw, so prepare() never returns false). */
     private $readStatement = null;
 
-    /** @var array<string,object> Prepared statements, reused for the life of the connection. */
+    /** @var array<string,\PDOStatement> Prepared statements, reused for the life of the connection. */
     private $statements = [];
 
     /**

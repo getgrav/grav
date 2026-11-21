@@ -140,7 +140,7 @@ class Job
         }
         $this->creationTime = new DateTime('now');
         // initialize the directory path for lock files
-        $this->tempDir = static::getDefaultTempDir();
+        $this->tempDir = self::getDefaultTempDir();
         $this->command = $command;
         // Set enabled state
         $status = Grav::instance()['config']->get('scheduler.status');
@@ -226,7 +226,7 @@ class Job
         try {
             // A job registered without a schedule runs every minute, which is what isDue()
             // has always assumed. Passing the null straight through was a type error.
-            return CronExpression::factory($this->at ?: '* * * * *');
+            return new CronExpression($this->at ?: '* * * * *');
         } catch (\InvalidArgumentException $e) {
             // Invalid cron expression - return null to prevent DoS
             return null;
@@ -242,7 +242,7 @@ class Job
     public static function isValidCronExpression(string $expression): bool
     {
         try {
-            CronExpression::factory($expression);
+            new CronExpression($expression);
             return true;
         } catch (\InvalidArgumentException $e) {
             return false;
@@ -284,9 +284,9 @@ class Job
         // As before, a missing or invalid expression defaults to every minute.
         if (!$this->executionTime) {
             try {
-                $this->executionTime = CronExpression::factory($this->at ?: '* * * * *');
+                $this->executionTime = new CronExpression($this->at ?: '* * * * *');
             } catch (\InvalidArgumentException $e) {
-                $this->executionTime = CronExpression::factory('* * * * *');
+                $this->executionTime = new CronExpression('* * * * *');
             }
         }
 

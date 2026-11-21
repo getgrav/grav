@@ -142,7 +142,6 @@ class Relationships implements RelationshipsInterface
 
     /**
      * @return void
-     * @phpstan-pure
      */
     public function next(): void
     {
@@ -151,7 +150,6 @@ class Relationships implements RelationshipsInterface
 
     /**
      * @return void
-     * @phpstan-pure
      */
     public function rewind(): void
     {

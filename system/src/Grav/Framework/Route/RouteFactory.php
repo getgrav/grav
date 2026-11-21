@@ -194,7 +194,6 @@ class RouteFactory
 
         $delimiter = self::$delimiter;
 
-        /** @var array $params */
         $params = explode('/', $str);
         $list = [];
         foreach ($params as $param) {
@@ -218,11 +217,9 @@ class RouteFactory
 
         $delimiter = self::$delimiter;
 
-        /** @var array $params */
         $params = explode('/', $str);
         $list = [];
         foreach ($params as &$param) {
-            /** @var array $parts */
             $parts = explode($delimiter, (string) $param, 2);
             if (isset($parts[1])) {
                 $var = rawurldecode((string) $parts[0]);

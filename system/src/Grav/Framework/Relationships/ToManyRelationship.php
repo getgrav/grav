@@ -209,7 +209,6 @@ class ToManyRelationship implements ToManyRelationshipInterface
 
     /**
      * @return Traversable<IdentifierInterface>
-     * @phpstan-pure
      */
     public function getIterator(): Traversable
     {

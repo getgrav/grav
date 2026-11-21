@@ -41,7 +41,6 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
-use Twig\Extension\EscaperExtension;
 use Twig\Extension\SandboxExtension;
 use Twig\Extension\StringLoaderExtension;
 use Twig\Sandbox\SecurityError;
@@ -52,7 +51,6 @@ use Twig\Sandbox\SecurityNotAllowedPropertyError;
 use Twig\Sandbox\SecurityNotAllowedTagError;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
-use Twig\Loader\ExistsLoaderInterface;
 use Twig\Loader\FilesystemLoader;
 use Twig\Profiler\Profile;
 use Twig\Runtime\EscaperRuntime;
@@ -912,8 +910,6 @@ class Twig
         $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
         $template_file = $this->template($template . $twig_extension);
 
-        // TODO: no longer needed in Twig 3.
-        /** @var ExistsLoaderInterface $loader */
         $loader = $this->twig->getLoader();
 
         // The loader chain also holds the editor-authored strings registered by
@@ -973,10 +969,7 @@ class Twig
     /**
      * Register a custom escaper strategy.
      *
-     * This method handles the differences between Twig versions:
-     * - Twig 1.x: Uses CoreExtension::setEscaper()
-     * - Twig 2.x/3.x (< 3.9): Uses EscaperExtension::setEscaper()
-     * - Twig 3.9+: Uses EscaperRuntime::setEscaper()
+     * Registers it on Twig's EscaperRuntime.
      *
      * The callable may take either the historic Grav signature,
      * function($twig, $string, $charset), or the Twig 3.9+ runtime signature,
@@ -991,25 +984,13 @@ class Twig
         // Twig 3.9+ moved setEscaper to EscaperRuntime, which calls the escaper
         // with ($string, $charset) and not the ($twig, $string, $charset) this
         // method has always documented. Adapt rather than break the callers.
-        if (class_exists(EscaperRuntime::class)) {
-            $twig = $this->twig;
-            if ($this->escaperExpectsEnvironment($callable)) {
-                $original = $callable;
-                $callable = static fn ($string, $charset) => $original($twig, $string, $charset);
-            }
-
-            $this->twig->getRuntime(EscaperRuntime::class)->setEscaper($strategy, $callable);
-            return;
+        $twig = $this->twig;
+        if ($this->escaperExpectsEnvironment($callable)) {
+            $original = $callable;
+            $callable = static fn ($string, $charset) => $original($twig, $string, $charset);
         }
 
-        // Twig 2.x/3.x (before 3.9) uses EscaperExtension
-        if (class_exists(EscaperExtension::class)) {
-            $this->twig->getExtension(EscaperExtension::class)->setEscaper($strategy, $callable);
-            return;
-        }
-
-        // Twig 1.x fallback (uses CoreExtension)
-        $this->twig->getExtension(CoreExtension::class)->setEscaper($strategy, $callable);
+        $this->twig->getRuntime(EscaperRuntime::class)->setEscaper($strategy, $callable);
     }
 
     /**

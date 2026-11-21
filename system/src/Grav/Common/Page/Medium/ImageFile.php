@@ -34,6 +34,7 @@ use function strlen;
  * @package Grav\Common\Page\Medium
  *
  * @method Image applyExifOrientation($exif_orienation)
+ * @method $this watermark(Image $other, string $position = 'center-center', float $scale = 1.0) Queued on the image adapter
  */
 class ImageFile extends Image
 {

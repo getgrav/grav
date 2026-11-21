@@ -18,6 +18,7 @@ use Grav\Common\Data\Data;
  * @property string $type
  * @property string $filename
  * @property string $filepath
+ * @method bool hasMeta()
  */
 interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObjectInterface, ArrayAccess
 {

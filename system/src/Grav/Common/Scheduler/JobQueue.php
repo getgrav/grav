@@ -28,7 +28,7 @@ class JobQueue
     /** @var string */
     protected $lockFile;
     
-    /** @var array Priority levels */
+    // Priority levels
     const PRIORITY_HIGH = 'high';
     const PRIORITY_NORMAL = 'normal';
     const PRIORITY_LOW = 'low';

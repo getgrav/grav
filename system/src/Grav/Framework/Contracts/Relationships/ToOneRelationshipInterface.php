@@ -25,7 +25,6 @@ interface ToOneRelationshipInterface extends RelationshipInterface
      * @param string|null $id
      * @param string|null $type
      * @return T|null
-     * @phpstan-pure
      */
     public function getObject(?string $id = null, ?string $type = null): ?object;
 

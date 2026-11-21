@@ -8,7 +8,7 @@ paths:
     envs: tests/_envs
 settings:
     colors: true
-    memory_limit: 1024M
+    memory_limit: 1536M
 extensions:
     enabled:
         - Codeception\Extension\RunFailed

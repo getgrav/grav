@@ -137,8 +137,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      */
     public function getFlexFeatures(): array
     {
-        /** @var array $implements */
-        $implements = class_implements($this->getFlexDirectory()->getCollectionClass());
+        $implements = class_implements($this->getFlexDirectory()->getCollectionClass()) ?: [];
 
         $list = [];
         foreach ($implements as $interface) {
@@ -555,7 +554,6 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      */
     protected function createFrom(array $entries, ?string $keyField = null)
     {
-        /** @phpstan-var static<T,C> $index */
         $index = new static($entries, $this->getFlexDirectory());
         $index->setKeyField($keyField ?? $this->_keyField);
 

@@ -170,8 +170,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Merge another collection with the current collection
      *
      * @param PageCollectionInterface $collection
-     * @return static
-     * @phpstan-return static<T>
+     * @return never
      */
     public function merge(PageCollectionInterface $collection): never
     {
@@ -182,8 +181,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Intersect another collection with the current collection
      *
      * @param PageCollectionInterface $collection
-     * @return static
-     * @phpstan-return static<T>
+     * @return never
      */
     public function intersect(PageCollectionInterface $collection): never
     {
@@ -240,8 +238,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Append new elements to the list.
      *
      * @param array $items Items to be appended. Existing keys will be overridden with the new values.
-     * @return static
-     * @phpstan-return static<T>
+     * @return never
      */
     public function append($items): never
     {
@@ -519,10 +516,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     public function pages()
     {
         $entries = [];
-        /**
-         * @var int|string $key
-         * @var PageInterface|null $object
-         */
         foreach ($this as $key => $object) {
             if ($object && !$object->isModule()) {
                 $entries[$key] = $object;
@@ -541,10 +534,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     public function modules()
     {
         $entries = [];
-        /**
-         * @var int|string $key
-         * @var PageInterface|null $object
-         */
         foreach ($this as $key => $object) {
             if ($object && $object->isModule()) {
                 $entries[$key] = $object;

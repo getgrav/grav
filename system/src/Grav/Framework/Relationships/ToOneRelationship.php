@@ -162,7 +162,6 @@ class ToOneRelationship implements ToOneRelationshipInterface
 
     /**
      * @return Traversable<IdentifierInterface>
-     * @phpstan-pure
      */
     public function getIterator(): Traversable
     {

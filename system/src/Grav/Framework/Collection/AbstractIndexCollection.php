@@ -81,7 +81,6 @@ abstract class AbstractIndexCollection implements CollectionInterface, \Stringab
     #[\ReturnTypeWillChange]
     public function key()
     {
-        /** @phpstan-var TKey */
         return (string)key($this->entries);
     }
 

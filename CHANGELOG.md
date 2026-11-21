@@ -16,6 +16,8 @@
     * The Flex relationship classes no longer log PHP deprecations when they load
     * `FlexIndex::findFirst()` and `reduce()` return a result instead of always returning `null`
     * `bin/gpm selfupgrade` no longer calls `strftime()`, which is deprecated and removed in PHP 9
+    * Removed the unused `Scheduler\SchedulerController` class, which pointed to a scheduler class that no longer exists, and the scheduler service's setup for a `scheduler.modern.enabled` option that called methods that were gone. The scheduler sets up its own queue, workers and history from `scheduler.modern`
+    * Replaced deprecated library calls (Cron `factory()`, Monolog level constants, Doctrine `getOrderings()`, `utf8_encode()`) and removed compatibility branches for Twig 1/2 and PHP 7 that could no longer run
 
 # v2.2.32
 ## 11/20/2026

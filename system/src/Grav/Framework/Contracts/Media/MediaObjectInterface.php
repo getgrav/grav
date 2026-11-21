@@ -22,14 +22,12 @@ interface MediaObjectInterface extends IdentifierInterface
      * Get metadata associated to the media object.
      *
      * @return array
-     * @phpstan-pure
      */
     public function getMeta(): array;
 
     /**
      * @param string $field
      * @return mixed
-     * @phpstan-pure
      */
     public function get(string $field);
 
@@ -37,7 +35,6 @@ interface MediaObjectInterface extends IdentifierInterface
      * Return URL pointing to the media object.
      *
      * @return string
-     * @phpstan-pure
      */
     public function getUrl(): string;
 
@@ -46,7 +43,6 @@ interface MediaObjectInterface extends IdentifierInterface
      *
      * @param array $actions
      * @return ResponseInterface
-     * @phpstan-pure
      */
     public function createResponse(array $actions): ResponseInterface;
 }

@@ -59,11 +59,8 @@ class PluginCommandLoader implements CommandLoaderInterface
                     $this->commands[$command->getName()] = $command;
 
                     // If the command has an alias, add that as a possible command name.
-                    $aliases = $this->commands[$command->getName()]->getAliases();
-                    if (isset($aliases)) {
-                        foreach ($aliases as $alias) {
-                            $this->commands[$alias] = $command;
-                        }
+                    foreach ($command->getAliases() as $alias) {
+                        $this->commands[$alias] = $command;
                     }
                 }
             }

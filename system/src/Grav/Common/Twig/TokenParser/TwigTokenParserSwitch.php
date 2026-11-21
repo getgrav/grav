@@ -99,7 +99,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new TwigNodeSwitch($name, new Nodes($cases), $default, $lineno, $this->getTag());
+        return new TwigNodeSwitch($name, new Nodes($cases), $default, $lineno);
     }
 
     /**

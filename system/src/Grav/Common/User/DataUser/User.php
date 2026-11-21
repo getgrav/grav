@@ -126,7 +126,7 @@ class User extends Data implements UserInterface
     {
         if ($storage) {
             // The file object keeps what it has read: this is the account the object was built from.
-            $this->_original = $storage->filename() ? (array)$storage->content() : [];
+            $this->_original = method_exists($storage, 'filename') && $storage->filename() ? (array)$storage->content() : [];
         }
 
         return parent::file($storage);

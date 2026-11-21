@@ -103,7 +103,6 @@ trait UriDecorationTrait
         $new = clone $this;
         $new->uri = $this->uri->withScheme($scheme);
 
-        /** @var UriInterface $new */
         return $new;
     }
 
@@ -117,7 +116,6 @@ trait UriDecorationTrait
         $new = clone $this;
         $new->uri = $this->uri->withUserInfo($user, $password);
 
-        /** @var UriInterface $new */
         return $new;
     }
 
@@ -130,7 +128,6 @@ trait UriDecorationTrait
         $new = clone $this;
         $new->uri = $this->uri->withHost($host);
 
-        /** @var UriInterface $new */
         return $new;
     }
 
@@ -143,7 +140,6 @@ trait UriDecorationTrait
         $new = clone $this;
         $new->uri = $this->uri->withPort($port);
 
-        /** @var UriInterface $new */
         return $new;
     }
 
@@ -156,7 +152,6 @@ trait UriDecorationTrait
         $new = clone $this;
         $new->uri = $this->uri->withPath($path);
 
-        /** @var UriInterface $new */
         return $new;
     }
 
@@ -169,7 +164,6 @@ trait UriDecorationTrait
         $new = clone $this;
         $new->uri = $this->uri->withQuery($query);
 
-        /** @var UriInterface $new */
         return $new;
     }
 
@@ -182,7 +176,6 @@ trait UriDecorationTrait
         $new = clone $this;
         $new->uri = $this->uri->withFragment($fragment);
 
-        /** @var UriInterface $new */
         return $new;
     }
 }

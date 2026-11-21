@@ -253,6 +253,7 @@ class Excerpts
         if ($found) {
             // Work on a copy: the page's medium is shared by every embed of the
             // file, and actions like the querystring outlive reset().
+            /** @var \Grav\Common\Media\Interfaces\MediaObjectInterface $found */
             /** @var Medium $medium */
             $medium = $found->copy();
 
@@ -312,7 +313,8 @@ class Excerpts
             // dispatched by ImageMediaTrait::__call() off its own allowlist, so ask
             // for that too. Without it every processing default was silently dropped.
             // getgrav/grav#4282.
-            $magic = property_exists($medium, 'magic_actions') ? (array) $medium::$magic_actions : [];
+            $class = $medium::class;
+            $magic = property_exists($class, 'magic_actions') ? (array) $class::$magic_actions : [];
 
             foreach ($defaults as $method => $params) {
                 if (!method_exists($medium, (string) $method) && !in_array((string) $method, $magic, true)) {
