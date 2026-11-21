@@ -3,6 +3,13 @@
 
 1. [](#improved)
     * Added PHP 8.6 compatibility (while keeping PHP 8.3+ support): replaced deprecated `spl_object_hash()` calls with `spl_object_id()`, replaced `is_a()` on possible strings with `instanceof ArrayAccess`, guarded `parse_str()` and `Uri::pathExists()` against NUL-byte `ValueError` exceptions, handled `preg_grep()` and `Collator::asort()` error fallbacks, normalized `Page::taxonomy()` input before `array_walk()`, and cleaned up remaining PHP 8.5+ deprecations (`finfo_close()`, `Reflection*::setAccessible()`, `case ...;`, null array offset in `Job`, and `imagedestroy()` in tests)
+    * Faster page rendering on large sites: navigation menus work out the current page's parents once per request instead of once per menu item, and `active()`/`activeChild()` and absolute URLs look up a single route instead of loading every route from the lazy page index
+    * Sorting a collection no longer encodes every page's metadata as JSON to build its cache key, which took about 1 ms per sort on a 2,000-page blog
+    * `dateRange` and `type`/`types` collection filters read page dates and templates from the page index instead of loading every page in the collection (20–25% faster on a 2,000-page blog)
+    * The Redis and Memcached cache drivers share one connection per request instead of opening one for each cache
+    * Smaller savings: linked CSS/JS pipeline bundles aren't read from disk on every request, the summary-divider regex only runs when the content has a divider, and `Collection::isFirst()`/`isLast()` no longer copy the item list
+1. [](#bugfix)
+    * `Utils::replaceLastOccurrence()` no longer cuts in the wrong place when the text has multibyte characters before the match (`/blog/über-uns.json` came out as `/blog/über-uns.`)
 
 # v2.2.32
 ## 11/20/2026
