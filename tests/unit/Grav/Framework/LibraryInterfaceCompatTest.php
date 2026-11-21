@@ -46,6 +46,28 @@ class LibraryInterfaceCompatTest extends \PHPUnit\Framework\TestCase
 
         self::assertInstanceOf(LogRecord::class, $processed);
         self::assertSame('message', $processed->message);
+        self::assertArrayNotHasKey('user', $processed->extra, 'No account, nothing added');
+
+        $grav = \Grav\Common\Grav::instance();
+        $before = $grav['user'] ?? null;
+        $user = new class (['username' => 'bob', 'email' => 'bob@example.com']) extends \Grav\Common\User\DataUser\User {
+            public function exists(): bool
+            {
+                return true;
+            }
+        };
+        unset($grav['user']);
+        $grav['user'] = $user;
+        try {
+            $processed = (new UserProcessor())(new LogRecord(new DateTimeImmutable(), 'grav', Level::Info, 'signed in'));
+        } finally {
+            unset($grav['user']);
+            if ($before) {
+                $grav['user'] = $before;
+            }
+        }
+
+        self::assertSame(['username' => 'bob', 'email' => 'bob@example.com'], $processed->extra['user']);
     }
 
     public function testSessionCacheStoresInTheSession(): void

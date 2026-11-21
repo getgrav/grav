@@ -71,4 +71,21 @@ class FlexIndexFindFirstReduceTest extends \PHPUnit\Framework\TestCase
         self::assertSame(['Alice', 'Bob', 'Carol'], $names);
         self::assertSame('start', $index->filter(static fn() => false)->reduce(static fn(): string => 'changed', 'start'));
     }
+
+    public function testFlexFeaturesListTheImplementedInterfaces(): void
+    {
+        $directory = new FlexDirectory('user-accounts', 'blueprints://flex/user-accounts.yaml', [
+            'enabled' => true,
+            'object' => ['cache' => ['index' => ['enabled' => false], 'object' => ['enabled' => false]]],
+        ]);
+        $index = $directory->getIndex();
+
+        foreach ([$index->getFlexFeatures(), $directory->createCollection([])->getFlexFeatures(), $index->load('alice')->getFlexFeatures()] as $features) {
+            self::assertIsArray($features);
+            self::assertNotEmpty($features);
+            self::assertContainsOnly('string', $features);
+        }
+        self::assertContains('flex-object', $index->load('alice')->getFlexFeatures());
+        self::assertContains('flex-collection', $index->getFlexFeatures(), 'The index lists what its collection class implements');
+    }
 }

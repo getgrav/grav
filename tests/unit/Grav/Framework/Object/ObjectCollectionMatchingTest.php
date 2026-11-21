@@ -19,6 +19,7 @@ class ObjectCollectionMatchingTest extends \PHPUnit\Framework\TestCase
     {
         self::assertInstanceOf(ExpressionVisitor::class, new ObjectExpressionVisitor());
         self::assertNotInstanceOf(ClosureExpressionVisitor::class, new ObjectExpressionVisitor());
+        self::assertSame(5, (new ObjectExpressionVisitor())->walkValue(new \Doctrine\Common\Collections\Expr\Value(5)));
     }
 
     public function testComparisonsCombineWithAndOrNot(): void

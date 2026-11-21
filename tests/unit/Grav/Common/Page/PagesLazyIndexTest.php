@@ -393,6 +393,47 @@ class PagesLazyIndexTest extends \PHPUnit\Framework\TestCase
         self::assertSame([], array_filter($pages->sortReads, static fn(string $key) => !str_starts_with($key, '/')), 'Only folder paths are read from the sort store');
     }
 
+    public function testFiltersSkipAPageThatNoLongerExists(): void
+    {
+        $pages = $this->request(false);
+        $gone = $this->pagesDir . '/02.blog/deleted-post';
+        $items = [$gone => ['slug' => 'deleted-post']];
+
+        self::assertCount(0, (new Collection($items, [], $pages))->dateRange('2000-01-01', null, 'header.date'));
+        self::assertCount(0, (new Collection($items, [], $pages))->ofType('item'));
+    }
+
+    public function testCollectionFirstAndLast(): void
+    {
+        $pages = $this->request(false);
+        $children = $pages->find('/blog')->children();
+        $keys = array_keys($children->toArray());
+
+        self::assertTrue($children->isFirst($keys[0]));
+        self::assertFalse($children->isFirst($keys[1]));
+        self::assertTrue($children->isLast(end($keys)));
+        self::assertFalse($children->isLast($keys[0]));
+        self::assertFalse((new Collection())->isFirst('/anything'), 'An empty collection has no first item');
+        self::assertFalse((new Collection())->isLast('/anything'));
+    }
+
+    public function testLastModifiedHeaderCountsTheModules(): void
+    {
+        touch($this->pagesDir . '/03.landing/_features/features.md', time() - 60);
+        clearstatcache();
+        $pages = $this->request(false);
+        $landing = $pages->find('/landing');
+        $landing->lastModified(true);
+
+        $newest = $landing->modified();
+        foreach ($landing->children()->modules() as $module) {
+            $newest = max($newest, $module->modified());
+        }
+
+        self::assertGreaterThan($landing->modified(), $newest, 'A module changed after the page itself');
+        self::assertSame(gmdate('D, d M Y H:i:s', $newest) . ' GMT', $landing->httpHeaders()['Last-Modified']);
+    }
+
     /**
      * Everything a theme reads from the pages, in a form that compares across requests.
      */
