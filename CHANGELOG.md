@@ -17,7 +17,7 @@
     * `FlexIndex::findFirst()` and `reduce()` return a result instead of always returning `null`
     * `bin/gpm selfupgrade` no longer calls `strftime()`, which is deprecated and removed in PHP 9
     * Removed the unused `Scheduler\SchedulerController` class, which pointed to a scheduler class that no longer exists, and the scheduler service's setup for a `scheduler.modern.enabled` option that called methods that were gone. The scheduler sets up its own queue, workers and history from `scheduler.modern`
-    * Replaced deprecated library calls (Cron `factory()`, Monolog level constants, Doctrine `getOrderings()`, `utf8_encode()`) and removed compatibility branches for Twig 1/2 and PHP 7 that could no longer run
+    * Replaced deprecated library calls (Cron `factory()`, Monolog level constants, Doctrine `getOrderings()`, `utf8_encode()`) and removed compatibility branches for Twig 1/2 and PHP 7 that could no longer run, plus an unused Monolog 1/2 shim
     * Object collection filtering (`ObjectExpressionVisitor`) no longer extends Doctrine's `ClosureExpressionVisitor`, which Doctrine marks final and may lock in a future major version. It builds on Doctrine's abstract `ExpressionVisitor` and handles AND/OR/NOT itself, with the same results
 
 # v2.2.32
