@@ -1001,7 +1001,6 @@ class Uri implements \Stringable
 
             // check if page exists for this route, and if so, check if it has SSL enabled
             $pages = $grav['pages'];
-            $routes = $pages->routes();
 
             // if this is an image, get the proper path
             $url_bits = Utils::pathinfo($url_path);
@@ -1020,8 +1019,9 @@ class Uri implements \Stringable
             }
 
             // look to see if this page exists and has ssl enabled
-            if (isset($routes[$target_path])) {
-                $target_page = $pages->get($routes[$target_path]);
+            $target_page_path = $pages->routePath($target_path);
+            if (null !== $target_page_path) {
+                $target_page = $pages->get($target_page_path);
                 if ($target_page) {
                     $ssl_enabled = $target_page->ssl();
                     if ($ssl_enabled !== null) {

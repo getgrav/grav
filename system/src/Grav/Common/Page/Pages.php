@@ -604,6 +604,18 @@ class Pages
     }
 
     /**
+     * Resolve a single route to its page path without loading the full route
+     * map (a point lookup against the index store when the map is lazy).
+     *
+     * @param string $route
+     * @return string|null
+     */
+    public function routePath(string $route): ?string
+    {
+        return $this->routeToPath($route);
+    }
+
+    /**
      * Resolve a route to a page path, using the index store for point lookups
      * when the route map is lazy.
      *
