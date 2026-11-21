@@ -1120,8 +1120,12 @@ class Page implements PageInterface, PageUuidInterface
             // into markup (`<scr<p>===</p>ipt>`) that the tagfilter and the save-time
             // XSS scan never saw.
             $delimiter = $config->get('site.summary.delimiter', '===');
-            $divider = '~(?:\G|>)\s*\K' . preg_quote("<p>{$delimiter}</p>", '~') . '(?=\s*(?:<|$))~';
-            $parts = preg_split($divider, (string) $this->content);
+            $marker = "<p>{$delimiter}</p>";
+            $parts = null;
+            if (str_contains((string) $this->content, $marker)) {
+                $divider = '~(?:\G|>)\s*\K' . preg_quote($marker, '~') . '(?=\s*(?:<|$))~';
+                $parts = preg_split($divider, (string) $this->content);
+            }
             if ($parts && count($parts) > 1) {
                 $this->summary_size = mb_strlen($parts[0]);
                 $this->content = implode('', $parts);

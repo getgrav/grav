@@ -293,7 +293,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function isFirst($path): bool
     {
-        return $this->items && $path === array_keys($this->items)[0];
+        return $this->items && $path === array_key_first($this->items);
     }
 
     /**
@@ -304,7 +304,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function isLast($path): bool
     {
-        return $this->items && $path === array_keys($this->items)[count($this->items) - 1];
+        return $this->items && $path === array_key_last($this->items);
     }
 
     /**
