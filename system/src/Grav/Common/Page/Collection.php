@@ -382,15 +382,31 @@ class Collection extends Iterator implements PageCollectionInterface
         $start = $startDate ? Utils::date2timestamp($startDate) : null;
         $end = $endDate ? Utils::date2timestamp($endDate) : null;
 
-        $date_range = [];
-        $this->pages->prefetch(array_keys($this->items));
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if (!$page) {
-                continue;
+        // Without a custom field the page date is in the children index, so only
+        // load the pages whose index entry lacks it (same rule as filterByPageFlag:
+        // a hydrated page's live value wins over the frozen index value).
+        $load = [];
+        foreach ($this->items as $path => $info) {
+            if ($field || !is_array($info) || !isset($info['date'])) {
+                $load[] = $path;
             }
+        }
+        if ($load) {
+            $this->pages->prefetch($load);
+        }
 
-            $date = $field ? Utils::strtotime($page->value($field)) : $page->date();
+        $date_range = [];
+        foreach ($this->items as $path => $slug) {
+            if (!$field && is_array($slug) && isset($slug['date']) && !$this->pages->isInstantiated($path)) {
+                $date = $slug['date'];
+            } else {
+                $page = $this->pages->get($path);
+                if (!$page) {
+                    continue;
+                }
+
+                $date = $field ? Utils::strtotime($page->value($field)) : $page->date();
+            }
 
             if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
                 $date_range[$path] = $slug;
