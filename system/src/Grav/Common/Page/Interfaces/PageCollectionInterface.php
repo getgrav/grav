@@ -23,7 +23,7 @@ use Traversable;
  * @template TKey of array-key
  * @template T
  * @extends Traversable<TKey,T>
- * @extends ArrayAccess<TKey|null,T>
+ * @extends ArrayAccess<TKey,T>
  */
 interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, Serializable
 {

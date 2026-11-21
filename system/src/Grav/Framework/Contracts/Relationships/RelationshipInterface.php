@@ -7,6 +7,7 @@ use Grav\Framework\Contracts\Object\IdentifierInterface;
 use IteratorAggregate;
 use JsonSerializable;
 use Serializable;
+use Traversable;
 
 /**
  * Interface Relationship
@@ -75,7 +76,7 @@ interface RelationshipInterface extends Countable, IteratorAggregate, JsonSerial
     public function removeIdentifier(?IdentifierInterface $identifier = null): bool;
 
     /**
-     * @return iterable<T>
+     * @return Traversable<T>
      */
-    public function getIterator(): iterable;
+    public function getIterator(): Traversable;
 }

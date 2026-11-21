@@ -7,6 +7,7 @@ use Grav\Framework\Compat\Serializable;
 use Grav\Framework\Contracts\Object\IdentifierInterface;
 use Grav\Framework\Contracts\Relationships\ToOneRelationshipInterface;
 use Grav\Framework\Relationships\Traits\RelationshipTrait;
+use Traversable;
 use function is_callable;
 
 /**
@@ -160,10 +161,10 @@ class ToOneRelationship implements ToOneRelationshipInterface
     }
 
     /**
-     * @return iterable<IdentifierInterface>
+     * @return Traversable<IdentifierInterface>
      * @phpstan-pure
      */
-    public function getIterator(): iterable
+    public function getIterator(): Traversable
     {
         return new ArrayIterator((array)$this->identifier);
     }

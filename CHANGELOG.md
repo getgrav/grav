@@ -12,6 +12,10 @@
     * `Utils::replaceLastOccurrence()` no longer cuts in the wrong place when the text has multibyte characters before the match (`/blog/über-uns.json` came out as `/blog/über-uns.`)
     * `Uri::post()` with a filter no longer logs a PHP deprecation on every call. It compared against the deprecated `FILTER_SANITIZE_STRING` constant, which PHP 9 removes
     * Removed a call to `ArrayAdapter::setNamespace()`, which doesn't exist in Symfony Cache 7, from the `array` cache driver, plus a few smaller static-analysis cleanups
+    * `Grav\Framework\Psr7\ServerRequest`, `Grav\Framework\Logger\Processors\UserProcessor` and `Grav\Framework\Cache\Adapter\SessionCache` load again. Their method signatures no longer matched PSR-7 2.0, Monolog 3 and Grav's cache base class, so PHP stopped with a fatal error on first use
+    * The Flex relationship classes no longer log PHP deprecations when they load
+    * `FlexIndex::findFirst()` and `reduce()` return a result instead of always returning `null`
+    * `bin/gpm selfupgrade` no longer calls `strftime()`, which is deprecated and removed in PHP 9
 
 # v2.2.32
 ## 11/20/2026

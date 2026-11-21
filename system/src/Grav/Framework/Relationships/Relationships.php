@@ -104,7 +104,7 @@ class Relationships implements RelationshipsInterface
      * @param string $offset
      * @return never-return
      */
-    public function offsetSet($offset, mixed $value)
+    public function offsetSet($offset, mixed $value): void
     {
         throw new RuntimeException('Setting relationship is not supported', 500);
     }
@@ -113,7 +113,7 @@ class Relationships implements RelationshipsInterface
      * @param string $offset
      * @return never-return
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new RuntimeException('Removing relationship is not allowed', 500);
     }

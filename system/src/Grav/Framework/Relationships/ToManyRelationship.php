@@ -7,6 +7,7 @@ use Grav\Framework\Compat\Serializable;
 use Grav\Framework\Contracts\Object\IdentifierInterface;
 use Grav\Framework\Contracts\Relationships\ToManyRelationshipInterface;
 use Grav\Framework\Relationships\Traits\RelationshipTrait;
+use Traversable;
 use function count;
 use function is_callable;
 
@@ -207,10 +208,10 @@ class ToManyRelationship implements ToManyRelationshipInterface
     }
 
     /**
-     * @return iterable<IdentifierInterface>
+     * @return Traversable<IdentifierInterface>
      * @phpstan-pure
      */
-    public function getIterator(): iterable
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->identifiers);
     }

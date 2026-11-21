@@ -924,14 +924,20 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
         return $type . $this->getFlexType();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function findFirst(Closure $p)
     {
-        // TODO: Implement findFirst() method.
+        return $this->loadCollection($this->getEntries())->findFirst($p);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function reduce(Closure $func, mixed $initial = null)
     {
-        // TODO: Implement reduce() method.
+        return $this->loadCollection($this->getEntries())->reduce($func, $initial);
     }
 
 }
