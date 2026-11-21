@@ -748,7 +748,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
 
         $storage = $this->getFlexDirectory()->getStorage();
 
-        $storageKey = $this->getStorageKey() ?:  '@@' . spl_object_hash($this);
+        $storageKey = $this->getStorageKey() ?: '@@' . spl_object_id($this);
 
         $result = $storage->replaceRows([$storageKey => $this->prepareStorage()]);
 

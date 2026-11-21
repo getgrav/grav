@@ -1219,8 +1219,9 @@ abstract class Utils
         // Prefer using finfo if it exists.
         if (extension_loaded('fileinfo')) {
             $finfo = finfo_open(FILEINFO_SYMLINK | FILEINFO_MIME_TYPE);
-            $type = finfo_file($finfo, $filename);
-            finfo_close($finfo);
+            if ($finfo !== false) {
+                $type = finfo_file($finfo, $filename);
+            }
         } else {
             // Fall back to use getimagesize() if it is available (not recommended, but better than nothing)
             $info = @getimagesize($filename);

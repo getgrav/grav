@@ -127,7 +127,6 @@ class PageContentTwigOrderTest extends \PHPUnit\Framework\TestCase
     protected function cacheId(PageInterface $page): string
     {
         $method = new ReflectionMethod($page, 'getPageContentCacheKey');
-        $method->setAccessible(true);
 
         return md5('page' . $method->invoke($page, $this->grav['config']));
     }

@@ -73,7 +73,6 @@ class NonceKeySecurityTest extends \PHPUnit\Framework\TestCase
         $reflection = new ReflectionClass(Security::class);
         if ($reflection->hasProperty('nonceKey')) {
             $p = $reflection->getProperty('nonceKey');
-            $p->setAccessible(true);
             $p->setValue(null, null);
         }
     }
@@ -171,7 +170,6 @@ class NonceKeySecurityTest extends \PHPUnit\Framework\TestCase
         /** @var \RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
         $schemes = new ReflectionProperty($locator, 'schemes');
-        $schemes->setAccessible(true);
         $saved = $schemes->getValue($locator);
 
         $overlay = sys_get_temp_dir() . '/grav-nonce-overlay-' . bin2hex(random_bytes(4));
@@ -194,7 +192,6 @@ class NonceKeySecurityTest extends \PHPUnit\Framework\TestCase
     public function testIsGravInstall_OnlyWhereTheSystemFolderHoldsDefines(): void
     {
         $method = new ReflectionMethod(Security::class, 'isGravInstall');
-        $method->setAccessible(true);
 
         $root = sys_get_temp_dir() . '/grav-nonce-root-' . bin2hex(random_bytes(4));
         $elsewhere = sys_get_temp_dir() . '/grav-nonce-system-' . bin2hex(random_bytes(4));
@@ -225,7 +222,6 @@ class NonceKeySecurityTest extends \PHPUnit\Framework\TestCase
         // The real call: Grav's own suite runs from a Grav checkout, so the key
         // is kept on disk as on any site.
         $method = new ReflectionMethod(Security::class, 'isGravInstall');
-        $method->setAccessible(true);
         self::assertTrue($method->invoke(null, GRAV_ROOT, GRAV_SYSTEM_PATH));
     }
 

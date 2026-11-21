@@ -162,7 +162,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
             case 'action':
             case 'data':
             case 'files':
-            case 'errors';
+            case 'errors':
             case 'fields':
             case 'blueprint':
             case 'page':

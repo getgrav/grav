@@ -228,14 +228,12 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
     private function setAllYes(SelfupgradeCommand $command, bool $value): void
     {
         $ref = new \ReflectionProperty(SelfupgradeCommand::class, 'all_yes');
-        $ref->setAccessible(true);
         $ref->setValue($command, $value);
     }
 
     private function setProtectedProperty(object $object, string $property, $value): void
     {
         $ref = new \ReflectionProperty(\Grav\Console\GpmCommand::class, $property);
-        $ref->setAccessible(true);
         $ref->setValue($object, $value);
     }
 }

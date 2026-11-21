@@ -62,7 +62,6 @@ class UnserializeIntegritySecurityTest extends \PHPUnit\Framework\TestCase
     private function reconstruct(JobQueue $queue, array $item): ?Job
     {
         $m = (new ReflectionClass($queue))->getMethod('reconstructJob');
-        $m->setAccessible(true);
         return $m->invoke($queue, $item);
     }
 

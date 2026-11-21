@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Object\Access;
 
+use ArrayAccess;
 use Grav\Framework\Object\Interfaces\ObjectInterface;
 use RuntimeException;
 use stdClass;
@@ -62,7 +63,7 @@ trait NestedPropertyTrait
 
             $offset = array_shift($path);
 
-            if ((is_array($current) || is_a($current, 'ArrayAccess')) && isset($current[$offset])) {
+            if ((is_array($current) || $current instanceof ArrayAccess) && isset($current[$offset])) {
                 $current = $current[$offset];
             } elseif (is_object($current) && isset($current->{$offset})) {
                 $current = $current->{$offset};

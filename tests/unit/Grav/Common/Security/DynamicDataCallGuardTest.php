@@ -25,14 +25,12 @@ class DynamicDataCallGuardTest extends \PHPUnit\Framework\TestCase
     protected function setUp(): void
     {
         $prop = new ReflectionProperty(Blueprint::class, 'allowedDynamicCallables');
-        $prop->setAccessible(true);
         $this->allowlistSnapshot = $prop->getValue();
     }
 
     protected function tearDown(): void
     {
         $prop = new ReflectionProperty(Blueprint::class, 'allowedDynamicCallables');
-        $prop->setAccessible(true);
         $prop->setValue(null, $this->allowlistSnapshot);
     }
 
@@ -157,7 +155,6 @@ class DynamicDataCallGuardTest extends \PHPUnit\Framework\TestCase
         $ref = new ReflectionClass(FlexDirectory::class);
         $instance = $ref->newInstanceWithoutConstructor();
         $method = $ref->getMethod('dynamicDataField');
-        $method->setAccessible(true);
         $method->invokeArgs($instance, [&$field, $property, $call]);
     }
 }

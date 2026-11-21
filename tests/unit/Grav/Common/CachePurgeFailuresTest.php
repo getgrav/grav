@@ -176,7 +176,6 @@ class CachePurgeFailuresTest extends \Codeception\Test\Unit
     {
         $cache = $this->grav['cache'];
         $prop = new \ReflectionProperty(Cache::class, 'cache_dir');
-        $prop->setAccessible(true);
         $prop->setValue($cache, $current);
         // Keep the real compiled cache out of the purge.
         $this->grav['config']->set('system.cache.compiled_dir', 'tests://_output/' . basename($this->root) . '/compiled');

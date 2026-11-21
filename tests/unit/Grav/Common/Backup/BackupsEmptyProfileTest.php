@@ -73,7 +73,6 @@ class BackupsEmptyProfileTest extends \Codeception\Test\Unit
 
         $set = static function (string $name, $value) use ($ref, $scheduler): void {
             $property = $ref->getProperty($name);
-            $property->setAccessible(true);
             $property->setValue($scheduler, $value);
         };
         $set('status_path', sys_get_temp_dir());

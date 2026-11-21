@@ -205,7 +205,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
             case 'action':
             case 'data':
             case 'files':
-            case 'errors';
+            case 'errors':
             case 'fields':
             case 'blueprint':
             case 'page':

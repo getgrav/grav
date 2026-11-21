@@ -81,14 +81,17 @@ class RequestServiceProvider implements ServiceProviderInterface
             $query = static::queryFromRequestUri($server, $get);
             if ($query !== null) {
                 $server['QUERY_STRING'] = $query;
-                parse_str($query, $get);
+                $get = [];
+                if (!str_contains($query, "\0")) {
+                    parse_str($query, $get);
+                }
             }
 
             // Remove _url from ngnix routes.
             unset($get['_url']);
             if (isset($server['QUERY_STRING'])) {
                 $query = $server['QUERY_STRING'];
-                if (str_contains($query, '_url=')) {
+                if (str_contains($query, '_url=') && !str_contains($query, "\0")) {
                     parse_str($query, $query);
                     unset($query['_url']);
                     $server['QUERY_STRING'] = http_build_query($query);

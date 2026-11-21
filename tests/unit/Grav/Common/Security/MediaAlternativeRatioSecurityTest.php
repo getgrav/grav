@@ -47,7 +47,6 @@ class MediaAlternativeRatioSecurityTest extends \Codeception\Test\Unit
     {
         $image = imagecreatetruecolor($width, $height);
         imagepng($image, $this->dir . '/' . $name);
-        imagedestroy($image);
     }
 
     private function medium(string $name): ImageMedium

@@ -192,7 +192,6 @@ class InstallCompatibilityTest extends \PHPUnit\Framework\TestCase
     {
         $install = Install::instance();
         $ref = new \ReflectionMethod($install, $method);
-        $ref->setAccessible(true);
 
         return $ref->invoke($install, ...$args);
     }

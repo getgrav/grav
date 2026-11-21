@@ -93,7 +93,7 @@ class UriFactory
         }
 
         // Support ngnix routes.
-        if (str_starts_with((string) $query, '_url=')) {
+        if (str_starts_with((string) $query, '_url=') && !str_contains((string) $query, "\0")) {
             parse_str((string) $query, $q);
             unset($q['_url']);
             $query = http_build_query($q);
@@ -145,6 +145,10 @@ class UriFactory
      */
     public static function parseQuery($query)
     {
+        if (!is_string($query) || $query === '' || str_contains($query, "\0")) {
+            return [];
+        }
+
         parse_str($query, $params);
 
         return $params;

@@ -1787,7 +1787,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function regexFilter($array, $regex, $flags = 0)
     {
-        return preg_grep($regex, $array, $flags);
+        return preg_grep($regex, $array, $flags) ?: [];
     }
 
     /**

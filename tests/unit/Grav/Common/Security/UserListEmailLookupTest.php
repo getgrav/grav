@@ -38,7 +38,6 @@ class UserListEmailLookupTest extends \PHPUnit\Framework\TestCase
 
         $locator = $this->grav['locator'];
         $property = new ReflectionProperty($locator, 'schemes');
-        $property->setAccessible(true);
         $this->schemes = $property->getValue($locator);
         $property->setValue($locator, ['account' => ['' => [$this->accounts]]] + $this->schemes);
         $locator->clearCache();
@@ -48,7 +47,6 @@ class UserListEmailLookupTest extends \PHPUnit\Framework\TestCase
     {
         $locator = $this->grav['locator'];
         $property = new ReflectionProperty($locator, 'schemes');
-        $property->setAccessible(true);
         $property->setValue($locator, $this->schemes);
         $locator->clearCache();
         Folder::delete($this->accounts);

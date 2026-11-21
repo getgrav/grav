@@ -119,7 +119,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      */
     public function getKey()
     {
-        return $this->_key ?: $this->getFlexType() . '@@' . spl_object_hash($this);
+        return $this->_key ?: $this->getFlexType() . '@@' . spl_object_id($this);
     }
 
     /**

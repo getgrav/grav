@@ -891,7 +891,7 @@ class Uri implements \Stringable
     {
         $path = (string) $path;
 
-        return $path !== '' && strlen($path) < PHP_MAXPATHLEN && file_exists($path);
+        return $path !== '' && strlen($path) < PHP_MAXPATHLEN && !str_contains($path, "\0") && file_exists($path);
     }
 
     /**
@@ -1393,7 +1393,7 @@ class Uri implements \Stringable
         }
 
         // Support ngnix routes.
-        if (str_starts_with((string) $this->query, '_url=')) {
+        if (str_starts_with((string) $this->query, '_url=') && !str_contains((string) $this->query, "\0")) {
             parse_str((string) $this->query, $query);
             unset($query['_url']);
             $this->query = http_build_query($query);
@@ -1462,7 +1462,10 @@ class Uri implements \Stringable
     protected function reset()
     {
         // resets
-        parse_str($this->query, $this->queries);
+        $this->queries = [];
+        if (!str_contains((string) $this->query, "\0")) {
+            parse_str((string) $this->query, $this->queries);
+        }
         $this->extension    = null;
         $this->basename     = null;
         $this->paths        = [];

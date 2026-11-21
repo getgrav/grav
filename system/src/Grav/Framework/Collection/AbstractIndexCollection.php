@@ -361,7 +361,7 @@ abstract class AbstractIndexCollection implements CollectionInterface, \Stringab
     #[\ReturnTypeWillChange]
     public function __toString(): string
     {
-        return self::class . '@' . spl_object_hash($this);
+        return self::class . '@' . spl_object_id($this);
     }
 
     /**

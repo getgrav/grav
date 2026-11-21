@@ -498,7 +498,9 @@ class Debugger
             }
             if (!is_array($data)) {
                 $data = [];
-                parse_str($body, $data);
+                if (!str_contains($body, "\0")) {
+                    parse_str($body, $data);
+                }
             }
         }
         if ($data === [] && !empty($_POST)) {

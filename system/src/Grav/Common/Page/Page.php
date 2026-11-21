@@ -2927,6 +2927,11 @@ class Page implements PageInterface, PageUuidInterface
     public function taxonomy($var = null)
     {
         if ($var !== null) {
+            if (is_object($var)) {
+                $var = get_object_vars($var);
+            } elseif (!is_array($var)) {
+                $var = [];
+            }
             // make sure first level are arrays
             array_walk($var, static function (&$value) {
                 $value = (array) $value;

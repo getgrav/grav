@@ -43,7 +43,6 @@ class TwigContentDiagnosticsTest extends \PHPUnit\Framework\TestCase
     private function record(string $type, string $route, string $token = '', string $class = '', string $hint = ''): void
     {
         $m = new ReflectionMethod(Security::class, 'recordTwigContentEvent');
-        $m->setAccessible(true);
         $m->invoke(null, $type, $route, $token, $class, $hint);
     }
 

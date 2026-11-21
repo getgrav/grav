@@ -21,7 +21,6 @@ class PipelineCssRewriteTest extends \Codeception\Test\Unit
     {
         $pipeline = new Pipeline([]);
         $method = new \ReflectionMethod($pipeline, 'cssRewrite');
-        $method->setAccessible(true);
 
         return $method->invoke($pipeline, $css, $dir, $local);
     }

@@ -71,7 +71,6 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
 
         $processor = new InitializeProcessor($this->grav);
         $method = new ReflectionMethod($processor, 'handleRedirectRequest');
-        $method->setAccessible(true);
 
         $response = $method->invoke($processor, new ServerRequest('GET', $physicalUrl), 302);
 
@@ -301,7 +300,6 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
 
         $processor = new InitializeProcessor($this->grav);
         $method = new ReflectionMethod($processor, 'handleRedirectRequest');
-        $method->setAccessible(true);
 
         self::assertNull($method->invoke($processor, new ServerRequest('POST', 'http://localhost/page1/'), 302));
     }
@@ -316,7 +314,6 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
     public function testPathHasBase(string $path, string $base, bool $expected): void
     {
         $method = new ReflectionMethod(InitializeProcessor::class, 'pathHasBase');
-        $method->setAccessible(true);
 
         self::assertSame($expected, $method->invoke(null, $path, $base));
     }
@@ -350,7 +347,6 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
     public function testCastEnvironmentValue(mixed $input, mixed $expected): void
     {
         $method = new ReflectionMethod(InitializeProcessor::class, 'castEnvironmentValue');
-        $method->setAccessible(true);
 
         self::assertSame($expected, $method->invoke(null, $input));
     }
@@ -399,7 +395,6 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
         try {
             $processor = new InitializeProcessor($this->grav);
             $method = new ReflectionMethod($processor, 'initializeConfig');
-            $method->setAccessible(true);
             $method->invoke($processor);
 
             self::assertSame('from-server-only', $this->config->get('test.grav_config_4279'));
@@ -428,7 +423,6 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
         try {
             $processor = new InitializeProcessor($this->grav);
             $method = new ReflectionMethod($processor, 'initializeConfig');
-            $method->setAccessible(true);
             $method->invoke($processor);
 
             self::assertSame('from-getenv-fallback', $this->config->get('test.grav_config_4279'));

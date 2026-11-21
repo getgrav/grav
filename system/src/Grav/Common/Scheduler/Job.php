@@ -135,7 +135,7 @@ class Job
                 $this->id = md5((is_object($target) ? get_class($target) : (string) $target) . '::' . (string) $method);
             } else {
                 /* @var object $command */
-                $this->id = spl_object_hash($command);
+                $this->id = 'closure-' . spl_object_id($command);
             }
         }
         $this->creationTime = new DateTime('now');
@@ -144,7 +144,7 @@ class Job
         $this->command = $command;
         // Set enabled state
         $status = Grav::instance()['config']->get('scheduler.status');
-        $this->enabled = !(isset($status[$id]) && $status[$id] === 'disabled');
+        $this->enabled = !(is_array($status) && ($status[$this->id] ?? null) === 'disabled');
     }
 
     /**

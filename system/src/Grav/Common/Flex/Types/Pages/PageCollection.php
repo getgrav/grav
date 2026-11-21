@@ -373,6 +373,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
             $col = Collator::create($locale);
             if ($col) {
                 $col->setAttribute(Collator::NUMERIC_COLLATION, Collator::ON);
+                $collator_flags = $sort_flags;
                 if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
                     $list = preg_replace_callback('~([0-9]+)\.~', static fn($number) => sprintf('%032d.', $number[0]), $list);
                     if (!is_array($list)) {
@@ -381,13 +382,20 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 
                     $list_vals = array_values($list);
                     if (is_numeric(array_shift($list_vals))) {
-                        $sort_flags = Collator::SORT_REGULAR;
+                        $collator_flags = Collator::SORT_REGULAR;
                     } else {
-                        $sort_flags = Collator::SORT_STRING;
+                        $collator_flags = Collator::SORT_STRING;
                     }
                 }
 
-                $col->asort($list, $sort_flags);
+                try {
+                    $sorted = $col->asort($list, $collator_flags);
+                } catch (\IntlException) {
+                    $sorted = false;
+                }
+                if (!$sorted) {
+                    asort($list, $sort_flags);
+                }
             } else {
                 asort($list, $sort_flags);
             }

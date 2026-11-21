@@ -15,7 +15,6 @@ class DebuggerCredentialsTest extends \Codeception\Test\Unit
     private function credentials(ServerRequest $request): array
     {
         $method = new ReflectionMethod(Debugger::class, 'debuggerCredentials');
-        $method->setAccessible(true);
 
         return $method->invoke(new Debugger(), $request);
     }
@@ -24,7 +23,6 @@ class DebuggerCredentialsTest extends \Codeception\Test\Unit
     {
         $debugger = new Debugger();
         $property = new ReflectionProperty(Debugger::class, 'config');
-        $property->setAccessible(true);
         $property->setValue($debugger, new Config(['system' => ['debugger' => ['token' => $configuredToken]]]));
 
         $request = new ServerRequest(
@@ -36,7 +34,6 @@ class DebuggerCredentialsTest extends \Codeception\Test\Unit
             ['REMOTE_ADDR' => '127.0.0.1']
         );
         $method = new ReflectionMethod(Debugger::class, 'isDebuggerRequestAuthorized');
-        $method->setAccessible(true);
 
         return $method->invoke($debugger, $request);
     }

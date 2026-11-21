@@ -28,7 +28,6 @@ class PipelineLongStringTest extends \Codeception\Test\Unit
     {
         $pipeline = new Pipeline([]);
         $reflection = new \ReflectionMethod($pipeline, $method);
-        $reflection->setAccessible(true);
 
         return $reflection->invoke($pipeline, ...$args);
     }
