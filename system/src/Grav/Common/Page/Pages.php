@@ -2619,6 +2619,7 @@ class Pages
                         'modified' => $child->modified(),
                         'publish_date' => $child->publishDate(),
                         'folder' => $child->folder(),
+                        'template' => $child->template(),
                     ];
                 }
             }

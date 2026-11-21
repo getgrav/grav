@@ -419,6 +419,47 @@ class Collection extends Iterator implements PageCollectionInterface
     }
 
     /**
+     * Keep the items whose page template matches. The template is read from the
+     * children index while the page is still lazy, so filtering a large folder
+     * by type doesn't load every page; a hydrated page's live template wins.
+     *
+     * @param callable(string):bool $match
+     * @return $this
+     */
+    protected function filterByTemplate(callable $match)
+    {
+        $load = [];
+        foreach ($this->items as $path => $info) {
+            if (!is_array($info) || !isset($info['template'])) {
+                $load[] = $path;
+            }
+        }
+        if ($load) {
+            $this->pages->prefetch($load);
+        }
+
+        $items = [];
+        foreach ($this->items as $path => $info) {
+            if (is_array($info) && isset($info['template']) && !$this->pages->isInstantiated($path)) {
+                $template = (string)$info['template'];
+            } else {
+                $page = $this->pages->get($path);
+                if ($page === null) {
+                    continue;
+                }
+                $template = (string)$page->template();
+            }
+            if ($match($template)) {
+                $items[$path] = $info;
+            }
+        }
+
+        $this->items = $items;
+
+        return $this;
+    }
+
+    /**
      * Filter items by a structural flag (visible, routable, published, module)
      * recorded in the children index at build time.
      *
@@ -661,19 +702,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function ofType($type)
     {
-        $items = [];
-        $this->pages->prefetch(array_keys($this->items));
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && $page->template() === $type) {
-                $items[$path] = $slug;
-            }
-        }
-
-        $this->items = $items;
-
-        return $this;
+        return $this->filterByTemplate(static fn(string $template): bool => $template === $type);
     }
 
     /**
@@ -684,19 +713,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function ofOneOfTheseTypes($types)
     {
-        $items = [];
-        $this->pages->prefetch(array_keys($this->items));
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && in_array($page->template(), $types, true)) {
-                $items[$path] = $slug;
-            }
-        }
-
-        $this->items = $items;
-
-        return $this;
+        return $this->filterByTemplate(static fn(string $template): bool => in_array($template, $types, true));
     }
 
     /**
@@ -707,20 +724,9 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function notOfType($type)
     {
-        $items = [];
         $types = (array) $type;
-        $this->pages->prefetch(array_keys($this->items));
 
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && !in_array($page->template(), $types, true)) {
-                $items[$path] = $slug;
-            }
-        }
-
-        $this->items = $items;
-
-        return $this;
+        return $this->filterByTemplate(static fn(string $template): bool => !in_array($template, $types, true));
     }
 
     /**
