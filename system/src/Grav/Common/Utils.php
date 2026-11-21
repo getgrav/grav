@@ -505,8 +505,10 @@ abstract class Utils
     {
         $pos = strrpos($subject, $search);
 
+        // strrpos() gives a byte offset, so replace by bytes: a character-based
+        // replace would cut in the wrong place after any multibyte character.
         if ($pos !== false) {
-            $subject = static::mb_substr_replace($subject, $replace, $pos, mb_strlen($search));
+            $subject = substr_replace($subject, $replace, $pos, strlen($search));
         }
 
         return $subject;
