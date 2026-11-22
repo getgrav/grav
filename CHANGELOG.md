@@ -1,5 +1,5 @@
 # v2.2.33
-## mm/dd/2026
+## 11/22/2026
 
 1. [](#improved)
     * Added PHP 8.6 compatibility (while keeping PHP 8.3+ support): replaced deprecated `spl_object_hash()` calls with `spl_object_id()`, replaced `is_a()` on possible strings with `instanceof ArrayAccess`, guarded `parse_str()` and `Uri::pathExists()` against NUL-byte `ValueError` exceptions, handled `preg_grep()` and `Collator::asort()` error fallbacks, normalized `Page::taxonomy()` input before `array_walk()`, and cleaned up remaining PHP 8.5+ deprecations (`finfo_close()`, `Reflection*::setAccessible()`, `case ...;`, null array offset in `Job`, and `imagedestroy()` in tests)
