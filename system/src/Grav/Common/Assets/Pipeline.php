@@ -152,7 +152,8 @@ class Pipeline extends PropertyObject
 
         $filepath = "{$this->assets_dir}/{$file}";
         if (file_exists($filepath)) {
-            $buffer = file_get_contents($filepath) . "\n";
+            // A linked bundle is only referenced by URL, so read it only to inline it.
+            $buffer = $inline_group ? file_get_contents($filepath) . "\n" : '';
         } else {
             //if nothing found get out of here!
             if (empty($assets)) {
@@ -239,8 +240,16 @@ class Pipeline extends PropertyObject
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
         $filepath = "{$this->assets_dir}/{$file}";
 
+        $empty = null;
         if (file_exists($filepath)) {
-            $buffer = file_get_contents($filepath) . "\n";
+            // A linked bundle is only referenced by URL, so read it only to inline it.
+            // Empty bundles are never written, but keep the check for one that is.
+            if ($inline_group) {
+                $buffer = file_get_contents($filepath) . "\n";
+            } else {
+                $buffer = '';
+                $empty = filesize($filepath) === 0;
+            }
         } else {
             if ($shouldMinify) {
                 $result = $this->gatherAndMinifyJs($assets, $type);
@@ -275,7 +284,7 @@ class Pipeline extends PropertyObject
             }
         }
 
-        if (trim($buffer) === '') {
+        if ($empty ?? trim($buffer) === '') {
             $output = '';
         } elseif ($inline_group) {
             $output = '<script' . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";

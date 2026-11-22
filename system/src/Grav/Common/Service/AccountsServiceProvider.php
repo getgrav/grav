@@ -139,6 +139,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
     protected function regularAccounts(Container $container)
     {
         // Use User class for backwards compatibility.
+        // @phpstan-ignore classConstant.deprecatedClass
         return new DataUser\UserCollection(User::class);
     }
 

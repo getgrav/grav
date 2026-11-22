@@ -33,7 +33,6 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
         foreach (['twigSandboxPolicy', 'twigSandboxPolicyKey'] as $prop) {
             if ($reflection->hasProperty($prop)) {
                 $p = $reflection->getProperty($prop);
-                $p->setAccessible(true);
                 $p->setValue(null, null);
             }
         }

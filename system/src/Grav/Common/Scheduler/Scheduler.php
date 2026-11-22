@@ -20,6 +20,7 @@ use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Yaml\Yaml;
+use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Handler\FingersCrossedHandler;
 use Grav\Common\Log\LogRotator;
@@ -1100,7 +1101,7 @@ class Scheduler
         // did work still gets its debug context. Cron fires every minute, so the file
         // rotates by size like grav.log (#4355).
         $logFile = $locator->findResource('log://scheduler.log', true, true);
-        $this->logger->pushHandler(new FingersCrossedHandler(new RotatingStreamHandler($logFile, Logger::DEBUG), Logger::INFO, 0, true, false));
+        $this->logger->pushHandler(new FingersCrossedHandler(new RotatingStreamHandler($logFile, Level::Debug), Level::Info, 0, true, false));
     }
     
     /**

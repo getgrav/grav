@@ -788,4 +788,13 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertFalse(Utils::checkFilename('foo.php7.gif'));
         self::assertTrue(Utils::checkFilename('foo.html'));
     }
+
+    public function testReplaceLastOccurrenceWithMultibyteText(): void
+    {
+        self::assertSame('/blog/über-uns', Utils::replaceLastOccurrence('.json', '', '/blog/über-uns.json'));
+        self::assertSame('/café/x/a/y', Utils::replaceLastOccurrence('/x', '/y', '/café/x/a/x'));
+        self::assertSame('/日本語/ブログ', Utils::replaceLastOccurrence('.rss', '', '/日本語/ブログ.rss'));
+        self::assertSame('/blog/feed', Utils::replaceLastOccurrence('.rss', '', '/blog/feed.rss'));
+        self::assertSame('no match', Utils::replaceLastOccurrence('.rss', '', 'no match'));
+    }
 }

@@ -45,7 +45,6 @@ class DynamicFlexCallGuardTest extends \PHPUnit\Framework\TestCase
     {
         $class = new ReflectionClass(FlexDirectory::class);
         $method = $class->getMethod('dynamicFlexField');
-        $method->setAccessible(true);
         $call = ['action' => 'flex', 'params' => $params, 'object' => $object, 'trusted' => $trusted];
         $method->invokeArgs($class->newInstanceWithoutConstructor(), [&$field, $property, $call]);
     }

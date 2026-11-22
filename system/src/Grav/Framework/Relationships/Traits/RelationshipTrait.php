@@ -81,7 +81,6 @@ trait RelationshipTrait
 
     /**
      * @return void
-     * @phpstan-pure
      */
     public function check(): void
     {

@@ -52,7 +52,6 @@ class MediaAttributeSecurityTest extends \PHPUnit\Framework\TestCase
     {
         $r = new ReflectionClass($medium);
         $p = $r->getProperty('attributes');
-        $p->setAccessible(true);
         return (array) $p->getValue($medium);
     }
 

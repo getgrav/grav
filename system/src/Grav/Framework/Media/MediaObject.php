@@ -47,6 +47,7 @@ class MediaObject implements MediaObjectInterface
 
     /**
      * @return string
+     * @phpstan-impure
      */
     public function getId(): string
     {

@@ -36,7 +36,6 @@ class UserCollectionCountTest extends \PHPUnit\Framework\TestCase
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
         $schemes = new ReflectionProperty($locator, 'schemes');
-        $schemes->setAccessible(true);
         $this->savedSchemes = $schemes->getValue($locator);
     }
 
@@ -45,7 +44,6 @@ class UserCollectionCountTest extends \PHPUnit\Framework\TestCase
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
         $schemes = new ReflectionProperty($locator, 'schemes');
-        $schemes->setAccessible(true);
         $schemes->setValue($locator, $this->savedSchemes);
         $locator->clearCache();
 

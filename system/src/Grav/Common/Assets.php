@@ -749,7 +749,7 @@ class Assets extends PropertyObject
         foreach ($assets as $key => $asset) {
             $value = null;
 
-            if (method_exists($asset, 'hasNestedProperty')) {
+            if (is_object($asset) && method_exists($asset, 'hasNestedProperty')) {
                 if ($asset->hasNestedProperty($attribute)) {
                     $value = $asset->getNestedProperty($attribute);
                 } elseif ($asset->hasNestedProperty('attributes.' . $attribute)) {

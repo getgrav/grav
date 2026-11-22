@@ -407,7 +407,6 @@ $this->grav = Fixtures::get('grav');
     private function invokeMerge(string $package): array
     {
         $method = new ReflectionMethod(GPM::class, 'calculateMergedDependenciesOfPackage');
-        $method->setAccessible(true);
 
         return $method->invoke($this->gpm, $package, []);
     }

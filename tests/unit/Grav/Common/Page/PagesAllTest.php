@@ -153,7 +153,6 @@ class PagesAllTest extends \PHPUnit\Framework\TestCase
     private function property(string $name)
     {
         $property = new ReflectionProperty(Pages::class, $name);
-        $property->setAccessible(true);
 
         return $property->getValue($this->pages);
     }
@@ -161,7 +160,6 @@ class PagesAllTest extends \PHPUnit\Framework\TestCase
     private function setProperty(string $name, $value): void
     {
         $property = new ReflectionProperty(Pages::class, $name);
-        $property->setAccessible(true);
         $property->setValue($this->pages, $value);
     }
 }

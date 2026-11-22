@@ -128,7 +128,7 @@ class SelfupgradeCommand extends GpmCommand
 
             $local = $this->upgrader->getLocalVersion();
             $remote = $this->upgrader->getRemoteVersion();
-            $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
+            $release = date('D M j H:i:s Y', (int)strtotime($this->upgrader->getReleaseDate()));
 
             if (!$this->upgrader->meetsRequirements()) {
                 $io->writeln('<red>ATTENTION:</red>');

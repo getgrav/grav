@@ -69,7 +69,6 @@ class Exceptions implements MiddlewareInterface
                 ];
             }
 
-            /** @var string $json */
             $json = json_encode($response, JSON_THROW_ON_ERROR);
 
             return new Response($code ?: 500, ['Content-Type' => 'application/json'], $json);

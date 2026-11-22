@@ -174,7 +174,6 @@ class SessionSiteBindingTest extends \PHPUnit\Framework\TestCase
         $session = $this->grav['session'];
 
         $property = new ReflectionProperty(Session::class, 'site');
-        $property->setAccessible(true);
         $site = $property->getValue($session);
 
         $name = 'grav-site-' . substr(md5(GRAV_ROOT), 0, 7);

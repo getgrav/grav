@@ -73,7 +73,6 @@ class MarkdownSpecialCharsTest extends \PHPUnit\Framework\TestCase
         $parsedown->setSpecialChars(['>' => 'gt', '<' => '<b>', '"' => 'quot;']);
 
         $property = new ReflectionProperty($parsedown, 'special_chars');
-        $property->setAccessible(true);
 
         self::assertSame(['>' => 'gt'], $property->getValue($parsedown));
     }

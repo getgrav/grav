@@ -55,7 +55,7 @@ trait PageLegacyTrait
      *
      * @param  SplFileInfo $file The file information for the .md file that the page represents
      * @param  string|null $extension
-     * @return $this
+     * @return never
      */
     public function init(SplFileInfo $file, $extension = null): never
     {

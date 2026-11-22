@@ -247,11 +247,11 @@ class SessionServiceProvider implements ServiceProviderInterface
             if (str_starts_with($name, $prefix)) {
                 $rest = substr($name, strlen($prefix));
 
-                return $prefix . (static::isValidCookieName($rest) ? $rest : $inflector->hyphenize($rest));
+                return $prefix . (self::isValidCookieName($rest) ? $rest : $inflector->hyphenize($rest));
             }
         }
 
-        return static::isValidCookieName($name) ? $name : $inflector->hyphenize($name);
+        return self::isValidCookieName($name) ? $name : $inflector->hyphenize($name);
     }
 
     /**

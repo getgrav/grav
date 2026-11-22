@@ -821,7 +821,7 @@ class Page implements PageInterface, PageUuidInterface
         // Set Last-Modified header
         if ($this->lastModified()) {
             $last_modified = $this->modified();
-            foreach ($this->children()->modular() as $cpage) {
+            foreach ($this->children()->modules() as $cpage) {
                 $modular_mtime = $cpage->modified();
                 if ($modular_mtime > $last_modified) {
                     $last_modified = $modular_mtime;
@@ -1120,8 +1120,12 @@ class Page implements PageInterface, PageUuidInterface
             // into markup (`<scr<p>===</p>ipt>`) that the tagfilter and the save-time
             // XSS scan never saw.
             $delimiter = $config->get('site.summary.delimiter', '===');
-            $divider = '~(?:\G|>)\s*\K' . preg_quote("<p>{$delimiter}</p>", '~') . '(?=\s*(?:<|$))~';
-            $parts = preg_split($divider, (string) $this->content);
+            $marker = "<p>{$delimiter}</p>";
+            $parts = null;
+            if (str_contains((string) $this->content, $marker)) {
+                $divider = '~(?:\G|>)\s*\K' . preg_quote($marker, '~') . '(?=\s*(?:<|$))~';
+                $parts = preg_split($divider, (string) $this->content);
+            }
             if ($parts && count($parts) > 1) {
                 $this->summary_size = mb_strlen($parts[0]);
                 $this->content = implode('', $parts);
@@ -2927,6 +2931,11 @@ class Page implements PageInterface, PageUuidInterface
     public function taxonomy($var = null)
     {
         if ($var !== null) {
+            if (is_object($var)) {
+                $var = get_object_vars($var);
+            } elseif (!is_array($var)) {
+                $var = [];
+            }
             // make sure first level are arrays
             array_walk($var, static function (&$value) {
                 $value = (array) $value;
@@ -3137,9 +3146,9 @@ class Page implements PageInterface, PageUuidInterface
     public function active()
     {
         $uri_path = rtrim(urldecode((string) Grav::instance()['uri']->path()), '/') ?: '/';
-        $routes = Grav::instance()['pages']->routes();
+        $path = Grav::instance()['pages']->routePath($uri_path);
 
-        return isset($routes[$uri_path]) && $routes[$uri_path] === $this->path();
+        return null !== $path && $path === $this->path();
     }
 
     /**
@@ -3151,26 +3160,11 @@ class Page implements PageInterface, PageUuidInterface
     public function activeChild()
     {
         $grav = Grav::instance();
-        /** @var Uri $uri */
-        $uri = $grav['uri'];
         /** @var Pages $pages */
         $pages = $grav['pages'];
-        $uri_path = rtrim(urldecode($uri->path()), '/');
-        $routes = $pages->routes();
+        $path = $this->path();
 
-        if (isset($routes[$uri_path])) {
-            $page = $pages->find($uri->route());
-            /** @var PageInterface|null $child_page */
-            $child_page = $page ? $page->parent() : null;
-            while ($child_page && !$child_page->root()) {
-                if ($this->path() === $child_page->path()) {
-                    return true;
-                }
-                $child_page = $child_page->parent();
-            }
-        }
-
-        return false;
+        return null !== $path && isset($pages->activeTrail()[$path]);
     }
 
     /**

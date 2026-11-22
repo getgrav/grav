@@ -119,7 +119,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      */
     public function getKey()
     {
-        return $this->_key ?: $this->getFlexType() . '@@' . spl_object_hash($this);
+        return $this->_key ?: $this->getFlexType() . '@@' . spl_object_id($this);
     }
 
     /**
@@ -137,8 +137,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      */
     public function getFlexFeatures(): array
     {
-        /** @var array $implements */
-        $implements = class_implements($this->getFlexDirectory()->getCollectionClass());
+        $implements = class_implements($this->getFlexDirectory()->getCollectionClass()) ?: [];
 
         $list = [];
         foreach ($implements as $interface) {
@@ -555,7 +554,6 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      */
     protected function createFrom(array $entries, ?string $keyField = null)
     {
-        /** @phpstan-var static<T,C> $index */
         $index = new static($entries, $this->getFlexDirectory());
         $index->setKeyField($keyField ?? $this->_keyField);
 
@@ -924,14 +922,20 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
         return $type . $this->getFlexType();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function findFirst(Closure $p)
     {
-        // TODO: Implement findFirst() method.
+        return $this->loadCollection($this->getEntries())->findFirst($p);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function reduce(Closure $func, mixed $initial = null)
     {
-        // TODO: Implement reduce() method.
+        return $this->loadCollection($this->getEntries())->reduce($func, $initial);
     }
 
 }

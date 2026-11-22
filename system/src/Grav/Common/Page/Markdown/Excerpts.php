@@ -166,7 +166,17 @@ class Excerpts
             }
 
             $url_parts['path'] = Uri::encodePath((string) $url_parts['path']);
-            $excerpt['element']['attributes']['href'] = Uri::buildUrl($url_parts);
+            if (!empty($url_parts['stream'])) {
+                // An image's stream is resolved by processImageExcerpt(), which parses this
+                // href again, so keep it `scheme://path`. Uri::buildUrl() writes `scheme:path`
+                // when there is no host, and parse_url() reads `media:2022/09/a.jpg` as host
+                // `media` and port 2022, losing the stream. getgrav/grav#4417.
+                $scheme = $url_parts['scheme'];
+                unset($url_parts['scheme'], $url_parts['stream']);
+                $excerpt['element']['attributes']['href'] = $scheme . '://' . Uri::buildUrl($url_parts);
+            } else {
+                $excerpt['element']['attributes']['href'] = Uri::buildUrl($url_parts);
+            }
 
             return $excerpt;
         }
@@ -253,6 +263,7 @@ class Excerpts
         if ($found) {
             // Work on a copy: the page's medium is shared by every embed of the
             // file, and actions like the querystring outlive reset().
+            /** @var \Grav\Common\Media\Interfaces\MediaObjectInterface $found */
             /** @var Medium $medium */
             $medium = $found->copy();
 
@@ -312,7 +323,8 @@ class Excerpts
             // dispatched by ImageMediaTrait::__call() off its own allowlist, so ask
             // for that too. Without it every processing default was silently dropped.
             // getgrav/grav#4282.
-            $magic = property_exists($medium, 'magic_actions') ? (array) $medium::$magic_actions : [];
+            $class = $medium::class;
+            $magic = property_exists($class, 'magic_actions') ? (array) $class::$magic_actions : [];
 
             foreach ($defaults as $method => $params) {
                 if (!method_exists($medium, (string) $method) && !in_array((string) $method, $magic, true)) {
@@ -426,8 +438,8 @@ class Excerpts
             } elseif ($is_registered_stream) {
                 // Special handling for the streams.
                 if (isset($url_parts['host'])) {
-                    // Merge host and path into a path.
-                    $url_parts['path'] = $url_parts['host'] . (isset($url_parts['path']) ? '/' . $url_parts['path'] : '');
+                    // Merge host and path into a path. A path after a host always starts with '/'.
+                    $url_parts['path'] = $url_parts['host'] . ($url_parts['path'] ?? '');
                     unset($url_parts['host']);
                 }
 

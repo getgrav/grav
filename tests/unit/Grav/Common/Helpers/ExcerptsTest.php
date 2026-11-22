@@ -141,7 +141,6 @@ class ExcerptsTest extends \PHPUnit\Framework\TestCase
         $fixturePath = GRAV_ROOT . '/tests/fake/nested-site/user/pages/02.item2/02.item2-2/2025-06-29T13:36:56.png';
         $image = imagecreatetruecolor(10, 10);
         imagepng($image, $fixturePath);
-        imagedestroy($image);
 
         // The page's media collection was already built (by Pages::init())
         // before this fixture existed on disk, so force a fresh scan of the

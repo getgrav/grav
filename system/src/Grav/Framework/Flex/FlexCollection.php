@@ -125,8 +125,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getFlexFeatures(): array
     {
-        /** @var array $implements */
-        $implements = class_implements($this);
+        $implements = class_implements($this) ?: [];
 
         $list = [];
         foreach ($implements as $interface) {
@@ -242,10 +241,6 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     public function getCacheChecksum(): string
     {
         $list = [];
-        /**
-         * @var string $key
-         * @var FlexObjectInterface $object
-         */
         foreach ($this as $key => $object) {
             $list[$key] = $object->getCacheChecksum();
         }

@@ -34,7 +34,6 @@ if (class_exists('Grav\\Installer\\Install', false)) {
     $reflection = new \ReflectionClass($install);
     if ($reflection->hasProperty('location')) {
         $locationProp = $reflection->getProperty('location');
-        $locationProp->setAccessible(true);
         $locationProp->setValue($install, __DIR__ . '/..');
     }
 

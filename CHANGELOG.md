@@ -1,3 +1,26 @@
+# v2.2.33
+## 11/22/2026
+
+1. [](#improved)
+    * Added PHP 8.6 compatibility (while keeping PHP 8.3+ support): replaced deprecated `spl_object_hash()` calls with `spl_object_id()`, replaced `is_a()` on possible strings with `instanceof ArrayAccess`, guarded `parse_str()` and `Uri::pathExists()` against NUL-byte `ValueError` exceptions, handled `preg_grep()` and `Collator::asort()` error fallbacks, normalized `Page::taxonomy()` input before `array_walk()`, and cleaned up remaining PHP 8.5+ deprecations (`finfo_close()`, `Reflection*::setAccessible()`, `case ...;`, null array offset in `Job`, and `imagedestroy()` in tests)
+    * Faster page rendering on large sites: navigation menus work out the current page's parents once per request instead of once per menu item, and `active()`/`activeChild()` and absolute URLs look up a single route instead of loading every route from the lazy page index
+    * Sorting a collection no longer encodes every page's metadata as JSON to build its cache key, which took about 1 ms per sort on a 2,000-page blog
+    * `dateRange` and `type`/`types` collection filters read page dates and templates from the page index instead of loading every page in the collection (20–25% faster on a 2,000-page blog)
+    * The Redis and Memcached cache drivers share one connection per request instead of opening one for each cache
+    * Smaller savings: linked CSS/JS pipeline bundles aren't read from disk on every request, the summary-divider regex only runs when the content has a divider, and `Collection::isFirst()`/`isLast()` no longer copy the item list
+1. [](#bugfix)
+    * A `media://` (or other stream) image in a folder whose name starts with a number, such as a `2022/09` upload folder, rendered with a broken `//media:2022//09/...` address. Images with resize or crop actions and HTML `<img>` tags in content were affected too [#4417](https://github.com/getgrav/grav/issues/4417)
+    * `Utils::replaceLastOccurrence()` no longer cuts in the wrong place when the text has multibyte characters before the match (`/blog/über-uns.json` came out as `/blog/über-uns.`)
+    * `Uri::post()` with a filter no longer logs a PHP deprecation on every call. It compared against the deprecated `FILTER_SANITIZE_STRING` constant, which PHP 9 removes
+    * Removed a call to `ArrayAdapter::setNamespace()`, which doesn't exist in Symfony Cache 7, from the `array` cache driver, plus a few smaller static-analysis cleanups
+    * `Grav\Framework\Psr7\ServerRequest`, `Grav\Framework\Logger\Processors\UserProcessor` and `Grav\Framework\Cache\Adapter\SessionCache` load again. Their method signatures no longer matched PSR-7 2.0, Monolog 3 and Grav's cache base class, so PHP stopped with a fatal error on first use
+    * The Flex relationship classes no longer log PHP deprecations when they load
+    * `FlexIndex::findFirst()` and `reduce()` return a result instead of always returning `null`
+    * `bin/gpm selfupgrade` no longer calls `strftime()`, which is deprecated and removed in PHP 9
+    * Removed the unused `Scheduler\SchedulerController` class, which pointed to a scheduler class that no longer exists, and the scheduler service's setup for a `scheduler.modern.enabled` option that called methods that were gone. The scheduler sets up its own queue, workers and history from `scheduler.modern`
+    * Replaced deprecated library calls (Cron `factory()`, Monolog level constants, Doctrine `getOrderings()`, `utf8_encode()`) and removed compatibility branches for Twig 1/2 and PHP 7 that could no longer run, plus an unused Monolog 1/2 shim
+    * Object collection filtering (`ObjectExpressionVisitor`) no longer extends Doctrine's `ClosureExpressionVisitor`, which Doctrine marks final and may lock in a future major version. It builds on Doctrine's abstract `ExpressionVisitor` and handles AND/OR/NOT itself, with the same results
+
 # v2.2.32
 ## 11/20/2026
 

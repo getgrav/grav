@@ -36,7 +36,6 @@ class PagePublishStateTest extends \PHPUnit\Framework\TestCase
         }
 
         $method = new ReflectionMethod(Page::class, 'setPublishState');
-        $method->setAccessible(true);
         $method->invoke($page);
 
         return $page;

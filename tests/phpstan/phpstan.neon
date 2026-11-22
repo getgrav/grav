@@ -9,6 +9,9 @@ parameters:
         - dist
     bootstrapFiles:
         - phpstan-bootstrap.php
+    scanFiles:
+        # Optional YetiSQL engine for the lazy page index, not installed by default.
+        - stubs/yetisql.stub
     excludePaths:
         - */system/src/Grav/Common/Errors/Resources/layout.html.php
         - */system/src/Doctrine/Common/Cache/*.php
@@ -41,6 +44,10 @@ parameters:
         - Grav\Common\GPM\Remote\Package
         - Grav\Common\Page\Header
         - Grav\Common\Session
+        # Accounts and media read their fields through magic properties.
+        - Grav\Common\User\Interfaces\UserInterface
+        - Grav\Common\Media\Interfaces\MediaObjectInterface
+        - Grav\Framework\Media\Interfaces\MediaObjectInterface
     dynamicConstantNames:
         - GRAV_CLI
     ignoreErrors:
@@ -53,6 +60,9 @@ parameters:
         # TODO: Errors that needs some more thinking (bad design?)
         - '#Access to an undefined property RocketTheme\\Toolbox\\Event\\Event::#'
         - '#Instantiation of deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        - '#Call to method \w+\(\) of deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        # Admin classes come from the admin plugin, which isn't analysed; callers check instanceof first.
+        - '#Class Grav\\Plugin\\Admin\\Admin not found#'
         - '#extends deprecated class RocketTheme\\Toolbox\\Event\\Event#'
         - '#Access to an undefined property Grav\\Common\\Data\\Blueprint::#'
         -

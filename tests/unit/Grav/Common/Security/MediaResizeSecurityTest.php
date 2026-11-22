@@ -46,7 +46,6 @@ class MediaResizeSecurityTest extends \PHPUnit\Framework\TestCase
     {
         $r = new ReflectionClass($medium);
         $p = $r->getProperty('styleAttributes');
-        $p->setAccessible(true);
         return (array) $p->getValue($medium);
     }
 

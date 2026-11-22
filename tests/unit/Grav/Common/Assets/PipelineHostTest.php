@@ -124,7 +124,6 @@ class PipelineHostTest extends \Codeception\Test\Unit
         // The bundle is only stored once the remote file has been downloaded, which needs a network:
         // check what the uid is computed from instead.
         $serialize = new \ReflectionMethod(Pipeline::class, 'serializeAssets');
-        $serialize->setAccessible(true);
 
         $keys = [];
         $serialized = [];

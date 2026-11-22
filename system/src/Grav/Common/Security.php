@@ -320,7 +320,7 @@ class Security
         // does when it decodes the same bytes, so the detector goes on to inspect
         // the markup the parser will actually build, and no new false positives
         // appear for legitimately mis-encoded content.
-        $string = static::toValidUtf8($string);
+        $string = self::toValidUtf8($string);
 
         // Keep a copy of the original string before cleaning up
         $orig = $string;
@@ -328,7 +328,7 @@ class Security
         // URL decode. `%ff` decodes to a raw byte that is not valid UTF-8, which
         // would blank the string at the next /u call, so normalize again here:
         // the up-front pass only covers bytes that were in the input.
-        $string = static::toValidUtf8(urldecode($string));
+        $string = self::toValidUtf8(urldecode($string));
 
         // Convert Hexadecimals. A hex reference names a code point, not a byte:
         // chr() turned `&#xff;` into a lone 0xFF byte, which blanked the decoded
@@ -483,18 +483,18 @@ class Security
                 // positives with tags like <caption>, <button>, <section> that end with 'on'
                 // or contain 'on'
                 if ($name === 'on_events' || $name === 'xmlns') {
-                    if (static::patternMatches($regex, (string) $string) || static::patternMatches($regex, $orig)) {
+                    if (self::patternMatches($regex, (string) $string) || self::patternMatches($regex, $orig)) {
                         return $name;
                     }
                 } elseif ($name === 'invalid_protocols') {
                     // Uses the URL-parser-faithful strip instead of the
                     // all-whitespace one, which invented `data:`/`feed:` hits in
                     // plain prose. See $url_stripped and $protocol_url_regex.
-                    if (static::patternMatches($regex, (string) $string) || static::patternMatches($protocol_url_regex, (string) $url_stripped) || static::patternMatches($protocol_attr_regex, (string) $url_stripped) || static::patternMatches($regex, $orig)) {
+                    if (self::patternMatches($regex, (string) $string) || self::patternMatches($protocol_url_regex, (string) $url_stripped) || self::patternMatches($protocol_attr_regex, (string) $url_stripped) || self::patternMatches($regex, $orig)) {
                         return $name;
                     }
                 } else {
-                    if (static::patternMatches($regex, (string) $string) || static::patternMatches($regex, (string) $stripped) || static::patternMatches($regex, $orig)) {
+                    if (self::patternMatches($regex, (string) $string) || self::patternMatches($regex, (string) $stripped) || self::patternMatches($regex, $orig)) {
                         return $name;
                     }
                 }
@@ -1805,7 +1805,7 @@ class Security
             }
         }
 
-        if (!$page || !method_exists($page, 'value')) {
+        if (!is_object($page) || !method_exists($page, 'value')) {
             return null;
         }
 

@@ -84,7 +84,7 @@ class SessionCache extends AbstractCache
     /**
      * @return string
      */
-    public function getNamespace()
+    public function getNamespace(): string
     {
         return 'cache-' . parent::getNamespace();
     }

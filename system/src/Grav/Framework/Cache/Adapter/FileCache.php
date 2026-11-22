@@ -277,7 +277,7 @@ class FileCache extends AbstractCache
      * @param string $message
      * @param string $file
      * @param int $line
-     * @return bool
+     * @return never
      * @internal
      * @throws ErrorException
      */

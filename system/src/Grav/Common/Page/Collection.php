@@ -293,7 +293,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function isFirst($path): bool
     {
-        return $this->items && $path === array_keys($this->items)[0];
+        return $this->items && $path === array_key_first($this->items);
     }
 
     /**
@@ -304,7 +304,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function isLast($path): bool
     {
-        return $this->items && $path === array_keys($this->items)[count($this->items) - 1];
+        return $this->items && $path === array_key_last($this->items);
     }
 
     /**
@@ -382,15 +382,31 @@ class Collection extends Iterator implements PageCollectionInterface
         $start = $startDate ? Utils::date2timestamp($startDate) : null;
         $end = $endDate ? Utils::date2timestamp($endDate) : null;
 
-        $date_range = [];
-        $this->pages->prefetch(array_keys($this->items));
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if (!$page) {
-                continue;
+        // Without a custom field the page date is in the children index, so only
+        // load the pages whose index entry lacks it (same rule as filterByPageFlag:
+        // a hydrated page's live value wins over the frozen index value).
+        $load = [];
+        foreach ($this->items as $path => $info) {
+            if ($field || !is_array($info) || !isset($info['date'])) {
+                $load[] = $path;
             }
+        }
+        if ($load) {
+            $this->pages->prefetch($load);
+        }
 
-            $date = $field ? Utils::strtotime($page->value($field)) : $page->date();
+        $date_range = [];
+        foreach ($this->items as $path => $slug) {
+            if (!$field && is_array($slug) && isset($slug['date']) && !$this->pages->isInstantiated($path)) {
+                $date = $slug['date'];
+            } else {
+                $page = $this->pages->get($path);
+                if (!$page) {
+                    continue;
+                }
+
+                $date = $field ? Utils::strtotime($page->value($field)) : $page->date();
+            }
 
             if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
                 $date_range[$path] = $slug;
@@ -398,6 +414,47 @@ class Collection extends Iterator implements PageCollectionInterface
         }
 
         $this->items = $date_range;
+
+        return $this;
+    }
+
+    /**
+     * Keep the items whose page template matches. The template is read from the
+     * children index while the page is still lazy, so filtering a large folder
+     * by type doesn't load every page; a hydrated page's live template wins.
+     *
+     * @param callable(string):bool $match
+     * @return $this
+     */
+    protected function filterByTemplate(callable $match)
+    {
+        $load = [];
+        foreach ($this->items as $path => $info) {
+            if (!is_array($info) || !isset($info['template'])) {
+                $load[] = $path;
+            }
+        }
+        if ($load) {
+            $this->pages->prefetch($load);
+        }
+
+        $items = [];
+        foreach ($this->items as $path => $info) {
+            if (is_array($info) && isset($info['template']) && !$this->pages->isInstantiated($path)) {
+                $template = (string)$info['template'];
+            } else {
+                $page = $this->pages->get($path);
+                if ($page === null) {
+                    continue;
+                }
+                $template = (string)$page->template();
+            }
+            if ($match($template)) {
+                $items[$path] = $info;
+            }
+        }
+
+        $this->items = $items;
 
         return $this;
     }
@@ -645,19 +702,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function ofType($type)
     {
-        $items = [];
-        $this->pages->prefetch(array_keys($this->items));
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && $page->template() === $type) {
-                $items[$path] = $slug;
-            }
-        }
-
-        $this->items = $items;
-
-        return $this;
+        return $this->filterByTemplate(static fn(string $template): bool => $template === $type);
     }
 
     /**
@@ -668,19 +713,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function ofOneOfTheseTypes($types)
     {
-        $items = [];
-        $this->pages->prefetch(array_keys($this->items));
-
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && in_array($page->template(), $types, true)) {
-                $items[$path] = $slug;
-            }
-        }
-
-        $this->items = $items;
-
-        return $this;
+        return $this->filterByTemplate(static fn(string $template): bool => in_array($template, $types, true));
     }
 
     /**
@@ -691,20 +724,9 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function notOfType($type)
     {
-        $items = [];
         $types = (array) $type;
-        $this->pages->prefetch(array_keys($this->items));
 
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && !in_array($page->template(), $types, true)) {
-                $items[$path] = $slug;
-            }
-        }
-
-        $this->items = $items;
-
-        return $this;
+        return $this->filterByTemplate(static fn(string $template): bool => !in_array($template, $types, true));
     }
 
     /**

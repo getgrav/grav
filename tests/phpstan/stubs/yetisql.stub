@@ -1,0 +1,10 @@
+<?php
+
+// The optional YetiSQL engine for the lazy page index. It isn't installed by default, so this
+// tells phpstan what it is: a PDO driver with the same API as \PDO.
+
+namespace YetiDevWorks\YetiSQL;
+
+class PDO extends \PDO
+{
+}

@@ -52,7 +52,6 @@ class MediaUnscalableRetinaTest extends \Codeception\Test\Unit
     {
         $image = imagecreatetruecolor($size, $size);
         str_ends_with($name, '.gif') ? imagegif($image, $this->dir . '/' . $name) : imagepng($image, $this->dir . '/' . $name);
-        imagedestroy($image);
     }
 
     public function testGifWithAGapInItsRetinaFilesLoads(): void

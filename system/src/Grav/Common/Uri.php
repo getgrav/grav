@@ -891,7 +891,7 @@ class Uri implements \Stringable
     {
         $path = (string) $path;
 
-        return $path !== '' && strlen($path) < PHP_MAXPATHLEN && file_exists($path);
+        return $path !== '' && strlen($path) < PHP_MAXPATHLEN && !str_contains($path, "\0") && file_exists($path);
     }
 
     /**
@@ -1001,7 +1001,6 @@ class Uri implements \Stringable
 
             // check if page exists for this route, and if so, check if it has SSL enabled
             $pages = $grav['pages'];
-            $routes = $pages->routes();
 
             // if this is an image, get the proper path
             $url_bits = Utils::pathinfo($url_path);
@@ -1020,8 +1019,9 @@ class Uri implements \Stringable
             }
 
             // look to see if this page exists and has ssl enabled
-            if (isset($routes[$target_path])) {
-                $target_page = $pages->get($routes[$target_path]);
+            $target_page_path = $pages->routePath($target_path);
+            if (null !== $target_page_path) {
+                $target_page = $pages->get($target_page_path);
                 if ($target_page) {
                     $ssl_enabled = $target_page->ssl();
                     if ($ssl_enabled !== null) {
@@ -1393,7 +1393,7 @@ class Uri implements \Stringable
         }
 
         // Support ngnix routes.
-        if (str_starts_with((string) $this->query, '_url=')) {
+        if (str_starts_with((string) $this->query, '_url=') && !str_contains((string) $this->query, "\0")) {
             parse_str((string) $this->query, $query);
             unset($query['_url']);
             $this->query = http_build_query($query);
@@ -1462,7 +1462,10 @@ class Uri implements \Stringable
     protected function reset()
     {
         // resets
-        parse_str($this->query, $this->queries);
+        $this->queries = [];
+        if (!str_contains((string) $this->query, "\0")) {
+            parse_str((string) $this->query, $this->queries);
+        }
         $this->extension    = null;
         $this->basename     = null;
         $this->paths        = [];
@@ -1509,7 +1512,9 @@ class Uri implements \Stringable
         if ($this->post && null !== $element) {
             $item = Utils::getDotNotation($this->post, $element);
             if ($filter_type) {
-                if ($filter_type === FILTER_SANITIZE_STRING || $filter_type === GRAV_SANITIZE_STRING) {
+                // 513 is FILTER_SANITIZE_STRING, still accepted from older plugins. Reading the
+                // constant itself logs a deprecation since PHP 8.1, and it goes away in PHP 9.
+                if ($filter_type === 513 || $filter_type === GRAV_SANITIZE_STRING) {
                     $item = htmlspecialchars(strip_tags((string) $item), ENT_QUOTES, 'UTF-8');
                 } else {
                     $item = filter_var($item, $filter_type);

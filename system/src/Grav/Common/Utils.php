@@ -505,8 +505,10 @@ abstract class Utils
     {
         $pos = strrpos($subject, $search);
 
+        // strrpos() gives a byte offset, so replace by bytes: a character-based
+        // replace would cut in the wrong place after any multibyte character.
         if ($pos !== false) {
-            $subject = static::mb_substr_replace($subject, $replace, $pos, mb_strlen($search));
+            $subject = substr_replace($subject, $replace, $pos, strlen($search));
         }
 
         return $subject;
@@ -833,7 +835,7 @@ abstract class Utils
             }
         }
 
-        return $cookie ? static::privateCacheControl($controls, $expires) : 'max-age=' . $expires;
+        return $cookie ? self::privateCacheControl($controls, $expires) : 'max-age=' . $expires;
     }
 
     /**
@@ -854,7 +856,7 @@ abstract class Utils
             return;
         }
 
-        header('Cache-Control: ' . static::privateCacheControl($controls));
+        header('Cache-Control: ' . self::privateCacheControl($controls));
     }
 
     private static function privateCacheControl(array $controls, ?int $expires = null): string
@@ -1219,8 +1221,9 @@ abstract class Utils
         // Prefer using finfo if it exists.
         if (extension_loaded('fileinfo')) {
             $finfo = finfo_open(FILEINFO_SYMLINK | FILEINFO_MIME_TYPE);
-            $type = finfo_file($finfo, $filename);
-            finfo_close($finfo);
+            if ($finfo !== false) {
+                $type = finfo_file($finfo, $filename);
+            }
         } else {
             // Fall back to use getimagesize() if it is available (not recommended, but better than nothing)
             $info = @getimagesize($filename);
@@ -2293,7 +2296,7 @@ abstract class Utils
     }
 
     /**
-     * @param string|array|Closure $name
+     * @param string|array|\Closure $name
      * @return bool
      */
     public static function isDangerousFunction($name): bool

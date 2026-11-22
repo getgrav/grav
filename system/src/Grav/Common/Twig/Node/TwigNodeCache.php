@@ -21,11 +21,12 @@ use Twig\Node\NodeOutputInterface;
 class TwigNodeCache extends Node implements NodeOutputInterface
 {
     /**
-     * @param string    $key       unique name for key
-     * @param int       $lifetime  in seconds
      * @param Node      $body
+     * @param AbstractExpression|null $key       unique name for key
+     * @param AbstractExpression|null $lifetime  in seconds
+     * @param array     $defaults
      * @param integer   $lineno
-     * @param string|null $tag
+     * @param string    $tag
      */
     public function __construct(Node $body, ?AbstractExpression $key, ?AbstractExpression $lifetime, array $defaults, int $lineno, string $tag)
     {

@@ -158,8 +158,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
      */
     public function getFlexFeatures(): array
     {
-        /** @var array $implements */
-        $implements = class_implements($this);
+        $implements = class_implements($this) ?: [];
 
         $list = [];
         foreach ($implements as $interface) {
@@ -748,7 +747,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
 
         $storage = $this->getFlexDirectory()->getStorage();
 
-        $storageKey = $this->getStorageKey() ?:  '@@' . spl_object_hash($this);
+        $storageKey = $this->getStorageKey() ?: '@@' . spl_object_id($this);
 
         $result = $storage->replaceRows([$storageKey => $this->prepareStorage()]);
 

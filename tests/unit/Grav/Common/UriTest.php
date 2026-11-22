@@ -1311,4 +1311,31 @@ class UriTest extends \PHPUnit\Framework\TestCase
             'custom base already stripped' => ['/act', '', 'https://example.com/foo', '/foo', '', '/foo'],
         ];
     }
+
+    public function testPostFilterLogsNoDeprecation(): void
+    {
+        $post = $_POST;
+        $_POST = ['a' => '<b>hi</b> & "x"', 'n' => '12abc'];
+        $deprecations = [];
+        set_error_handler(static function (int $no, string $message) use (&$deprecations): bool {
+            $deprecations[] = $message;
+
+            return true;
+        }, E_DEPRECATED | E_USER_DEPRECATED);
+
+        try {
+            $uri = new Uri();
+            $sanitized = $uri->post('a', GRAV_SANITIZE_STRING);
+            $legacy = $uri->post('a', 513); // FILTER_SANITIZE_STRING, still passed by older plugins
+            $number = $uri->post('n', FILTER_SANITIZE_NUMBER_INT);
+        } finally {
+            restore_error_handler();
+            $_POST = $post;
+        }
+
+        self::assertSame('hi &amp; &quot;x&quot;', $sanitized);
+        self::assertSame($sanitized, $legacy);
+        self::assertSame('12', $number);
+        self::assertSame([], $deprecations);
+    }
 }

@@ -11,8 +11,10 @@ namespace Grav\Framework\Object\Collection;
 
 use ArrayAccess;
 use Closure;
-use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\Common\Collections\Expr\Comparison;
+use Doctrine\Common\Collections\Expr\CompositeExpression;
+use Doctrine\Common\Collections\Expr\ExpressionVisitor;
+use Doctrine\Common\Collections\Expr\Value;
 use Grav\Framework\Object\Interfaces\ObjectInterface;
 use InvalidArgumentException;
 use RuntimeException;
@@ -23,10 +25,15 @@ use function is_string;
 use function strlen;
 
 /**
- * Class ObjectExpressionVisitor
+ * Turns Doctrine criteria into closures that filter and sort Grav objects.
+ *
+ * Builds on Doctrine's abstract ExpressionVisitor rather than ClosureExpressionVisitor, which
+ * Doctrine marks final: Grav looks up object fields its own way (getObjectFieldValue()), so only
+ * the value and AND / OR / NOT handling below is shared with Doctrine's visitor.
+ *
  * @package Grav\Framework\Object\Collection
  */
-class ObjectExpressionVisitor extends ClosureExpressionVisitor
+class ObjectExpressionVisitor extends ExpressionVisitor
 {
     /**
      * Read-only methods which can be used as field names as they are. Pages expose these fields only as methods.
@@ -207,6 +214,48 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
             Comparison::STARTS_WITH => fn($object) => str_starts_with((string) static::getObjectFieldValue($object, $field), (string) $value),
             Comparison::ENDS_WITH => fn($object) => str_ends_with((string) static::getObjectFieldValue($object, $field), (string) $value),
             default => throw new RuntimeException('Unknown comparison operator: ' . $comparison->getOperator()),
+        };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function walkValue(Value $value)
+    {
+        return $value->getValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function walkCompositeExpression(CompositeExpression $expr)
+    {
+        $expressions = [];
+        foreach ($expr->getExpressionList() as $child) {
+            $expressions[] = $this->dispatch($child);
+        }
+
+        return match ($expr->getType()) {
+            CompositeExpression::TYPE_AND => static function ($object) use ($expressions): bool {
+                foreach ($expressions as $expression) {
+                    if (!$expression($object)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            },
+            CompositeExpression::TYPE_OR => static function ($object) use ($expressions): bool {
+                foreach ($expressions as $expression) {
+                    if ($expression($object)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+            CompositeExpression::TYPE_NOT => static fn($object): bool => !$expressions[0]($object),
+            default => throw new RuntimeException('Unknown composite ' . $expr->getType()),
         };
     }
 }

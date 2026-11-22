@@ -170,8 +170,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Merge another collection with the current collection
      *
      * @param PageCollectionInterface $collection
-     * @return static
-     * @phpstan-return static<T>
+     * @return never
      */
     public function merge(PageCollectionInterface $collection): never
     {
@@ -182,8 +181,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Intersect another collection with the current collection
      *
      * @param PageCollectionInterface $collection
-     * @return static
-     * @phpstan-return static<T>
+     * @return never
      */
     public function intersect(PageCollectionInterface $collection): never
     {
@@ -240,8 +238,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Append new elements to the list.
      *
      * @param array $items Items to be appended. Existing keys will be overridden with the new values.
-     * @return static
-     * @phpstan-return static<T>
+     * @return never
      */
     public function append($items): never
     {
@@ -373,6 +370,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
             $col = Collator::create($locale);
             if ($col) {
                 $col->setAttribute(Collator::NUMERIC_COLLATION, Collator::ON);
+                $collator_flags = $sort_flags;
                 if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
                     $list = preg_replace_callback('~([0-9]+)\.~', static fn($number) => sprintf('%032d.', $number[0]), $list);
                     if (!is_array($list)) {
@@ -381,13 +379,20 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 
                     $list_vals = array_values($list);
                     if (is_numeric(array_shift($list_vals))) {
-                        $sort_flags = Collator::SORT_REGULAR;
+                        $collator_flags = Collator::SORT_REGULAR;
                     } else {
-                        $sort_flags = Collator::SORT_STRING;
+                        $collator_flags = Collator::SORT_STRING;
                     }
                 }
 
-                $col->asort($list, $sort_flags);
+                try {
+                    $sorted = $col->asort($list, $collator_flags);
+                } catch (\IntlException) {
+                    $sorted = false;
+                }
+                if (!$sorted) {
+                    asort($list, $sort_flags);
+                }
             } else {
                 asort($list, $sort_flags);
             }
@@ -511,10 +516,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     public function pages()
     {
         $entries = [];
-        /**
-         * @var int|string $key
-         * @var PageInterface|null $object
-         */
         foreach ($this as $key => $object) {
             if ($object && !$object->isModule()) {
                 $entries[$key] = $object;
@@ -533,10 +534,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     public function modules()
     {
         $entries = [];
-        /**
-         * @var int|string $key
-         * @var PageInterface|null $object
-         */
         foreach ($this as $key => $object) {
             if ($object && $object->isModule()) {
                 $entries[$key] = $object;

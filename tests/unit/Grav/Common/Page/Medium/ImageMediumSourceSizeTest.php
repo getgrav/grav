@@ -46,7 +46,6 @@ class ImageMediumSourceSizeTest extends \Codeception\Test\Unit
         $image = imagecreatetruecolor($width, $height);
         ob_start();
         ('image' . $type)($image);
-        imagedestroy($image);
 
         return (string) ob_get_clean();
     }

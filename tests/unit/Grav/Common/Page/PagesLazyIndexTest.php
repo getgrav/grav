@@ -300,6 +300,140 @@ class PagesLazyIndexTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    public function testActivePageChecksDoNotLoadTheRouteMap(): void
+    {
+        $this->request(true);
+        $pages = $this->countingRequest();
+        $this->grav['uri']->initializeWithUrl('http://example.com/blog/post-03/gallery')->init();
+
+        $blog = $pages->find('/blog');
+        $post = $pages->find('/blog/post-03');
+        $gallery = $pages->find('/blog/post-03/gallery');
+        $about = $pages->find('/about-us');
+
+        self::assertTrue($gallery->active());
+        self::assertFalse($post->active());
+        self::assertTrue($blog->activeChild());
+        self::assertTrue($post->activeChild());
+        self::assertFalse($gallery->activeChild(), 'The active page is not its own ancestor');
+        self::assertFalse($about->activeChild());
+        self::assertFalse($about->active());
+        self::assertSame(0, $pages->routeMapLoads, 'Navigation checks look up one route instead of loading them all');
+
+        // The ancestor trail follows the URI when it changes within the request.
+        $this->grav['uri']->initializeWithUrl('http://example.com/about-us/team')->init();
+        self::assertTrue($about->activeChild());
+        self::assertFalse($blog->activeChild());
+        self::assertFalse($post->activeChild());
+        self::assertSame(0, $pages->routeMapLoads);
+    }
+
+    public function testDateRangeFiltersFromTheIndex(): void
+    {
+        $params = ['items' => ['@page.children' => '/blog'], 'dateRange' => ['start' => '2026-01-03', 'end' => '2026-01-06']];
+        $this->request(false);
+        $expected = $this->titles($this->request(false)->getCollection($params));
+        self::assertSame(['Post 07', 'Post 08', 'Post 09', 'Post 10'], $expected);
+
+        $this->grav['cache']->store = [];
+        $this->request(true);
+        $pages = $this->request(true);
+
+        $collection = $pages->getCollection($params);
+        self::assertLessThanOrEqual(2, $pages->getIndexStats()['hydrated'], 'The page dates came from the children index');
+        self::assertSame($expected, $this->titles($collection));
+    }
+
+    public function testTypeFiltersFromTheIndex(): void
+    {
+        $item = ['items' => ['@page.children' => '/blog'], 'filter' => ['type' => 'item']];
+        $types = ['items' => ['@page.children' => '/blog'], 'filter' => ['types' => ['default', 'item']]];
+        $this->request(false);
+        $blob = $this->request(false);
+        $expectedItem = $this->titles($blob->getCollection($item));
+        $expectedTypes = $this->titles($blob->getCollection($types));
+        $expectedNot = $this->titles($blob->getCollection(['items' => ['@page.children' => '/blog']])->notOfType('item'));
+        self::assertCount(12, $expectedItem, 'Every published post uses item.md');
+        self::assertSame([], $expectedNot);
+
+        $this->grav['cache']->store = [];
+        $this->request(true);
+        $pages = $this->request(true);
+
+        $collection = $pages->getCollection($item);
+        self::assertLessThanOrEqual(2, $pages->getIndexStats()['hydrated'], 'The page templates came from the children index');
+        self::assertSame($expectedItem, $this->titles($collection));
+        self::assertSame($expectedTypes, $this->titles($pages->getCollection($types)));
+        self::assertSame($expectedNot, $this->titles($pages->getCollection(['items' => ['@page.children' => '/blog']])->notOfType('item')));
+    }
+
+    public function testTypeFilterUsesTheLiveTemplateOfALoadedPage(): void
+    {
+        $this->request(true);
+        $pages = $this->request(true);
+
+        $pages->find('/blog/post-05')->template('special');
+
+        $titles = $this->titles($pages->getCollection(['items' => ['@page.children' => '/blog'], 'filter' => ['type' => 'special']]));
+        self::assertSame(['Post 05'], $titles, 'A template changed at runtime wins over the stored index value');
+    }
+
+    public function testSortingACollectionDoesNotAskTheStoreForItsMemoKey(): void
+    {
+        $this->request(false);
+        $expected = $this->titles($this->request(false)->getCollection(['items' => '@root.descendants', 'order' => ['by' => 'title', 'dir' => 'desc']]));
+
+        $this->grav['cache']->store = [];
+        $this->request(true);
+        $pages = $this->countingRequest();
+
+        $params = ['items' => '@root.descendants', 'order' => ['by' => 'title', 'dir' => 'desc']];
+        self::assertSame($expected, $this->titles($pages->getCollection($params)));
+        self::assertSame($expected, $this->titles($pages->getCollection($params)), 'The memoized sort answers the same');
+        self::assertSame([], array_filter($pages->sortReads, static fn(string $key) => !str_starts_with($key, '/')), 'Only folder paths are read from the sort store');
+    }
+
+    public function testFiltersSkipAPageThatNoLongerExists(): void
+    {
+        $pages = $this->request(false);
+        $gone = $this->pagesDir . '/02.blog/deleted-post';
+        $items = [$gone => ['slug' => 'deleted-post']];
+
+        self::assertCount(0, (new Collection($items, [], $pages))->dateRange('2000-01-01', null, 'header.date'));
+        self::assertCount(0, (new Collection($items, [], $pages))->ofType('item'));
+    }
+
+    public function testCollectionFirstAndLast(): void
+    {
+        $pages = $this->request(false);
+        $children = $pages->find('/blog')->children();
+        $keys = array_keys($children->toArray());
+
+        self::assertTrue($children->isFirst($keys[0]));
+        self::assertFalse($children->isFirst($keys[1]));
+        self::assertTrue($children->isLast(end($keys)));
+        self::assertFalse($children->isLast($keys[0]));
+        self::assertFalse((new Collection())->isFirst('/anything'), 'An empty collection has no first item');
+        self::assertFalse((new Collection())->isLast('/anything'));
+    }
+
+    public function testLastModifiedHeaderCountsTheModules(): void
+    {
+        touch($this->pagesDir . '/03.landing/_features/features.md', time() - 60);
+        clearstatcache();
+        $pages = $this->request(false);
+        $landing = $pages->find('/landing');
+        $landing->lastModified(true);
+
+        $newest = $landing->modified();
+        foreach ($landing->children()->modules() as $module) {
+            $newest = max($newest, $module->modified());
+        }
+
+        self::assertGreaterThan($landing->modified(), $newest, 'A module changed after the page itself');
+        self::assertSame(gmdate('D, d M Y H:i:s', $newest) . ' GMT', $landing->httpHeaders()['Last-Modified']);
+    }
+
     /**
      * Everything a theme reads from the pages, in a form that compares across requests.
      */
@@ -370,6 +504,27 @@ class PagesLazyIndexTest extends \PHPUnit\Framework\TestCase
             public int $singleLoads = 0;
             public int $batches = 0;
             public int $childListReads = 0;
+            public int $routeMapLoads = 0;
+            /** @var string[] */
+            public array $sortReads = [];
+
+            public function routes()
+            {
+                if ($this->routes_lazy && $this->index_store) {
+                    $this->routeMapLoads++;
+                }
+
+                return parent::routes();
+            }
+
+            protected function sortOf(string $path): array
+            {
+                if ($this->sort_lazy && $this->index_store && !array_key_exists($path, $this->sort)) {
+                    $this->sortReads[] = $path;
+                }
+
+                return parent::sortOf($path);
+            }
 
             protected function loadIndexedPage(string $path): ?PageInterface
             {
@@ -394,7 +549,8 @@ class PagesLazyIndexTest extends \PHPUnit\Framework\TestCase
             }
         });
         $pages->root();
-        $pages->singleLoads = $pages->batches = $pages->childListReads = 0;
+        $pages->singleLoads = $pages->batches = $pages->childListReads = $pages->routeMapLoads = 0;
+        $pages->sortReads = [];
 
         return $pages;
     }

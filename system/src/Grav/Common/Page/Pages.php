@@ -126,6 +126,8 @@ class Pages
     protected $children_lazy = false;
     /** @var bool Sort orders live in the index store; $this->sort only overlays runtime-built orders and memoized reads. */
     protected $sort_lazy = false;
+    /** @var array{0:string,1:array<string,true>}|null Ancestor paths of the page the current URI points at, keyed by that URI. */
+    protected $active_trail;
     /** @var array<string,int|false>|null Folders and files the running rebuild has seen, with their modification times. */
     protected $scan_paths;
     /** @var array<string,array>|null Folder listings the previous rebuild recorded: folder => [mtime, time recorded, entries]. */
@@ -373,6 +375,7 @@ class Pages
     public function reset(): void
     {
         $this->initialized = false;
+        $this->active_trail = null;
 
         $this->init();
     }
@@ -601,6 +604,47 @@ class Pages
         }
 
         return $this->routes;
+    }
+
+    /**
+     * Resolve a single route to its page path without loading the full route
+     * map (a point lookup against the index store when the map is lazy).
+     *
+     * @param string $route
+     * @return string|null
+     */
+    public function routePath(string $route): ?string
+    {
+        return $this->routeToPath($route);
+    }
+
+    /**
+     * Paths of the ancestors (root excluded) of the page the current URI points
+     * at, as a set. Navigation templates ask activeChild() of every menu item, so
+     * the parent walk runs once per URI instead of once per item.
+     *
+     * @return array<string,true>
+     */
+    public function activeTrail(): array
+    {
+        $grav = Grav::instance();
+        /** @var Uri $uri */
+        $uri = $grav['uri'];
+        $key = $uri->path() . "\0" . $uri->route();
+        if (null === $this->active_trail || $this->active_trail[0] !== $key) {
+            $trail = [];
+            if (null !== $this->routePath(rtrim(urldecode($uri->path()), '/'))) {
+                $page = $this->find($uri->route());
+                $parent = $page ? $page->parent() : null;
+                while ($parent && !$parent->root()) {
+                    $trail[$parent->path()] = true;
+                    $parent = $parent->parent();
+                }
+            }
+            $this->active_trail = [$key, $trail];
+        }
+
+        return $this->active_trail[1];
     }
 
     /**
@@ -1068,8 +1112,10 @@ class Pages
             return [];
         }
 
-        $lookup = md5(json_encode($items) . json_encode($orderManual) . $orderBy . $orderDir);
-        if (!isset($this->sortOf($lookup)[$orderBy])) {
+        // The lookup key is a per-request memo, never a stored folder path, so
+        // check memory only: asking the index store for it is always a miss.
+        $lookup = hash('xxh128', serialize([$items, $orderManual, $orderBy, $orderDir]));
+        if (!isset($this->sort[$lookup][$orderBy])) {
             $this->buildSort($lookup, $items, $orderBy, $orderManual, $sort_flags);
         }
 
@@ -2573,6 +2619,7 @@ class Pages
                         'modified' => $child->modified(),
                         'publish_date' => $child->publishDate(),
                         'folder' => $child->folder(),
+                        'template' => $child->template(),
                     ];
                 }
             }
@@ -3104,6 +3151,7 @@ class Pages
                 $col = Collator::create($locale);
                 if ($col) {
                     $col->setAttribute(Collator::NUMERIC_COLLATION, Collator::ON);
+                    $collator_flags = $sort_flags;
                     if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
                         $list = preg_replace_callback('~([0-9]+)\.~', static fn($number) => sprintf('%032d.', $number[0]), $list);
                         if (!is_array($list)) {
@@ -3112,13 +3160,20 @@ class Pages
 
                         $list_vals = array_values($list);
                         if (is_numeric(array_shift($list_vals))) {
-                            $sort_flags = Collator::SORT_REGULAR;
+                            $collator_flags = Collator::SORT_REGULAR;
                         } else {
-                            $sort_flags = Collator::SORT_STRING;
+                            $collator_flags = Collator::SORT_STRING;
                         }
                     }
 
-                    $col->asort($list, $sort_flags);
+                    try {
+                        $sorted = $col->asort($list, $collator_flags);
+                    } catch (\IntlException) {
+                        $sorted = false;
+                    }
+                    if (!$sorted) {
+                        asort($list, $sort_flags);
+                    }
                 } else {
                     asort($list, $sort_flags);
                 }

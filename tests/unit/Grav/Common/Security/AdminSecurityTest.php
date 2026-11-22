@@ -123,7 +123,6 @@ class AdminSecurityTest extends \PHPUnit\Framework\TestCase
         // Use reflection to set the 'at' property to an invalid value
         $reflection = new ReflectionClass($job);
         $property = $reflection->getProperty('at');
-        $property->setAccessible(true);
         $property->setValue($job, "'invalid");
 
         // getCronExpression should return null instead of throwing
@@ -138,7 +137,6 @@ class AdminSecurityTest extends \PHPUnit\Framework\TestCase
         // Use reflection to set a valid cron expression
         $reflection = new ReflectionClass($job);
         $property = $reflection->getProperty('at');
-        $property->setAccessible(true);
         $property->setValue($job, '* * * * *');
 
         $result = $job->getCronExpression();

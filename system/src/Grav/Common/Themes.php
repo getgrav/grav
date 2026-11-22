@@ -104,6 +104,7 @@ class Themes extends Iterator
             if (is_dir('theme://blueprints')) {
                 /** @var UniformResourceLocator $locator */
                 $locator = $this->grav['locator'];
+                /** @var \DirectoryIterator $item */
                 foreach ($locator->getIterator('theme://blueprints') as $item) {
                     if ($item->isDot() || !$item->isDir()) {
                         continue;

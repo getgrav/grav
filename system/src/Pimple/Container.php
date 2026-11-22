@@ -224,9 +224,9 @@ class Container implements ArrayAccess
     /**
      * Marks a callable as being a factory service.
      *
-     * @param callable $callable A service definition to be used as a factory
+     * @param object $callable A service definition to be used as a factory
      *
-     * @return callable The passed callable
+     * @return object The passed callable
      *
      * @throws ExpectedInvokableException Service definition has to be a closure or an invokable object
      */
@@ -246,9 +246,9 @@ class Container implements ArrayAccess
      *
      * This is useful when you want to store a callable as a parameter.
      *
-     * @param callable $callable A callable to protect from being evaluated
+     * @param object $callable A callable to protect from being evaluated
      *
-     * @return callable The passed callable
+     * @return object The passed callable
      *
      * @throws ExpectedInvokableException Service definition has to be a closure or an invokable object
      */
@@ -292,9 +292,9 @@ class Container implements ArrayAccess
      * without necessarily loading that object.
      *
      * @param string   $id       The unique identifier for the object
-     * @param callable $callable A service definition to extend the original
+     * @param object $callable A service definition to extend the original
      *
-     * @return callable The wrapped callable
+     * @return object The wrapped callable
      *
      * @throws UnknownIdentifierException        If the identifier is not defined
      * @throws FrozenServiceException            If the service is frozen

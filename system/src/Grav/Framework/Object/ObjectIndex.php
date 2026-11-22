@@ -58,7 +58,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      */
     public function getKey()
     {
-        return $this->_key ?: $this->getType() . '@@' . spl_object_hash($this);
+        return $this->_key ?: $this->getType() . '@@' . spl_object_id($this);
     }
 
     /**

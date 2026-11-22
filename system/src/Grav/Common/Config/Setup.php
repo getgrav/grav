@@ -208,7 +208,7 @@ class Setup extends Data
 
         // If environment is not set, look for the environment variable and then the constant.
         $environment = static::$environment ??
-            (defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : static::envVar('GRAV_ENVIRONMENT'));
+            (defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : self::envVar('GRAV_ENVIRONMENT'));
 
         // If no environment is set, make sure we get one (CLI or hostname).
         if (null === $environment) {
@@ -231,7 +231,7 @@ class Setup extends Data
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
         // If GRAV_SETUP_PATH has been defined, use it, otherwise use defaults.
-        $setupFile = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : static::envVar('GRAV_SETUP_PATH');
+        $setupFile = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : self::envVar('GRAV_SETUP_PATH');
         if (null !== $setupFile) {
             // Make sure that the custom setup file exists. Terminates the script if not.
             if (!str_starts_with((string) $setupFile, '/')) {
@@ -268,7 +268,7 @@ class Setup extends Data
 
         // Figure out path for the current environment.
         $validName = true;
-        $envPath = defined('GRAV_ENVIRONMENT_PATH') ? GRAV_ENVIRONMENT_PATH : static::envVar('GRAV_ENVIRONMENT_PATH');
+        $envPath = defined('GRAV_ENVIRONMENT_PATH') ? GRAV_ENVIRONMENT_PATH : self::envVar('GRAV_ENVIRONMENT_PATH');
         if (null === $envPath) {
             // The name usually comes from the `Host` header and is joined into a
             // path below, so it has to be a single, non-hidden folder name.
@@ -276,7 +276,7 @@ class Setup extends Data
             $validName = $name !== '' && $name[0] !== '.' && strpbrk($name, '/\\') === false;
 
             // Find common path for all environments and append current environment into it.
-            $envPath = defined('GRAV_ENVIRONMENTS_PATH') ? GRAV_ENVIRONMENTS_PATH : static::envVar('GRAV_ENVIRONMENTS_PATH');
+            $envPath = defined('GRAV_ENVIRONMENTS_PATH') ? GRAV_ENVIRONMENTS_PATH : self::envVar('GRAV_ENVIRONMENTS_PATH');
             if (null !== $envPath) {
                 $envPath .= '/';
             } else {

@@ -10,6 +10,7 @@
 namespace Grav\Framework\Object;
 
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Grav\Framework\Collection\ArrayCollection;
 use Grav\Framework\Object\Access\NestedPropertyCollectionTrait;
 use Grav\Framework\Object\Base\ObjectCollectionTrait;
@@ -86,10 +87,10 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
             $filtered = array_filter($filtered, $filter);
         }
 
-        if ($orderings = $criteria->getOrderings()) {
+        if ($orderings = $criteria->orderings()) {
             $next = null;
             foreach (array_reverse($orderings) as $field => $ordering) {
-                $next = ObjectExpressionVisitor::sortByField($field, $ordering === Criteria::DESC ? -1 : 1, $next);
+                $next = ObjectExpressionVisitor::sortByField($field, $ordering === Order::Descending ? -1 : 1, $next);
             }
 
             /** @phpstan-ignore-next-line */

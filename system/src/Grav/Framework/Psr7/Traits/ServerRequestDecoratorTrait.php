@@ -48,7 +48,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->getRequest()->getAttributes();
     }
@@ -57,7 +57,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function getCookieParams()
+    public function getCookieParams(): array
     {
         return $this->getRequest()->getCookieParams();
     }
@@ -73,7 +73,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function getQueryParams()
+    public function getQueryParams(): array
     {
         return $this->getRequest()->getQueryParams();
     }
@@ -81,7 +81,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function getServerParams()
+    public function getServerParams(): array
     {
         return $this->getRequest()->getServerParams();
     }
@@ -89,7 +89,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function getUploadedFiles()
+    public function getUploadedFiles(): array
     {
         return $this->getRequest()->getUploadedFiles();
     }
@@ -97,7 +97,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function withAttribute($name, $value)
+    public function withAttribute($name, $value): ServerRequestInterface
     {
         $new = clone $this;
         $new->message = $this->getRequest()->withAttribute($name, $value);
@@ -122,7 +122,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function withoutAttribute($name)
+    public function withoutAttribute($name): ServerRequestInterface
     {
         $new = clone $this;
         $new->message = $this->getRequest()->withoutAttribute($name);
@@ -133,7 +133,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function withCookieParams(array $cookies)
+    public function withCookieParams(array $cookies): ServerRequestInterface
     {
         $new = clone $this;
         $new->message = $this->getRequest()->withCookieParams($cookies);
@@ -144,7 +144,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function withParsedBody($data)
+    public function withParsedBody($data): ServerRequestInterface
     {
         $new = clone $this;
         $new->message = $this->getRequest()->withParsedBody($data);
@@ -155,7 +155,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function withQueryParams(array $query)
+    public function withQueryParams(array $query): ServerRequestInterface
     {
         $new = clone $this;
         $new->message = $this->getRequest()->withQueryParams($query);
@@ -166,7 +166,7 @@ trait ServerRequestDecoratorTrait
     /**
      * @inheritdoc
      */
-    public function withUploadedFiles(array $uploadedFiles)
+    public function withUploadedFiles(array $uploadedFiles): ServerRequestInterface
     {
         $new = clone $this;
         $new->message = $this->getRequest()->withUploadedFiles($uploadedFiles);

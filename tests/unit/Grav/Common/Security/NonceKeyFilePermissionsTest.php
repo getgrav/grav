@@ -53,7 +53,6 @@ class NonceKeyFilePermissionsTest extends TestCase
         $previous = umask(0022);
         try {
             $method = new ReflectionMethod(Security::class, 'writeNonceKey');
-            $method->setAccessible(true);
             $method->invoke(null, $path, str_repeat('c', 64));
 
             self::assertSame(0022, umask(), 'the caller umask is restored after the write');

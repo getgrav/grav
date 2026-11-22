@@ -34,7 +34,6 @@ class ImageMediumOutputFormatTest extends \Codeception\Test\Unit
     {
         $image = imagecreatetruecolor(40, 30);
         imagejpeg($image, $this->dir . '/' . $name);
-        imagedestroy($image);
     }
 
 

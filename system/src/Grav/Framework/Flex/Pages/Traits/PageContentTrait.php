@@ -919,7 +919,6 @@ trait PageContentTrait
         /** @var Twig $twig */
         $twig = Grav::instance()['twig'];
 
-        /** @var PageInterface $this */
         return $twig->processPage($this, $content);
     }
 
@@ -935,10 +934,7 @@ trait PageContentTrait
      */
     protected function processMarkdown($content, array $options = []): string
     {
-        /** @var PageInterface $self */
-        $self = $this;
-
-        $excerpts = new Excerpts($self, $options);
+        $excerpts = new Excerpts($this, $options);
 
         // Initialize the preferred variant of markdown parser.
         if (isset($options['extra'])) {

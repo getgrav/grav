@@ -49,7 +49,6 @@ class MediaRetinaScaleLimitTest extends \Codeception\Test\Unit
     {
         $image = imagecreatetruecolor($width, $height);
         imagepng($image, $this->dir . '/' . $name);
-        imagedestroy($image);
     }
 
     public function testScaleAboveTheLimitIsARegularFileName(): void

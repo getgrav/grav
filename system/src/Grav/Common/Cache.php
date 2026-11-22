@@ -69,6 +69,9 @@ class Cache extends Getters
     /** @var CacheProvider|null */
     protected $shared_driver;
 
+    /** @var array<string,\Redis|\Memcached> Connected clients shared by every adapter of this request, keyed by driver + settings. */
+    protected $clients = [];
+
     /** @var CacheInterface */
     protected $simpleCache;
 
@@ -402,11 +405,19 @@ class Cache extends Getters
 
             case 'memcached':
                 if (extension_loaded('memcached')) {
-                    $memcached = new \Memcached();
-                    $connected = $memcached->addServer(
-                        $this->config->get('system.cache.memcached.server', 'localhost'),
-                        $this->config->get('system.cache.memcached.port', 11211)
-                    );
+                    $server = $this->config->get('system.cache.memcached.server', 'localhost');
+                    $port = $this->config->get('system.cache.memcached.port', 11211);
+                    $client_key = "memcached\0{$server}\0{$port}";
+                    $memcached = $this->clients[$client_key] ?? null;
+                    if (!$memcached) {
+                        $memcached = new \Memcached();
+                        $connected = $memcached->addServer($server, $port);
+                        if ($connected) {
+                            $this->clients[$client_key] = $memcached;
+                        }
+                    } else {
+                        $connected = true;
+                    }
                     if ($connected) {
                         $adapter = new MemcachedAdapter($memcached, $namespace, $defaultLifetime);
                         $resolved_driver_name = 'memcached';
@@ -424,29 +435,36 @@ class Cache extends Getters
 
             case 'redis':
                 if (extension_loaded('redis')) {
-                    $redis = new \Redis();
                     try {
                         $socket = $this->config->get('system.cache.redis.socket', false);
                         $password = $this->config->get('system.cache.redis.password', false);
                         $databaseId = $this->config->get('system.cache.redis.database', 0);
+                        $server = $this->config->get('system.cache.redis.server', 'localhost');
+                        $port = $this->config->get('system.cache.redis.port', 6379);
 
-                        if ($socket) {
-                            $redis->connect($socket);
-                        } else {
-                            $redis->connect(
-                                $this->config->get('system.cache.redis.server', 'localhost'),
-                                $this->config->get('system.cache.redis.port', 6379)
-                            );
-                        }
+                        // Symfony's adapters keep namespaces apart by key prefix, so
+                        // one connection serves the main, shared and Flex caches.
+                        $client_key = 'redis' . "\0" . serialize([$socket, $server, $port, $password, $databaseId]);
+                        $redis = $this->clients[$client_key] ?? null;
+                        if (!$redis) {
+                            $redis = new \Redis();
+                            if ($socket) {
+                                $redis->connect($socket);
+                            } else {
+                                $redis->connect($server, $port);
+                            }
 
-                        // Authenticate with password if set
-                        if ($password && !$redis->auth($password)) {
-                            throw new \RedisException('Redis authentication failed');
-                        }
+                            // Authenticate with password if set
+                            if ($password && !$redis->auth($password)) {
+                                throw new \RedisException('Redis authentication failed');
+                            }
 
-                        // Select alternate ( !=0 ) database ID if set
-                        if ($databaseId && !$redis->select($databaseId)) {
-                            throw new \RedisException('Could not select alternate Redis database ID');
+                            // Select alternate ( !=0 ) database ID if set
+                            if ($databaseId && !$redis->select($databaseId)) {
+                                throw new \RedisException('Could not select alternate Redis database ID');
+                            }
+
+                            $this->clients[$client_key] = $redis;
                         }
 
                         $adapter = new RedisAdapter($redis, $namespace, $defaultLifetime);
@@ -464,8 +482,8 @@ class Cache extends Getters
                 break;
 
             case 'array':
+                // Every call gets its own in-memory store, so there is nothing to namespace.
                 $adapter = new ArrayAdapter($defaultLifetime, false);
-                $adapter->setNamespace($namespace);
                 $resolved_driver_name = 'array';
                 break;
 

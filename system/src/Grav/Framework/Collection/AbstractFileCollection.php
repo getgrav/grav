@@ -10,6 +10,7 @@
 namespace Grav\Framework\Collection;
 
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use FilesystemIterator;
 use Grav\Common\Grav;
@@ -82,14 +83,14 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
         $filtered = $this->doInitializeByIterator($this->iterator, $this->nestingLimit);
         $this->filterFunction = $oldFilter;
 
-        if ($orderings = $criteria->getOrderings()) {
+        if ($orderings = $criteria->orderings()) {
             $next = null;
             /**
              * @var string $field
-             * @var string $ordering
+             * @var Order $ordering
              */
             foreach (array_reverse($orderings) as $field => $ordering) {
-                $next = ClosureExpressionVisitor::sortByField($field, $ordering === Criteria::DESC ? -1 : 1, $next);
+                $next = ClosureExpressionVisitor::sortByField($field, $ordering === Order::Descending ? -1 : 1, $next);
             }
             /** @phpstan-ignore-next-line */
             if (null === $next) {

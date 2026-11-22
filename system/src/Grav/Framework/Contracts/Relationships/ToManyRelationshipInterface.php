@@ -31,7 +31,6 @@ interface ToManyRelationshipInterface extends RelationshipInterface
      * @param string $id
      * @param string|null $type
      * @return T|null
-     * @phpstan-pure
      */
     public function getObject(string $id, ?string $type = null): ?object;
 

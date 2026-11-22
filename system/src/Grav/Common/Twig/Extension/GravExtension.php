@@ -976,7 +976,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     public function cronFunc($at)
     {
         try {
-            return CronExpression::factory($at);
+            return new CronExpression($at);
         } catch (\InvalidArgumentException $e) {
             // Invalid cron expression - return null to prevent DoS
             return null;
@@ -1787,7 +1787,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function regexFilter($array, $regex, $flags = 0)
     {
-        return preg_grep($regex, $array, $flags);
+        return preg_grep($regex, $array, $flags) ?: [];
     }
 
     /**

@@ -88,7 +88,6 @@ class SchedulerLogTest extends \Codeception\Test\Unit
 
         $set = static function (string $name, $value) use ($ref, $scheduler): void {
             $property = $ref->getProperty($name);
-            $property->setAccessible(true);
             $property->setValue($scheduler, $value);
         };
         $set('status_path', $this->root);
@@ -106,7 +105,6 @@ class SchedulerLogTest extends \Codeception\Test\Unit
             }
         };
         $init = $ref->getMethod('initializeLogger');
-        $init->setAccessible(true);
         $init->invoke($scheduler, $locator);
 
         return $scheduler->setRunTrigger('manual');
