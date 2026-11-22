@@ -9,6 +9,7 @@
     * The Redis and Memcached cache drivers share one connection per request instead of opening one for each cache
     * Smaller savings: linked CSS/JS pipeline bundles aren't read from disk on every request, the summary-divider regex only runs when the content has a divider, and `Collection::isFirst()`/`isLast()` no longer copy the item list
 1. [](#bugfix)
+    * A `media://` (or other stream) image in a folder whose name starts with a number, such as a `2022/09` upload folder, rendered with a broken `//media:2022//09/...` address. Images with resize or crop actions and HTML `<img>` tags in content were affected too [#4417](https://github.com/getgrav/grav/issues/4417)
     * `Utils::replaceLastOccurrence()` no longer cuts in the wrong place when the text has multibyte characters before the match (`/blog/über-uns.json` came out as `/blog/über-uns.`)
     * `Uri::post()` with a filter no longer logs a PHP deprecation on every call. It compared against the deprecated `FILTER_SANITIZE_STRING` constant, which PHP 9 removes
     * Removed a call to `ArrayAdapter::setNamespace()`, which doesn't exist in Symfony Cache 7, from the `array` cache driver, plus a few smaller static-analysis cleanups
