@@ -234,7 +234,7 @@ class FileCache extends AbstractCache
 
         try {
             if ($this->tmp === null) {
-                $this->tmp = $this->directory . uniqid('', true);
+                $this->tmp = $this->directory . uniqid(__CLASS__, true);
             }
 
             file_put_contents($this->tmp, $data);
@@ -292,7 +292,7 @@ class FileCache extends AbstractCache
     #[\ReturnTypeWillChange]
     public function __destruct()
     {
-        if ($this->tmp !== null && file_exists($this->tmp)) {
+        if ($this->tmp !== null && (strpos(basename($this->tmp), __CLASS__) === 0) && file_exists($this->tmp)) {
             unlink($this->tmp);
         }
     }
