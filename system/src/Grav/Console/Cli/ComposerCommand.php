@@ -37,6 +37,12 @@ class ComposerCommand extends GravCommand
                 InputOption::VALUE_NONE,
                 'update the dependencies'
             )
+            ->addOption(
+                'dev',
+                null,
+                InputOption::VALUE_NONE,
+                'Keep Composer dev dependencies'
+            )
             ->setDescription('Updates the composer vendor dependencies needed by Grav.')
             ->setHelp('The <info>composer</info> command updates the composer vendor dependencies needed by Grav');
     }
@@ -57,7 +63,7 @@ class ComposerCommand extends GravCommand
 
         // Updates composer first
         $io->writeln("\nInstalling vendor dependencies");
-        $io->writeln($this->composerUpdate(GRAV_ROOT, $action));
+        $io->writeln($this->composerUpdate(GRAV_ROOT, $action, (bool) $input->getOption('dev')));
 
         return 0;
     }
