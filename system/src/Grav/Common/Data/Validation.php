@@ -875,7 +875,10 @@ class Validation
         // A list of addresses is only valid for a `multiple` field. Everywhere else the
         // address is a single string, which is what the code reading it back expects
         // (account look-ups by e-mail cast the stored value to string).
-        if (is_array($value) && empty($field['multiple'])) {
+        // One string is a list as well once it has a comma or whitespace inside it: that is
+        // how it is split below and by the code sending mail to it, and the value is stored
+        // as posted, not as normalized here.
+        if (empty($field['multiple']) && (is_array($value) || strpbrk(trim((string) $value), ", \t\n\r\v\f") !== false)) {
             return false;
         }
 
