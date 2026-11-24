@@ -15,6 +15,7 @@ use Closure;
 use Countable;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Flex\FlexObject;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexObjectTrait;
@@ -950,6 +951,48 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
             foreach ($groups as $group) {
                 if ($group->authorize($rule, 'test') === true) {
+                    return true;
+                }
+            }
+        }
+
+        return $this->hasSuperAccessInEnvironments();
+    }
+
+    /**
+     * Whether a group of this account grants super-admin access in the configuration of any environment.
+     *
+     * The groups above are the ones in user/config/groups.yaml. An environment can define a group of its own, or
+     * give a group other access, in its own config/groups.yaml, and which environment a request runs in depends
+     * on the host name. The account is super if it is in any of them.
+     *
+     * @return bool
+     */
+    protected function hasSuperAccessInEnvironments(): bool
+    {
+        $names = array_filter((array)$this->getProperty('groups'), 'is_string');
+        if (!$names) {
+            return false;
+        }
+
+        $grav = $this->getContainer();
+
+        /** @var Config $config */
+        $config = $grav['config'];
+        $lists = [(array)$config->get('groups')];
+        foreach ($grav['setup']->getEnvironmentPaths() as $path) {
+            $filename = $path . '/config/groups.yaml';
+            if (is_file($filename)) {
+                $file = CompiledYamlFile::instance($filename);
+                $lists[] = (array)$file->content();
+                $file->free();
+            }
+        }
+
+        foreach ($lists as $list) {
+            foreach ($names as $name) {
+                $access = new Access($list[$name]['access'] ?? null);
+                if ($access->authorize('admin.super') === true || $access->authorize('api.super') === true) {
                     return true;
                 }
             }
