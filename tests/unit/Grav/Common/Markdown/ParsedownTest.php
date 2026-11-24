@@ -669,6 +669,27 @@ class ParsedownTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    public function testAnchorLinksBehindReverseProxyAbsoluteUrls(): void
+    {
+        // The base URL and the cache key have no port behind a reverse proxy; links follow them.
+        $this->config->set('system.absolute_urls', true);
+        $this->config->set('system.reverse_proxy_setup', true);
+        try {
+            $this->uri->initializeWithURL('http://testing.dev:8080/item2/item2-2')->init();
+
+            self::assertSame(
+                '<p><a href="http://testing.dev/item2/item2-1#foo">Peer Anchor</a></p>',
+                $this->parsedown->text('[Peer Anchor](../item2-1#foo)')
+            );
+            self::assertSame(
+                '<p><a href="http://testing.dev/#foo">Root Anchor</a></p>',
+                $this->parsedown->text('[Root Anchor](/#foo)')
+            );
+        } finally {
+            $this->config->set('system.reverse_proxy_setup', false);
+        }
+    }
+
     public function testAnchorLinksSubDirRelativeUrls(): void
     {
         $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/item2/item2-2', '/subdir')->init();
@@ -1235,6 +1256,79 @@ class ParsedownTest extends \PHPUnit\Framework\TestCase
             '<p><a href="http://testing.dev/subdir/item2/item2-2/missing-file.zip">Non Existent File</a></p>',
             $this->parsedown->text('[Non Existent File](missing-file.zip)')
         );
+    }
+
+    /**
+     * The rendered content is cached under a key made of the site's origin, which a full
+     * `custom_base_url` or `reverse_proxy_setup` takes away from the request. Absolute links
+     * have to carry that origin too, or the Host header of the first request to render a
+     * page decides where its links point for everyone.
+     *
+     * @dataProvider absoluteUrlOriginProvider
+     */
+    public function testAbsoluteUrlsUseSiteOrigin(string $custom_base, bool $reverse_proxy, string $request, string $origin): void
+    {
+        $current_base = $this->config->get('system.custom_base_url');
+        $current_proxy = $this->config->get('system.reverse_proxy_setup');
+        $this->config->set('system.absolute_urls', true);
+        $this->config->set('system.custom_base_url', $custom_base);
+        $this->config->set('system.reverse_proxy_setup', $reverse_proxy);
+
+        try {
+            $this->uri->initializeWithURL($request . '/item2/item2-2')->init();
+
+            self::assertSame($origin, $this->uri->rootUrl(true));
+            self::assertSame(
+                '<p><a href="' . $origin . '/item2/item2-1">Peer Item</a></p>',
+                $this->parsedown->text('[Peer Item](../item2-1)')
+            );
+            self::assertSame(
+                '<p><a href="' . $origin . '/item2/item2-2/no-page">Non Existent Page</a></p>',
+                $this->parsedown->text('[Non Existent Page](no-page)')
+            );
+            self::assertSame(
+                '<p><img src="' . $origin . '/home-missing-image.jpg" alt="" /></p>',
+                $this->parsedown->text('![](/home-missing-image.jpg)')
+            );
+        } finally {
+            $this->config->set('system.custom_base_url', $current_base);
+            $this->config->set('system.reverse_proxy_setup', $current_proxy);
+        }
+    }
+
+    public static function absoluteUrlOriginProvider(): array
+    {
+        return [
+            'request origin by default' => ['', false, 'https://testing.dev:8443', 'https://testing.dev:8443'],
+            'custom base url, other host' => ['http://testing.dev', false, 'https://evil.example:8443', 'http://testing.dev'],
+            'custom base url with port' => ['https://testing.dev:8443', false, 'http://evil.example', 'https://testing.dev:8443'],
+            'reverse proxy, other port' => ['', true, 'http://testing.dev:8443', 'http://testing.dev'],
+        ];
+    }
+
+    /**
+     * An image written with the site's full URL is page media whichever host the request
+     * rendering the page came in on, as that result is cached in the same way.
+     */
+    public function testImagesWithSiteHostAreLocalUnderCustomBaseUrl(): void
+    {
+        $current_base = $this->config->get('system.custom_base_url');
+        $this->config->set('system.custom_base_url', 'http://testing.dev');
+
+        try {
+            $this->uri->initializeWithURL('http://evil.example/item2/item2-2')->init();
+
+            self::assertSame(
+                '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+                $this->parsedown->text('![](http://testing.dev/item2/item2-2/sample-image.jpg)')
+            );
+            self::assertSame(
+                '<p><img src="http://evil.example/item2/item2-2/sample-image.jpg" alt="" /></p>',
+                $this->parsedown->text('![](http://evil.example/item2/item2-2/sample-image.jpg)')
+            );
+        } finally {
+            $this->config->set('system.custom_base_url', $current_base);
+        }
     }
 
     /**
