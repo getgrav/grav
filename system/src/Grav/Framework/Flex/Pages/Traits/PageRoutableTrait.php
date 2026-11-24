@@ -390,10 +390,13 @@ trait PageRoutableTrait
             $var,
             function ($value) {
                 if (null === $value) {
-                    $value = $this->getMasterKey() ?: $this->getKey();
+                    $storageKey = $this->getMasterKey();
+                    $value = '' !== $storageKey ? $storageKey : $this->getKey();
                 }
 
-                return Utils::basename($value) ?: null;
+                $value = Utils::basename($value);
+
+                return '' !== $value ? $value : null;
             }
         );
     }
@@ -412,8 +415,9 @@ trait PageRoutableTrait
             function ($value) {
                 if (null === $value) {
                     $filesystem = Filesystem::getInstance(false);
-                    $value = $this->getMasterKey() ?: $this->getKey();
-                    $value = ltrim($filesystem->dirname("/{$value}"), '/') ?: '';
+                    $storageKey = $this->getMasterKey();
+                    $value = '' !== $storageKey ? $storageKey : $this->getKey();
+                    $value = ltrim($filesystem->dirname("/{$value}"), '/');
                 }
 
                 return $value;

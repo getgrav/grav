@@ -326,7 +326,7 @@ trait PageLegacyTrait
                 throw new RuntimeException('Cannot copy page, parent is of unknown type');
             }
         } else {
-            $parent = $parentStorageKey
+            $parent = '' !== $parentStorageKey
                 ? $this->getFlexDirectory()->getObject($parentStorageKey, 'storage_key')
                 : (method_exists($index, 'getRoot') ? $index->getRoot() : null);
         }
@@ -873,7 +873,7 @@ trait PageLegacyTrait
         $meta = $this->getMetaData();
         $keys = array_keys($meta['children'] ?? []);
         $prefix = $this->getMasterKey();
-        if ($prefix) {
+        if ('' !== $prefix) {
             foreach ($keys as &$key) {
                 $key = $prefix . '/' . $key;
             }

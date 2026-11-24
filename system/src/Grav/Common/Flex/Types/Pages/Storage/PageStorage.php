@@ -717,13 +717,11 @@ class PageStorage extends FolderStorage
         if ($reload || !isset($this->meta[$key])) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-            if (mb_strpos((string) $key, '@@') === false) {
-                $path = $this->getStoragePath($key);
-                if (is_string($path)) {
-                    $path = $locator->isStream($path) ? $locator->findResource($path) : GRAV_ROOT . "/{$path}";
-                } else {
-                    $path = null;
-                }
+            // A page folder can have `@@` in its name, so a key with one is looked up like any other: the key
+            // of an unsaved object (`@@<id>`) has no folder and gets empty metadata from the lookup itself.
+            $path = $this->getStoragePath($key);
+            if (is_string($path)) {
+                $path = $locator->isStream($path) ? $locator->findResource($path) : GRAV_ROOT . "/{$path}";
             } else {
                 $path = null;
             }

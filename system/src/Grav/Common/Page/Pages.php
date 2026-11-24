@@ -2188,7 +2188,10 @@ class Pages
         foreach ($collection as $page) {
             $path = $page->path();
             if (null === $path) {
-                throw new RuntimeException('Internal error');
+                // A folder the page storage cannot address has no path: leave that page out instead of failing
+                // the page tree for every request.
+                $this->grav['log']->warning(sprintf('Flex page %s has no path, skipped', $page->rawRoute()));
+                continue;
             }
 
             if ($page instanceof FlexTranslateInterface) {
