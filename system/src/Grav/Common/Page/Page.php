@@ -1346,6 +1346,7 @@ class Page implements PageInterface, PageUuidInterface
      *
      * The output is cached only when all of these hold:
      * - the modular page that holds the module sets `cache_modules: true`;
+     * - the module has the id of its file, not one given to content or media set in memory;
      * - neither page sets `never_cache_twig`, and neither has a form or an access rule;
      * - the module body has no Twig of its own (it is request-aware even in the sandbox);
      * - the request is a GET or HEAD from a visitor who is not logged in, so a logged-in
@@ -1360,7 +1361,7 @@ class Page implements PageInterface, PageUuidInterface
      */
     private function moduleOutputCacheId(): ?string
     {
-        if (!$this->isModule()) {
+        if (!$this->isModule() || $this->hasMemoryId()) {
             return null;
         }
 
@@ -1431,6 +1432,11 @@ class Page implements PageInterface, PageUuidInterface
      */
     public function cachePageContent()
     {
+        // A memory id is new on every request, so an entry stored under it is never read again.
+        if ($this->hasMemoryId()) {
+            return;
+        }
+
         /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
         $cache_id = md5('page' . $this->getPageContentCacheKey(Grav::instance()['config']));
@@ -2639,6 +2645,25 @@ class Page implements PageInterface, PageUuidInterface
     }
 
     /**
+     * Whether the page has an id from memoryId(). Such an id is made up again on every
+     * request, so nothing stored in a persistent cache under it can ever be looked up.
+     *
+     * @return bool
+     */
+    private function hasMemoryId(): bool
+    {
+        return str_contains($this->id(), 'mem-');
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isMediaCacheable(): bool
+    {
+        return !$this->hasMemoryId();
+    }
+
+    /**
      * Gets and sets the identifier for this Page object.
      *
      * @param  string|null $var the identifier
@@ -2646,7 +2671,7 @@ class Page implements PageInterface, PageUuidInterface
      */
     public function id($var = null)
     {
-        if (null === $this->id) {
+        if (null === $var && null === $this->id) {
             // We need to set unique id to avoid potential cache conflicts between pages.
             $var = $this->memoryId();
         }

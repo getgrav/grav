@@ -87,7 +87,9 @@ trait MediaTrait
             $media = $cache->get($cacheKey);
             if (!$media instanceof MediaCollectionInterface) {
                 $media = new Media($this->getMediaFolder(), $this->getMediaOrder(), $this->_loadMedia);
-                $cache->set($cacheKey, $media);
+                if ($this->isMediaCacheable()) {
+                    $cache->set($cacheKey, $media);
+                }
             }
 
             $this->media = $media;
@@ -131,6 +133,16 @@ trait MediaTrait
         $cache->delete($cacheKey);
 
         $this->freeMedia();
+    }
+
+    /**
+     * Whether a later request can look the media collection up again under getCacheKey().
+     *
+     * @return bool
+     */
+    protected function isMediaCacheable(): bool
+    {
+        return true;
     }
 
     /**
