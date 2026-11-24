@@ -31,9 +31,9 @@ class Session extends \Grav\Framework\Session\Session
     /**
      * Fields of the session's account which decide what it may do. The session keeps its own copy of the
      * account, so a change made to the stored account after sign-in (disabling it, changing its access or
-     * groups, a new password) would not reach it.
+     * groups, a new password, removing a passkey) would not reach it.
      */
-    protected const USER_REFRESH_FIELDS = ['state', 'access', 'groups', 'hashed_password'];
+    protected const USER_REFRESH_FIELDS = ['state', 'access', 'groups', 'hashed_password', 'passkeys', 'webauthn_id'];
 
     /** @var bool */
     protected $autoStart = false;
@@ -456,7 +456,8 @@ class Session extends \Grav\Framework\Session\Session
     /**
      * Copy the fields in USER_REFRESH_FIELDS from the stored account into the session's copy of it. A session
      * of a disabled account then fails authorize() right away, and a later save of the session's copy can't
-     * write the old values back. A session whose account was deleted after sign-in is signed out.
+     * write the old values back. A session whose account was deleted after sign-in, or deleted and created
+     * again under the same username, is signed out.
      *
      * @return void
      */
@@ -485,6 +486,16 @@ class Session extends \Grav\Framework\Session\Session
             }
             if (is_callable([$stored, 'refresh'])) {
                 $stored->refresh(true);
+            }
+
+            // The account stored under this username was created after the one this session signed in to: it was
+            // deleted and the name given to a new account, which nobody has signed in to from here.
+            $created = (int)$stored->get('created', 0);
+            if ($created > 0 && $created !== (int)$user->get('created', 0)) {
+                $user->set('state', 'disabled');
+                $this->clear();
+
+                return;
             }
 
             foreach (static::USER_REFRESH_FIELDS as $field) {

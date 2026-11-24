@@ -331,6 +331,68 @@ class FlexUserSaveLostUpdateTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($sessionUser->authorize('api.pages.write'));
     }
 
+    /**
+     * A session opened before the account was deleted and a new account was created under the same username: the
+     * stored account is not the one the session signed in to, so the session is signed out instead of taking the
+     * new account's access.
+     */
+    public function testSessionOfARemovedAccountIsNotASessionOfItsSuccessor(): void
+    {
+        $this->create(['created' => 1700000000]);
+
+        /** @var UserObject $sessionUser */
+        $sessionUser = unserialize(serialize($this->load()));
+        $sessionUser->authenticated = true;
+        $sessionUser->authorized = true;
+
+        $this->load()->delete();
+        $this->create(['created' => 1800000000, 'access' => ['admin' => ['super' => true]]]);
+
+        $this->startSessionWith($sessionUser);
+
+        self::assertSame('disabled', $sessionUser->get('state'));
+        self::assertFalse($sessionUser->authorize('admin.super'));
+    }
+
+    /** The account the session signed in to is still the stored one: the session stays signed in. */
+    public function testSessionOfTheSameAccountIsKept(): void
+    {
+        $this->create(['created' => 1700000000]);
+
+        /** @var UserObject $sessionUser */
+        $sessionUser = unserialize(serialize($this->load()));
+        $sessionUser->authenticated = true;
+        $sessionUser->authorized = true;
+
+        $this->startSessionWith($sessionUser);
+
+        self::assertSame('enabled', $sessionUser->get('state'));
+        self::assertTrue($sessionUser->authorize('api.pages.write'));
+    }
+
+    /** A passkey removed from the stored account is removed from the session's copy too, so a save can't restore it. */
+    public function testSessionStartRefreshesPasskeysFromTheStoredAccount(): void
+    {
+        $this->create(['passkeys' => [['id' => 'cred-1', 'public_key' => 'key']], 'webauthn_id' => 'handle-1']);
+
+        /** @var UserObject $sessionUser */
+        $sessionUser = unserialize(serialize($this->load()));
+
+        $admin = $this->load();
+        $admin->undef('passkeys');
+        $admin->undef('webauthn_id');
+        $admin->save();
+
+        $this->startSessionWith($sessionUser);
+
+        self::assertNull($sessionUser->get('passkeys'));
+        self::assertNull($sessionUser->get('webauthn_id'));
+
+        $sessionUser->set('title', 'Profile save');
+        $sessionUser->save();
+        self::assertArrayNotHasKey('passkeys', $this->stored());
+    }
+
     /** A user the session holds without a stored account (a plugin signing in from elsewhere) is left alone. */
     public function testSessionUserWithoutStoredAccountIsKept(): void
     {
