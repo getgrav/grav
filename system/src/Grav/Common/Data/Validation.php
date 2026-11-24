@@ -182,14 +182,39 @@ class Validation
                     $messages[$name][] = $language->translate(['GRAV.FORM.XSS_ISSUES', $language->translate($name)], null, true);
                 }
             } elseif (is_array($value)) {
-                $violations = Security::detectXssFromArray($value, "{$name}.", $options);
-                if ($violations) {
+                if (static::arrayHasXss($value, $options)) {
                     $messages[$name][] = $language->translate(['GRAV.FORM.XSS_ISSUES', $language->translate($name)], null, true);
                 }
             }
         }
 
         return $messages;
+    }
+
+    /**
+     * Tells if Security::detectXss() flags any value of the array, however deep.
+     *
+     * checkSafety() only needs a yes or no. Security::detectXssFromArray() answers with
+     * the key path of every flagged value, and with keys taken from the request that list
+     * costs key length times item count. This stops at the first hit and builds no paths.
+     *
+     * @param array $array
+     * @param array $options
+     * @return bool
+     */
+    protected static function arrayHasXss(array $array, array $options): bool
+    {
+        foreach ($array as $value) {
+            if (is_array($value)) {
+                if (static::arrayHasXss($value, $options)) {
+                    return true;
+                }
+            } elseif (Security::detectXss($value, $options)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
