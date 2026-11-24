@@ -50,6 +50,11 @@ final class SandboxDefaults
             'scheduler',
             'system.cache.redis.password',
             'system.debugger.token',
+            // Passed straight to PHP's session.* ini settings. With the Redis
+            // session handler save_path is a connection string that carries the
+            // store's password (tcp://host:6379?auth=secret). The whole map is
+            // denied, not the one key: none of it is for page content to read.
+            'system.session.options',
             // Proxy URLs accept HTTP userinfo (http://user:pass@host:3128) and
             // Symfony turns that into a Basic auth header, so both slots are
             // credential-bearing even though neither is named like a secret —
