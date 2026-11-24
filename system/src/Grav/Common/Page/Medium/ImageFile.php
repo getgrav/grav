@@ -21,7 +21,6 @@ use RangeException;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
-use function array_key_exists;
 use function call_user_func_array;
 use function count;
 use function extension_loaded;
@@ -284,18 +283,118 @@ class ImageFile extends Image
             return $this;
         }
 
+        $orientation = static::exifOrientation($filepath);
+        if ($orientation === null) {
+            return $this;
+        }
+
+        return $this->applyExifOrientation($orientation);
+    }
+
+    /**
+     * Read the Exif orientation of a JPEG or TIFF file.
+     *
+     * Nothing but the Orientation entry of the first image directory is looked at.
+     * exif_read_data() keeps every segment of the file and a copy of every value a
+     * directory entry points to, so a small crafted file costs it hundreds of megabytes.
+     *
+     * @param string $file
+     * @return int|null Null for a file that has none
+     */
+    public static function exifOrientation(string $file): ?int
+    {
+        $handle = @fopen($file, 'rb');
+        if (!$handle) {
+            return null;
+        }
+
         try {
-            $exif = @exif_read_data($filepath);
-        } catch (Exception $e) {
-            Grav::instance()['log']->error($filepath . ' - ' . $e->getMessage());
-            return $this;
-        }
+            // The Exif segment of a JPEG holds what a TIFF file starts with.
+            $start = fread($handle, 2) === "\xFF\xD8" ? static::jpegExifOffset($handle) : 0;
+            if ($start === null || fseek($handle, $start) !== 0) {
+                return null;
+            }
 
-        if ($exif === false || !array_key_exists('Orientation', $exif)) {
-            return $this;
-        }
+            $header = (string) fread($handle, 8);
+            $order = substr($header, 0, 2);
+            if (strlen($header) < 8 || ($order !== 'II' && $order !== 'MM')) {
+                return null;
+            }
+            [$short, $long] = $order === 'II' ? ['v', 'V'] : ['n', 'N'];
+            $header = unpack("{$short}magic/{$long}offset", $header, 2);
+            if ($header['magic'] !== 42 || fseek($handle, $start + $header['offset']) !== 0) {
+                return null;
+            }
 
-        return $this->applyExifOrientation($exif['Orientation']);
+            $count = (string) fread($handle, 2);
+            $count = strlen($count) === 2 ? unpack($short, $count)[1] : 0;
+            // An entry has twelve bytes: tag, type, number of values, and the value when four bytes hold it.
+            $entries = $count > 0 ? (string) stream_get_contents($handle, $count * 12) : '';
+            for ($pos = 0, $end = strlen($entries) - 12; $pos <= $end; $pos += 12) {
+                $entry = unpack("{$short}tag/{$short}type/{$long}count", $entries, $pos);
+                if ($entry['tag'] !== 0x0112) {
+                    continue;
+                }
+                if ($entry['count'] !== 1 || ($entry['type'] !== 3 && $entry['type'] !== 4)) {
+                    return null;
+                }
+
+                return unpack($entry['type'] === 3 ? $short : $long, $entries, $pos + 8)[1];
+            }
+
+            return null;
+        } finally {
+            fclose($handle);
+        }
+    }
+
+    /**
+     * Finds the Exif data of a JPEG, walking the markers the way jpegFrameSize() does.
+     *
+     * @param resource $handle Positioned behind the start of image marker
+     * @return int|null Where the TIFF header of the first Exif segment starts, null without such a segment
+     */
+    protected static function jpegExifOffset($handle): ?int
+    {
+        while (true) {
+            // Bytes that are no marker are passed over, and so are fill bytes in front of the marker code.
+            do {
+                $byte = fgetc($handle);
+            } while ($byte !== false && $byte !== "\xFF");
+            do {
+                $byte = fgetc($handle);
+            } while ($byte === "\xFF");
+            if ($byte === false) {
+                return null;
+            }
+
+            $marker = ord($byte);
+            if ($marker <= 0x01 || ($marker >= 0xD0 && $marker <= 0xD7)) {
+                // A stuffed zero is no marker, TEM and RST0-7 have no length: the next marker follows.
+                continue;
+            }
+            if ($marker >= 0xD8 && $marker <= 0xDA) {
+                // A second SOI, EOI or SOS: the segments in front of the image data have an end here.
+                return null;
+            }
+
+            $length = (string) fread($handle, 2);
+            $length = strlen($length) === 2 ? unpack('n', $length)[1] : 0;
+            // The length counts its own two bytes.
+            $length -= 2;
+            if ($length < 0) {
+                return null;
+            }
+            if ($marker === 0xE1 && $length >= 6) {
+                if (fread($handle, 6) === "Exif\0\0") {
+                    return ftell($handle);
+                }
+                $length -= 6;
+            }
+            if ($length > 0 && fseek($handle, $length, SEEK_CUR) !== 0) {
+                return null;
+            }
+        }
     }
 
     /**
