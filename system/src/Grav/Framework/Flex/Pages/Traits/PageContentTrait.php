@@ -561,6 +561,9 @@ trait PageContentTrait
             static function ($value) {
                 // Plain data only, as the cast below would list an object's private and protected properties.
                 $value = Header::plainData($value);
+                if ($value instanceof \stdClass) {
+                    $value = get_object_vars($value);
+                }
                 if (is_array($value)) {
                     // make sure first level are arrays
                     array_walk($value, static function (&$val) {

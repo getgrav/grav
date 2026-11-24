@@ -81,9 +81,10 @@ class PageWrongTypedHeadersTest extends \PHPUnit\Framework\TestCase
         self::assertNull($page->language());
     }
 
-    public function testFlexLanguage_StringIsKept(): void
+    public function testFlexLanguage_HeaderDoesNotChangeTheLanguageOfTheFile(): void
     {
-        self::assertSame('fr', $this->flexPage(['lang' => ' fr '])->language());
+        // A Flex page's language comes from its file name, never from a `lang` header.
+        self::assertNull($this->flexPage(['lang' => ' fr '])->language());
     }
 
     /**

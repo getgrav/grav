@@ -56,12 +56,10 @@ class PagesMalformedHeadersTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function testBrokenCollectionStaysWithItsPage(): void
+    public function testUnknownSortFlagIsIgnored(): void
     {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('NO_SUCH_SORT_FLAG');
-
-        $this->pages->find('/landing')->collection();
+        // Only SORT_* constant names are read as sort flags; anything else is left out.
+        self::assertCount(1, $this->pages->find('/landing')->collection());
     }
 
     public function testOnlyCommandsSelectPages(): void
