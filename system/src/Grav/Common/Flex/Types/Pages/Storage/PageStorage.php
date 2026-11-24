@@ -199,7 +199,8 @@ class PageStorage extends FolderStorage
         $file = $this->buildStorageKeyParams($keys);
 
         // Template is optional; if it is missing, we need to have to load the object metadata.
-        if ($file && $file[0] === '.') {
+        // Without a language nothing is left of the name: `.md` is a hidden file, which is not a page.
+        if ($file === '' || $file[0] === '.') {
             $meta = $this->getObjectMeta($this->buildStorageKey($keys, false));
             $file = ($meta['template'] ?? 'folder') . $file;
         }
@@ -393,9 +394,10 @@ class PageStorage extends FolderStorage
             $debugger = $grav['debugger'];
             $debugger->addMessage("Save page: {$newKey}", 'debug');
 
-            // Check if the row already exists.
+            // Check if the row already exists. A row can carry the key of a page which has been deleted or moved since
+            // it was loaded: there is nothing left to move or rename, so it is saved like any other new page.
             $oldKey = $row['__META']['storage_key'] ?? null;
-            if (is_string($oldKey)) {
+            if (is_string($oldKey) && $this->hasKey($oldKey)) {
                 // Initialize all old key-related variables.
                 $oldKeys = $this->extractKeysFromRow(['__META' => $row['__META']], false);
                 // The page lives in the folder named by its storage key. A folder rebuilt from order and

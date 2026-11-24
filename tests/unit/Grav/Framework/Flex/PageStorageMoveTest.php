@@ -98,4 +98,69 @@ class PageStorageMoveTest extends \PHPUnit\Framework\TestCase
 
         $this->assertSame($before, glob("{$this->root}/*"));
     }
+
+    public static function deletedPages(): array
+    {
+        // The row was loaded by the key of the page folder or of the page file. Then either the whole folder was
+        // deleted, or only the page file (the folder still has media in it).
+        return [
+            ['02.blog', true, 'default'],
+            ['02.blog|default', true, 'default'],
+            ['02.blog', false, 'default'],
+            ['02.blog|default', false, 'default'],
+            // With another template the page file of the new folder would be renamed before it is written.
+            ['02.blog|default', true, 'item'],
+        ];
+    }
+
+    /**
+     * A row whose page has been deleted since it was loaded (a form flash keeps such rows) has nothing to move. It is
+     * saved as a new page, which cannot take over the folder of another page any more than a moved page can.
+     *
+     * @dataProvider deletedPages
+     */
+    public function testRowOfDeletedPageCannotBeSavedOverAnotherPage(string $key, bool $all, string $template): void
+    {
+        $row = $this->deletePage($key, $all);
+
+        try {
+            $this->storage->replaceRows([$key => ['order' => '', 'folder' => 'taken', 'template' => $template, 'markdown' => 'Mine'] + $row]);
+            $this->fail('The row was saved');
+        } catch (RuntimeException $e) {
+            $this->assertStringContainsString('already', $e->getMessage());
+        }
+
+        $this->assertSame(["{$this->root}/taken/default.md"], glob("{$this->root}/taken/*"));
+        $this->assertStringContainsString('title: taken', file_get_contents("{$this->root}/taken/default.md"));
+    }
+
+    /**
+     * @dataProvider deletedPages
+     */
+    public function testRowOfDeletedPageIsSavedToFreeFolder(string $key, bool $all, string $template): void
+    {
+        $row = $this->deletePage($key, $all);
+        $this->storage->replaceRows([$key => ['order' => '', 'folder' => 'free', 'template' => $template, 'markdown' => 'Mine'] + $row]);
+
+        $this->assertStringContainsString('Mine', file_get_contents("{$this->root}/free/{$template}.md"));
+    }
+
+    /**
+     * Load the row of a page and delete the page before the row gets saved.
+     */
+    protected function deletePage(string $key, bool $all): array
+    {
+        $folder = explode('|', $key)[0];
+        $row = $this->storage->readRows([$key => null])[$key];
+        if ($all) {
+            Folder::delete("{$this->root}/{$folder}");
+        } else {
+            unlink("{$this->root}/{$folder}/default.md");
+            touch("{$this->root}/{$folder}/image.jpg");
+        }
+        // The row is saved by a later request, which does not have the page in the storage's cache.
+        $this->storage->clearCache();
+
+        return $row;
+    }
 }

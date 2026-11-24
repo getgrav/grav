@@ -518,7 +518,12 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'template',
             $var,
-            fn($value) => trim($value ?? (($this->isModule() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name())))
+            function ($value) {
+                $value = trim($value ?? '');
+
+                // An empty template is a missing one, just like in Page::template(): the template names the page file.
+                return $value !== '' ? $value : trim(($this->isModule() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name()));
+            }
         );
     }
 

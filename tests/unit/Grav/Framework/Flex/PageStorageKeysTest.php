@@ -171,6 +171,64 @@ class PageStorageKeysTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(['', '01.blog', '01.blog/my..post'], array_keys($this->storage->getExistingKeys()));
     }
 
+    public static function missingTemplates(): array
+    {
+        return [
+            'empty' => [''],
+            'not given' => [null],
+        ];
+    }
+
+    /**
+     * A page file without a template would be `.md`: a hidden file, which hides
+     * the page and the permissions in its header. A missing template keeps the
+     * page file the folder has.
+     *
+     * @dataProvider missingTemplates
+     */
+    public function testSavingWithoutATemplateKeepsThePageFile(?string $template): void
+    {
+        file_put_contents($this->root . '/pages/01.blog/default.md', "---\ntitle: Blog\n---\nBody");
+
+        $rows = ['01.blog' => null];
+        $row = $this->storage->readRows($rows)['01.blog'];
+        $this->assertSame('default', $row['__META']['template']);
+
+        $method = new ReflectionMethod(PageStorage::class, 'saveRow');
+        $method->invoke($this->storage, '01.blog', ['template' => $template, 'markdown' => 'Changed'] + $row);
+
+        $this->assertSame(['default.md'], array_values(array_diff(scandir($this->root . '/pages/01.blog') ?: [], ['.', '..'])));
+        $this->assertStringContainsString('Changed', (string)file_get_contents($this->root . '/pages/01.blog/default.md'));
+    }
+
+    public static function emptyTemplates(): array
+    {
+        return [
+            'empty' => [['template' => '']],
+            'spaces' => [['template' => '  ']],
+            'empty display template' => [['header' => ['template' => ' ']]],
+        ];
+    }
+
+    /**
+     * An empty template is a missing one: the page keeps the template of its file.
+     *
+     * @dataProvider emptyTemplates
+     */
+    public function testUpdateIgnoresAnEmptyTemplate(array $data): void
+    {
+        $flex = new Flex([], ['object' => Grav::instance()['config']->get('system.flex', [])]);
+        $flex->addDirectoryType('pages', 'blueprints://flex/pages.yaml', ['enabled' => true]);
+
+        $meta = ['key' => 'blog', 'storage_key' => '01.blog', 'template' => 'default'];
+        $page = new PageObject(['__META' => $meta, 'header' => ['title' => 'Blog'], 'markdown' => 'Body'], 'blog', $flex->getDirectory('pages'));
+        // The page form posts the page file name as well, which makes the page work out its template again.
+        $page->update(['name' => 'default'] + $data);
+
+        $this->assertSame('default', $page->template());
+        $this->assertSame('default', $page->prepareStorage()['template']);
+    }
+
     /**
      * The storage key of a page follows from its parent, order and folder, never
      * from submitted data.
