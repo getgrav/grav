@@ -1169,22 +1169,8 @@ class Pages
             $instance = $this->loadIndexedPage($path);
         } elseif (is_string($instance)) {
             if ($this->directory) {
-                /** @var Language $language */
-                $language = $this->grav['language'];
-                $lang = $language->getActive();
-                if ($lang) {
-                    $languages = $language->getFallbackLanguages($lang, true);
-                    $key = $instance;
-                    $instance = null;
-                    foreach ($languages as $code) {
-                        $test = $code ? $key . ':' . $code : $key;
-                        if (($instance = $this->directory->getObject($test, 'flex_key')) !== null) {
-                            break;
-                        }
-                    }
-                } else {
-                    $instance = $this->directory->getObject($instance, 'flex_key');
-                }
+                // The key names the translation picked for the active language when the index was built.
+                $instance = $this->directory->getObject($instance, 'flex_key');
             }
 
             if ($instance instanceof PageInterface) {
