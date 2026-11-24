@@ -493,6 +493,12 @@ class PageObject extends FlexPageObject implements PageUuidInterface
      */
     protected function isAuthorizedByChildren(UserInterface $user, string $action, string $scope, bool $isMe): bool
     {
+        // A folder the page index leaves out is not among the children, so the pages in it cannot be asked.
+        $storage = $this->getFlexDirectory()->getStorage();
+        if ($storage instanceof PageStorage && $storage->hasUnindexedFolders($this->getMasterKey())) {
+            return false;
+        }
+
         // Outside of admin children() returns the pages of the site, which do not need to be Flex pages.
         foreach (parent::children() as $child) {
             if (!$child instanceof self) {

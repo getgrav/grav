@@ -653,6 +653,37 @@ class PageStorage extends FolderStorage
     }
 
     /**
+     * Whether the folder of the page has sub-folders which the page index leaves out (see getObjectMeta()). They are
+     * not among the children of the page, but deleting the folder removes them with it.
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function hasUnindexedFolders(string $key): bool
+    {
+        $path = $this->getStoragePath($this->extractKeysFromStorageKey($key)['key']);
+        if (!is_string($path)) {
+            return false;
+        }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        $path = $locator->isStream($path) ? $locator->findResource($path) : GRAV_ROOT . "/{$path}";
+        if (!is_string($path) || !is_dir($path)) {
+            return false;
+        }
+
+        /** @var SplFileInfo $info */
+        foreach (new FilesystemIterator($path, $this->flags) as $name => $info) {
+            if (strpbrk((string)$name, '|\\') !== false && $info->isDir()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Check if page folder should be deleted.
      *
      * Deleting page can be done either by deleting everything or just a single language.
