@@ -347,6 +347,56 @@ class FlexUserSaveLostUpdateTest extends \PHPUnit\Framework\TestCase
         self::assertTrue($sessionUser->authorize('api.pages.write'));
     }
 
+    /**
+     * An object from before a demotion (as the Flex cache of another request hands it out) which has already
+     * answered a permission check: refresh() reads the stored account, so the object must not keep the access
+     * it held in memory, and a save after the refresh must not write that access back.
+     *
+     * @dataProvider providerRefresh
+     */
+    public function testRefreshReplacesAccessWhichWasAlreadyRead(bool $keepMissing, array $demoted): void
+    {
+        // authorize() asks the account's groups about what the account has no rule for (tearDown() removes this).
+        $this->grav['flex']->addDirectoryType('user-groups', 'blueprints://flex/user-groups.yaml', ['enabled' => true]);
+
+        $this->create();
+        // Flex compares the modification time in whole seconds.
+        touch($this->path, time() - 10);
+        clearstatcache();
+
+        /** @var UserObject $stale */
+        $stale = unserialize(serialize($this->load()));
+        self::assertTrue($stale->authorize('api.pages.write', 'test'));
+
+        $admin = $this->load();
+        $admin->set('access', $demoted);
+        $admin->save();
+        clearstatcache();
+        self::assertSame($demoted, $this->stored()['access'] ?? []);
+
+        self::assertTrue($stale->refresh($keepMissing));
+        self::assertSame($demoted, $stale->get('access'));
+        // Answered by the access which was read again, not by the one the first check was answered from.
+        self::assertFalse($stale->authorize('api.pages.write', 'test'));
+        self::assertSame((bool)$demoted, $stale->authorize('site.login', 'test'));
+
+        $stale->set('title', 'Saved after refresh');
+        $stale->save();
+        $stored = $this->stored();
+        self::assertSame('Saved after refresh', $stored['title']);
+        self::assertSame($demoted, $stored['access'] ?? []);
+    }
+
+    public static function providerRefresh(): array
+    {
+        return [
+            'read again, demoted' => [false, self::DEMOTED],
+            'read again, no access left' => [false, []],
+            'keep missing, demoted' => [true, self::DEMOTED],
+            'keep missing, no access left' => [true, []],
+        ];
+    }
+
     private function startSessionWith(UserObject $user): void
     {
         $session = new class($user) extends Session {

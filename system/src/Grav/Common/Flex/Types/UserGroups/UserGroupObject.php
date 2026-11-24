@@ -46,6 +46,21 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     }
 
     /**
+     * {@inheritdoc}
+     * @see FlexObject::refresh()
+     */
+    public function refresh(bool $keepMissing = false): bool
+    {
+        $refreshed = parent::refresh($keepMissing);
+        if ($refreshed) {
+            // Loading the access which was read again also replaces $this->_access, see offsetLoad_access().
+            $this->getProperty('access');
+        }
+
+        return $refreshed;
+    }
+
+    /**
      * @return string
      */
     public function getTitle(): string

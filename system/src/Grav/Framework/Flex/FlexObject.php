@@ -226,6 +226,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
             if ($meta) {
                 $this->setMetaData($meta);
             }
+            // Properties which have already been loaded into their member variables would keep their old values
+            // and hide the refreshed elements: unload them, so that they are loaded again from the new elements.
+            foreach (array_keys($elements + $this->getArrayElements()) as $property) {
+                $this->unsetObjectProperty((string)$property);
+            }
             $this->objectConstruct($elements, $newKey);
 
             if ($current) {

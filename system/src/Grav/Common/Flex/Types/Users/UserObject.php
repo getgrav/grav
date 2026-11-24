@@ -155,6 +155,22 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
+     * {@inheritdoc}
+     * @see FlexObject::refresh()
+     */
+    public function refresh(bool $keepMissing = false): bool
+    {
+        $refreshed = parent::refresh($keepMissing);
+        if ($refreshed) {
+            // Both were built from properties which have now been read again.
+            $this->_access = null;
+            $this->_groups = null;
+        }
+
+        return $refreshed;
+    }
+
+    /**
      * @return void
      */
     public function onPrepareRegistration(): void
