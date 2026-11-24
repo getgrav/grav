@@ -37,6 +37,12 @@ use function strlen;
  */
 class ImageFile extends Image
 {
+    /**
+     * Most scans a JPEG may have to be decoded. Encoders write about ten for a
+     * progressive image and one to four for a baseline one.
+     */
+    public const MAX_JPEG_SCANS = 100;
+
     /** @var int Most pixels one operation may allocate, 0 for no limit */
     protected $maxPixels = 0;
 
@@ -178,6 +184,21 @@ class ImageFile extends Image
 
         // The generating function
         $generate = function ($target) use ($image, $type, $quality) {
+            // max_pixels bounds the size of one pass over the image, and a JPEG
+            // decoder makes a pass for every scan in the file, however many
+            // there are. Counted here, where the file is about to be decoded, so
+            // that an image with a cached copy is not read again. As for a source
+            // above max_pixels, the original is served.
+            $source = (string) $image->getFilePath();
+            if ($source !== '' && static::jpegScanCount($source, static::MAX_JPEG_SCANS + 1) > static::MAX_JPEG_SCANS) {
+                Grav::instance()['log']->warning(sprintf(
+                    'Refusing to process image source with more than %d JPEG scans: %s',
+                    static::MAX_JPEG_SCANS, $source
+                ));
+
+                throw new GenerationError($source);
+            }
+
             try {
                 $result = $image->save($target, $type, $quality);
             } catch (Error $e) {
@@ -424,6 +445,41 @@ class ImageFile extends Image
         }
 
         return [(int) $size[0], (int) $size[1]];
+    }
+
+    /**
+     * Counts the scans of a JPEG, which is the number of passes the decoder makes over the image.
+     *
+     * A scan starts with the SOS marker and the length of its header, 6 bytes and 2 for
+     * each of its components, and libjpeg reads none with more than 4 of them. Every
+     * place in the file where that stands is counted. The decoder cannot start a scan
+     * anywhere else, but not each of them is one: a thumbnail in the metadata has scans
+     * of its own. So the number is the most the decoder can meet, not less.
+     *
+     * @param string $file
+     * @param int $enough Stop reading once this many have been counted
+     * @return int 0 for a file that is no JPEG
+     */
+    public static function jpegScanCount(string $file, int $enough = PHP_INT_MAX): int
+    {
+        $handle = @fopen($file, 'rb');
+        if (!$handle) {
+            return 0;
+        }
+
+        $count = 0;
+        $tail = (string) fread($handle, 2);
+        if ($tail === "\xFF\xD8") {
+            while ($count < $enough && ($chunk = (string) fread($handle, 1048576)) !== '') {
+                // The end of the last read comes along: a scan header may lie across two of them.
+                $chunk = $tail . $chunk;
+                $count += (int) preg_match_all('/\xFF\xDA\x00[\x06\x08\x0A\x0C\x0E]/', $chunk);
+                $tail = substr($chunk, -3);
+            }
+        }
+        fclose($handle);
+
+        return $count;
     }
 
     /**
