@@ -1056,6 +1056,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
         $filesystem = Filesystem::getInstance(false);
 
+        // Find out if the account has a folder of its own: it sets $this->_loadMedia.
+        $this->getMediaFolder();
+
         $list = [];
         $list_original = [];
         foreach ($files as $field => $group) {
@@ -1072,6 +1075,19 @@ class UserObject extends FlexObject implements UserInterface, Countable
             // ignored (e.g. guarded by `security@`).
             if (!empty($settings['disabled']) || !empty($settings['validate']['ignore'])) {
                 continue;
+            }
+
+            // The permission to save the account covers the files in its own folder only. An account which is
+            // stored as a file has no such folder and keeps its avatar in a folder which all the accounts share:
+            // an upload never replaces a file there, and a removed file is only taken out of the file list.
+            $shared = !$this->isOwnMediaDestination($settings);
+            if ($shared) {
+                // Only media fields have files, which are saved in the shared folder.
+                if (empty($settings['media_field'])) {
+                    continue;
+                }
+
+                $settings['avoid_overwriting'] = true;
             }
 
             foreach ($group as $filename => $file) {
@@ -1122,7 +1138,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 // Calculate path without the retina scaling factor.
                 $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', Utils::basename($filepath));
 
-                $list[$filename] = [$file, $settings];
+                if ($file || !$shared) {
+                    $list[$filename] = [$file, $settings];
+                }
 
                 // Only media fields keep a file list in the object; other field names are not object properties.
                 if (empty($settings['media_field'])) {
