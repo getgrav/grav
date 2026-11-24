@@ -50,6 +50,11 @@ final class SandboxDefaults
             'scheduler',
             'system.cache.redis.password',
             'system.debugger.token',
+            // Passed straight to PHP's session.* ini settings. With the Redis
+            // session handler save_path is a connection string that carries the
+            // store's password (tcp://host:6379?auth=secret). The whole map is
+            // denied, not the one key: none of it is for page content to read.
+            'system.session.options',
             // Proxy URLs accept HTTP userinfo (http://user:pass@host:3128) and
             // Symfony turns that into a Basic auth header, so both slots are
             // credential-bearing even though neither is named like a secret —
@@ -71,6 +76,8 @@ final class SandboxDefaults
             // `autoescape` is deliberately absent, for the same reason as the
             // `raw` filter (see filters()): it switches output escaping off for
             // its body. Trusted theme templates keep the tag.
+            // `block` comes without its `deferred` modifier: DeferredTokenParser
+            // compiles a deferred block in sandboxed code as a plain one.
             'block',
             'deprecated',
             'do',
@@ -225,7 +232,8 @@ final class SandboxDefaults
      * absent. `read_file` is hardened but stays off so editor page content can't
      * pull arbitrary files; theme templates and the `[read-file]` shortcode
      * reach it through the same hardening. dump/debug are gated by
-     * $env->isDebug() and are no-ops in production.
+     * $env->isDebug() and are no-ops in production. The `constant` entry
+     * also governs the `is constant(...)` test (see GravSecurityPolicy).
      *
      * @return list<string>
      */

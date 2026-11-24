@@ -301,6 +301,23 @@ class PagesTest extends \PHPUnit\Framework\TestCase
         self::assertGreaterThan(0, count($withoutBlogOrDefault->toArray()));
     }
 
+    public function testCollectionSortFlagsResolveSortFlagNamesOnly(): void
+    {
+        $slugs = fn($sort_flags): array => array_keys($this->pages->getCollection([
+            'items' => '@root.children',
+            'order' => ['by' => 'title', 'sort_flags' => $sort_flags],
+        ])->toArray());
+
+        // Names of sort flags are resolved and merged as before.
+        self::assertSame($slugs(SORT_STRING | SORT_FLAG_CASE), $slugs(['SORT_STRING', 'SORT_FLAG_CASE']));
+
+        // Any other name used to reach constant(): an undefined one threw, a defined one was read
+        // (PHP_OS, a string, then failed in the bitwise OR). The list comes from page frontmatter
+        // and from collection() in sandboxed page content, so such names are now ignored.
+        self::assertSame($slugs(null), $slugs(['NO_SUCH_CONSTANT', 'PHP_OS', 'E_ALL', 'Grav\\Common\\Grav::NO_SUCH']));
+        self::assertSame($slugs(SORT_STRING), $slugs(['SORT_STRING', 'NO_SUCH_CONSTANT', 'PHP_OS']));
+    }
+
     public function testGetList(): void
     {
         $list = $this->pages->getList();

@@ -6,6 +6,7 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Header;
 use Grav\Common\Page\Media;
 use Grav\Common\Page\Page;
+use Grav\Framework\Flex\Flex;
 
 /**
  * Class PageSetterHardeningTest
@@ -86,6 +87,40 @@ class PageSetterHardeningTest extends \Codeception\Test\Unit
         $this->assertSame('Tom &amp; Jerry', $metadata['done']['content']);
         $this->assertNull($metadata['object']['content']);
         $this->assertArrayNotHasKey('scalar', $metadata);
+    }
+
+    public function testMetadataAndTaxonomySettersDoNotCastObjectsToTheirInternals(): void
+    {
+        $flex = new Flex([], ['object' => $this->grav['config']->get('system.flex', [])]);
+        $flex->addDirectoryType('pages', 'blueprints://flex/pages.yaml', ['enabled' => true]);
+        $flexPage = $flex->getDirectory('pages')->createObject(['header' => ['title' => 'Page'], 'markdown' => 'Text'], 'page');
+
+        foreach ([$this->page(), $flexPage] as $page) {
+            $this->assertSame([], $page->metadata($this->grav), $page::class);
+            $this->assertSame(
+                ['note' => ['name' => 'note', 'extra' => null]],
+                $page->metadata(['note' => ['name' => 'note', 'extra' => $this->grav]]),
+                $page::class
+            );
+            $this->assertSame(['u' => [], 'tag' => ['a', '1']], $page->taxonomy(['u' => $this->grav['uri'], 'tag' => ['a', 1]]), $page::class);
+        }
+
+        $this->assertSame([], $this->page()->taxonomy($this->page()));
+        $this->assertSame(['tag' => ['a']], $this->page()->taxonomy((object) ['tag' => 'a']));
+        $this->assertSame(['note' => ['name' => 'note']], $this->page()->metadata((object) ['note' => ['name' => 'note']]));
+    }
+
+    public function testTitleAndMenuSettersKeepTextOnly(): void
+    {
+        $page = $this->page();
+
+        $this->assertSame('<b>x</b>', $page->title(new \Twig\Markup('<b>x</b>', 'UTF-8')));
+        $this->assertSame('<i>y</i>', $page->menu(new \Twig\Markup('<i>y</i>', 'UTF-8')));
+        $this->assertSame('Plain', $page->title('Plain'));
+        $this->assertSame('5', $page->menu(5));
+
+        $this->assertIsString($page->title($this->grav));
+        $this->assertIsString($page->menu($this->grav));
     }
 
     public function testMediaSetterDoesNotChangeTheSharedMediaCache(): void

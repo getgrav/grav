@@ -14,12 +14,14 @@ declare(strict_types=1);
 namespace Twig\DeferredExtension;
 
 use Twig\Error\SyntaxError;
+use Twig\Extension\SandboxExtension;
 use Twig\Node\BlockNode;
 use Twig\Node\BlockReferenceNode;
 use Twig\Node\EmptyNode;
 use Twig\Node\Node;
 use Twig\Node\Nodes;
 use Twig\Node\PrintNode;
+use Twig\Source;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
@@ -33,7 +35,13 @@ final class DeferredTokenParser extends AbstractTokenParser
         
         $deferred = $stream->nextIf(Token::NAME_TYPE, 'deferred');
 
-        if ($deferred) {
+        // A deferred block leaves an output buffer open until its template ends.
+        // A capture around it (`set`, `apply`, a macro, `block()`) then closes
+        // that buffer in place of its own, and the render returns only part of
+        // its output while the rest stays in a buffer nothing reads back.
+        // Sandboxed code, which is editor content and whatever it loads, must
+        // not be able to do that: there `deferred` compiles to a plain block.
+        if ($deferred && !$this->isSandboxed($stream->getSourceContext())) {
             $block = new DeferredBlockNode($name, new EmptyNode(), $lineno);
         } else {
             $block = new BlockNode($name, new EmptyNode(), $lineno);
@@ -64,6 +72,14 @@ final class DeferredTokenParser extends AbstractTokenParser
         $this->parser->popLocalScope();
 
         return new BlockReferenceNode($name, $lineno);
+    }
+
+    private function isSandboxed(Source $source): bool
+    {
+        $env = $this->parser->getEnvironment();
+
+        return $env->hasExtension(SandboxExtension::class)
+            && $env->getExtension(SandboxExtension::class)->isSandboxed($source);
     }
 
     public function decideBlockEnd(Token $token): bool

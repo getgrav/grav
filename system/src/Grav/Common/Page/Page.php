@@ -281,8 +281,16 @@ class Page implements PageInterface, PageUuidInterface
                     unset($process_fields[$field]);
                 }
             }
-            $text_header = Grav::instance()['twig']->processString(json_encode($process_fields, JSON_UNESCAPED_UNICODE), ['page' => $this]);
-            $this->header((object)(json_decode((string) $text_header, true) + $ignored_fields));
+            // Render each value on its own, so that what Twig prints is only ever the text of that
+            // value. Rendering the JSON of the whole header as one template and decoding the result
+            // let a printed quote or backslash break the header or add keys to it.
+            $twig = Grav::instance()['twig'];
+            array_walk_recursive($process_fields, function (&$value) use ($twig) {
+                if (is_string($value) && Utils::contains($value, ['{{', '{%', '{#'])) {
+                    $value = $twig->processString($value, ['page' => $this]);
+                }
+            });
+            $this->header((object)($process_fields + $ignored_fields));
         }
     }
 
@@ -2055,7 +2063,8 @@ class Page implements PageInterface, PageUuidInterface
     public function title($var = null)
     {
         if ($var !== null) {
-            $this->title = $var;
+            // Text only: a Twig\Markup would print unescaped, an object is not a title.
+            $this->title = \is_scalar($var) || $var instanceof \Twig\Markup ? (string)$var : null;
         }
         if (empty($this->title)) {
             $this->title = ucfirst($this->slug());
@@ -2074,7 +2083,8 @@ class Page implements PageInterface, PageUuidInterface
     public function menu($var = null)
     {
         if ($var !== null) {
-            $this->menu = $var;
+            // Text only: a Twig\Markup would print unescaped, an object is not a menu name.
+            $this->menu = \is_scalar($var) || $var instanceof \Twig\Markup ? (string)$var : null;
         }
         if (empty($this->menu)) {
             $this->menu = $this->title();
@@ -2299,7 +2309,8 @@ class Page implements PageInterface, PageUuidInterface
     public function metadata($var = null)
     {
         if ($var !== null) {
-            $this->metadata = self::escapeMetadata((array)$var);
+            // Plain data only: an `(array)` cast would list an object's private and protected properties.
+            $this->metadata = self::escapeMetadata((array)Header::plainData($var));
         }
 
         // if not metadata yet, process it.
@@ -2936,6 +2947,8 @@ class Page implements PageInterface, PageUuidInterface
     public function taxonomy($var = null)
     {
         if ($var !== null) {
+            // Plain data only, as the casts below would list an object's private and protected properties.
+            $var = Header::plainData($var);
             if (is_object($var)) {
                 $var = get_object_vars($var);
             } elseif (!is_array($var)) {

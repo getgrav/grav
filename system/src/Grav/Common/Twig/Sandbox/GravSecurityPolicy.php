@@ -51,14 +51,19 @@ final class GravSecurityPolicy implements SecurityPolicyInterface
      *
      * Grav has no allowlist for tests yet, so the default is to leave them unrestricted, which is
      * what the sandbox did before 3.28. Pass `$allowedTests` to the constructor to start enforcing.
+     *
+     * The one exception is `constant`: `x is constant('NAME')` compiles to PHP's constant() with a
+     * name the template picks, which is the `constant` function behind a comparison. Without a list
+     * of tests it is held to the function allowlist, so the two are granted or refused together.
      */
     public function checkSecurity($tags, $filters, $functions, array $tests = []): void
     {
-        if (null !== $this->allowedTests) {
-            foreach ($tests as $test) {
-                if (!in_array($test, $this->allowedTests, true)) {
-                    throw new SecurityNotAllowedTestError(sprintf('Test "%s" is not allowed.', $test), $test);
-                }
+        foreach ($tests as $test) {
+            $allowed = null !== $this->allowedTests
+                ? in_array($test, $this->allowedTests, true)
+                : 'constant' !== $test || in_array('constant', $this->allowedFunctions, true);
+            if (!$allowed) {
+                throw new SecurityNotAllowedTestError(sprintf('Test "%s" is not allowed.', $test), $test);
             }
         }
 

@@ -542,6 +542,8 @@ trait PageContentTrait
             'taxonomy',
             $var,
             static function ($value) {
+                // Plain data only, as the cast below would list an object's private and protected properties.
+                $value = Header::plainData($value);
                 if (is_array($value)) {
                     // make sure first level are arrays
                     array_walk($value, static function (&$val) {

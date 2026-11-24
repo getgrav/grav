@@ -2,6 +2,7 @@
 
 use Grav\Common\Grav;
 use Grav\Common\Security;
+use Grav\Common\Twig\Sandbox\SandboxConfig;
 use Grav\Common\Twig\Sandbox\SandboxDefaults;
 use Twig\Sandbox\SecurityNotAllowedFilterError;
 use Twig\Sandbox\SecurityNotAllowedFunctionError;
@@ -229,6 +230,36 @@ class SandboxDefaultsMergeTest extends \PHPUnit\Framework\TestCase
     public function testDebuggerTokenIsDeniedByDefault(): void
     {
         self::assertContains('system.debugger.token', SandboxDefaults::configDeniedPaths());
+    }
+
+    public function testSessionOptionsAreDeniedByDefault(): void
+    {
+        self::assertContains('system.session.options', SandboxDefaults::configDeniedPaths());
+
+        // system.session.options is handed to PHP's session.* settings, and a
+        // Redis save_path holds the session store's password.
+        $config = Grav::instance()['config'];
+        $previous = $config->get('system.session.options');
+        $config->set('system.session.options', [
+            'save_handler' => 'redis',
+            'save_path' => 'tcp://127.0.0.1:6379?auth=S3CRET-session',
+        ]);
+
+        try {
+            $filtered = new SandboxConfig($config, Security::effectiveConfigDeniedPaths($config));
+
+            self::assertNull($filtered->get('system.session.options.save_path'));
+            self::assertNull($filtered->get('system.session.options'));
+            self::assertStringNotContainsString('S3CRET-session', (string) json_encode($filtered->get('system')));
+            // The rest of system.session stays readable.
+            self::assertSame($config->get('system.session.timeout'), $filtered->get('system.session.timeout'));
+        } finally {
+            if ($previous === null) {
+                $config->undef('system.session.options');
+            } else {
+                $config->set('system.session.options', $previous);
+            }
+        }
     }
 
     public function testConfigDeniedPaths_DefaultsPlusUserAdditions(): void

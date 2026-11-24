@@ -240,6 +240,19 @@ class PagesLazyIndexTest extends \PHPUnit\Framework\TestCase
         self::assertSame('blob', $this->request(false)->getIndexStats()['mode']);
     }
 
+    public function testFrontmatterTwigKeepsThePagesOutOfTheSharedStore(): void
+    {
+        // Rendered frontmatter can depend on the host, which the store is not kept apart by.
+        $this->grav['config']->set('system.pages.frontmatter.process_twig', true);
+
+        self::assertSame('blob', $this->request(true)->getIndexStats()['mode']);
+        self::assertSame('blob', $this->request(true)->getIndexStats()['mode']);
+
+        $this->grav['config']->set('system.pages.frontmatter.process_twig', false);
+        $this->grav['cache']->store = [];
+        self::assertSame('lazy', $this->request(true)->getIndexStats()['mode']);
+    }
+
     public function testPagesBuiltInAdminScopeAreNotLoadedByTheSite(): void
     {
         // Page::header() leaves frontmatter.yaml out in admin scope.

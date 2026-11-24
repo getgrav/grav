@@ -900,6 +900,9 @@ class Pages
             $sort_flags = $params['order']['sort_flags'] ?? null;
 
             if (is_array($sort_flags)) {
+                // The names come from page frontmatter and from collection() calls in page content, so only names of
+                // sort flags (SORT_NATURAL, Collator::SORT_STRING, ...) are resolved; anything else is ignored.
+                $sort_flags = array_filter($sort_flags, static fn($flag) => is_string($flag) && preg_match('/^(Collator::)?SORT_[A-Z_]+$/D', $flag) && defined($flag));
                 $sort_flags = array_map('constant', $sort_flags); //transform strings to constant value
                 $sort_flags = array_reduce($sort_flags, static fn($a, $b) => $a | $b, 0); //merge constant values using bit or
             }
@@ -2654,6 +2657,12 @@ class Pages
     protected function lazyIndexEnabled(?int $pageCount = null): bool
     {
         if ($this->directory) {
+            return false;
+        }
+
+        // The per-page store is shared by every host, but rendered frontmatter
+        // Twig can depend on the host (uri.base, absolute url()).
+        if (!$this->isIndexShared()) {
             return false;
         }
 

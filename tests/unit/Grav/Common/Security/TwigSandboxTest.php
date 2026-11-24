@@ -10,8 +10,10 @@ use Twig\Sandbox\SecurityNotAllowedFilterError;
 use Twig\Sandbox\SecurityNotAllowedFunctionError;
 use Twig\Sandbox\SecurityNotAllowedMethodError;
 use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityNotAllowedTestError;
 use Twig\Sandbox\SecurityPolicyInterface;
 use Twig\TwigFunction;
+use Twig\TwigTest;
 
 /**
  * Tests for the Twig sandbox policy wired up by Security::buildTwigSandboxPolicy()
@@ -434,6 +436,54 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
         $env = $this->sandboxEnv(['hit' => "{{ constant('PHP_VERSION') }}"]);
         $this->expectException(SecurityNotAllowedFunctionError::class);
         $env->render('hit');
+    }
+
+    /**
+     * `x is constant('NAME')` compiles to PHP's constant() with a name the content
+     * picks: the function refused above, behind a comparison. Twig reports it to the
+     * policy because it is the one core test not flagged always_allowed_in_sandbox.
+     *
+     * @dataProvider providerConstantTestTemplates
+     */
+    public function testSandboxRender_BlocksConstantTest(string $template): void
+    {
+        $env = $this->sandboxEnv(['hit' => $template]);
+        $this->expectException(SecurityNotAllowedTestError::class);
+        $env->render('hit', ['page' => new \Grav\Common\Page\Page()]);
+    }
+
+    public static function providerConstantTestTemplates(): array
+    {
+        return [
+            'global constant' => ["{{ 'Linux' is constant('PHP_OS') ? 'y' : 'n' }}"],
+            'negated'         => ["{{ 'Linux' is not constant('PHP_OS') ? 'y' : 'n' }}"],
+            'class constant'  => ["{{ 1 is constant('ROUTABLE', page) ? 'y' : 'n' }}"],
+        ];
+    }
+
+    public function testSandboxRender_ConstantTestFollowsFunctionAllowlist(): void
+    {
+        $config = \Grav\Common\Grav::instance()['config'];
+        $saved = $config->get('security.twig_sandbox.allowed_functions');
+        $config->set('security.twig_sandbox.allowed_functions', ['constant']);
+
+        try {
+            $env = $this->sandboxEnv(['hit' => "{{ PHP_OS is constant('PHP_OS') ? 'y' : 'n' }}"]);
+            self::assertSame('y', $env->render('hit', ['PHP_OS' => PHP_OS]));
+        } finally {
+            $config->set('security.twig_sandbox.allowed_functions', $saved);
+        }
+    }
+
+    public function testSandboxRender_OtherTestsStayUnrestricted(): void
+    {
+        // Twig's safe built-in tests never reach the policy; a test an extension
+        // registers does, and is not held to a list yet.
+        $env = $this->sandboxEnv([
+            'hit' => "{{ 4 is divisible by(2) and 3 is odd and [] is empty and x is not defined and (x ?? 'd') == 'd' and 'x' is unite_ready ? 'y' : 'n' }}",
+        ]);
+        $env->addTest(new TwigTest('unite_ready', static fn($value) => true));
+        self::assertSame('y', $env->render('hit'));
     }
 
     public function testSandboxRender_BlocksEvaluateTwigFunction(): void

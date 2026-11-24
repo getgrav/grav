@@ -132,6 +132,32 @@ class MediaStreamRootsTest extends \Codeception\Test\Unit
         $this->assertNull($extension->mediaDirFunc('mediatest://'));
     }
 
+    /**
+     * An argument that is not a Grav stream may still name a PHP stream wrapper
+     * (`ftp://host:port/`, `phar://`). Looking at it through the wrapper is a
+     * request to an address the page content chose, so it must be refused
+     * without the wrapper ever being asked.
+     */
+    public function testMediaDirectoryDoesNotProbePhpStreamWrappers(): void
+    {
+        $extension = new GravExtension();
+
+        MediaStreamRootsProbeWrapper::$probed = [];
+        stream_wrapper_register('mediaprobe', MediaStreamRootsProbeWrapper::class);
+        try {
+            $this->assertNull($extension->mediaDirFunc('mediaprobe://127.0.0.1:21/media'));
+            $this->assertSame([], MediaStreamRootsProbeWrapper::$probed);
+        } finally {
+            stream_wrapper_unregister('mediaprobe');
+        }
+
+        // A plain path is still judged by where it is, and a null byte is
+        // refused rather than thrown out of the page render.
+        $this->assertInstanceOf(Media::class, $extension->mediaDirFunc($this->dir . '/media'));
+        $this->assertNull($extension->mediaDirFunc($this->dir . '/private'));
+        $this->assertNull($extension->mediaDirFunc($this->dir . "/media\0"));
+    }
+
     public function testDefaultMediaFoldersLeaveOutSiteDataAndConfiguration(): void
     {
         $this->grav['config']->set('security.media.allowed_roots', null);
@@ -148,5 +174,30 @@ class MediaStreamRootsTest extends \Codeception\Test\Unit
             $this->assertDirectoryExists($path, $uri);
             $this->assertTrue(GlobalMedia::isMediaPath($path), $uri);
         }
+    }
+}
+
+/**
+ * Stands in for a network wrapper such as `ftp://`: every path is a readable
+ * directory, and each look at one is recorded.
+ */
+class MediaStreamRootsProbeWrapper
+{
+    /** @var string[] */
+    public static $probed = [];
+
+    /** @var resource|null */
+    public $context;
+
+    /**
+     * @param string $path
+     * @param int $flags
+     * @return array
+     */
+    public function url_stat($path, $flags)
+    {
+        self::$probed[] = $path;
+
+        return ['mode' => 040777, 'size' => 0, 'uid' => 0, 'gid' => 0, 'atime' => 0, 'mtime' => 0, 'ctime' => 0];
     }
 }
