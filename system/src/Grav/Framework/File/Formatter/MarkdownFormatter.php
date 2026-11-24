@@ -134,7 +134,10 @@ class MarkdownFormatter extends AbstractFormatter
         }
 
         // Parse header.
-        preg_match($headerRegex, ltrim($data), $matches);
+        if (preg_match($headerRegex, ltrim($data), $matches) === false) {
+            // Too large for pcre.backtrack_limit, or not valid UTF-8: never read that as "no frontmatter".
+            throw new RuntimeException('Failed to read the frontmatter: ' . preg_last_error_msg());
+        }
         if (empty($matches)) {
             $content[$bodyVar] = $data;
         } else {

@@ -319,7 +319,12 @@ class CompiledMarkdownFile extends MarkdownFile
         // Split the file the same way MarkdownFile::decode() does; the header is only reused
         // for byte-identical frontmatter parsed with the same YAML settings.
         $var = (string)preg_replace("/(\r\n|\r)/", "\n", ltrim($var, "\xef\xbb\xbf"));
-        if (!preg_match("/^---\n(.+?)\n---\n{0,}(.*)$/uis", ltrim($var), $m)) {
+        $found = preg_match("/^---\n(.+?)\n---\n{0,}(.*)$/uis", ltrim($var), $m);
+        if ($found === false) {
+            // Too large for pcre.backtrack_limit, or not valid UTF-8: never read that as "no frontmatter".
+            throw new \RuntimeException('Failed to read the frontmatter: ' . preg_last_error_msg());
+        }
+        if (!$found) {
             return parent::decode($var);
         }
 
@@ -359,6 +364,10 @@ class CompiledMarkdownFile extends MarkdownFile
     private function decodeRaw($var)
     {
         $text = ltrim((string)preg_replace("/(\r\n|\r)/", "\n", ltrim($var, "\xef\xbb\xbf")));
+        if (str_starts_with($text, "---\n") && preg_match("/^---\n(.+?)\n---\n{0,}(.*)$/uis", $text) === false) {
+            // As in decode(): a failed match must not be read as "no frontmatter".
+            throw new \RuntimeException('Failed to read the frontmatter: ' . preg_last_error_msg());
+        }
         if (!preg_match("/^---\n([^\n]+)\n---\n{0,}(.*)$/us", $text, $m)) {
             return parent::decode($var);
         }
