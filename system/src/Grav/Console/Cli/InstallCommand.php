@@ -55,6 +55,12 @@ class InstallCommand extends GravCommand
                 InputOption::VALUE_REQUIRED,
                 'Install theme (symlink)'
             )
+            ->addOption(
+                'dev',
+                null,
+                InputOption::VALUE_NONE,
+                'Keep Composer dev dependencies when installing vendor packages'
+            )
             ->addArgument(
                 'destination',
                 InputArgument::OPTIONAL,
@@ -116,7 +122,7 @@ class InstallCommand extends GravCommand
         if (!$symlink) {
             // Updates composer first
             $io->writeln("\nInstalling vendor dependencies");
-            $io->writeln($this->composerUpdate(GRAV_ROOT, 'install'));
+            $io->writeln($this->composerUpdate(GRAV_ROOT, 'install', (bool) $input->getOption('dev')));
 
             $error = $this->gitclone();
         } else {

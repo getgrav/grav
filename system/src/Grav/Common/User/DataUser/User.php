@@ -133,6 +133,17 @@ class User extends Data implements UserInterface
     }
 
     /**
+     * Whether this object was read from a stored account file.
+     *
+     * @return bool
+     * @internal
+     */
+    public function wasReadFromAccount(): bool
+    {
+        return !empty($this->_original);
+    }
+
+    /**
      * Save user
      *
      * @return void

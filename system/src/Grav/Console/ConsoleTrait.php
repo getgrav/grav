@@ -284,13 +284,15 @@ trait ConsoleTrait
     /**
      * @param string $path
      * @param string $action
+     * @param bool $dev Keep Composer's dev dependencies (omit --no-dev)
      * @return string|false
      */
-    public function composerUpdate($path, $action = 'install')
+    public function composerUpdate($path, $action = 'install', bool $dev = false)
     {
         $composer = Composer::getComposerExecutor();
+        $noDev = $dev ? '' : ' --no-dev';
 
-        return system($composer . ' --working-dir=' . escapeshellarg($path) . ' --no-interaction --no-dev --prefer-dist -o '. $action);
+        return system($composer . ' --working-dir=' . escapeshellarg($path) . ' --no-interaction' . $noDev . ' --prefer-dist -o '. $action);
     }
 
     /**
