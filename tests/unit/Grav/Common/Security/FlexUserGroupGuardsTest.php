@@ -42,8 +42,8 @@ class GuardStubUserGroupObject extends UserGroupObject
 }
 
 /**
- * An account can be a super-admin through a group alone. Whoever may update or
- * delete that group decides whether its members stay super-admins, so the group
+ * An account can be a super-admin through a group alone. Whoever may create, update
+ * or delete that group decides whether its members stay super-admins, so the group
  * sits in the same tier as their accounts, which UserObject::isAuthorizedOverride()
  * keeps out of a user manager's reach.
  */
@@ -103,6 +103,37 @@ class FlexUserGroupGuardsTest extends \PHPUnit\Framework\TestCase
             self::assertFalse($group->authorizeFor($this->manager(), 'update'));
             self::assertFalse($group->authorizeFor($this->manager(), 'delete'));
         }
+    }
+
+    /**
+     * `create` is a write like the other two. It is asked of an existing group when a
+     * create task is posted to it, and of an unsaved group whose access map came from
+     * somewhere other than the submitted data, such as a form flash.
+     */
+    public function testManagerCannotCreateSuperAdminGroup(): void
+    {
+        foreach (['admin', 'api'] as $scope) {
+            $group = $this->group([$scope => ['super' => true]]);
+
+            self::assertFalse($group->authorizeFor($this->manager(), 'create'));
+        }
+
+        $group = $this->group(['admin' => ['super' => true]], false);
+
+        self::assertFalse($group->authorizeFor($this->manager(), 'create'));
+    }
+
+    public function testManagerCanStillCreateRegularGroup(): void
+    {
+        self::assertTrue($this->group([])->authorizeFor($this->manager(), 'create'));
+        self::assertTrue($this->group(['site' => ['login' => true]])->authorizeFor($this->manager(), 'create'));
+    }
+
+    public function testSuperAdminCanCreateSuperAdminGroup(): void
+    {
+        $group = $this->group(['admin' => ['super' => true]]);
+
+        self::assertTrue($group->authorizeFor($this->superAdmin(), 'create'));
     }
 
     /**

@@ -126,7 +126,10 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
         // little if a user manager could switch off, re-permission or delete the
         // group its members are super-admins through. Read straight from the ACL,
         // so a group that is switched off is guarded the same as one that is on.
-        if (in_array($action, ['update', 'delete'], true)
+        // `create` is guarded as well, as it is for accounts: it is also asked of an
+        // existing group (a create task posted to it) and of an unsaved one that
+        // already carries a super access map (restored from a form flash).
+        if (in_array($action, ['create', 'update', 'delete'], true)
             && $this->hasSuperAccess()
             && !$this->actorHasSuperAccess($user, $isMe)
         ) {

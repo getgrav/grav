@@ -24,7 +24,8 @@ class StoredStubFlexFormFlash extends FlexFormFlash
  * A form for a new object continues from the object kept in its flash. The flash id comes
  * from the request (__unique_form_id__), so the flash may have been written by a form of
  * another Flex type: its object must only be restored into the directory it was taken from,
- * and a form for a new object must not become a form for an existing one.
+ * and a form for a new object must not become a form for an existing one, or for one which
+ * was read from the storage and has been deleted since.
  */
 class FlexFormFlashObjectTest extends \PHPUnit\Framework\TestCase
 {
@@ -35,7 +36,7 @@ class FlexFormFlashObjectTest extends \PHPUnit\Framework\TestCase
     /** @var FlexObjectInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $stored;
 
-    private function store(string $type, bool $exists): void
+    private function store(string $type, bool $exists, int $timestamp = 0): void
     {
         $this->directory = $this->createMock(FlexDirectory::class);
         $this->directory->method('getFlexType')->willReturn('user-accounts');
@@ -46,6 +47,7 @@ class FlexFormFlashObjectTest extends \PHPUnit\Framework\TestCase
 
         $this->stored = $this->createMock(FlexObjectInterface::class);
         $this->stored->method('exists')->willReturn($exists);
+        $this->stored->method('getTimestamp')->willReturn($timestamp);
         $this->stored->method('getFlexDirectory')->willReturn($this->directory);
         $this->directory->method('createObjectFromStorage')->willReturn($this->stored);
 
@@ -81,9 +83,17 @@ class FlexFormFlashObjectTest extends \PHPUnit\Framework\TestCase
         self::assertSame($this->blank, (new StoredStubFlexFormFlash(['object' => $this->blank]))->getObject());
     }
 
+    public function testNewObjectDoesNotTurnIntoADeletedOne(): void
+    {
+        // The object was read from the storage when the flash was written, and has been deleted since.
+        $this->store('user-accounts', false, 1700000000);
+
+        self::assertSame($this->blank, (new StoredStubFlexFormFlash(['object' => $this->blank]))->getObject());
+    }
+
     public function testFlashOnItsOwnRestoresIntoTheStoredDirectory(): void
     {
-        $this->store('user-accounts', true);
+        $this->store('user-accounts', true, 1700000000);
 
         $flex = $this->createMock(FlexInterface::class);
         $flex->expects(self::once())->method('getDirectory')->with('user-accounts')->willReturn($this->directory);
