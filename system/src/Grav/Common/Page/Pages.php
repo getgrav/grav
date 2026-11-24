@@ -2660,6 +2660,12 @@ class Pages
             return false;
         }
 
+        // The per-page store is shared by every host, but rendered frontmatter
+        // Twig can depend on the host (uri.base, absolute url()).
+        if (!$this->isIndexShared()) {
+            return false;
+        }
+
         $setting = $this->grav['config']->get('system.pages.lazy_index', 'auto');
         if ($setting === 'auto') {
             return $pageCount === null || $pageCount >= static::LAZY_INDEX_AUTO_PAGES;

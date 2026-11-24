@@ -281,8 +281,16 @@ class Page implements PageInterface, PageUuidInterface
                     unset($process_fields[$field]);
                 }
             }
-            $text_header = Grav::instance()['twig']->processString(json_encode($process_fields, JSON_UNESCAPED_UNICODE), ['page' => $this]);
-            $this->header((object)(json_decode((string) $text_header, true) + $ignored_fields));
+            // Render each value on its own, so that what Twig prints is only ever the text of that
+            // value. Rendering the JSON of the whole header as one template and decoding the result
+            // let a printed quote or backslash break the header or add keys to it.
+            $twig = Grav::instance()['twig'];
+            array_walk_recursive($process_fields, function (&$value) use ($twig) {
+                if (is_string($value) && Utils::contains($value, ['{{', '{%', '{#'])) {
+                    $value = $twig->processString($value, ['page' => $this]);
+                }
+            });
+            $this->header((object)($process_fields + $ignored_fields));
         }
     }
 
