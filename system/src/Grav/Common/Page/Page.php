@@ -620,11 +620,16 @@ class Page implements PageInterface, PageUuidInterface
                         }
                     }
                 } catch (Exception $e) {
+                    // The parser's message quotes the failing line of the file: show it as text.
+                    $message = strtr(htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), [
+                        '{' => '&#123;', '}' => '&#125;', '[' => '&#91;', ']' => '&#93;',
+                        '`' => '&#96;', '*' => '&#42;', '_' => '&#95;', '\\' => '&#92;'
+                    ]);
                     $file->raw(Grav::instance()['language']->translate([
                         'GRAV.FRONTMATTER_ERROR_PAGE',
                         $this->slug(),
                         $file->filename(),
-                        $e->getMessage(),
+                        $message,
                         $file->raw()
                     ]));
                     $this->raw_content = $file->markdown();
