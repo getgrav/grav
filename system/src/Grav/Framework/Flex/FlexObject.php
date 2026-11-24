@@ -659,6 +659,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
      */
     public function update(array $data, array $files = [])
     {
+        // Where the object is stored is not the submitter's to choose: the storage key follows from the key field
+        // or from the storage itself, as in PageObject::update() and UserObject::update().
+        unset($data['storage_key'], $data['__META']);
+
         if ($data) {
             // Get currently stored data.
             $elements = $this->getElements();
@@ -731,8 +735,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
      */
     public function check(?UserInterface $user = null): void
     {
-        // If user has been provided, check if the user has permissions to save this object.
-        if ($user && !$this->isAuthorized('save', null, $user)) {
+        // Check if the user has permissions to save this object. Like in isAuthorized(), missing user means the active user.
+        if (!$this->isAuthorized('save', null, $user)) {
             throw new \RuntimeException('Forbidden', 403);
         }
     }
@@ -749,7 +753,21 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
 
         $storageKey = $this->getStorageKey() ?: '@@' . spl_object_id($this);
 
-        $result = $storage->replaceRows([$storageKey => $this->prepareStorage()]);
+        $row = $this->prepareStorage();
+
+        // A new object must not replace an existing one: being allowed to create is not being allowed to update.
+        // The storage names the row after its key field whenever the row has one, so that is the key to check.
+        if (!isset($row['__META']['storage_key'])) {
+            $newKey = (string)($row[$storage->getKeyField()] ?? $this->getStorageKey());
+            if (method_exists($storage, 'normalizeKey')) {
+                $newKey = $storage->normalizeKey($newKey);
+            }
+            if ($newKey !== '' && $storage->hasKey($newKey)) {
+                throw new RuntimeException('Cannot create new object (Already exists)');
+            }
+        }
+
+        $result = $storage->replaceRows([$storageKey => $row]);
 
         if (method_exists($this, 'clearMediaCache')) {
             $this->clearMediaCache();
