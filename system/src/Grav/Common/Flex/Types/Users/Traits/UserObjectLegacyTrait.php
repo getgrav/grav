@@ -32,7 +32,7 @@ trait UserObjectLegacyTrait
     {
         user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->update($data) method instead', E_USER_DEPRECATED);
 
-        $this->setElements($this->getBlueprint()->mergeData($this->toArray(), $data));
+        $this->setElements($this->getBlueprint()->mergeData($this->toArrayWithSecrets(), $data));
 
         return $this;
     }

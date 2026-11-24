@@ -228,8 +228,8 @@ class Flex implements FlexInterface
             $list[] = $collection ? $collection->toArray() : [];
         }
 
-        // Merge objects from individual types back together.
-        $list = array_merge(...$list);
+        // Merge objects from individual types back together (array_merge() would renumber the keys made of digits only).
+        $list = array_replace(...$list);
 
         // Use the original key ordering.
         if (!$guessed) {

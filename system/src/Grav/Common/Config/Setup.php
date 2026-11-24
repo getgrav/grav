@@ -317,6 +317,34 @@ class Setup extends Data
     }
 
     /**
+     * Folders of all the environments of the site, not only of the one this request runs in, which depends on
+     * the host name. For checks which have to hold whichever environment a later request runs in.
+     *
+     * @return string[] Absolute paths of the existing environment folders.
+     */
+    public function getEnvironmentPaths(): array
+    {
+        $envPath = defined('GRAV_ENVIRONMENT_PATH') ? GRAV_ENVIRONMENT_PATH : self::envVar('GRAV_ENVIRONMENT_PATH');
+        if (null !== $envPath) {
+            $paths = [$this->resolveEnvAbsolutePath($envPath)];
+        } else {
+            $envPath = defined('GRAV_ENVIRONMENTS_PATH') ? GRAV_ENVIRONMENTS_PATH : self::envVar('GRAV_ENVIRONMENTS_PATH');
+            if (null === $envPath) {
+                $envPath = GRAV_WEBROOT . '/' . GRAV_USER_PATH . '/env';
+                if (!is_dir($envPath)) {
+                    // Grav 1.6 layout.
+                    $envPath = 'user://';
+                }
+            }
+            $envPath = $this->resolveEnvAbsolutePath($envPath);
+            $paths = $envPath !== null ? (glob(rtrim($envPath, '/\\') . '/*', GLOB_ONLYDIR) ?: []) : [];
+        }
+
+        // As in the constructor: a folder another stream serves from is not an environment.
+        return array_values(array_filter($paths, fn($path) => $path !== null && is_dir($path) && !$this->isStreamFolder($path)));
+    }
+
+    /**
      * Whether an existing env folder is, or lies inside, a folder that another
      * stream already serves from `user://` (pages, data, accounts, config,
      * plugins, themes, media, images... and whatever setup.php adds). Such a

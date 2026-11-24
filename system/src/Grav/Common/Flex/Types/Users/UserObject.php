@@ -15,6 +15,7 @@ use Closure;
 use Countable;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Flex\FlexObject;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexObjectTrait;
@@ -152,6 +153,22 @@ class UserObject extends FlexObject implements UserInterface, Countable
         $this->_groups = null;
 
         parent::__clone();
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObject::refresh()
+     */
+    public function refresh(bool $keepMissing = false): bool
+    {
+        $refreshed = parent::refresh($keepMissing);
+        if ($refreshed) {
+            // Both were built from properties which have now been read again.
+            $this->_access = null;
+            $this->_groups = null;
+        }
+
+        return $refreshed;
     }
 
     /**
@@ -538,7 +555,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
      */
     public function setDefaults(array $data)
     {
-        $this->setElements($this->getBlueprint()->mergeData($data, $this->toArray()));
+        $this->setElements($this->getBlueprint()->mergeData($data, $this->toArrayWithSecrets()));
 
         return $this;
     }
@@ -551,7 +568,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
      */
     public function validate()
     {
-        $this->getBlueprint()->validate($this->toArray());
+        $this->getBlueprint()->validate($this->toArrayWithSecrets());
 
         return $this;
     }
@@ -562,7 +579,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
      */
     public function filter()
     {
-        $this->setElements($this->getBlueprint()->filter($this->toArray()));
+        $this->setElements($this->getBlueprint()->filter($this->toArrayWithSecrets()));
 
         return $this;
     }
@@ -939,10 +956,56 @@ class UserObject extends FlexObject implements UserInterface, Countable
             }
         }
 
+        return $this->hasSuperAccessInEnvironments();
+    }
+
+    /**
+     * Whether a group of this account grants super-admin access in the configuration of any environment.
+     *
+     * The groups above are the ones in user/config/groups.yaml. An environment can define a group of its own, or
+     * give a group other access, in its own config/groups.yaml, and which environment a request runs in depends
+     * on the host name. The account is super if it is in any of them.
+     *
+     * @return bool
+     */
+    protected function hasSuperAccessInEnvironments(): bool
+    {
+        $names = array_filter((array)$this->getProperty('groups'), 'is_string');
+        if (!$names) {
+            return false;
+        }
+
+        $grav = $this->getContainer();
+
+        /** @var Config $config */
+        $config = $grav['config'];
+        $lists = [(array)$config->get('groups')];
+        foreach ($grav['setup']->getEnvironmentPaths() as $path) {
+            $filename = $path . '/config/groups.yaml';
+            if (is_file($filename)) {
+                $file = CompiledYamlFile::instance($filename);
+                $lists[] = (array)$file->content();
+                $file->free();
+            }
+        }
+
+        foreach ($lists as $list) {
+            foreach ($names as $name) {
+                $access = new Access($list[$name]['access'] ?? null);
+                if ($access->authorize('admin.super') === true || $access->authorize('api.super') === true) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
     /**
+     * Whether the actor is a super admin. Super-admin access has to be granted by name: a blanket grant of its
+     * parent (`api: true`) does not make the actor a super admin here, as it doesn't in the API. A target's
+     * super-admin access is read with inheritance, see hasSuperAccess(), so the guard errs towards protecting it.
+     *
      * @param UserInterface $user
      * @param bool $isMe
      * @return bool
@@ -950,9 +1013,13 @@ class UserObject extends FlexObject implements UserInterface, Countable
     protected function actorHasSuperAccess(UserInterface $user, bool $isMe): bool
     {
         $scope = $isMe ? null : 'test';
+        foreach (['admin.super', 'api.super'] as $rule) {
+            if ($user->authorize($rule, $scope) === true && Access::isGrantedExplicitly($user, $rule)) {
+                return true;
+            }
+        }
 
-        return $user->authorize('admin.super', $scope) === true
-            || $user->authorize('api.super', $scope) === true;
+        return false;
     }
 
     /**
@@ -1002,10 +1069,30 @@ class UserObject extends FlexObject implements UserInterface, Countable
      * submitter's choosing. A new password goes through `password`, which save()
      * hashes. Neither is the storage key: it says which account this object is,
      * both to save() and to the own-account rule in isAuthorizedOverride().
+     *
+     * The avatar file list is not taken from submitted data either. Each entry is
+     * keyed by the path of its file, and that path is used on the filesystem later
+     * (getAvatarFile(), whoever removes the avatar), so a submitted entry could
+     * point at any file. New entries only come from the uploads in $files, where
+     * setUpdatedMedia() builds the path itself. Submitted data can keep or remove
+     * the entries the account already has, which is all a form does with the list
+     * it was given.
      */
     public function update(array $data, array $files = [])
     {
         unset($data['hashed_password'], $data['authenticated'], $data['authorized'], $data['storage_key']);
+
+        foreach (array_keys($data) as $key) {
+            // Flat keys would be expanded into the list by setNestedProperty().
+            if (str_starts_with((string)$key, 'avatar.')) {
+                unset($data[$key]);
+            }
+        }
+        if (is_array($data['avatar'] ?? null)) {
+            // Keep the entries as they are stored: `name` and `path` are not the submitter's to change.
+            $avatar = $this->getProperty('avatar');
+            $data['avatar'] = is_array($avatar) ? array_intersect_key($avatar, $data['avatar']) : [];
+        }
 
         return parent::update($data, $files);
     }
@@ -1211,6 +1298,20 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
         $this->setUpdatedMedia([]);
         $this->clearMediaCache();
+    }
+
+    /**
+     * toArray() together with the secret fields which toArray() leaves out.
+     *
+     * For the methods which validate or rebuild the account from toArray(): a password which
+     * has been set, but not yet hashed by save(), still has to pass the blueprint and to reach
+     * save(), and the account has to keep its other credentials and tokens.
+     *
+     * @return array
+     */
+    protected function toArrayWithSecrets(): array
+    {
+        return $this->toArray() + array_intersect_key($this->getElements(), array_flip(static::SECRET_FIELDS));
     }
 
     /**

@@ -2162,7 +2162,9 @@ class Pages
         /** @var Language $language */
         $language = $this->grav['language'];
 
-        $this->pages_cache_id = 'pages-' . md5($collection->getCacheChecksum() . $language->getActive() . $config->checksum());
+        // Admin scope shares the Flex index cache with the site, but pages built there must never be the ones
+        // the site loads (see setPagesCacheId()).
+        $this->pages_cache_id = 'pages-' . md5($collection->getCacheChecksum() . $language->getActive() . $config->checksum() . (Utils::isAdminPlugin() ? 'admin' : ''));
 
         $cached = $cache->get($this->pages_cache_id);
 
