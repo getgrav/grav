@@ -949,10 +949,15 @@ trait PageContentTrait
                 '/' . Utils::generateRandomString(3),
                 Utils::generateRandomString(3) . '/'
             ];
-            // Base64 encode any twig.
+            // Hex-encode any twig, as Page::processMarkdown() does. Hex is [0-9a-f]
+            // with no padding, so the placeholder can't collide with Markdown syntax.
+            // base64 was unsafe here too: its alphabet holds the '/' and the letters
+            // of the tokens, so the decode pattern below could run from one placeholder
+            // through the page text behind it into the next one and base64-decode that
+            // text into raw HTML after Markdown and the save-time XSS checks.
             $content = preg_replace_callback(
                 ['/({#.*?#})/mu', '/({{.*?}})/mu', '/({%.*?%})/mu'],
-                static fn($matches) => $token[0] . base64_encode((string) $matches[1]) . $token[1],
+                static fn($matches) => $token[0] . bin2hex((string) $matches[1]) . $token[1],
                 $content
             );
         }
@@ -960,10 +965,10 @@ trait PageContentTrait
         $content = $parsedown->text($content);
 
         if ($keepTwig) {
-            // Base64 decode the encoded twig.
+            // Hex decode the encoded twig.
             $content = preg_replace_callback(
-                ['`' . $token[0] . '([A-Za-z0-9+/]+={0,2})' . $token[1] . '`mu'],
-                static fn($matches) => base64_decode((string) $matches[1]),
+                ['`' . $token[0] . '([0-9a-f]+)' . $token[1] . '`mu'],
+                static fn($matches) => hex2bin((string) $matches[1]),
                 (string) $content
             );
         }
