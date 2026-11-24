@@ -1002,10 +1002,30 @@ class UserObject extends FlexObject implements UserInterface, Countable
      * submitter's choosing. A new password goes through `password`, which save()
      * hashes. Neither is the storage key: it says which account this object is,
      * both to save() and to the own-account rule in isAuthorizedOverride().
+     *
+     * The avatar file list is not taken from submitted data either. Each entry is
+     * keyed by the path of its file, and that path is used on the filesystem later
+     * (getAvatarFile(), whoever removes the avatar), so a submitted entry could
+     * point at any file. New entries only come from the uploads in $files, where
+     * setUpdatedMedia() builds the path itself. Submitted data can keep or remove
+     * the entries the account already has, which is all a form does with the list
+     * it was given.
      */
     public function update(array $data, array $files = [])
     {
         unset($data['hashed_password'], $data['authenticated'], $data['authorized'], $data['storage_key']);
+
+        foreach (array_keys($data) as $key) {
+            // Flat keys would be expanded into the list by setNestedProperty().
+            if (str_starts_with((string)$key, 'avatar.')) {
+                unset($data[$key]);
+            }
+        }
+        if (is_array($data['avatar'] ?? null)) {
+            // Keep the entries as they are stored: `name` and `path` are not the submitter's to change.
+            $avatar = $this->getProperty('avatar');
+            $data['avatar'] = is_array($avatar) ? array_intersect_key($avatar, $data['avatar']) : [];
+        }
 
         return parent::update($data, $files);
     }
