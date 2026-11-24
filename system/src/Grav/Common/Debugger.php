@@ -9,6 +9,7 @@
 
 namespace Grav\Common;
 
+use ArrayAccess;
 use Clockwork\Authentication\AuthenticatorInterface;
 use Clockwork\Authentication\SimpleAuthenticator;
 use Clockwork\Clockwork;
@@ -56,6 +57,7 @@ use function defined;
 use function extension_loaded;
 use function get_class;
 use function gettype;
+use function in_array;
 use function is_array;
 use function is_bool;
 use function is_object;
@@ -183,8 +185,15 @@ class Debugger
                     $this->debugbar = $debugbar = new DebugBar();
             }
 
+            // DebugBar prints its collectors into the page of whoever asked for it, and a
+            // Clockwork profile is kept on disk, so neither gets the configuration paths
+            // Grav keeps from page Twig (the debugger token, the Redis password, proxy
+            // URLs, plugin settings), whatever `censored` is set to.
+            $denied = Security::effectiveConfigDeniedPaths($this->config);
+            $system_config = $this->censorDeniedPaths((array)$this->config->get('system'), 'system', $denied);
             $plugins_config = (array)$this->config->get('plugins');
             ksort($plugins_config);
+            $plugins_config = $this->censorDeniedPaths($plugins_config, 'plugins', $denied);
 
             if ($clockwork) {
                 $log = $this->grav['log'];
@@ -223,7 +232,7 @@ class Debugger
                 $debugbar->addCollector(new TimeDataCollector($this->requestTime));
                 $debugbar->addCollector(new MemoryCollector());
                 $debugbar->addCollector(new ExceptionsCollector());
-                $debugbar->addCollector(new ConfigCollector($censored ?? (array)$this->config->get('system'), 'Config'));
+                $debugbar->addCollector(new ConfigCollector($censored ?? $system_config, 'Config'));
                 $debugbar->addCollector(new ConfigCollector($censored ?? $plugins_config, 'Plugins'));
                 $debugbar->addCollector(new ConfigCollector($this->config->get('streams.schemes'), 'Streams'));
 
@@ -240,13 +249,40 @@ class Debugger
             $this->config->debug();
 
             if ($clockwork) {
-                $clockwork->info('System Configuration', $censored ?? $this->config->get('system'));
+                $clockwork->info('System Configuration', $censored ?? $system_config);
                 $clockwork->info('Plugins Configuration', $censored ?? $plugins_config);
                 $clockwork->info('Streams', $this->config->get('streams.schemes'));
             }
         }
 
         return $this;
+    }
+
+    /**
+     * Replace the values at the given configuration paths with a marker, so the rest
+     * of the tree can still be shown in the debugger.
+     *
+     * @param array $config
+     * @param string $path Dot-notation path of `$config` in the configuration.
+     * @param array $denied Dot-notation paths to censor.
+     * @return array
+     */
+    protected function censorDeniedPaths(array $config, string $path, array $denied): array
+    {
+        if (in_array($path, $denied, true)) {
+            return ['CENSORED' => true];
+        }
+
+        foreach ($config as $key => $value) {
+            $current = $path . '.' . $key;
+            if (in_array($current, $denied, true)) {
+                $config[$key] = 'CENSORED';
+            } elseif (is_array($value)) {
+                $config[$key] = $this->censorDeniedPaths($value, $current, $denied);
+            }
+        }
+
+        return $config;
     }
 
     /**
@@ -472,8 +508,16 @@ class Debugger
 
         // Accept the raw token (scripts, same-origin admin clients) as well as the
         // hashed one Clockwork's extension gets back from /__clockwork/auth.
-        return hash_equals($token, $presented)
-            || $this->clockwork->authenticator()->check($presented) === true;
+        if (hash_equals($token, $presented)) {
+            return true;
+        }
+
+        // The authenticator checks with password_verify($token, $presented), which
+        // runs whatever algorithm, cost and memory the presented hash names. This
+        // runs before any login, so only hand it a hash with the parameters its own
+        // attempt() issues: the caller must not choose the amount of work.
+        return !password_needs_rehash($presented, PASSWORD_DEFAULT)
+            && $this->clockwork->authenticator()->check($presented) === true;
     }
 
     /**
@@ -1073,7 +1117,12 @@ class Debugger
             $duration = (microtime(true) - $time) * 1000;
 
             $data = null;
-            if ($event && method_exists($event, '__debugInfo')) {
+            if ($event && str_starts_with($name, 'onUserLog')) {
+                // Login and logout events carry the submitted password and the account
+                // with its password hash: a stored profile only records whose it was.
+                $user = $event instanceof ArrayAccess ? ($event['user'] ?? null) : null;
+                $data = ['username' => is_object($user) ? ($user->username ?? null) : null];
+            } elseif ($event && method_exists($event, '__debugInfo')) {
                 $data = $event;
             }
 

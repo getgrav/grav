@@ -1,5 +1,7 @@
 <?php
 
+use Clockwork\Clockwork;
+use Clockwork\Authentication\SimpleAuthenticator;
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Nyholm\Psr7\ServerRequest;
@@ -24,6 +26,11 @@ class DebuggerCredentialsTest extends \Codeception\Test\Unit
         $debugger = new Debugger();
         $property = new ReflectionProperty(Debugger::class, 'config');
         $property->setValue($debugger, new Config(['system' => ['debugger' => ['token' => $configuredToken]]]));
+
+        // As Debugger::init() wires it up for the clockwork provider.
+        $clockwork = new Clockwork();
+        $clockwork->authenticator((new ReflectionMethod(Debugger::class, 'debuggerAuthenticator'))->invoke($debugger));
+        (new ReflectionProperty(Debugger::class, 'clockwork'))->setValue($debugger, $clockwork);
 
         $request = new ServerRequest(
             'GET',
@@ -85,5 +92,43 @@ class DebuggerCredentialsTest extends \Codeception\Test\Unit
     public function testRawConfiguredTokenIsAccepted(): void
     {
         $this->assertTrue($this->authorized('secret', 'secret'));
+    }
+
+    public function testTokenIssuedByTheAuthHandshakeIsAccepted(): void
+    {
+        $issued = (new SimpleAuthenticator('secret'))->attempt(['password' => 'secret']);
+
+        $this->assertIsString($issued);
+        $this->assertTrue($this->authorized('secret', $issued));
+        $this->assertFalse($this->authorized('other', $issued));
+    }
+
+    /**
+     * The header is the hash side of password_verify(), which runs at whatever
+     * cost the hash names. Only the parameters the handshake issues may get there:
+     * even a correct hash of the token at any other cost has to be turned away
+     * without being computed.
+     */
+    public function testHashWithParametersTheHandshakeNeverIssuesIsDenied(): void
+    {
+        $default = password_get_info(password_hash('secret', PASSWORD_DEFAULT));
+        if ($default['algo'] !== PASSWORD_BCRYPT) {
+            $this->markTestSkipped('PASSWORD_DEFAULT is not bcrypt.');
+        }
+
+        $cheaper = password_hash('secret', PASSWORD_BCRYPT, ['cost' => $default['options']['cost'] - 1]);
+        $this->assertTrue(password_verify('secret', $cheaper));
+        $this->assertFalse($this->authorized('secret', $cheaper));
+
+        // Other schemes password_verify() would run: legacy bcrypt prefix, SHA-512 crypt.
+        $this->assertFalse($this->authorized('secret', '$2a$' . substr($cheaper, 4)));
+        $this->assertFalse($this->authorized('secret', crypt('secret', '$6$rounds=1000$saltsaltsaltsalt$')));
+
+        // Argon2 takes its memory size from the hash as well, outside memory_limit.
+        if (defined('PASSWORD_ARGON2ID')) {
+            $argon2id = password_hash('secret', PASSWORD_ARGON2ID, ['memory_cost' => 1024, 'time_cost' => 1, 'threads' => 1]);
+            $this->assertTrue(password_verify('secret', $argon2id));
+            $this->assertFalse($this->authorized('secret', $argon2id));
+        }
     }
 }

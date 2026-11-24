@@ -1,12 +1,15 @@
 <?php
 
 use Codeception\Util\Fixtures;
+use Grav\Common\Cache;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Page\Header;
 use Grav\Common\Page\Media;
 use Grav\Common\Page\Page;
 use Grav\Framework\Flex\Flex;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 /**
  * Class PageSetterHardeningTest
@@ -161,9 +164,77 @@ class PageSetterHardeningTest extends \Codeception\Test\Unit
 
     public function testDefaultIdIsNotIndexShaped(): void
     {
-        $page = $this->page();
+        // A page that was never given an id.
+        $page = new Page();
 
         $this->assertStringContainsString('mem-', $page->id());
+    }
+
+    public function testInitKeepsTheIdOfTheFile(): void
+    {
+        // The id is the cache key of the page's content and media: a page built
+        // from the same file on the next request has to find them again.
+        $id = $this->page()->id();
+
+        $this->assertStringNotContainsString('mem-', $id);
+        $this->assertSame($id, $this->page()->id());
+    }
+
+    public function testMemoryIdKeepsContentAndMediaOutOfTheCache(): void
+    {
+        $this->grav['config']->set('system.cache.enabled', true);
+        file_put_contents($this->folder . '/01.page/notes.txt', 'x');
+
+        // An in-memory cache, so the test can see what the page stores.
+        $cache = new class($this->grav) extends Cache {
+            /** @var array<string, mixed> */
+            public $store = [];
+            /** @var ArrayAdapter|null */
+            public $media;
+
+            public function fetch($id)
+            {
+                return $this->store[$id] ?? false;
+            }
+
+            public function save($id, $data, $lifetime = null)
+            {
+                $this->store[$id] = $data;
+            }
+
+            public function getSimpleCache()
+            {
+                $this->media ??= new ArrayAdapter();
+
+                return new Psr16Cache($this->media);
+            }
+        };
+        unset($this->grav['cache']);
+        $this->grav['cache'] = $cache;
+        // Entries of the content cache and of the media cache (which also lists its misses, as null).
+        $stored = static fn(): array => [count($cache->store), count(array_filter($cache->media->getValues()))];
+
+        // A page built from its file on every request, as plugins build theirs, stores once.
+        foreach ([1, 2] as $request) {
+            $page = $this->page();
+            $page->process(['twig' => false, 'markdown' => false]);
+            $page->content();
+            $page->media();
+        }
+        $this->assertSame([1, 1], $stored());
+
+        // Content set in memory gets an id no other request has, so storing it would
+        // only leave an entry behind on each request.
+        foreach ([1, 2] as $request) {
+            $page = $this->page();
+            $page->process(['twig' => false, 'markdown' => false]);
+            $page->content('Changed');
+            $page->media();
+
+            $this->assertSame('Changed', $page->content());
+            $this->assertArrayHasKey('notes.txt', $page->media()->all());
+        }
+        $this->assertSame([1, 1], $stored());
     }
 
     private function page(): Page

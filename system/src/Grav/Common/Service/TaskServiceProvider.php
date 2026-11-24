@@ -32,9 +32,8 @@ class TaskServiceProvider implements ServiceProviderInterface
             $body = $request->getParsedBody();
 
             $task = $body['task'] ?? $c['uri']->param('task');
-            if (null !== $task) {
-                $task = htmlspecialchars(strip_tags($task), ENT_QUOTES, 'UTF-8');
-            }
+            // Only a string names a task: `task[]=x` in a request is ignored, not an error.
+            $task = is_string($task) ? htmlspecialchars(strip_tags($task), ENT_QUOTES, 'UTF-8') : null;
 
             return $task ?: null;
         };
@@ -45,9 +44,8 @@ class TaskServiceProvider implements ServiceProviderInterface
             $body = $request->getParsedBody();
 
             $action = $body['action'] ?? $c['uri']->param('action');
-            if (null !== $action) {
-                $action = htmlspecialchars(strip_tags($action), ENT_QUOTES, 'UTF-8');
-            }
+            // Only a string names an action: `action[]=x` in a request is ignored, not an error.
+            $action = is_string($action) ? htmlspecialchars(strip_tags($action), ENT_QUOTES, 'UTF-8') : null;
 
             return $action ?: null;
         };

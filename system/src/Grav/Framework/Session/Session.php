@@ -290,18 +290,11 @@ class Session implements SessionInterface
                     throw new RuntimeException('Obsolete session access.', 500);
                 }
 
-                // Not fully expired yet. Could be lost cookie by unstable network. Start session with new session id.
-                session_write_close();
-
-                // Start session with new session id.
-                $useStrictMode = $options['use_strict_mode'] ?? 0;
-                if ($useStrictMode) {
-                    ini_set('session.use_strict_mode', '0');
-                }
-                session_id($newId);
-                if ($useStrictMode) {
-                    ini_set('session.use_strict_mode', '1');
-                }
+                // Not fully expired yet. Could be lost cookie by unstable network, but the old id only proves
+                // what was known before the id changed (before the login), so it never gets the session
+                // which replaced it. Leave this one untouched and start a new one with a new id.
+                session_abort();
+                session_id(@session_create_id() ?: '');
 
                 $success = @session_start($options);
                 if (!$success) {
@@ -447,7 +440,8 @@ class Session implements SessionInterface
         $this->__set('session_destroyed', time());
         $this->__set('session_new_id', $newId);
 
-        // Keep the old session alive to avoid lost sessions by unstable network.
+        // Keep the old session alive: a late request with the old id (lost cookie by unstable network) is
+        // not treated as an attack, but it does not get the new session either (see start()).
         if (!$newId) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];

@@ -59,6 +59,24 @@ class CacheHostNamespaceTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($two->fetch('entry'));
     }
 
+    public function testCacheCreatedBeforeUriInitIsKeptApartByPort(): void
+    {
+        // A restored session loads the user's blueprint, and with it the cache, before
+        // Uri::init(). The content saved later is rendered with the port of the request.
+        $uri = $this->grav['uri'];
+        $uri->initializeWithUrl('http://one.example:8443/');
+        $early = new Cache($this->grav);
+        $uri->init();
+        $late = new Cache($this->grav);
+
+        self::assertSame($late->getKey(), $early->getKey());
+        self::assertNotSame($this->cache('one.example')->getKey(), $early->getKey());
+
+        $early->save('entry', 'http://one.example:8443/');
+
+        self::assertFalse($this->cache('one.example')->fetch('entry'));
+    }
+
     public function testSharedEntriesAreTheSameForEveryHost(): void
     {
         $one = $this->cache('one.example');

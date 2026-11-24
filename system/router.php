@@ -15,7 +15,29 @@ $_SERVER['PHP_CLI_ROUTER'] = true;
 
 $root = $_SERVER['DOCUMENT_ROOT'];
 $path = $_SERVER['SCRIPT_NAME'];
-if ($path !== '/index.php' && is_file($root . $path)) {
+$static = $path !== '/index.php' && is_file($root . $path);
+
+/* Check the GRAV_BASEDIR environment variable and use if set */
+
+$grav_basedir = getenv('GRAV_BASEDIR') ?: '';
+if ($grav_basedir) {
+    // The rules below are relative to the Grav root, so match them against the path inside of the base directory.
+    // PHP has already resolved the request path, do the same for the base directory (`./grav`, `sub//grav/`)
+    $segments = [];
+    foreach (explode('/', str_replace('\\', '/', $grav_basedir)) as $segment) {
+        if ($segment === '..') {
+            array_pop($segments);
+        } elseif ($segment !== '' && $segment !== '.') {
+            $segments[] = $segment;
+        }
+    }
+    $grav_baseurl = rtrim('/' . implode('/', $segments), '/') . '/';
+    if (stripos((string) $path, $grav_baseurl) === 0) {
+        $path = substr((string) $path, strlen($grav_baseurl) - 1);
+    }
+}
+
+if ($static) {
     if (!(
         // Block dot files and folders except .well-known directories
         preg_match('`/\.(?!well-known/)`', (string) $path)
@@ -44,9 +66,6 @@ if ($path !== '/index.php' && is_file($root . $path)) {
 
 $grav_index = 'index.php';
 
-/* Check the GRAV_BASEDIR environment variable and use if set */
-
-$grav_basedir = getenv('GRAV_BASEDIR') ?: '';
 if ($grav_basedir) {
     $grav_index = ltrim($grav_basedir, '/') . DIRECTORY_SEPARATOR . $grav_index;
     $grav_basedir = DIRECTORY_SEPARATOR . trim($grav_basedir, DIRECTORY_SEPARATOR);

@@ -51,9 +51,10 @@ trait AssetUtilsTrait
      */
     public static function isRemoteLink($link)
     {
-        $base = Grav::instance()['uri']->rootUrl(true);
+        $base = rtrim(Grav::instance()['uri']->rootUrl(true), '/') . '/';
 
-        // Sanity check for local URLs with absolute URL's enabled
+        // Sanity check for local URLs with absolute URL's enabled. The root comes from the
+        // request Host, so it has to end on a path separator: `https://w` is not `https://www.google.com`.
         if (Utils::startsWith($link, $base)) {
             return false;
         }
@@ -140,6 +141,18 @@ trait AssetUtilsTrait
      */
     protected function fetchAssetContents(string $link, bool $local)
     {
+        // A local asset is only ever a stylesheet or script below the Grav root. The link is
+        // built from the asset URL, which a template may have assembled from stored values,
+        // and PHP resolves `..` lexically, even through folders that do not exist.
+        if ($local) {
+            $link = Utils::normalizePath($link);
+            $root = rtrim(Utils::normalizePath(GRAV_ROOT), '/') . '/';
+            $extension = strtolower(pathinfo($link, PATHINFO_EXTENSION));
+            if (!str_starts_with($link, $root) || !in_array($extension, ['css', 'js', 'mjs'], true)) {
+                return false;
+            }
+        }
+
         if ($this->fetch_command instanceof Closure) {
             $file = @$this->fetch_command->__invoke($link);
         } elseif ($local) {

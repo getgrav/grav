@@ -327,7 +327,11 @@ class Pipeline extends PropertyObject
             $list[$key] = $item;
         }
 
-        return (string) json_encode($list);
+        // A list json_encode() rejects (a byte that is not UTF-8) must still get a name of its
+        // own: an empty string here gave every such list the same bundle.
+        $json = json_encode($list);
+
+        return $json !== false ? $json : serialize($list);
     }
 
     /**
