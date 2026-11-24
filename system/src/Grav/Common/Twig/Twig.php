@@ -49,6 +49,7 @@ use Twig\Sandbox\SecurityNotAllowedFunctionError;
 use Twig\Sandbox\SecurityNotAllowedMethodError;
 use Twig\Sandbox\SecurityNotAllowedPropertyError;
 use Twig\Sandbox\SecurityNotAllowedTagError;
+use Twig\Sandbox\SecurityNotAllowedTestError;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
 use Twig\Loader\FilesystemLoader;
@@ -836,6 +837,9 @@ class Twig
         }
         if ($e instanceof SecurityNotAllowedFunctionError) {
             return ['function', $e->getFunctionName(), ''];
+        }
+        if ($e instanceof SecurityNotAllowedTestError) {
+            return ['test', $e->getTestName(), ''];
         }
         if ($e instanceof SecurityNotAllowedMethodError) {
             return ['method', $e->getMethodName(), $e->getClassName()];

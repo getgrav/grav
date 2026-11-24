@@ -225,7 +225,8 @@ final class SandboxDefaults
      * absent. `read_file` is hardened but stays off so editor page content can't
      * pull arbitrary files; theme templates and the `[read-file]` shortcode
      * reach it through the same hardening. dump/debug are gated by
-     * $env->isDebug() and are no-ops in production.
+     * $env->isDebug() and are no-ops in production. The `constant` entry
+     * also governs the `is constant(...)` test (see GravSecurityPolicy).
      *
      * @return list<string>
      */
