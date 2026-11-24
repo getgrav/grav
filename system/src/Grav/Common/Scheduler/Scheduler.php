@@ -19,7 +19,6 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use RocketTheme\Toolbox\File\YamlFile;
-use Symfony\Component\Yaml\Yaml;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Handler\FingersCrossedHandler;
@@ -876,8 +875,38 @@ class Scheduler
             }
         }
 
-        $saved_states = $this->getJobStates();
-        $saved_states->save(array_merge($saved_states->content(), $new_states));
+        $this->mergeJobStates($new_states);
+    }
+
+    /**
+     * Write job states into status.yaml, keeping the entries of every other job.
+     *
+     * A run reads status.yaml when it starts and saves when it ends. When one run takes longer
+     * than a minute, the next cron run starts before it saves, and merging into the copy read at
+     * the start dropped whatever the longer run had saved in between: an hourly job that ran at
+     * :00 was recorded as never having run. The file is re-read under a lock, so each run only
+     * replaces the entries of the jobs it ran.
+     *
+     * @param array<string,array> $states Job states keyed by job id
+     * @return void
+     */
+    private function mergeJobStates(array $states): void
+    {
+        $lock = @fopen($this->status_path . '/status.lock', 'c');
+        if ($lock) {
+            flock($lock, LOCK_EX);
+        }
+
+        try {
+            $file = $this->getJobStates();
+            $file->load();
+            $file->save(array_merge((array) $file->content(), $states));
+        } finally {
+            if ($lock) {
+                flock($lock, LOCK_UN);
+                fclose($lock);
+            }
+        }
     }
 
     /**
@@ -1440,33 +1469,18 @@ class Scheduler
      */
     protected function saveJobState(Job $job): void
     {
-        $grav = Grav::instance();
-        $locator = $grav['locator'];
-        $statusFile = $locator->findResource('user-data://scheduler/status.yaml', true, true);
-        
-        $status = [];
-        if (file_exists($statusFile)) {
-            $status = Yaml::parseFile($statusFile) ?: [];
-        }
-        
-        // Update job status
-        $status[$job->getId()] = [
+        $state = [
             'state' => $job->isSuccessful() ? 'success' : 'failure',
             'last-run' => time(),
             'trigger' => $this->runTrigger,
         ];
-        
+
         // Add error if job failed
         if (!$job->isSuccessful()) {
-            $output = $job->getOutput();
-            if ($output) {
-                $status[$job->getId()]['error'] = $output;
-            } else {
-                $status[$job->getId()]['error'] = null;
-            }
+            $state['error'] = $job->getOutput() ?: null;
         }
-        
-        file_put_contents($statusFile, Yaml::dump($status));
+
+        $this->mergeJobStates([$job->getId() => $state]);
     }
     
     /**
