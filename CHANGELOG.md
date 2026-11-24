@@ -1,9 +1,9 @@
 # v2.2.34
-## 11/23/2026
+## 11/24/2026
 
 1. [](#new)
     * `bin/grav install --dev` and `bin/grav composer --dev` keep Composer's dev dependencies. Both commands always ran Composer with `--no-dev`, so running `bin/grav install` after a plain `composer install` removed the dev packages again [#4422](https://github.com/getgrav/grav/issues/4422)
-1. [](#bugfix)
+2. [](#bugfix)
     * The scheduler no longer forgets a job's last run when a slow run overlaps the next minute's run, which made hourly jobs that ran on time show as never having run
     * A browser that was signed in when its account was deleted is now signed out on its next request. Thanks to @inanna-malick for the report
 
