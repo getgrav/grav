@@ -782,8 +782,11 @@ class Blueprint extends BlueprintForm
      */
     private static function isTrustedFile(string $filename): bool
     {
+        // A blueprint file is a `.yaml` file, a name no upload can have
+        // (Utils::checkFilename()). The folder alone does not make a file the
+        // author's: a form can store an upload in a plugin or theme folder.
         $realPath = realpath($filename);
-        if ($realPath === false) {
+        if ($realPath === false || !str_ends_with(strtolower($realPath), '.yaml')) {
             return false;
         }
 
@@ -826,7 +829,11 @@ class Blueprint extends BlueprintForm
         $locator = Grav::instance()['locator'];
 
         if (is_string($path) && !$locator->isStream($path)) {
-            if (is_file($path)) {
+            // A name such as `user/account` belongs to the context. Read it as a file
+            // only when it is an absolute path or a `.yaml` file: is_file() resolves a
+            // relative name from the working directory, the Grav root, where it would
+            // pick up whatever file was stored (uploaded, for one) under that name.
+            if ((str_ends_with($path, '.yaml') || preg_match('#^(?:[/\\\\]|[a-z]:[/\\\\])#i', $path)) && is_file($path)) {
                 return [$path];
             }
 

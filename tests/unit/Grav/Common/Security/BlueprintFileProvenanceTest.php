@@ -2,6 +2,7 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\Data\Blueprints;
 use Grav\Common\Grav;
 use Grav\Common\Page\Pages;
 use Grav\Framework\Flex\FlexDirectory;
@@ -86,6 +87,71 @@ YAML);
 
         self::assertTrue($blueprint->isTrusted());
         self::assertNotNull($blueprint->get('form/fields/header.note/default'));
+    }
+
+    /**
+     * A blueprint file is a `.yaml` file. A form can store an upload, under any name that
+     * is not `.yaml`, in a blueprint, plugin or theme folder; the folder alone is not enough.
+     */
+    public function testLoad_NonYamlFileInBlueprintFolderIsUntrusted(): void
+    {
+        $blueprint = $this->load($this->write($this->blueprints . '/probe.txt'));
+
+        self::assertFalse($blueprint->isTrusted());
+        self::assertSame('text', $blueprint->get('form/fields/header.note/type'), 'The file itself still loads');
+        self::assertNull($blueprint->get('form/fields/header.note/default'), 'The provider must not run');
+    }
+
+    public function testLoad_ExtensionlessFileInBlueprintFolderIsUntrusted(): void
+    {
+        $blueprint = $this->load($this->write($this->blueprints . '/probe'));
+
+        self::assertFalse($blueprint->isTrusted());
+        self::assertNull($blueprint->get('form/fields/header.note/default'), 'The provider must not run');
+    }
+
+    /**
+     * A blueprint name such as `user/account` belongs to the blueprint context. A file with
+     * that name relative to the working directory (the Grav root) must not stand in for it.
+     */
+    public function testBlueprints_NameIsNotReadAsARelativeFile(): void
+    {
+        $cwd = getcwd();
+        $root = dirname($this->blueprints) . '/root';
+        mkdir($root . '/user', 0775, true);
+        $this->write($root . '/user/account');
+
+        try {
+            chdir($root);
+            $blueprint = (new Blueprints('blueprints://'))->get('user/account');
+        } finally {
+            chdir($cwd);
+            @unlink($root . '/user/account');
+            @rmdir($root . '/user');
+            @rmdir($root);
+        }
+
+        self::assertNull($blueprint->get('form/fields/header.note'), 'The planted file must not define the account blueprint');
+        self::assertNotNull($blueprint->get('form/fields/username'));
+    }
+
+    public function testBlueprints_NameWithYamlExtensionStillReadsRelativeFile(): void
+    {
+        $cwd = getcwd();
+        $root = dirname($this->blueprints) . '/root';
+        mkdir($root, 0775, true);
+        $this->write($root . '/relative.yaml');
+
+        try {
+            chdir($root);
+            $blueprint = (new Blueprints('blueprints://'))->get('relative.yaml');
+        } finally {
+            chdir($cwd);
+            @unlink($root . '/relative.yaml');
+            @rmdir($root);
+        }
+
+        self::assertSame('text', $blueprint->get('form/fields/header.note/type'));
     }
 
     public function testLoad_SymlinkedFolderInBlueprintFolderIsTrusted(): void
@@ -174,6 +240,16 @@ YAML);
         $blueprint = $pages->blueprints(sprintf($spelling, $this->media, $this->blueprints));
 
         self::assertNull($blueprint->get('form/fields/header.note'));
+        self::assertSame($pages->blueprints('default')->get('title'), $blueprint->get('title'));
+    }
+
+    /** A type with a scheme PHP can open (`ftp://`) is not looked up as a file either. */
+    public function testPagesBlueprints_TypeWithOtherSchemeIsDefault(): void
+    {
+        /** @var Pages $pages */
+        $pages = $this->grav['pages'];
+        $blueprint = $pages->blueprints('ftp://127.0.0.1:1/blueprint');
+
         self::assertSame($pages->blueprints('default')->get('title'), $blueprint->get('title'));
     }
 

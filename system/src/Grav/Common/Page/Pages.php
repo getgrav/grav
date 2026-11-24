@@ -1620,7 +1620,9 @@ class Pages
         // looked up among the page types, but Blueprint::getFiles() also takes a
         // stream URI or the path of an existing file as the blueprint itself,
         // which would let a file uploaded as page media define the page's fields.
-        if ($this->grav['locator']->isStream($type) || is_file((string) $type)) {
+        // A URI of any other scheme must not reach is_file() either: PHP's own
+        // wrappers (ftp://) answer it by connecting to the host it names.
+        if (str_contains((string) $type, '://') || $this->grav['locator']->isStream($type) || is_file((string) $type)) {
             $type = 'default';
         }
 
