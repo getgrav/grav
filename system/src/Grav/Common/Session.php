@@ -456,7 +456,7 @@ class Session extends \Grav\Framework\Session\Session
     /**
      * Copy the fields in USER_REFRESH_FIELDS from the stored account into the session's copy of it. A session
      * of a disabled account then fails authorize() right away, and a later save of the session's copy can't
-     * write the old values back.
+     * write the old values back. A session whose account was deleted after sign-in is signed out.
      *
      * @return void
      */
@@ -464,7 +464,16 @@ class Session extends \Grav\Framework\Session\Session
     {
         try {
             $user = $this->__get('user');
-            if (!$user instanceof UserInterface || !$user->exists()) {
+            if (!$user instanceof UserInterface) {
+                return;
+            }
+            if (!$user->exists()) {
+                // Read from an account which is gone now. A user a plugin keeps only in the session is left alone.
+                if ($this->wasReadFromAccount($user)) {
+                    $user->set('state', 'disabled');
+                    $this->clear();
+                }
+
                 return;
             }
 
@@ -497,5 +506,20 @@ class Session extends \Grav\Framework\Session\Session
         } catch (Throwable) {
             // Keep the session as it is; the user is validated right after this.
         }
+    }
+
+    /**
+     * Whether the session's copy of the account was read from a stored account.
+     *
+     * @param UserInterface $user
+     * @return bool
+     */
+    protected function wasReadFromAccount(UserInterface $user): bool
+    {
+        if ($user instanceof UserObject) {
+            return isset($user->getMetaData()['account_checksum']);
+        }
+
+        return $user instanceof User && $user->wasReadFromAccount();
     }
 }

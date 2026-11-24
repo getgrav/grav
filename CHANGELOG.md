@@ -3,6 +3,8 @@
 
 1. [](#new)
     * `bin/grav install --dev` and `bin/grav composer --dev` keep Composer's dev dependencies. Both commands always ran Composer with `--no-dev`, so running `bin/grav install` after a plain `composer install` removed the dev packages again [#4422](https://github.com/getgrav/grav/issues/4422)
+1. [](#bugfix)
+    * A browser that was signed in when its account was deleted is now signed out on its next request. Thanks to @inanna-malick for the report
 
 # v2.2.33
 ## 11/22/2026

@@ -175,6 +175,44 @@ class UserSaveLostUpdateTest extends \PHPUnit\Framework\TestCase
         self::assertArrayNotHasKey('access', $stored);
     }
 
+    /**
+     * A session opened before the account was deleted: there is no stored account left to refresh it from, so the
+     * session's copy is signed out instead of keeping the access it had.
+     */
+    public function testSessionFromBeforeTheAccountWasDeletedIsSignedOut(): void
+    {
+        $this->load()->update(self::ACCOUNT)->save();
+
+        /** @var User $sessionUser */
+        $sessionUser = unserialize(serialize($this->load()));
+        $sessionUser->file()->free();
+        $sessionUser->authenticated = true;
+        $sessionUser->authorized = true;
+        self::assertTrue($sessionUser->authorize('api.pages.write'));
+
+        unlink($this->path);
+        CompiledYamlFile::instance($this->path)->free();
+
+        $this->startSessionWith($sessionUser);
+
+        self::assertSame('disabled', $sessionUser->get('state'));
+        self::assertFalse($sessionUser->authorize('api.pages.write'));
+    }
+
+    /** A user the session holds without an account file (a plugin signing in from elsewhere) is left alone. */
+    public function testSessionUserWithoutAccountFileIsKept(): void
+    {
+        $sessionUser = $this->load();
+        $sessionUser->update(self::ACCOUNT);
+        $sessionUser->authenticated = true;
+        $sessionUser->authorized = true;
+
+        $this->startSessionWith($sessionUser);
+
+        self::assertSame('enabled', $sessionUser->get('state'));
+        self::assertTrue($sessionUser->authorize('api.pages.write'));
+    }
+
     private function startSessionWith(User $user): void
     {
         $path = $this->path;
