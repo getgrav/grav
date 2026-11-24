@@ -180,6 +180,24 @@ class JsonBodyTest extends \PHPUnit\Framework\TestCase
         self::assertStringContainsString('members', $body['detail']);
     }
 
+    public function testBodyDeclaredOverLimitIsRefusedUnread(): void
+    {
+        $body = $this->createMock(\Psr\Http\Message\StreamInterface::class);
+        $body->expects(self::never())->method('getContents');
+        $body->expects(self::never())->method('__toString');
+        $request = (new ServerRequest('PUT', 'http://localhost/', ['Content-Type' => 'application/json', 'Content-Length' => '1025']))->withBody($body);
+
+        $request = JsonBody::parseRequest($request, ['max_bytes' => 1024] + self::LIMITS);
+        self::assertNull($request->getParsedBody());
+        self::assertSame(413, JsonBody::rejection($request)?->getStatusCode());
+
+        // At the limit, or with the byte limit off, the body is read as before.
+        $request = self::request('{"a":1}')->withHeader('Content-Length', '7');
+        self::assertSame(['a' => 1], JsonBody::parseRequest($request, ['max_bytes' => 7] + self::LIMITS)->getParsedBody());
+        $request = self::request('{"a":2}')->withHeader('Content-Length', '999999999');
+        self::assertSame(['a' => 2], JsonBody::parseRequest($request, ['max_bytes' => 0] + self::LIMITS)->getParsedBody());
+    }
+
     public function testSameBodyIsParsedOnce(): void
     {
         $json = json_encode(['a' => range(1, 1000)]);
