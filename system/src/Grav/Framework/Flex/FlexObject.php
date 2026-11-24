@@ -131,7 +131,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
         }
 
         if ($validate) {
+            // Initialize the blueprint as getBlueprint() does for update(): the directory returns it uninitialized and
+            // `security@`, `scope@`, `flex-*@` and `authorize-*@` would not guard the fields of a new object.
+            // This object has no state yet, so the dynamic fields are resolved against a blank object of its class.
             $blueprint = $this->getFlexDirectory()->getBlueprint();
+            $blueprint->setScope('object');
+            $blueprint->setObject(new static([], $key, $this->_flexDirectory));
+            $blueprint->init();
 
             $blueprint->validate($elements, ['xss_check' => false]);
 
