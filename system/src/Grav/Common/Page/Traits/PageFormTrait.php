@@ -75,8 +75,13 @@ trait PageFormTrait
 
         foreach ($new as $name => $form) {
             $form = $this->normalizeForm($form, $name);
-            $name = $form['name'] ?? null;
-            if ($name && ($override || !isset($this->_forms[$name]))) {
+            if (!$form) {
+                continue;
+            }
+
+            // Keep every form getForms() keeps: a name such as '0' or '' is falsy, but it still names a form.
+            $name = $form['name'] ?? '';
+            if ($override || !isset($this->_forms[$name])) {
                 $this->_forms[$name] = $form;
             }
         }
