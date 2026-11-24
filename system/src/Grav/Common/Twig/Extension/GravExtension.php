@@ -634,7 +634,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             '@' => '&#64;'
         ];
 
-        $characters = mb_str_split($str, 1, 'UTF-8');
+        // mb_str_split() sizes each character from its lead byte alone, so a broken sequence would take
+        // the bytes after it (a `<` or a quote) along in one chunk that matches nothing in the list above.
+        $characters = mb_str_split(mb_scrub($str, 'UTF-8'), 1, 'UTF-8');
 
         $encoded = '';
         foreach ($characters as $chr) {
