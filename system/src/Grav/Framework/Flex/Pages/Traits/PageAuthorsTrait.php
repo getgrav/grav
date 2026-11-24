@@ -160,6 +160,8 @@ trait PageAuthorsTrait
      * 2. else if any of the groups allow access, return true
      * 3. else return null
      *
+     * The rules apply only to an enabled account and, for the session user, a completed login.
+     *
      * @param UserInterface $user
      * @param string $action
      * @param string $scope
@@ -169,21 +171,32 @@ trait PageAuthorsTrait
      */
     protected function isAuthorizedByGroup(UserInterface $user, string $action, string $scope, bool $isMe, bool $isAuthor): ?bool
     {
+        // The page rules answer without calling authorize(), so they have to hold the same preconditions.
+        // Account state is a fact about the account and applies to a user passed in explicitly as well.
+        if ($user->get('state', 'enabled') !== 'enabled') {
+            return null;
+        }
+
+        // As in authorize(), the session facts (logged in, past 2FA) apply to the session user only. Until
+        // then the session user has no groups, is not an author and does not get the defaults either.
+        if ($isMe && (!$user->authenticated || !$user->authorized)) {
+            return null;
+        }
+
         $authorized = null;
 
         // In admin we want to check against group permissions.
         $pageGroups = $this->getPermissions();
-        // Session user has no groups until the login (2FA) has been completed.
-        $userGroups = !$isMe || $user->authorized ? (array)$user->groups : [];
+        // Group names are matched as strings, as an account may list a numeric name such as 2024 as an integer.
+        $userGroups = array_map('strval', array_filter((array)$user->groups, static fn($name) => is_string($name) || is_int($name)));
         $config = Grav::instance()['config'];
 
         /** @var Access $access */
         foreach ($pageGroups as $group => $access) {
+            // PHP turns a numeric group name into an integer array key, even if it was quoted in the page header.
+            $group = (string)$group;
             if ($group === 'defaults') {
-                // Special defaults permissions group does not apply to guest.
-                if ($isMe && !$user->authorized) {
-                    continue;
-                }
+                // Special defaults permissions group applies to everyone who got this far, so not to guest.
             } elseif ($group === 'authors') {
                 if (!$isAuthor) {
                     continue;
