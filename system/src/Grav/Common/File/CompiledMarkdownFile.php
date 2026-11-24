@@ -217,7 +217,8 @@ class CompiledMarkdownFile extends MarkdownFile
      * Check contents and make sure it is in correct format.
      *
      * The frontmatter goes through the same YAML decoders as CompiledYamlFile, so a `<<`
-     * key in the header would be read back as the merge key.
+     * key in the header would be read back as the merge key, and a binary string written
+     * in flow style would be read back as YAML.
      *
      * @param mixed $var
      * @return array
@@ -227,6 +228,8 @@ class CompiledMarkdownFile extends MarkdownFile
         $var = parent::check($var);
 
         YamlFormatter::assertNoMergeKeys($var['header']);
+        // MarkdownFile::encode() dumps the header with inline level 20.
+        YamlFormatter::assertNoInlineBinary($var['header'], 20);
 
         return $var;
     }

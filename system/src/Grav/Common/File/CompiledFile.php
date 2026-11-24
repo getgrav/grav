@@ -94,8 +94,8 @@ trait CompiledFile
                 } catch (Throwable $e) {
                     // A corrupt or partially written compiled cache file (e.g. from a
                     // concurrent regeneration race) can throw while being read/included —
-                    // including ParseError, which is an Error and would otherwise escape
-                    // this method's outer `catch (Exception)` as a fatal. Treat it as a
+                    // including ParseError, which is an Error and would otherwise end up in
+                    // this method's outer `catch` as a failed read. Treat it as a
                     // cache miss and regenerate from the raw source below, mirroring the
                     // fast-path `catch (Throwable)` above.
                     $cache = null;
@@ -139,7 +139,9 @@ trait CompiledFile
 
                 $this->content = $cache['data'];
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            // Not only Exception: a YAML parser can fail with an Error (Symfony throws a TypeError for a merge key
+            // with a scalar value in flow style), and callers handle a file which cannot be read as an Exception.
             throw new RuntimeException(sprintf('Failed to read %s: %s', Utils::basename($filename), $e->getMessage()), 500, $e);
         }
 
