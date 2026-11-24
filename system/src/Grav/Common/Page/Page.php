@@ -654,8 +654,13 @@ class Page implements PageInterface, PageUuidInterface
             if (isset($this->header->title)) {
                 $this->title = trim($this->header->title);
             }
-            if (isset($this->header->language)) {
-                $this->language = trim($this->header->language);
+            if (isset($this->header->language) && is_scalar($this->header->language)) {
+                // The language is a part of the page's file name (<template>.<language>.md),
+                // so only a language code can override the one from the file extension.
+                $language = trim((string)$this->header->language);
+                if (preg_match('/^[\w-]*$/u', $language)) {
+                    $this->language = $language;
+                }
             }
             if (isset($this->header->template)) {
                 $this->template = trim($this->header->template);
@@ -1917,7 +1922,8 @@ class Page implements PageInterface, PageUuidInterface
     public function name($var = null)
     {
         if ($var !== null) {
-            $this->name = $var;
+            // Filename of the page, never a path (see filePath()).
+            $this->name = Utils::basename((string)$var);
         }
 
         return $this->name ?: 'default.md';

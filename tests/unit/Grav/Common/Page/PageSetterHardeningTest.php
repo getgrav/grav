@@ -131,6 +131,35 @@ class PageSetterHardeningTest extends \Codeception\Test\Unit
         $this->assertStringContainsString('mem-', $page->id());
     }
 
+    public function testHeaderLanguageIsALanguageCode(): void
+    {
+        $page = $this->page();
+        $this->assertNull($page->language());
+
+        // Callers build the page's file name from the language: <template>.<language>.md
+        foreach (['x/y', 'x/../../media/other', '..', 'fr.md', "f\0r", ['fr']] as $language) {
+            $page->header(['title' => 'Page', 'language' => $language]);
+            $this->assertNull($page->language());
+        }
+
+        foreach (['fr', 'pt-BR', 'zh_Hans', ''] as $language) {
+            $page->header(['title' => 'Page', 'language' => " {$language} "]);
+            $this->assertSame($language, $page->language());
+        }
+    }
+
+    public function testNameIsAFileInThePageFolder(): void
+    {
+        $page = $this->page();
+
+        $page->name('item.x/../../media/other.md');
+        $this->assertSame('other.md', $page->name());
+        $this->assertSame($this->folder . '/01.page/other.md', $page->filePath());
+
+        $page->name('item.fr.md');
+        $this->assertSame('item.fr.md', $page->name());
+    }
+
     private function page(): Page
     {
         $page = new Page();
