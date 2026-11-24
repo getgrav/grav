@@ -112,6 +112,28 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
             throw new RuntimeException('User group with this name already exists');
         }
 
+        // `access` and `enabled` are written by super admins only (`security@: admin.super`), so for anyone else
+        // they are the values this object was read with. A super admin may have changed them since: save them as
+        // they are stored now, not as they were read.
+        $user = $this->getActiveUser();
+        if ($oldKey !== '' && $user && $user->authenticated && !$this->actorHasSuperAccess($user, true)) {
+            clearstatcache();
+            $storage->getMetaData([$oldKey], true);
+            $stored = $storage->readRows([$oldKey => null])[$oldKey] ?? [];
+            foreach (['access', 'enabled'] as $property) {
+                if (isset($stored[$property])) {
+                    $this->setProperty($property, $stored[$property]);
+                } else {
+                    // Both the loaded value and the element it was loaded from.
+                    $this->unsetObjectProperty($property);
+                    $this->unsetArrayProperty($property);
+                    if ($property === 'access') {
+                        $this->_access = null;
+                    }
+                }
+            }
+        }
+
         return parent::save();
     }
 
