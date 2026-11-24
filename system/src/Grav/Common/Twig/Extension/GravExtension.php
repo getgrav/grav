@@ -1930,7 +1930,8 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function mediaDirFunc($media_dir)
     {
-        if (!is_string($media_dir) || $media_dir === '') {
+        // realpath() below throws on a null byte instead of returning false.
+        if (!is_string($media_dir) || $media_dir === '' || str_contains($media_dir, "\0")) {
             return null;
         }
 
@@ -1953,11 +1954,16 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         // through the image cache. (GHSA-47ch-6w46-6xm7)
         // is_readable() also keeps Media::init()'s FilesystemIterator from throwing
         // out of a page render on a directory that exists but cannot be read.
-        if (!is_dir($media_dir) || !is_readable($media_dir) || !GlobalMedia::isMediaPath($media_dir)) {
+        // realpath() goes first because it only ever looks at the local
+        // filesystem: an argument that is not a Grav stream may still name a PHP
+        // one (`ftp://host:port/`, `phar://`), and is_dir() on that would have the
+        // server connect to an address the page content chose.
+        $media_dir = realpath($media_dir);
+        if ($media_dir === false || !is_dir($media_dir) || !is_readable($media_dir) || !GlobalMedia::isMediaPath($media_dir)) {
             return null;
         }
 
-        return new Media((string) realpath($media_dir));
+        return new Media($media_dir);
     }
 
     /**
