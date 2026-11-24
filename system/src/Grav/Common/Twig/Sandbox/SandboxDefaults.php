@@ -76,6 +76,8 @@ final class SandboxDefaults
             // `autoescape` is deliberately absent, for the same reason as the
             // `raw` filter (see filters()): it switches output escaping off for
             // its body. Trusted theme templates keep the tag.
+            // `block` comes without its `deferred` modifier: DeferredTokenParser
+            // compiles a deferred block in sandboxed code as a plain one.
             'block',
             'deprecated',
             'do',
