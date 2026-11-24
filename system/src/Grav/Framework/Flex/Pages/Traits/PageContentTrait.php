@@ -529,7 +529,8 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'dateformat',
             $var,
-            static fn($value) => $value
+            // The header can hold anything, but only a string is a date format.
+            static fn($value) => is_string($value) ? $value : null
         );
     }
 
@@ -542,6 +543,9 @@ trait PageContentTrait
             'taxonomy',
             $var,
             static function ($value) {
+                if (is_object($value)) {
+                    $value = get_object_vars($value);
+                }
                 if (is_array($value)) {
                     // make sure first level are arrays
                     array_walk($value, static function (&$val) {
@@ -553,7 +557,8 @@ trait PageContentTrait
                     });
                 }
 
-                return $value ?? [];
+                // Anything else (an empty string, false, 0...) is no taxonomy, the same as in Page::taxonomy().
+                return is_array($value) ? $value : [];
             }
         );
     }

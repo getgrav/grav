@@ -748,8 +748,9 @@ class Page implements PageInterface, PageUuidInterface
             if (isset($this->header->debugger)) {
                 $this->debugger = (bool)$this->header->debugger;
             }
-            if (isset($this->header->append_url_extension)) {
-                $this->url_extension = $this->header->append_url_extension;
+            // Only a scalar can be appended to the URL; a list or map falls back to the system config.
+            if (isset($this->header->append_url_extension) && is_scalar($this->header->append_url_extension)) {
+                $this->url_extension = (string)$this->header->append_url_extension;
             }
         }
 
@@ -1976,7 +1977,8 @@ class Page implements PageInterface, PageUuidInterface
         }
 
         if (!isset($this->template_format)) {
-            $this->template_format = ltrim($this->header->append_url_extension ?? Utils::getPageFormat(), '.');
+            $extension = $this->header->append_url_extension ?? null;
+            $this->template_format = ltrim(is_scalar($extension) ? (string)$extension : Utils::getPageFormat(), '.');
         }
 
         return $this->template_format;
@@ -2839,7 +2841,8 @@ class Page implements PageInterface, PageUuidInterface
     public function dateformat($var = null)
     {
         if ($var !== null) {
-            $this->dateformat = $var;
+            // The header can hold anything, but only a string is a date format.
+            $this->dateformat = is_string($var) ? $var : null;
         }
 
         return $this->dateformat;

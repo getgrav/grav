@@ -52,7 +52,8 @@ trait PageRoutableTrait
                     return '';
                 }
 
-                return $value ?? Grav::instance()['config']->get('system.pages.append_url_extension', '');
+                // Only a scalar can be appended to the URL; a list or map falls back to the system config.
+                return is_scalar($value) ? (string)$value : Grav::instance()['config']->get('system.pages.append_url_extension', '');
             }
         );
     }
