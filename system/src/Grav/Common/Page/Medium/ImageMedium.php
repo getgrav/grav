@@ -513,7 +513,10 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 // --> @2x: resize 800x800->400x400
                 if (isset(static::$magic_resize_actions[$method])) {
                     foreach (static::$magic_resize_actions[$method] as $param) {
-                        if (isset($args_copy[$param])) {
+                        // Only pixels scale with the ratio. A percentage is relative to
+                        // each image already, and anything else is left for the image
+                        // library to refuse, as it does for this image.
+                        if (isset($args_copy[$param]) && is_numeric($args_copy[$param])) {
                             $args_copy[$param] *= $medium->get('ratio');
                         }
                     }
@@ -540,13 +543,14 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param ImageMediaInterface $medium The alternative
      * @param string $method One of $magic_resize_actions
      * @param array $args The arguments as given for this image
-     * @param array $scaled The arguments multiplied by the alternative's ratio
+     * @param array $scaled The arguments for the alternative: the numeric ones multiplied by its ratio
      * @return bool
      */
     protected function alternativeResizeFits(ImageMediaInterface $medium, string $method, array $args, array $scaled): bool
     {
         foreach (array_slice(static::$magic_resize_actions[$method], -2) as $param) {
-            if (!isset($scaled[$param])) {
+            // A percentage is measured by urlResizeCanvas() as it is written.
+            if (!isset($scaled[$param]) || !is_numeric($scaled[$param])) {
                 continue;
             }
             if (is_numeric($args[$param]) && $args[$param] >= 1 && $scaled[$param] < 1) {
