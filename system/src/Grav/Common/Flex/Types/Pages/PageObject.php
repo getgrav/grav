@@ -282,14 +282,16 @@ class PageObject extends FlexPageObject implements PageUuidInterface
     /**
      * {@inheritdoc}
      *
-     * The storage key is never taken from submitted data. It names the folder the
-     * page and its media live in and follows from the parent, order and folder. The
-     * page blueprint does not declare it, and its loose validation passes undeclared
-     * keys through.
+     * The storage key and the root flag are never taken from submitted data. The
+     * storage key names the folder the page and its media live in and follows from
+     * the parent, order and folder. The root flag marks the root of the page tree,
+     * which always exists and has no parent to allow it: only the storage and the
+     * index set it. The page blueprint declares neither, and its loose validation
+     * passes undeclared keys through.
      */
     public function update(array $data, array $files = [])
     {
-        unset($data['storage_key']);
+        unset($data['storage_key'], $data['root']);
 
         return parent::update($data, $files);
     }

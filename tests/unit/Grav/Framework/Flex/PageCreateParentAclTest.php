@@ -135,6 +135,27 @@ class PageCreateParentAclTest extends \PHPUnit\Framework\TestCase
         self::assertDirectoryExists(GRAV_ROOT . "/{$this->folder}/planted");
     }
 
+    public function testRootFlagInTheDataDoesNotSkipTheParent(): void
+    {
+        $directory = $this->directory(['handbook' => self::OPEN]);
+
+        // The pages root always exists and has no parent to ask. A new page cannot claim to be it.
+        $page = $directory->createObject([], 'handbook/new-page');
+        $page->update(['route' => '/', 'folder' => 'planted', 'name' => 'default', 'content' => 'Text', 'root' => true]);
+
+        self::assertFalse($page->root());
+        self::assertFalse($page->exists());
+        $this->assertForbidden(static function () use ($page) { $page->check(); });
+        self::assertDirectoryDoesNotExist(GRAV_ROOT . "/{$this->folder}/planted");
+
+        // The root itself keeps the flag, whatever the data says.
+        $root = $directory->getIndex()->getRoot();
+        $root->update(['root' => false]);
+
+        self::assertTrue($root->root());
+        self::assertTrue($root->exists());
+    }
+
     public function testMovedPageIsRefusedByTheNewParent(): void
     {
         $directory = $this->directory(['handbook' => self::OPEN, 'handbook/mine' => '', 'team' => self::OPEN, 'board' => self::DENY]);
