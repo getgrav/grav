@@ -538,7 +538,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
      */
     public function setDefaults(array $data)
     {
-        $this->setElements($this->getBlueprint()->mergeData($data, $this->toArray()));
+        $this->setElements($this->getBlueprint()->mergeData($data, $this->toArrayWithSecrets()));
 
         return $this;
     }
@@ -551,7 +551,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
      */
     public function validate()
     {
-        $this->getBlueprint()->validate($this->toArray());
+        $this->getBlueprint()->validate($this->toArrayWithSecrets());
 
         return $this;
     }
@@ -562,7 +562,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
      */
     public function filter()
     {
-        $this->setElements($this->getBlueprint()->filter($this->toArray()));
+        $this->setElements($this->getBlueprint()->filter($this->toArrayWithSecrets()));
 
         return $this;
     }
@@ -1213,6 +1213,20 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
         $this->setUpdatedMedia([]);
         $this->clearMediaCache();
+    }
+
+    /**
+     * toArray() together with the secret fields which toArray() leaves out.
+     *
+     * For the methods which validate or rebuild the account from toArray(): a password which
+     * has been set, but not yet hashed by save(), still has to pass the blueprint and to reach
+     * save(), and the account has to keep its other credentials and tokens.
+     *
+     * @return array
+     */
+    protected function toArrayWithSecrets(): array
+    {
+        return $this->toArray() + array_intersect_key($this->getElements(), array_flip(static::SECRET_FIELDS));
     }
 
     /**
