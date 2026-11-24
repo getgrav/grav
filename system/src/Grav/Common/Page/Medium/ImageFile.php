@@ -13,15 +13,17 @@ use Error;
 use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
+use Gregwar\Image\Adapter\GD;
 use Gregwar\Image\Exceptions\GenerationError;
 use Gregwar\Image\Image;
 use Gregwar\Image\Source;
 use InvalidArgumentException;
+use OverflowException;
 use RangeException;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
-use function array_key_exists;
 use function call_user_func_array;
 use function count;
 use function extension_loaded;
@@ -38,8 +40,20 @@ use function strlen;
  */
 class ImageFile extends Image
 {
+    /**
+     * Most scans a JPEG may have to be decoded. Encoders write about ten for a
+     * progressive image and one to four for a baseline one.
+     */
+    public const MAX_JPEG_SCANS = 100;
+
+    /** Bytes of memory_limit kept free for what image processing needs besides its canvases. */
+    public const MEMORY_MARGIN = 8388608;
+
     /** @var int Most pixels one operation may allocate, 0 for no limit */
     protected $maxPixels = 0;
+
+    /** @var bool|null Whether GD takes its memory from memory_limit, null to go by GD_BUNDLED */
+    protected static $gdUsesMemoryLimit = null;
 
     /**
      * Image constructor with adapter configuration from Grav.
@@ -111,14 +125,29 @@ class ImageFile extends Image
     public function applyOperations()
     {
         foreach ($this->operations as [$method, $args]) {
-            if ($this->maxPixels > 0) {
+            // zoomCrop() enlarges the image to cover the box before it crops, so
+            // even a small box can need a canvas many times the size of the image:
+            // it is held to max_pixels when the caller set no ceiling of its own.
+            $default = $this->maxPixels <= 0 && $method === 'zoomCrop'
+                ? (int) Grav::instance()['config']->get('system.images.max_pixels', 25000000)
+                : 0;
+            // A resize builds a new canvas and fills it, which takes as much again.
+            $left = isset(ImageMedium::$magic_resize_actions[$method]) ? $this->memoryLeft() : null;
+
+            if ($this->maxPixels > 0 || $default > 0 || $left !== null) {
                 $canvas = ImageMedium::urlActionCanvas($method, $args, $this->adapter->width(), $this->adapter->height());
-                if ($canvas === null || $canvas[0] > $this->maxPixels) {
+                if ($this->maxPixels > 0 && ($canvas === null || $canvas[0] > $this->maxPixels)) {
                     // A refusal, not a broken image: save() would otherwise
                     // swallow the exception and serve the fallback image.
                     $this->useFallback(false);
 
                     throw new RangeException("Image operation {$method} is above the pixel limit");
+                }
+                // Up to 8 bytes a pixel for the canvas once rows are rounded up, 4 to fill it.
+                if ($canvas !== null && (($default > 0 && $canvas[0] > $default) || ($left !== null && $canvas[0] * 12 > $left))) {
+                    $this->useFallback(false);
+
+                    throw new OverflowException("Refusing image operation {$method} that does not fit in memory_limit or system.images.max_pixels");
                 }
             }
 
@@ -179,8 +208,43 @@ class ImageFile extends Image
 
         // The generating function
         $generate = function ($target) use ($image, $type, $quality) {
+            // max_pixels bounds the size of one pass over the image, and a JPEG
+            // decoder makes a pass for every scan in the file, however many
+            // there are. Counted here, where the file is about to be decoded, so
+            // that an image with a cached copy is not read again. As for a source
+            // above max_pixels, the original is served.
+            $source = (string) $image->getFilePath();
+            if ($source !== '' && static::jpegScanCount($source, static::MAX_JPEG_SCANS + 1) > static::MAX_JPEG_SCANS) {
+                Grav::instance()['log']->warning(sprintf(
+                    'Refusing to process image source with more than %d JPEG scans: %s',
+                    static::MAX_JPEG_SCANS, $source
+                ));
+
+                throw new GenerationError($source);
+            }
+
+            // GD decodes into memory_limit, and a fatal error there cannot be
+            // caught, so a source that would not fit is not opened either.
+            $left = $source !== '' ? $image->memoryLeft() : null;
+            $needed = $left !== null ? static::decodeBytes($source) : null;
+            if ($needed !== null && $needed > $left) {
+                Grav::instance()['log']->warning(sprintf(
+                    'Refusing to process image source that does not fit in memory_limit: %s (about %d MB needed, %d MB left)',
+                    $source, $needed >> 20, max(0, $left) >> 20
+                ));
+
+                throw new GenerationError($source);
+            }
+
             try {
                 $result = $image->save($target, $type, $quality);
+            } catch (OverflowException $e) {
+                if ($source === '') {
+                    throw $e;
+                }
+                Grav::instance()['log']->warning($e->getMessage() . ': ' . $source);
+
+                throw new GenerationError($source);
             } catch (Error $e) {
                 // save() turns exceptions into the fallback image, but a GD built
                 // without AVIF or WebP fails on an undefined function instead.
@@ -284,18 +348,118 @@ class ImageFile extends Image
             return $this;
         }
 
+        $orientation = static::exifOrientation($filepath);
+        if ($orientation === null) {
+            return $this;
+        }
+
+        return $this->applyExifOrientation($orientation);
+    }
+
+    /**
+     * Read the Exif orientation of a JPEG or TIFF file.
+     *
+     * Nothing but the Orientation entry of the first image directory is looked at.
+     * exif_read_data() keeps every segment of the file and a copy of every value a
+     * directory entry points to, so a small crafted file costs it hundreds of megabytes.
+     *
+     * @param string $file
+     * @return int|null Null for a file that has none
+     */
+    public static function exifOrientation(string $file): ?int
+    {
+        $handle = @fopen($file, 'rb');
+        if (!$handle) {
+            return null;
+        }
+
         try {
-            $exif = @exif_read_data($filepath);
-        } catch (Exception $e) {
-            Grav::instance()['log']->error($filepath . ' - ' . $e->getMessage());
-            return $this;
-        }
+            // The Exif segment of a JPEG holds what a TIFF file starts with.
+            $start = fread($handle, 2) === "\xFF\xD8" ? static::jpegExifOffset($handle) : 0;
+            if ($start === null || fseek($handle, $start) !== 0) {
+                return null;
+            }
 
-        if ($exif === false || !array_key_exists('Orientation', $exif)) {
-            return $this;
-        }
+            $header = (string) fread($handle, 8);
+            $order = substr($header, 0, 2);
+            if (strlen($header) < 8 || ($order !== 'II' && $order !== 'MM')) {
+                return null;
+            }
+            [$short, $long] = $order === 'II' ? ['v', 'V'] : ['n', 'N'];
+            $header = unpack("{$short}magic/{$long}offset", $header, 2);
+            if ($header['magic'] !== 42 || fseek($handle, $start + $header['offset']) !== 0) {
+                return null;
+            }
 
-        return $this->applyExifOrientation($exif['Orientation']);
+            $count = (string) fread($handle, 2);
+            $count = strlen($count) === 2 ? unpack($short, $count)[1] : 0;
+            // An entry has twelve bytes: tag, type, number of values, and the value when four bytes hold it.
+            $entries = $count > 0 ? (string) stream_get_contents($handle, $count * 12) : '';
+            for ($pos = 0, $end = strlen($entries) - 12; $pos <= $end; $pos += 12) {
+                $entry = unpack("{$short}tag/{$short}type/{$long}count", $entries, $pos);
+                if ($entry['tag'] !== 0x0112) {
+                    continue;
+                }
+                if ($entry['count'] !== 1 || ($entry['type'] !== 3 && $entry['type'] !== 4)) {
+                    return null;
+                }
+
+                return unpack($entry['type'] === 3 ? $short : $long, $entries, $pos + 8)[1];
+            }
+
+            return null;
+        } finally {
+            fclose($handle);
+        }
+    }
+
+    /**
+     * Finds the Exif data of a JPEG, walking the markers the way jpegFrameSize() does.
+     *
+     * @param resource $handle Positioned behind the start of image marker
+     * @return int|null Where the TIFF header of the first Exif segment starts, null without such a segment
+     */
+    protected static function jpegExifOffset($handle): ?int
+    {
+        while (true) {
+            // Bytes that are no marker are passed over, and so are fill bytes in front of the marker code.
+            do {
+                $byte = fgetc($handle);
+            } while ($byte !== false && $byte !== "\xFF");
+            do {
+                $byte = fgetc($handle);
+            } while ($byte === "\xFF");
+            if ($byte === false) {
+                return null;
+            }
+
+            $marker = ord($byte);
+            if ($marker <= 0x01 || ($marker >= 0xD0 && $marker <= 0xD7)) {
+                // A stuffed zero is no marker, TEM and RST0-7 have no length: the next marker follows.
+                continue;
+            }
+            if ($marker >= 0xD8 && $marker <= 0xDA) {
+                // A second SOI, EOI or SOS: the segments in front of the image data have an end here.
+                return null;
+            }
+
+            $length = (string) fread($handle, 2);
+            $length = strlen($length) === 2 ? unpack('n', $length)[1] : 0;
+            // The length counts its own two bytes.
+            $length -= 2;
+            if ($length < 0) {
+                return null;
+            }
+            if ($marker === 0xE1 && $length >= 6) {
+                if (fread($handle, 6) === "Exif\0\0") {
+                    return ftell($handle);
+                }
+                $length -= 6;
+            }
+            if ($length > 0 && fseek($handle, $length, SEEK_CUR) !== 0) {
+                return null;
+            }
+        }
     }
 
     /**
@@ -325,6 +489,101 @@ class ImageFile extends Image
         }
 
         return [(int) $size[0], (int) $size[1]];
+    }
+
+    /**
+     * What is left of memory_limit for GD, less MEMORY_MARGIN.
+     *
+     * PHP's bundled GD takes its memory from memory_limit, and running out
+     * there is a fatal error. Imagick and a system libgd allocate outside it.
+     *
+     * @return int|null Null when nothing is measured: another adapter or libgd, or no memory_limit
+     */
+    public function memoryLeft(): ?int
+    {
+        $bundled = static::$gdUsesMemoryLimit ?? (defined('GD_BUNDLED') && GD_BUNDLED);
+        $limit = trim((string) ini_get('memory_limit'));
+        if (!$bundled || (int) $limit <= 0 || !$this->getAdapter() instanceof GD) {
+            return null;
+        }
+
+        return Utils::parseSize($limit) - memory_get_usage(true) - static::MEMORY_MARGIN;
+    }
+
+    /**
+     * Bytes GD takes for a true colour canvas: four a pixel, in one allocation
+     * a row, which PHP rounds up to whole 4 KB pages above 3 KB and by up to a
+     * quarter below, plus a pointer a row.
+     *
+     * @param int $width
+     * @param int $height
+     * @return int
+     */
+    public static function canvasBytes(int $width, int $height): int
+    {
+        $row = 4 * $width;
+        $row = $row > 3072 ? (int) ceil($row / 4096) * 4096 : (int) ceil($row * 1.25);
+
+        return ($row + 8) * $height;
+    }
+
+    /**
+     * About the most memory decoding a file and processing it once takes with GD.
+     *
+     * The canvas, plus the larger of the buffer PNG and GIF files are read into
+     * first (up to four bytes a pixel) and one more canvas of the same size,
+     * which is what the orientation fix or a resize builds next.
+     *
+     * @param string $file
+     * @return int|null Null when the decoded size cannot be read
+     */
+    public static function decodeBytes(string $file): ?int
+    {
+        $size = static::decodedSize($file);
+        if (!$size) {
+            return null;
+        }
+
+        [$width, $height] = $size;
+        $canvas = static::canvasBytes($width, $height);
+        $buffer = in_array((new Source\File($file))->guessType(), ['png', 'gif'], true) ? 4 * $width * $height : 0;
+
+        return $canvas + max($buffer, $canvas);
+    }
+
+    /**
+     * Counts the scans of a JPEG, which is the number of passes the decoder makes over the image.
+     *
+     * A scan starts with the SOS marker and the length of its header, 6 bytes and 2 for
+     * each of its components, and libjpeg reads none with more than 4 of them. Every
+     * place in the file where that stands is counted. The decoder cannot start a scan
+     * anywhere else, but not each of them is one: a thumbnail in the metadata has scans
+     * of its own. So the number is the most the decoder can meet, not less.
+     *
+     * @param string $file
+     * @param int $enough Stop reading once this many have been counted
+     * @return int 0 for a file that is no JPEG
+     */
+    public static function jpegScanCount(string $file, int $enough = PHP_INT_MAX): int
+    {
+        $handle = @fopen($file, 'rb');
+        if (!$handle) {
+            return 0;
+        }
+
+        $count = 0;
+        $tail = (string) fread($handle, 2);
+        if ($tail === "\xFF\xD8") {
+            while ($count < $enough && ($chunk = (string) fread($handle, 1048576)) !== '') {
+                // The end of the last read comes along: a scan header may lie across two of them.
+                $chunk = $tail . $chunk;
+                $count += (int) preg_match_all('/\xFF\xDA\x00[\x06\x08\x0A\x0C\x0E]/', $chunk);
+                $tail = substr($chunk, -3);
+            }
+        }
+        fclose($handle);
+
+        return $count;
     }
 
     /**

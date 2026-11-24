@@ -748,6 +748,25 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
         self::assertTrue(Utils::checkFilename('report.pdf'));
     }
 
+    public function testCheckFilenameRefusesApacheTypeMaps(): void
+    {
+        /** @var \Grav\Common\Config\Config $config */
+        $config = $this->grav['config'];
+        $shipped = \Grav\Common\Yaml::parse((string)file_get_contents(GRAV_ROOT . '/system/config/security.yaml'));
+        self::assertContains('var', $shipped['uploads_dangerous_extensions']);
+
+        // Refused whatever the site's own list says.
+        foreach ([$shipped['uploads_dangerous_extensions'], []] as $list) {
+            $config->set('security.uploads_dangerous_extensions', $list);
+            foreach (['report.var', 'photo.var.jpg', 'photo.VAR.png', 'notes.en.var.txt'] as $name) {
+                self::assertFalse(Utils::checkFilename($name), $name);
+            }
+            self::assertTrue(Utils::checkFilename('var.png'));
+            self::assertTrue(Utils::checkFilename('variable.png'));
+            self::assertTrue(Utils::checkFilename('a.variant.png'));
+        }
+    }
+
     public function testCheckFilename(): void
     {
         // configure extension for consistent results

@@ -364,4 +364,72 @@ class DetectXssTest extends \PHPUnit\Framework\TestCase
         self::assertNull(Security::detectXss('=' . str_repeat(' ', 50000) . '"' . str_repeat(' ', 50000)));
         self::assertLessThan(2.0, microtime(true) - $started);
     }
+
+    /**
+     * The tag-body scan of the on_events and xmlns rules must not depend on how
+     * many ways a tag body can be read. A double-quoted and a single-quoted
+     * value around the same `>` can each be the one that is stepped over, and
+     * the regex that used to do the scan tried every combination: 14 such pairs
+     * in front of 64 KB took seconds, a few more hit the backtrack limit and
+     * were reported as a handler that is not there.
+     */
+    public function testDetectXss_OverlappingQuotedValuesAreScannedOnce(): void
+    {
+        $pair = "=\"='>\"'";
+        $started = microtime(true);
+
+        foreach ([14, 40, 4000] as $pairs) {
+            $payload = '<' . str_repeat($pair, $pairs) . '=">' . str_repeat('a', 64000);
+            self::assertNull(Security::detectXss($payload), "$pairs overlapping pairs, no handler");
+            self::assertNull(Security::detectXss($payload, ['enabled_rules' => ['xmlns' => true]]));
+        }
+        self::assertLessThan(2.0, microtime(true) - $started);
+    }
+
+    /**
+     * Either reading of such a pair can be the one that leads to the handler,
+     * so both have to be followed.
+     *
+     * @dataProvider providerOverlappingQuotedValues
+     */
+    public function testDetectXss_OverlappingQuotedValuesStillReachTheHandler(string $payload, string $description): void
+    {
+        self::assertSame('on_events', Security::detectXss($payload), "Should flag: $description");
+    }
+
+    public function providerOverlappingQuotedValues(): array
+    {
+        return [
+            'only the single-quoted value covers the second >' => ["<x =\"='>\">' onclick=alert(1)>", 'single-quoted reading'],
+            'only the double-quoted value covers the second >' => ["<x ='=\">'>\" onclick=alert(1)>", 'double-quoted reading'],
+            'handler after many pairs' => ['<x ' . str_repeat("=\"='>\"'", 40) . ' onerror=alert(1)>', 'any reading'],
+            'handler glued to the last pair' => ['<x ' . str_repeat("=\"='>\"'", 40) . 'onerror=alert(1)>', 'closing quote as the separator'],
+            'handler glued to a quoted <' => ['<img title="a<b"onerror=alert(1)>', 'scan restarts at the inner <'],
+            'handler glued to a quoted > then <' => ['<img title="a>b<c"onerror=alert(1)>', 'quoted value stepped over as one unit'],
+        ];
+    }
+
+    /**
+     * What is left once the last reading is stuck at a bare `>` is not in a tag,
+     * and neither is a quoted value that no tag leads up to.
+     */
+    public function testDetectXss_OverlappingQuotedValuesDoNotLeakPastTheTag(): void
+    {
+        self::assertNull(Security::detectXss("<x =\"='>\"> onclick=alert(1)"));
+        self::assertNull(Security::detectXss("<x ='=\">'> onclick=alert(1)"));
+        self::assertNull(Security::detectXss('<b>bold</b> title=">"onclick=alert(1)'));
+    }
+
+    /**
+     * The handler pattern is looked for in the whole value now and only then
+     * checked against the tags, so a long run of blank lines or letters behind
+     * an "on" in plain text must not run it into the backtrack limit, which
+     * the fail-closed check reads as a hit.
+     */
+    public function testDetectXss_LongRunAfterOnOutsideATagIsNotAHit(): void
+    {
+        self::assertNull(Security::detectXss('<p>Switch it on' . str_repeat("\n", 1100000) . 'again</p>'));
+        self::assertNull(Security::detectXss('<p>Switch it on ' . str_repeat('a', 1100000) . '</p>'));
+        self::assertSame('on_events', Security::detectXss('<p on' . str_repeat("\n", 1100000) . 'click=alert(1)>'));
+    }
 }

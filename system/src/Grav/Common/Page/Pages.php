@@ -38,6 +38,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Throwable;
 use Whoops\Exception\ErrorException;
 use Collator;
 use function array_key_exists;
@@ -952,9 +953,13 @@ class Pages
             // Format: @command.param: { attr1: value1, attr2: value2 }
             $cmd = (string)key($value);
             $params = (array)current($value);
+        } elseif (!is_array($value)) {
+            // Neither a command nor a list of commands: it selects nothing. Cast to a list,
+            // a number or a boolean would hold itself and be evaluated again without end.
+            return new Collection();
         } else {
             $result = [];
-            foreach ((array)$value as $key => $val) {
+            foreach ($value as $key => $val) {
                 if (is_int($key)) {
                     $result = $result + $this->evaluate($val, $self)->toArray();
                 } else {
@@ -2946,12 +2951,18 @@ class Pages
 
         // Override the modified time if modular
         if ($page->template() === 'modular') {
-            foreach ($page->collection() as $child) {
-                $modified = $child->modified();
+            try {
+                foreach ($page->collection() as $child) {
+                    $modified = $child->modified();
 
-                if ($modified > $last_modified) {
-                    $last_modified = $modified;
+                    if ($modified > $last_modified) {
+                        $last_modified = $modified;
+                    }
                 }
+            } catch (Throwable $e) {
+                // The collection is set in the page header and is only read here for the modified time.
+                // One that cannot be evaluated is an error of that page, not a reason to stop indexing the site.
+                $this->grav['log']->error(sprintf('Skipping the collection of modular page %s: %s', $page->path(), $e->getMessage()));
             }
         }
 
@@ -3186,7 +3197,8 @@ class Pages
                         }
                         $header_value = $child_header->get($header_query);
                         if (is_array($header_value)) {
-                            $list[$key] = implode(',', $header_value);
+                            // Only the scalar values of a list can be sorted by: a nested list or map has no text.
+                            $list[$key] = implode(',', array_filter($header_value, 'is_scalar'));
                         } elseif ($header_value) {
                             $list[$key] = $header_value;
                         } else {

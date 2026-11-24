@@ -116,3 +116,13 @@ RewriteRule ^(LICENSE\.txt|composer\.lock|composer\.json|\.htaccess)$ error [F,N
 Options -Indexes
 DirectoryIndex index.php index.html index.htm
 # End - Prevent Browsing and Set Default Resources
+
+# Begin - Apache type maps
+# Debian and Ubuntu ship `AddHandler type-map var`, which applies wherever `.var`
+# appears among a file's extensions and lets the file set its own Content-Type.
+# Grav serves no type maps, so the handler is removed. Like the rewrite rules
+# above, this needs nothing more from AllowOverride than FileInfo.
+<IfModule mod_mime.c>
+    RemoveHandler .var
+</IfModule>
+# End - Apache type maps

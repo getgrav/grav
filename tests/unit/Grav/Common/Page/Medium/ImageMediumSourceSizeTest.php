@@ -106,6 +106,67 @@ class ImageMediumSourceSizeTest extends \Codeception\Test\Unit
         $this->assertRefused($file);
     }
 
+    private static function progressivePicture(int $width, int $height): string
+    {
+        $image = imagecreatetruecolor($width, $height);
+        imageinterlace($image, true);
+        ob_start();
+        imagejpeg($image);
+
+        return (string) ob_get_clean();
+    }
+
+    public function testJpegWithTooManyScansIsNotOpened(): void
+    {
+        $jpeg = self::progressivePicture(20, 20);
+        // The last scan over and over, in front of the end of image marker.
+        $scan = substr($jpeg, (int) strrpos($jpeg, "\xFF\xDA"), -2);
+        $file = $this->file('photo.jpg', substr($jpeg, 0, -2) . str_repeat($scan, ImageFile::MAX_JPEG_SCANS) . "\xFF\xD9");
+
+        // Small enough, and nothing the decoder would turn down.
+        self::assertSame([20, 20], ImageFile::decodedSize($file));
+        self::assertInstanceOf(\GdImage::class, @imagecreatefromjpeg($file));
+        self::assertGreaterThan(ImageFile::MAX_JPEG_SCANS, ImageFile::jpegScanCount($file));
+        $this->assertRefused($file);
+    }
+
+    public function testProgressiveJpegIsProcessedAsBefore(): void
+    {
+        $file = $this->file('photo.jpg', self::progressivePicture(30, 20));
+        $scans = ImageFile::jpegScanCount($file);
+        self::assertGreaterThan(1, $scans);
+        self::assertLessThan(ImageFile::MAX_JPEG_SCANS, $scans);
+
+        $medium = MediumFactory::fromFile($file);
+        self::assertInstanceOf(ImageMedium::class, $medium);
+        $path = $medium->resize(15, 10)->path();
+        self::assertNotSame($file, $path);
+        self::assertSame([15, 10], array_slice(getimagesize($path), 0, 2));
+    }
+
+    public function testJpegScansAreCounted(): void
+    {
+        $scan = "\xFF\xDA\x00\x08\x01\x01\x00\x00\x3F\x00";
+
+        // One for each number of components libjpeg reads a scan header with, and none for another length.
+        $headers = "\xFF\xDA\x00\x06" . "\xFF\xDA\x00\x0A" . "\xFF\xDA\x00\x0C" . "\xFF\xDA\x00\x0E" . "\xFF\xDA\x00\x10" . "\xFF\xDA\x01\x08";
+        self::assertSame(5, ImageFile::jpegScanCount($this->file('lengths.jpg', "\xFF\xD8" . $scan . $headers)));
+
+        // Files are read a megabyte at a time: a scan header in each place across the end of the first.
+        foreach ([1, 2, 3] as $before) {
+            $bytes = "\xFF\xD8" . str_repeat("\0", 1048576 - $before) . $scan . $scan;
+            self::assertSame(2, ImageFile::jpegScanCount($this->file('reads.jpg', $bytes)));
+        }
+
+        // No more is read than it takes to know.
+        $file = $this->file('many.jpg', "\xFF\xD8" . str_repeat(str_pad($scan, 1048576, "\0"), 3));
+        self::assertSame(3, ImageFile::jpegScanCount($file));
+        self::assertSame(2, ImageFile::jpegScanCount($file, 2));
+
+        self::assertSame(0, ImageFile::jpegScanCount($this->file('photo.png', self::picture('png', 30, 20) . $scan)));
+        self::assertSame(0, ImageFile::jpegScanCount($this->dir . '/missing.jpg'));
+    }
+
     public static function jpegsWithoutFrameHeader(): array
     {
         return [

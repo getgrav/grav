@@ -5,6 +5,8 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Page\Media;
 use Grav\Common\Security;
+use Grav\Framework\Form\FormFlash;
+use Grav\Framework\Form\FormFlashFile;
 use Nyholm\Psr7\UploadedFile;
 
 
@@ -80,6 +82,32 @@ class MediaUploadSvgSecurityTest extends \PHPUnit\Framework\TestCase
     public function testCopyUploadedFile_KeepsRenderedSvg(): void
     {
         self::assertSame(self::PNG, $this->upload('logo.svg.png', self::PNG));
+    }
+
+    /**
+     * A form upload may carry crop data, which is saved next to the file after the file has been
+     * stored. When that save fails, so does the upload, but the file stays in the media folder.
+     */
+    public function testCopyUploadedFile_SanitizesSvgWhenMetadataCannotBeSaved(): void
+    {
+        $flash = new FormFlash(['session_id' => 'session', 'unique_id' => 'form', 'folder' => "{$this->tmp}/flash"]);
+        Folder::create($flash->getTmpDir());
+        file_put_contents("{$flash->getTmpDir()}/upload", self::CONTENT);
+        $upload = ['name' => 'drawing.svg', 'type' => 'image/svg+xml', 'tmp_name' => 'upload', 'crop' => ['x' => 0]];
+
+        $media = new Media("{$this->tmp}/media");
+        // A folder in the way: the same failure as with a file name too long to fit `.meta.yaml` after it.
+        Folder::create("{$this->tmp}/media/drawing.svg.meta.yaml");
+
+        try {
+            $media->copyUploadedFile(new FormFlashFile('image/original', $upload, $flash), 'drawing.svg');
+            self::fail('Metadata which cannot be saved has to be reported');
+        } catch (RuntimeException $e) {
+            self::assertSame(400, $e->getCode());
+        }
+
+        self::assertFileExists("{$this->tmp}/media/drawing.svg");
+        self::assertStringNotContainsStringIgnoringCase('script', (string)file_get_contents("{$this->tmp}/media/drawing.svg"));
     }
 
     public function testIsSvgFile(): void

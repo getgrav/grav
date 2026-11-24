@@ -1245,8 +1245,9 @@ abstract class Utils
     public static function checkFilename($filename): bool
     {
         // The PHP-executable extensions are always dangerous, even if a site's config drops them.
+        // So is `var`, which Apache on Debian and Ubuntu hands to its type-map handler.
         $dangerous_extensions = array_merge(
-            ['php', 'php2', 'php3', 'php4', 'php5', 'php7', 'php8', 'phar', 'phtml', 'pht', 'phtm', 'phps'],
+            ['php', 'php2', 'php3', 'php4', 'php5', 'php7', 'php8', 'phar', 'phtml', 'pht', 'phtm', 'phps', 'var'],
             array_map('mb_strtolower', (array) Grav::instance()['config']->get('security.uploads_dangerous_extensions', []))
         );
         // Check every dot-separated part after the base name, not just the last one: servers that map

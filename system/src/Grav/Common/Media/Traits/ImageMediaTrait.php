@@ -120,6 +120,11 @@ trait ImageMediaTrait
         $w = $args[$positions[$count - 2]] ?? null;
         $h = $args[$positions[$count - 1]] ?? null;
 
+        // `resize=[1,2]` arrives as an array: not a dimension.
+        if (($w !== null && !is_scalar($w)) || ($h !== null && !is_scalar($h))) {
+            return null;
+        }
+
         if ($h === null && preg_match('/^(\d+(?:\.\d+)?)%$/', (string) $w, $matches)) {
             // Whole pixels, rounded up: the canvas is never smaller than the fraction.
             $w = ceil($width * (float) $matches[1] / 100);

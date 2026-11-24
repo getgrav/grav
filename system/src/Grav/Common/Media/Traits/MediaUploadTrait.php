@@ -300,20 +300,21 @@ trait MediaUploadTrait
                     // Original image support: override original image if it's the same as the uploaded image.
                     $this->doCopy($basename, $filename, $path);
                 }
-
-                // FormFlashFile may also contain metadata.
-                $metadata = $uploadedFile->getMetaData();
-                if ($metadata) {
-                    // TODO: This overrides metadata if used with multiple retina image sizes.
-                    $this->doSaveMetadata(['upload' => $metadata], $name, $path);
-                }
             } else {
                 // Not a FormFlashFile.
                 $this->doMoveUploadedFile($uploadedFile, $filename, $path);
             }
 
-            // Post-processing: Special content sanitization for SVG.
+            // Post-processing: Special content sanitization for SVG. This needs to be the first
+            // thing done to the stored file: if a later step fails, the file stays in the folder.
             $this->doSanitizeSvg($filename, $path);
+
+            // FormFlashFile may also contain metadata.
+            $metadata = $uploadedFile instanceof FormFlashFile ? $uploadedFile->getMetaData() : [];
+            if ($metadata) {
+                // TODO: This overrides metadata if used with multiple retina image sizes.
+                $this->doSaveMetadata(['upload' => $metadata], $name, $path);
+            }
 
             // Add the new file into the media.
             // TODO: This overrides existing media sizes if used with multiple retina image sizes.
