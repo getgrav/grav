@@ -2294,7 +2294,8 @@ class Page implements PageInterface, PageUuidInterface
     public function metadata($var = null)
     {
         if ($var !== null) {
-            $this->metadata = self::escapeMetadata((array)$var);
+            // Plain data only: an `(array)` cast would list an object's private and protected properties.
+            $this->metadata = self::escapeMetadata((array)Header::plainData($var));
         }
 
         // if not metadata yet, process it.
@@ -2931,6 +2932,8 @@ class Page implements PageInterface, PageUuidInterface
     public function taxonomy($var = null)
     {
         if ($var !== null) {
+            // Plain data only, as the casts below would list an object's private and protected properties.
+            $var = Header::plainData($var);
             if (is_object($var)) {
                 $var = get_object_vars($var);
             } elseif (!is_array($var)) {

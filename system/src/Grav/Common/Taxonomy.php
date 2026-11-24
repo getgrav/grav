@@ -224,7 +224,9 @@ class Taxonomy
     {
         $active = $this->language->getLanguage();
 
-        if ($var) {
+        // Only a real array is a taxonomy map: findTaxonomy() indexes it with keys
+        // from page collections, which would reach any ArrayAccess object.
+        if ($var && is_array($var)) {
             // An explicit set replaces whatever a pending loader would provide
             // for the same language; a loader for another language stays pending.
             if ($this->loader_language === null || $this->loader_language === $active) {

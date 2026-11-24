@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex\Pages\Traits;
 use Exception;
 use Grav\Common\Grav;
 use Grav\Common\Page\Collection;
+use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\MarkdownOutput;
@@ -623,7 +624,8 @@ trait PageLegacyTrait
     public function metadata($var = null): array
     {
         if ($var !== null) {
-            $this->_metadata = Page::escapeMetadata((array)$var);
+            // Plain data only: an `(array)` cast would list an object's private and protected properties.
+            $this->_metadata = Page::escapeMetadata((array)Header::plainData($var));
         }
 
         // if not metadata yet, process it.
