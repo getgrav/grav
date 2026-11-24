@@ -251,6 +251,18 @@ trait PageContentTrait
      */
     public function published($var = null): bool
     {
+        // A page under an unpublished parent that cascades is unpublished whatever its own setting says.
+        return $this->isPublishedByItself($var) && null === $this->unpublishedBy();
+    }
+
+    /**
+     * Whether the page is published by its own setting or dates, whatever its ancestors say.
+     *
+     * @param bool|null $var
+     * @return bool
+     */
+    protected function isPublishedByItself($var = null): bool
+    {
         // Only an explicit value is kept: without one, the publishing dates decide at the time of asking.
         $published = $this->loadHeaderProperty(
             'published',
@@ -258,8 +270,7 @@ trait PageContentTrait
             static fn($value) => null !== $value ? (bool)$value : null
         );
 
-        // A page under an unpublished parent that cascades is unpublished whatever its own setting says.
-        return ($published ?? $this->isPublishedByDates()) && null === $this->unpublishedBy();
+        return $published ?? $this->isPublishedByDates();
     }
 
     /**
@@ -300,8 +311,13 @@ trait PageContentTrait
             return $by;
         }
 
-        if (method_exists($parent, 'cascadesUnpublish') && $parent->cascadesUnpublish() && !$parent->published()) {
-            return $parent->rawRoute();
+        if (method_exists($parent, 'cascadesUnpublish') && $parent->cascadesUnpublish()) {
+            // No ancestor unpublishes the parent, so only its own state is left to ask. published() would walk
+            // all of its ancestors a second time, which doubles the work at every level.
+            $published = $parent instanceof self ? $parent->isPublishedByItself() : $parent->published();
+            if (!$published) {
+                return $parent->rawRoute();
+            }
         }
 
         return null;
