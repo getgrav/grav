@@ -13,10 +13,13 @@ use Error;
 use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
+use Gregwar\Image\Adapter\GD;
 use Gregwar\Image\Exceptions\GenerationError;
 use Gregwar\Image\Image;
 use Gregwar\Image\Source;
 use InvalidArgumentException;
+use OverflowException;
 use RangeException;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -43,8 +46,14 @@ class ImageFile extends Image
      */
     public const MAX_JPEG_SCANS = 100;
 
+    /** Bytes of memory_limit kept free for what image processing needs besides its canvases. */
+    public const MEMORY_MARGIN = 8388608;
+
     /** @var int Most pixels one operation may allocate, 0 for no limit */
     protected $maxPixels = 0;
+
+    /** @var bool|null Whether GD takes its memory from memory_limit, null to go by GD_BUNDLED */
+    protected static $gdUsesMemoryLimit = null;
 
     /**
      * Image constructor with adapter configuration from Grav.
@@ -116,14 +125,29 @@ class ImageFile extends Image
     public function applyOperations()
     {
         foreach ($this->operations as [$method, $args]) {
-            if ($this->maxPixels > 0) {
+            // zoomCrop() enlarges the image to cover the box before it crops, so
+            // even a small box can need a canvas many times the size of the image:
+            // it is held to max_pixels when the caller set no ceiling of its own.
+            $default = $this->maxPixels <= 0 && $method === 'zoomCrop'
+                ? (int) Grav::instance()['config']->get('system.images.max_pixels', 25000000)
+                : 0;
+            // A resize builds a new canvas and fills it, which takes as much again.
+            $left = isset(ImageMedium::$magic_resize_actions[$method]) ? $this->memoryLeft() : null;
+
+            if ($this->maxPixels > 0 || $default > 0 || $left !== null) {
                 $canvas = ImageMedium::urlActionCanvas($method, $args, $this->adapter->width(), $this->adapter->height());
-                if ($canvas === null || $canvas[0] > $this->maxPixels) {
+                if ($this->maxPixels > 0 && ($canvas === null || $canvas[0] > $this->maxPixels)) {
                     // A refusal, not a broken image: save() would otherwise
                     // swallow the exception and serve the fallback image.
                     $this->useFallback(false);
 
                     throw new RangeException("Image operation {$method} is above the pixel limit");
+                }
+                // Up to 8 bytes a pixel for the canvas once rows are rounded up, 4 to fill it.
+                if ($canvas !== null && (($default > 0 && $canvas[0] > $default) || ($left !== null && $canvas[0] * 12 > $left))) {
+                    $this->useFallback(false);
+
+                    throw new OverflowException("Refusing image operation {$method} that does not fit in memory_limit or system.images.max_pixels");
                 }
             }
 
@@ -199,8 +223,28 @@ class ImageFile extends Image
                 throw new GenerationError($source);
             }
 
+            // GD decodes into memory_limit, and a fatal error there cannot be
+            // caught, so a source that would not fit is not opened either.
+            $left = $source !== '' ? $image->memoryLeft() : null;
+            $needed = $left !== null ? static::decodeBytes($source) : null;
+            if ($needed !== null && $needed > $left) {
+                Grav::instance()['log']->warning(sprintf(
+                    'Refusing to process image source that does not fit in memory_limit: %s (about %d MB needed, %d MB left)',
+                    $source, $needed >> 20, max(0, $left) >> 20
+                ));
+
+                throw new GenerationError($source);
+            }
+
             try {
                 $result = $image->save($target, $type, $quality);
+            } catch (OverflowException $e) {
+                if ($source === '') {
+                    throw $e;
+                }
+                Grav::instance()['log']->warning($e->getMessage() . ': ' . $source);
+
+                throw new GenerationError($source);
             } catch (Error $e) {
                 // save() turns exceptions into the fallback image, but a GD built
                 // without AVIF or WebP fails on an undefined function instead.
@@ -445,6 +489,66 @@ class ImageFile extends Image
         }
 
         return [(int) $size[0], (int) $size[1]];
+    }
+
+    /**
+     * What is left of memory_limit for GD, less MEMORY_MARGIN.
+     *
+     * PHP's bundled GD takes its memory from memory_limit, and running out
+     * there is a fatal error. Imagick and a system libgd allocate outside it.
+     *
+     * @return int|null Null when nothing is measured: another adapter or libgd, or no memory_limit
+     */
+    public function memoryLeft(): ?int
+    {
+        $bundled = static::$gdUsesMemoryLimit ?? (defined('GD_BUNDLED') && GD_BUNDLED);
+        $limit = trim((string) ini_get('memory_limit'));
+        if (!$bundled || (int) $limit <= 0 || !$this->getAdapter() instanceof GD) {
+            return null;
+        }
+
+        return Utils::parseSize($limit) - memory_get_usage(true) - static::MEMORY_MARGIN;
+    }
+
+    /**
+     * Bytes GD takes for a true colour canvas: four a pixel, in one allocation
+     * a row, which PHP rounds up to whole 4 KB pages above 3 KB and by up to a
+     * quarter below, plus a pointer a row.
+     *
+     * @param int $width
+     * @param int $height
+     * @return int
+     */
+    public static function canvasBytes(int $width, int $height): int
+    {
+        $row = 4 * $width;
+        $row = $row > 3072 ? (int) ceil($row / 4096) * 4096 : (int) ceil($row * 1.25);
+
+        return ($row + 8) * $height;
+    }
+
+    /**
+     * About the most memory decoding a file and processing it once takes with GD.
+     *
+     * The canvas, plus the larger of the buffer PNG and GIF files are read into
+     * first (up to four bytes a pixel) and one more canvas of the same size,
+     * which is what the orientation fix or a resize builds next.
+     *
+     * @param string $file
+     * @return int|null Null when the decoded size cannot be read
+     */
+    public static function decodeBytes(string $file): ?int
+    {
+        $size = static::decodedSize($file);
+        if (!$size) {
+            return null;
+        }
+
+        [$width, $height] = $size;
+        $canvas = static::canvasBytes($width, $height);
+        $buffer = in_array((new Source\File($file))->guessType(), ['png', 'gif'], true) ? 4 * $width * $height : 0;
+
+        return $canvas + max($buffer, $canvas);
     }
 
     /**

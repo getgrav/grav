@@ -1076,9 +1076,10 @@ class Grav extends Container
                         if (in_array($action, ImageMedium::$magic_actions, true)) {
                             $args = explode(',', (string) $params);
                             // Reject actions whose canvas is above the
-                            // total-pixel ceiling. The GD/Imagick buffer is allocated
-                            // as width*height*4 bytes outside PHP's memory_limit, so
-                            // an unbounded request exhausts RAM. The canvas is
+                            // total-pixel ceiling. A canvas takes at least
+                            // width*height*4 bytes: PHP's bundled GD takes them from
+                            // memory_limit, where running out is a fatal error, and
+                            // Imagick or a system libgd from RAM outside it. The canvas is
                             // measured, not the query numbers: `forceResize=46000`
                             // and `zoomCrop=46000,1` both allocate 46000x46000, and
                             // `gaussianBlur=14` 8192x8192.

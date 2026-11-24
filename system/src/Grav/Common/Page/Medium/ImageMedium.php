@@ -457,10 +457,23 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $stampFrame = !$this->watermarked;
             $this->watermark = false;
         }
-        $image = ImageFile::open($this->path());
+        $path = $this->path();
+        $image = ImageFile::open($path);
         $this->watermark = $stampFrame;
       }
       else {
+        return $this;
+      }
+
+      // The image is decoded here and a filled canvas built around it, which
+      // saveImage() cannot measure in advance: an image that would not fit in
+      // memory_limit is left without a frame.
+      $left = $image->memoryLeft();
+      $size = $left !== null ? ImageFile::decodedSize($path) : null;
+      $needed = $size ? ImageFile::decodeBytes($path) + 4 * ($size[0] + 2 * $border) * ($size[1] + 2 * $border) : null;
+      if ($needed !== null && $needed > $left) {
+        $this->getGrav()['log']->warning(sprintf('Refusing to frame image that does not fit in memory_limit: %s', $path));
+
         return $this;
       }
 
