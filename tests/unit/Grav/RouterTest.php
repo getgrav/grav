@@ -80,24 +80,79 @@ class RouterTest extends \Codeception\Test\Unit
         ], 'grav index');
     }
 
-    private function assertRoutes(array $paths, string $expected): void
+    public function testAppliesTheRulesInsideGravBasedir(): void
+    {
+        // GRAV_BASEDIR serves Grav from a subfolder of the document root, however that folder is written.
+        $basedirs = [
+            'grav' => '/grav',
+            '/sub/grav/' => '/sub/grav',
+            './grav' => '/grav',
+            'sub/../grav' => '/grav',
+        ];
+
+        foreach ($basedirs as $basedir => $base) {
+            $this->assertRoutes([
+                '/asset.txt',
+                '/.well-known/security.txt',
+                '/user/themes/theme/css/site.css',
+                '/user/accounts/avatars/avatar.png',
+                '/user/data/uploads/document.pdf',
+                '/images/derivative.jpg',
+                '/assets/combined.css',
+            ], 'static file', $basedir, $base);
+
+            $this->assertRoutes([
+                '/.git/config',
+                '/.env',
+                '/cache/file.txt',
+                '/bin/file.txt',
+                '/logs/grav.log',
+                '/backup/backup.zip',
+                '/tmp/download/package.zip',
+                '/webserver-configs/file.txt',
+                '/tests/file.txt',
+                '/system/config/system.yaml',
+                '/vendor/autoload.php',
+                '/user/config/system.yaml',
+                '/user/config/image.jpg',
+                '/USER/CONFIG/security.pem',
+                '/user/env/example.com/config/security.pem',
+                '/user/accounts/admin.yaml',
+                '/user/accounts/image.jpg',
+                '/user/env/example.com/accounts/admin.yaml',
+                '/user/data/database.sqlite',
+                '/user/env/example.com/data/database.sqlite',
+                '/user/plugins/plugin/plugin.php',
+                '/user/pages/01.home/default.md',
+                '/images/script.php',
+                '/assets/script.php',
+                '/LICENSE.txt',
+                '/composer.lock',
+                '/composer.json',
+                '/.htaccess',
+            ], 'grav index', $basedir, $base);
+        }
+    }
+
+    private function assertRoutes(array $paths, string $expected, string $basedir = '', string $base = ''): void
     {
         if (!function_exists('proc_open')) {
             $this->markTestSkipped('Needs proc_open().');
         }
 
         $root = sys_get_temp_dir() . '/grav-router-test-' . uniqid();
-        mkdir($root);
+        // With GRAV_BASEDIR, Grav is in the $base folder of the document root and its URLs start with it.
+        mkdir($root . $base, 0755, true);
         $process = null;
 
         try {
-            file_put_contents($root . '/index.php', '<?php echo "grav index";');
+            file_put_contents($root . $base . '/index.php', '<?php echo "grav index";');
             foreach ($paths as $path) {
-                $directory = dirname($root . $path);
+                $directory = dirname($root . $base . $path);
                 if (!is_dir($directory)) {
                     mkdir($directory, 0755, true);
                 }
-                file_put_contents($root . $path, 'static file');
+                file_put_contents($root . $base . $path, 'static file');
             }
 
             $socket = stream_socket_server('tcp://127.0.0.1:0');
@@ -107,6 +162,9 @@ class RouterTest extends \Codeception\Test\Unit
 
             $env = getenv();
             unset($env['GRAV_BASEDIR'], $env['PHP_CLI_SERVER_WORKERS']);
+            if ($basedir !== '') {
+                $env['GRAV_BASEDIR'] = $basedir;
+            }
             $process = proc_open(
                 [PHP_BINARY, '-S', $address, '-t', $root, dirname(__DIR__, 3) . '/system/router.php'],
                 [1 => ['file', $root . '/server.log', 'a'], 2 => ['file', $root . '/server.log', 'a']],
@@ -129,7 +187,7 @@ class RouterTest extends \Codeception\Test\Unit
 
             $context = stream_context_create(['http' => ['timeout' => 5]]);
             foreach ($paths as $path) {
-                $this->assertSame($expected, file_get_contents('http://' . $address . $path, false, $context), $path);
+                $this->assertSame($expected, file_get_contents('http://' . $address . $base . $path, false, $context), $base . $path);
             }
         } finally {
             if (is_resource($process)) {
