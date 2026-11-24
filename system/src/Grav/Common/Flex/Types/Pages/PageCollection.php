@@ -346,7 +346,8 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                         $child_header = $child->header();
                         $header_value = $child_header->get($header_query);
                         if (is_array($header_value)) {
-                            $list[$key] = implode(',', $header_value);
+                            // Only the scalar values of a list can be sorted by: a nested list or map has no text.
+                            $list[$key] = implode(',', array_filter($header_value, 'is_scalar'));
                         } elseif ($header_value) {
                             $list[$key] = $header_value;
                         } else {
