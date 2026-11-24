@@ -1,3 +1,66 @@
+# v2.2.35
+## 11/24/2026
+
+1. [](#bugfix)
+    * [security] The security fixes below were found by Anthropic's OSS Scanner
+    * [security] Page and taxonomy setters called from Twig in page content keep only plain data, and the session options in system configuration can't be read from page content
+    * [security] The Twig `constant` test follows the content sandbox's function allowlist, a collection's `sort_flags` only accepts sort flag names, and `media_directory()` only opens local media folders
+    * [security] The asset pipeline and inline asset loader only read stylesheets and scripts inside the Grav folder, and asset lists that can't be encoded get a bundle of their own
+    * [security] Folders named like configuration files are no longer loaded as configuration (run `bin/grav clear` once after updating)
+    * [security] The detailed error page no longer shows environment variable values or stack trace arguments
+    * [security] The debugger always hides protected configuration, its own token and login details, whatever `censored` is set to
+    * [security] Absolute links in page content always use the site's own address and port, including a full custom base URL
+    * [security] A request that still carries a session id replaced at login gets a new empty session instead of the signed-in one
+    * [security] The built-in PHP server router applies its access rules when Grav runs from a subfolder with `GRAV_BASEDIR`
+    * [security] A Flex page's template only picks a blueprint when it names a registered page type, and only `.yaml` files are trusted as blueprints
+    * [security] Pending form uploads are stored in a folder named after a hash of the session id, so uploads pending during the update have to be added again
+    * [security] The `language` page header is only used when it is a plain language code
+    * [security] Saving an account through a form keeps only the avatar files the account already has
+    * [security] Passwords that haven't been hashed yet are no longer returned with account data
+    * [security] Creating a group that grants super admin needs a super admin, managing super admin accounts and groups through Flex forms needs super admin granted by name, and super admin groups in any environment's `groups.yaml` count for that protection
+    * [security] A session is signed out when its account was re-created under the same username, and passkeys removed from an account are removed from its open sessions
+    * [security] Saving one group no longer undoes changes others made to the groups file at the same time, and refreshing a Flex object picks up access changes stored since it was loaded
+    * [security] Saving a Flex object clears its cached copy for every host name, and accounts with digit-only usernames are found again with folder storage
+    * [security] Creating, updating or checking a Flex object can no longer replace another object, take a storage key from submitted data or skip the permission check when no user is passed
+    * [security] Saving a page through a front-end Flex pages form no longer replaces another page when its source page was deleted or moved, and an empty template no longer renames the page file
+    * [security] Front-end Flex pages forms always check create permission on the parent page, and page rules apply to groups with digit-only names and never to a disabled account or an unfinished login
+    * [security] With Flex pages enabled, each page keeps the language of its own file, pages in suffixed default-language files pass their permissions to their children, and deleting a folder with sub-folders the page index can't list is refused
+    * [security] A page's `routes` aliases, default or canonical route only claim URLs that no other page already has by its folder or slug
+    * [security] Uploaded file names with `.var` among their extensions are refused, and the shipped `.htaccess` turns off Apache's type-map handler (added to existing sites on update)
+    * [security] An uploaded SVG is sanitized even when saving its metadata file fails
+    * [security] Images that wouldn't fit in PHP's memory limit, JPEGs with more than 100 scans and oversized `zoomCrop` canvases are served as the original, and fixing an image's orientation reads only its Exif orientation
+    * [security] Checking form input for XSS takes time in line with the input's size and stops at the first flagged value
+    * [security] Footnote labels and abbreviation meanings in Markdown Extra are escaped, and a page whose frontmatter can't be read shows the invalid frontmatter page instead of being served as content
+    * Flex pages protect Twig tags from Markdown with the same placeholders regular pages use, and removing a `markdown="1"` attribute no longer joins the text around it
+    * The invalid frontmatter page shows the parser's message as plain text
+    * A module renders its template in the format of the page that embeds it, and a format that isn't a plain extension (such as `amp.html`) uses the HTML template
+    * HTML captured in page Twig and passed to a theme partial shows as text, and page titles and menu names are always text
+    * The `safe_email` filter handles text that isn't valid UTF-8
+    * Deferred blocks inside a Twig capture in page content no longer cut the page's output short
+    * With frontmatter Twig on, a printed quote no longer breaks the pages build, and the shared lazy page index isn't used
+    * A slow JSON upload no longer holds up plugin updates, and JSON declared larger than the limit is refused unread
+    * Error pages and other pages built on the fly no longer fill the cache with entries that are never read
+    * Non-POST multipart requests with more parts than PHP allows are refused, and an over-long boundary is ignored
+    * Setting a Flex page header with a bare `header.` name no longer replaces the whole header
+    * Forms named `0` are no longer dropped from the page that shows them
+    * Form error messages are escaped unless they come from field validation, and an email field that isn't `multiple` refuses a list of addresses
+    * A `routes.default` page header that doesn't start with a single slash is ignored
+    * Text fields report a value that isn't valid UTF-8 as invalid instead of empty
+    * Wrong-typed values in the `append_url_extension`, `taxonomy`, `lang` and `dateformat` page headers no longer cause errors
+    * Creating, moving or copying a Flex page into a folder that differs from a sibling's only by order prefix or case is refused
+    * With Flex pages enabled, folders named `0` or containing `@@` work like any other page instead of stopping the site
+    * Deeply nested pages using `cascade_unpublish` no longer slow the Admin2 page list to a timeout
+    * Flex simple and file storage no longer lose objects when a key is renamed, and saving JSON that can't be encoded fails instead of leaving an empty file
+    * Creating a Flex object through the API applies the same field guards as updating one
+    * Flex uploads and removals no longer touch files in media folders shared with other objects
+    * A collection's page access filter matches nested access rules by name
+    * Page media is no longer served through the page route in a language the page has no file for
+    * WebP images get the generic placeholder thumbnail, so an empty `.webp` no longer breaks pages that use `link()` or `lightbox()`
+    * A percentage resize on a page with an `@2x` image no longer fails
+    * Compiled cache files are written without indentation, so a deeply nested header no longer produces a huge cache file
+    * Saving a binary YAML list item that would read back differently is refused, and a page the YAML parser can't read no longer stops the site
+    * A page with a malformed modular collection, sort or form name in its header no longer stops the page index from building
+
 # v2.2.34
 ## 11/24/2026
 
