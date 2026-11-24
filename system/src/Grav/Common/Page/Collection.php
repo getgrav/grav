@@ -750,8 +750,12 @@ class Collection extends Iterator implements PageCollectionInterface
 
                     foreach ($page->header()->access as $index => $accessLevel) {
                         if (is_array($accessLevel)) {
+                            // Nested rule (`site: {login: true}`): the level is the rule's name (`site.login` or `login`), not its value.
                             foreach ($accessLevel as $innerIndex => $innerAccessLevel) {
-                                if (in_array($innerAccessLevel, $accessLevels, false)) {
+                                if (Utils::isPositive($innerAccessLevel)
+                                    && (in_array("{$index}.{$innerIndex}", $accessLevels, true)
+                                        || in_array((string)$innerIndex, $accessLevels, true))
+                                ) {
                                     $valid = true;
                                 }
                             }
@@ -766,7 +770,7 @@ class Collection extends Iterator implements PageCollectionInterface
                     }
                 } else {
                     //Single value for access
-                    if (in_array($page->header()->access, $accessLevels, false)) {
+                    if (in_array($page->header()->access, $accessLevels, true)) {
                         $items[$path] = $slug;
                     }
                 }

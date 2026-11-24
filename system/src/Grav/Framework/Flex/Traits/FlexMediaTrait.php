@@ -180,6 +180,37 @@ trait FlexMediaTrait
     }
 
     /**
+     * Tell if the files of the field are kept in the media folder of the object (or in a sub-folder of it) instead
+     * of a folder which is shared with other objects.
+     *
+     * @param array $settings Settings of the media field.
+     * @return bool
+     */
+    protected function isOwnMediaDestination(array $settings): bool
+    {
+        // Objects without a folder of their own (like file-stored accounts) keep their files in a shared folder.
+        if (!$this->_loadMedia) {
+            return false;
+        }
+
+        if (!empty($settings['self'])) {
+            return true;
+        }
+
+        // A destination like `self@/sub` is not marked as self, but it is inside the folder of the object.
+        $folder = $this->getMediaFolder();
+        $destination = $settings['destination'] ?? null;
+        if (!is_string($folder) || !is_string($destination)) {
+            return false;
+        }
+
+        $folder = trim($folder, '/');
+        $destination = trim($destination, '/');
+
+        return $folder !== '' && ($destination === $folder || strpos($destination, $folder . '/') === 0);
+    }
+
+    /**
      * @return array
      */
     protected function getMediaFields(): array
@@ -277,6 +308,11 @@ trait FlexMediaTrait
         $media = $field ? $this->getMediaField($field) : $this->getMedia();
         if (!$media instanceof MediaUploadInterface) {
             throw new RuntimeException("Media for {$this->getFlexDirectory()->getFlexType()} doesn't support file uploads.");
+        }
+
+        // Only the object's own folder is covered by its permissions: do not replace files anywhere else.
+        if (!$this->isOwnMediaDestination($settings)) {
+            $settings['avoid_overwriting'] = true;
         }
 
         $filename = $media->checkUploadedFile($uploadedFile, $filename, $settings);
@@ -390,6 +426,14 @@ trait FlexMediaTrait
                 continue;
             }
 
+            // The permission to save the object covers the files in its own folder only. Any other destination
+            // is shared with other objects: an upload never replaces a file there, and a removed file is only
+            // taken out of the file list of this object.
+            $shared = !$this->isOwnMediaDestination($settings);
+            if ($shared) {
+                $settings['avoid_overwriting'] = true;
+            }
+
             foreach ($group as $filename => $file) {
                 if ($file) {
                     // File upload.
@@ -425,7 +469,9 @@ trait FlexMediaTrait
                 // Calculate path without the retina scaling factor.
                 $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', Utils::basename($filepath));
 
-                $list[$filename] = [$file, $settings];
+                if ($file || !$shared) {
+                    $list[$filename] = [$file, $settings];
+                }
 
                 // Only media fields keep a file list in the object; other field names are not object properties.
                 if (empty($settings['media_field'])) {

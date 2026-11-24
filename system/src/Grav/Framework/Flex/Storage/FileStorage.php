@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Framework\Flex\Storage;
 
 use FilesystemIterator;
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use RuntimeException;
@@ -85,12 +86,21 @@ class FileStorage extends FolderStorage
             throw new RuntimeException("Cannot rename object '{$src}': key '{$dst}' is already taken");
         }
 
-        // Remove old file.
-        $path = $this->getPathFromKey($src);
-        $file = $this->getFile($path);
-        $file->delete();
+        // The new key becomes a path as well.
+        $this->assertValidKey($dst);
+
+        // Move the old file instead of removing it: the object must not be lost if saving it with the new key fails.
+        $path = $this->resolvePath($this->getPathFromKey($dst));
+        Folder::create(dirname($path));
+
+        $file = $this->getFile($this->getPathFromKey($src));
+        $success = $file->rename($path);
         $file->free();
-        unset($file);
+        unset($file, $this->meta[$src], $this->meta[$dst]);
+
+        if (!$success) {
+            throw new RuntimeException("Cannot rename object '{$src}' to '{$dst}'");
+        }
 
         return true;
     }

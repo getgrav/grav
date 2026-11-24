@@ -7,9 +7,9 @@ use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\Storage\FileStorage;
 
 /**
- * Renaming a row in file storage removes the old file and lets the save write the
+ * Renaming a row in file storage moves the old file and lets the save write the
  * new one, so it has to refuse a key which belongs to another row, like copying
- * and the folder storage do.
+ * and the folder storage do. A rename which fails must not lose the row.
  */
 class FileStorageRenameTest extends \PHPUnit\Framework\TestCase
 {
@@ -84,6 +84,66 @@ class FileStorageRenameTest extends \PHPUnit\Framework\TestCase
 
         self::assertFileDoesNotExist($this->root . '/first.yaml');
         self::assertFileExists($this->root . '/third.yaml');
+    }
+
+    public function testRenameToKeyWhichCannotBeSavedKeepsTheRow(): void
+    {
+        // A valid key, but the filesystem refuses the file name.
+        $key = str_repeat('x', 300);
+        $row = ['name' => $key, 'title' => 'Changed', '__META' => ['storage_key' => 'first']];
+
+        try {
+            $this->storage->replaceRows(['first' => $row]);
+            self::fail('Saving a file with too long name should have failed');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString("Cannot rename object 'first'", $e->getMessage());
+        }
+
+        self::assertStringEqualsFile($this->root . '/first.yaml', "title: First\n");
+        self::assertCount(2, glob($this->root . '/*.yaml'));
+        self::assertTrue($this->storage->hasKey('first'));
+    }
+
+    public function testFailedSaveAfterRenameKeepsTheRow(): void
+    {
+        // The longest file name there is: the file can be moved, but the temporary file of the save has no room.
+        $key = str_repeat('x', 250);
+        $row = ['name' => $key, 'title' => 'Changed', '__META' => ['storage_key' => 'first']];
+
+        try {
+            $this->storage->replaceRows(['first' => $row]);
+            self::fail('Saving a file with too long name should have failed');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('Failed to save file', $e->getMessage());
+        }
+
+        self::assertFileDoesNotExist($this->root . '/first.yaml');
+        self::assertStringEqualsFile($this->root . '/' . $key . '.yaml', "title: First\n");
+        self::assertCount(2, glob($this->root . '/*.yaml'));
+    }
+
+    public function testRenameMovesTheFile(): void
+    {
+        self::assertTrue($this->storage->renameRow('first', 'third'));
+
+        // The row is never without a file, even before it has been saved with the new key.
+        self::assertFileDoesNotExist($this->root . '/first.yaml');
+        self::assertStringEqualsFile($this->root . '/third.yaml', "title: First\n");
+        self::assertFalse($this->storage->hasKey('first'));
+        self::assertTrue($this->storage->hasKey('third'));
+    }
+
+    public function testRenameToInvalidKeyIsRefused(): void
+    {
+        try {
+            $this->storage->renameRow('first', '../escaped');
+            self::fail('Renaming to a key outside of the storage folder should have been refused');
+        } catch (InvalidArgumentException $e) {
+            self::assertStringContainsString('Invalid storage key', $e->getMessage());
+        }
+
+        self::assertStringEqualsFile($this->root . '/first.yaml', "title: First\n");
+        self::assertFileDoesNotExist(dirname($this->root) . '/escaped.yaml');
     }
 
     public function testRenameWhichOnlyChangesCaseStillWorks(): void

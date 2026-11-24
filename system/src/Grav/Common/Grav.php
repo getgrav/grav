@@ -14,6 +14,7 @@ use Grav\Common\Config\CompiledBase;
 use Grav\Common\Config\Config;
 use Grav\Common\Config\Setup;
 use Grav\Common\Helpers\Exif;
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\MarkdownOutput;
 use Grav\Common\Page\Medium\ImageFile;
@@ -1016,9 +1017,14 @@ class Grav extends Container
         // `routable: false` folder or a module is still served. Media of an
         // unpublished page is not, any more than the page itself: a module goes
         // with the page that includes it, and a page under an unpublished parent
-        // with `cascade_unpublish` reports itself unpublished.
+        // with `cascade_unpublish` reports itself unpublished. Nor is media of a
+        // page that has no file for the active language: the pages are indexed
+        // from the files that language reads, so the folder stands in for the
+        // page without its header. It reports itself published and has no
+        // `access` rules for a listener to check, whatever the page says in the
+        // languages it is written in.
         for ($owner = $page; $owner instanceof PageInterface; $owner = $owner->isModule() ? $owner->parent() : null) {
-            if (!$owner->published()) {
+            if (!$owner->published() || $this->isUntranslated($owner)) {
                 $page = null;
                 break;
             }
@@ -1142,6 +1148,51 @@ class Grav extends Container
         }
 
         // Nothing found
+        return false;
+    }
+
+    /**
+     * Whether the folder belongs to a page that has no file for the active language.
+     *
+     * True when the folder has page files and none of them is one the active
+     * language reads (`Language::getFallbackPageExtensions()`). A folder without
+     * page files belongs to the nearest folder above it that has one.
+     *
+     * @param PageInterface $page
+     * @return bool
+     */
+    protected function isUntranslated(PageInterface $page): bool
+    {
+        /** @var Language $language */
+        $language = $this['language'];
+        if (!$language->enabled()) {
+            return false;
+        }
+
+        $all = $language->getPageExtensions();
+        $usable = $language->getFallbackPageExtensions();
+
+        // The root of the pages tree is never a page, whatever files it holds.
+        for ($folder = $page; $folder instanceof PageInterface && !$folder->root(); $folder = $folder->parent()) {
+            $path = (string)$folder->path();
+            $found = false;
+            foreach (is_dir($path) ? (scandir($path) ?: []) : [] as $filename) {
+                // The extension of a page file starts at the first dot, as in `Pages::recurse()`.
+                $pos = strpos($filename, '.');
+                $extension = $pos ? substr($filename, $pos) : '';
+                if (!in_array($extension, $all, true) || !is_file($path . DIRECTORY_SEPARATOR . $filename)) {
+                    continue;
+                }
+                if (in_array($extension, $usable, true)) {
+                    return false;
+                }
+                $found = true;
+            }
+            if ($found) {
+                return true;
+            }
+        }
+
         return false;
     }
 }

@@ -186,7 +186,16 @@ trait CompiledFile
             $debugger->addMessage(sprintf('%s(): Cannot obtain a lock for compiling cache file for %s: %s', __METHOD__, $this->filename, $e->getMessage()), 'warning');
         }
 
-        parent::save($data);
+        try {
+            parent::save($data);
+        } catch (Throwable $e) {
+            // Do not keep the compiled cache locked when the file could not be saved.
+            if ($locked) {
+                $file->unlock();
+            }
+
+            throw $e;
+        }
 
         if ($locked) {
             $modified = $this->modified();
