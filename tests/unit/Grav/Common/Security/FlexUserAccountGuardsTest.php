@@ -144,10 +144,29 @@ class FlexUserAccountGuardsTest extends \PHPUnit\Framework\TestCase
         return $user;
     }
 
+    /** An actor answering authorize() from the access map, with inheritance, as accounts do. */
+    private function actorWithAccess(array $access): UserInterface
+    {
+        $acl = new Access($access);
+        $user = $this->createMock(UserInterface::class);
+        $user->method('authorize')->willReturnCallback(
+            static fn(string $action, ?string $scope = null): ?bool => $acl->authorize($action)
+        );
+        $user->method('get')->willReturnCallback(
+            static fn(string $name): ?array => $name === 'access' ? $access : null
+        );
+
+        return $user;
+    }
+
     private function superAdmin(): UserInterface
     {
         $user = $this->createMock(UserInterface::class);
         $user->method('authorize')->willReturn(true);
+        // Super-admin access granted by name, not only through a blanket parent grant.
+        $user->method('get')->willReturnCallback(
+            static fn(string $name): ?array => $name === 'access' ? ['admin' => ['super' => true]] : null
+        );
 
         return $user;
     }
@@ -317,5 +336,35 @@ class FlexUserAccountGuardsTest extends \PHPUnit\Framework\TestCase
         $target->update(['fullname' => 'Changed', 'storage_key' => 'admin']);
 
         self::assertSame(['fullname' => 'Changed'], $target->written);
+    }
+
+    /**
+     * A blanket grant (`api: true`) answers authorize('api.super') through inheritance, but super-admin access
+     * has to be given by name for the actor to manage super-admin accounts, as in the API.
+     */
+    public function testBlanketGrantDoesNotMakeTheActorSuper(): void
+    {
+        $target = $this->target(['admin' => ['super' => true]]);
+
+        foreach ([['admin' => true], ['admin' => ['users' => true], 'api' => true]] as $access) {
+            self::assertFalse($target->authorizeFor($this->actorWithAccess($access), 'update'));
+            self::assertFalse($target->authorizeFor($this->actorWithAccess($access), 'delete'));
+        }
+
+        foreach ([
+            ['admin' => ['users' => true], 'api' => ['super' => true]],
+            ['admin' => ['users' => true], 'api.super' => true],
+            ['admin' => ['users' => true, 'super' => true]],
+        ] as $access) {
+            self::assertTrue($target->authorizeFor($this->actorWithAccess($access), 'update'));
+        }
+    }
+
+    /** The target side keeps inheriting: a blanket grant on the target still makes it super-admin for the guard. */
+    public function testBlanketGrantStillProtectsTheTarget(): void
+    {
+        $target = $this->target(['api' => true]);
+
+        self::assertFalse($target->authorizeFor($this->manager(), 'update'));
     }
 }

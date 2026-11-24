@@ -70,10 +70,29 @@ class FlexUserGroupGuardsTest extends \PHPUnit\Framework\TestCase
         return $user;
     }
 
+    /** An actor answering authorize() from the access map, with inheritance, as accounts do. */
+    private function actorWithAccess(array $access): UserInterface
+    {
+        $acl = new Access($access);
+        $user = $this->createMock(UserInterface::class);
+        $user->method('authorize')->willReturnCallback(
+            static fn(string $action, ?string $scope = null): ?bool => $acl->authorize($action)
+        );
+        $user->method('get')->willReturnCallback(
+            static fn(string $name): ?array => $name === 'access' ? $access : null
+        );
+
+        return $user;
+    }
+
     private function superAdmin(): UserInterface
     {
         $user = $this->createMock(UserInterface::class);
         $user->method('authorize')->willReturn(true);
+        // Super-admin access granted by name, not only through a blanket parent grant.
+        $user->method('get')->willReturnCallback(
+            static fn(string $name): ?array => $name === 'access' ? ['admin' => ['super' => true]] : null
+        );
 
         return $user;
     }
@@ -162,5 +181,17 @@ class FlexUserGroupGuardsTest extends \PHPUnit\Framework\TestCase
 
         self::assertTrue($group->authorizeFor($this->superAdmin(), 'update'));
         self::assertTrue($group->authorizeFor($this->superAdmin(), 'delete'));
+    }
+
+    /** Super-admin access has to be given to the actor by name, a blanket parent grant does not count. */
+    public function testBlanketGrantDoesNotMakeTheActorSuper(): void
+    {
+        $group = $this->group(['admin' => ['super' => true]]);
+
+        $manager = ['admin' => ['users' => true]];
+
+        self::assertFalse($group->authorizeFor($this->actorWithAccess($manager + ['api' => true]), 'update'));
+        self::assertFalse($group->authorizeFor($this->actorWithAccess(['admin' => true]), 'delete'));
+        self::assertTrue($group->authorizeFor($this->actorWithAccess($manager + ['api.super' => true]), 'update'));
     }
 }

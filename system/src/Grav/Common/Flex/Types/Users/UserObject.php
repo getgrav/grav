@@ -1002,6 +1002,10 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
+     * Whether the actor is a super admin. Super-admin access has to be granted by name: a blanket grant of its
+     * parent (`api: true`) does not make the actor a super admin here, as it doesn't in the API. A target's
+     * super-admin access is read with inheritance, see hasSuperAccess(), so the guard errs towards protecting it.
+     *
      * @param UserInterface $user
      * @param bool $isMe
      * @return bool
@@ -1009,9 +1013,13 @@ class UserObject extends FlexObject implements UserInterface, Countable
     protected function actorHasSuperAccess(UserInterface $user, bool $isMe): bool
     {
         $scope = $isMe ? null : 'test';
+        foreach (['admin.super', 'api.super'] as $rule) {
+            if ($user->authorize($rule, $scope) === true && Access::isGrantedExplicitly($user, $rule)) {
+                return true;
+            }
+        }
 
-        return $user->authorize('admin.super', $scope) === true
-            || $user->authorize('api.super', $scope) === true;
+        return false;
     }
 
     /**
