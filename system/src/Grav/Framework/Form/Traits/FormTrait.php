@@ -601,6 +601,10 @@ trait FormTrait
         }
         $session = $grav['session'] ?? null;
         $sessionId = $session ? $session->getId() : null;
+        if (null !== $sessionId) {
+            // Never put the session id itself into the path, see FormFlash::getSessionFolderName().
+            $sessionId = FormFlash::getSessionFolderName($sessionId);
+        }
 
         // Fill template token keys/value pairs.
         $dataMap = [

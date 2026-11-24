@@ -83,7 +83,7 @@ class FormFlash implements FormFlashInterface
             $config = array_filter($config, static fn($val) => $val !== null);
         }
 
-        // Identifiers are used to build filesystem paths (tmp://forms/<sessionId>/<uniqueId>)
+        // Identifiers are used to build filesystem paths (tmp://forms/<hashed sessionId>/<uniqueId>)
         // and can reach this constructor from request input (e.g. __form-flash-id).
         // Reject anything outside a strict alphanumeric+[,_-] allowlist to prevent path
         // traversal into arbitrary directories. Invalid values blank out, which disables
@@ -94,7 +94,7 @@ class FormFlash implements FormFlashInterface
 
         $this->setUser($config['user'] ?? null);
 
-        $folder = $config['folder'] ?? ($this->sessionId ? 'tmp://forms/' . $this->sessionId : '');
+        $folder = $config['folder'] ?? ($this->sessionId ? 'tmp://forms/' . self::getSessionFolderName($this->sessionId) : '');
 
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
@@ -102,6 +102,21 @@ class FormFlash implements FormFlashInterface
         $this->folder = $folder && $locator->isStream($folder) ? $locator->findResource($folder, true, true) : $folder;
 
         $this->init($this->loadStoredForm(), $config);
+    }
+
+    /**
+     * Get the name of the flash folder for a session.
+     *
+     * The session id is the visitor's login credential, while the path of the flash folder is not a secret: it
+     * is part of the paths and URLs of the uploaded files, which end up in form data, and of directory listings.
+     * Name the folder after a one-way hash of the session id instead of the id itself.
+     *
+     * @param string $sessionId
+     * @return string
+     */
+    public static function getSessionFolderName(string $sessionId): string
+    {
+        return hash('sha256', 'form-flash:' . $sessionId);
     }
 
     /**
