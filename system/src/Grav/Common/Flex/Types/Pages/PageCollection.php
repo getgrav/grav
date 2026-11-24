@@ -713,8 +713,12 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 
                     foreach ($object->header()->access as $index => $accessLevel) {
                         if (is_array($accessLevel)) {
+                            // Nested rule (`site: {login: true}`): the level is the rule's name (`site.login` or `login`), not its value.
                             foreach ($accessLevel as $innerIndex => $innerAccessLevel) {
-                                if (in_array($innerAccessLevel, $accessLevels)) {
+                                if (Utils::isPositive($innerAccessLevel)
+                                    && (in_array("{$index}.{$innerIndex}", $accessLevels, true)
+                                        || in_array((string)$innerIndex, $accessLevels, true))
+                                ) {
                                     $valid = true;
                                 }
                             }
@@ -729,7 +733,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                     }
                 } else {
                     //Single value for access
-                    if (in_array($object->header()->access, $accessLevels)) {
+                    if (in_array($object->header()->access, $accessLevels, true)) {
                         $entries[$key] = $object;
                     }
                 }
