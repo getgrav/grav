@@ -114,8 +114,48 @@ class PageTranslationSaveAclTest extends \PHPUnit\Framework\TestCase
             'new file in front of the default page' => [['default.md' => self::DENY, 'default.fr.md' => self::OPEN], 'handbook|.fr', ['lang' => 'en']],
             'new file in front of the fallback language' => [['default.en.md' => self::DENY, 'default.fr.md' => self::OPEN], 'handbook|.fr', ['lang' => 'vi']],
             'language property' => [['default.md' => self::OPEN, 'default.fr.md' => self::DENY], 'handbook', ['language' => 'fr']],
-            'language in the header' => [['default.md' => self::OPEN, 'default.fr.md' => self::DENY], 'handbook', ['header' => ['lang' => 'fr']]],
         ];
+    }
+
+    /**
+     * The language of a page is the one of its file. A `lang` key in the frontmatter is a key like any other:
+     * it neither makes the page pose as another translation nor has to be a string.
+     *
+     * @dataProvider providerLanguageInTheHeader
+     */
+    public function testLanguageInTheHeaderIsNotTheLanguageOfThePage(string $frontmatter): void
+    {
+        $files = ['default.en.md' => self::OPEN . $frontmatter, 'default.fr.md' => self::DENY];
+        $page = $this->directory($files)->getObject('handbook|.en');
+
+        self::assertSame('en', $page->getLanguage());
+
+        $page->update(['template' => 'post', 'content' => 'changed']);
+        $page->check();
+        $page->save(false);
+
+        self::assertSame(['default.fr.md' => 'default.fr.md', 'post.en.md' => 'changed'], $this->files());
+    }
+
+    public static function providerLanguageInTheHeader(): array
+    {
+        return [
+            'another translation' => ["lang: fr\n"],
+            'not a string' => ["lang: [fr]\n"],
+        ];
+    }
+
+    public function testLanguageSentInTheHeaderIsNotTheLanguageOfThePage(): void
+    {
+        $page = $this->directory(['default.md' => self::OPEN, 'default.fr.md' => self::DENY])->getObject('handbook');
+        $header = ['title' => 'Page', 'lang' => 'fr', 'permissions' => ['groups' => ['defaults' => 'crudl']]];
+
+        $page->update(['header' => $header, 'content' => 'changed']);
+        self::assertSame('', $page->getLanguage());
+        $page->check();
+        $page->save(false);
+
+        self::assertSame(['default.fr.md' => 'default.fr.md', 'default.md' => 'changed'], $this->files());
     }
 
     public function testNoLanguageIsTheLanguageOfTheLoadedTranslation(): void

@@ -199,6 +199,13 @@ trait PageTranslateTrait
             $list[$languageCode] = "{$path}/{$this->getKey()}";
         }
 
+        // Default language may be saved without language file location.
+        $default = $language->getDefault();
+        if ($default && isset($list[''])) {
+            $list[$default] ??= $list[''];
+            unset($list['']);
+        }
+
         return array_filter($list);
     }
 
@@ -229,7 +236,9 @@ trait PageTranslateTrait
      */
     public function language($var = null): ?string
     {
-        return $this->loadHeaderProperty(
+        // The language is the one of the loaded page file (or the one given here), never a `lang` key of the
+        // frontmatter: it names the file of the page, and a header would let the page pose as another translation.
+        return $this->loadProperty(
             'lang',
             $var,
             function ($value) {

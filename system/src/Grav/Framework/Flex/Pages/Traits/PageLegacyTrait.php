@@ -327,7 +327,7 @@ trait PageLegacyTrait
                 throw new RuntimeException('Cannot copy page, parent is of unknown type');
             }
         } else {
-            $parent = $parentStorageKey
+            $parent = '' !== $parentStorageKey
                 ? $this->getFlexDirectory()->getObject($parentStorageKey, 'storage_key')
                 : (method_exists($index, 'getRoot') ? $index->getRoot() : null);
         }
@@ -519,7 +519,12 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'template',
             $var,
-            fn($value) => trim($value ?? (($this->isModule() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name())))
+            function ($value) {
+                $value = trim($value ?? '');
+
+                // An empty template is a missing one, just like in Page::template(): the template names the page file.
+                return $value !== '' ? $value : trim(($this->isModule() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name()));
+            }
         );
     }
 
@@ -875,7 +880,7 @@ trait PageLegacyTrait
         $meta = $this->getMetaData();
         $keys = array_keys($meta['children'] ?? []);
         $prefix = $this->getMasterKey();
-        if ($prefix) {
+        if ('' !== $prefix) {
             foreach ($keys as &$key) {
                 $key = $prefix . '/' . $key;
             }

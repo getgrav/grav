@@ -314,7 +314,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
     {
         $key = $this->_meta['flex_key'] ?? null;
 
-        if (!$key && $key = $this->getStorageKey()) {
+        if (!$key && '' !== ($key = $this->getStorageKey())) {
             $key = $this->_flexDirectory->getFlexType() . '.obj:' . $key;
         }
 
@@ -347,7 +347,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
     {
         $key = $this->getStorageKey();
 
-        return $key && $this->getFlexDirectory()->getStorage()->hasKey($key);
+        // Empty string means no key: '0' is a key like any other.
+        return '' !== $key && $this->getFlexDirectory()->getStorage()->hasKey($key);
     }
 
     /**
@@ -704,7 +705,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
      */
     public function create(?string $key = null)
     {
-        if ($key) {
+        if (null !== $key && '' !== $key) {
             $this->setStorageKey($key);
         }
 
@@ -747,7 +748,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
 
         $storage = $this->getFlexDirectory()->getStorage();
 
-        $storageKey = $this->getStorageKey() ?: '@@' . spl_object_id($this);
+        $storageKey = $this->getStorageKey();
+        if ('' === $storageKey) {
+            $storageKey = '@@' . spl_object_id($this);
+        }
 
         $result = $storage->replaceRows([$storageKey => $this->prepareStorage()]);
 
