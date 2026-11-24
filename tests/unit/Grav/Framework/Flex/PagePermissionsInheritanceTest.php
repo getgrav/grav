@@ -57,14 +57,22 @@ class PagePermissionsInheritanceTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param array<string,string> $pages Frontmatter of every page, by its folder.
+     * @param array<string,string> $pages Frontmatter of every page, by its folder. The file is `default.md`, unless
+     *                                    the folder is followed by another one (`board/default.en.md`).
      */
     private function directory(array $pages): FlexDirectory
     {
         foreach ($pages as $folder => $frontmatter) {
+            $file = 'default.md';
+            if (str_ends_with($folder, '.md')) {
+                $file = basename($folder);
+                $folder = dirname($folder);
+            }
             $path = GRAV_ROOT . "/{$this->folder}/{$folder}";
-            mkdir($path, 0777, true);
-            file_put_contents("{$path}/default.md", "---\ntitle: Page\n{$frontmatter}---\n");
+            if (!is_dir($path)) {
+                mkdir($path, 0777, true);
+            }
+            file_put_contents("{$path}/{$file}", "---\ntitle: Page\n{$frontmatter}---\n");
         }
 
         return new FlexDirectory('pages', 'blueprints://flex/pages.yaml', [
@@ -109,6 +117,65 @@ class PagePermissionsInheritanceTest extends \PHPUnit\Framework\TestCase
 
         self::assertArrayHasKey('staff', $directory->getObject('board/minutes')->getPermissions(true));
         self::assertSame([], $directory->getObject('board/public')->getPermissions(true));
+    }
+
+    /**
+     * Languages of the test site are en (default), fr and vi. The default language of a page is either in `default.md`
+     * or in `default.en.md`, and the page below does not have to use the same one.
+     *
+     * @dataProvider providerParentFiles
+     */
+    public function testDenyCoversThePagesBelowWhicheverFileHasIt(string $parent, string $child): void
+    {
+        $this->login(['site' => ['login' => true], 'admin' => ['pages' => ['update' => true]]]);
+        $directory = $this->directory(['news' => '', "board/{$parent}" => self::DENY, "board/minutes/{$child}" => '']);
+
+        $minutes = $directory->getObject('board/minutes');
+        if ($child !== 'default.md') {
+            $minutes = $minutes->getTranslation('en');
+        }
+
+        self::assertTrue($directory->getObject('news')->isAuthorized('update'));
+        self::assertArrayHasKey('staff', $minutes->getPermissions(true));
+        self::assertFalse($minutes->isAuthorized('update'));
+    }
+
+    public static function providerParentFiles(): array
+    {
+        return [
+            'both without language' => ['default.md', 'default.md'],
+            'parent with language' => ['default.en.md', 'default.md'],
+            'child with language' => ['default.md', 'default.en.md'],
+            'both with language' => ['default.en.md', 'default.en.md'],
+        ];
+    }
+
+    public function testRulesOfTheParentAreTheOnesInTheLanguageOfThePage(): void
+    {
+        $this->login(['site' => ['login' => true], 'admin' => ['pages' => ['update' => true]]]);
+        $directory = $this->directory([
+            'board/default.en.md' => '', 'board/default.fr.md' => self::DENY,
+            'board/minutes' => '', 'board/proces-verbal/default.fr.md' => ''
+        ]);
+
+        self::assertTrue($directory->getObject('board/minutes')->isAuthorized('update'));
+        self::assertFalse($directory->getObject('board/proces-verbal')->getTranslation('fr')->isAuthorized('update'));
+    }
+
+    /**
+     * A parent with both files is served from `default.en.md` in the default language, so that is the file the
+     * pages below it follow, whichever file they use themselves.
+     */
+    public function testParentInTheDefaultLanguageIsTheFileWithTheLanguage(): void
+    {
+        $this->login(['site' => ['login' => true], 'admin' => ['pages' => ['update' => true]]]);
+        $directory = $this->directory([
+            'board/default.md' => '', 'board/default.en.md' => self::DENY,
+            'board/minutes' => '', 'board/agenda/default.en.md' => ''
+        ]);
+
+        self::assertFalse($directory->getObject('board/minutes')->isAuthorized('update'));
+        self::assertFalse($directory->getObject('board/agenda')->getTranslation('en')->isAuthorized('update'));
     }
 
     /**

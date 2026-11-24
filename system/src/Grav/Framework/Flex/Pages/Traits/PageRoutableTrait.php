@@ -447,7 +447,9 @@ trait PageRoutableTrait
         $parentKey = ltrim($filesystem->dirname('/' . ('' !== $storageKey ? $storageKey : $this->getKey())), '/');
         if ('' !== $parentKey) {
             $parent = $directory->getObject($parentKey, '' !== $storageKey ? 'storage_key' : null);
-            $language = $this->getLanguage();
+            // A page file without a language suffix is in the default language. The parent found by its folder has a
+            // header only if it has such a file, too: it may keep the default language in `<template>.<language>.md`.
+            $language = $this->getLanguage() ?: Grav::instance()['language']->getDefault();
             if ($language && $parent && method_exists($parent, 'getTranslation')) {
                 $parent = $parent->getTranslation($language) ?? $parent;
             }

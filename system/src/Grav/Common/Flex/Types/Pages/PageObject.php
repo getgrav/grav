@@ -314,6 +314,12 @@ class PageObject extends FlexPageObject implements PageUuidInterface
                 $parent = $index->getRoot();
             } else {
                 $parent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
+                // Like in parent(), the parent is asked in the language of this page: found by its folder it has no
+                // header (and no permissions) if it keeps the default language in `<template>.<language>.md`.
+                $language = $this->getLanguage() ?: Grav::instance()['language']->getDefault();
+                if ($language && $parent instanceof PageObject) {
+                    $parent = $parent->getTranslation($language) ?? $parent;
+                }
             }
 
             if (!$parent instanceof PageObject || !$parent->isAuthorized('create', null, $user)) {

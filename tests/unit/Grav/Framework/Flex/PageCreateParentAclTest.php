@@ -119,6 +119,36 @@ class PageCreateParentAclTest extends \PHPUnit\Framework\TestCase
         $this->assertForbidden(static function () use ($page) { $page->check(); });
     }
 
+    /**
+     * Languages of the test site are en (default), fr and vi: the parent can keep the default language in
+     * `default.en.md` instead of `default.md`.
+     *
+     * @dataProvider providerParentFiles
+     */
+    public function testNewPageIsRefusedByTheParentWhicheverFileHasItsRules(string $file): void
+    {
+        $this->login(['site' => ['login' => true], 'admin' => ['pages' => ['create' => true]]]);
+        $directory = $this->directory(['handbook' => '', 'board' => self::DENY]);
+        rename(GRAV_ROOT . "/{$this->folder}/board/default.md", GRAV_ROOT . "/{$this->folder}/board/{$file}");
+
+        // The parent implied by the key.
+        self::assertTrue($directory->createObject([], 'handbook/new-page')->isAuthorized('create'));
+        self::assertFalse($directory->createObject([], 'board/new-page')->isAuthorized('create'));
+
+        // The parent in the data.
+        $page = $directory->createObject([], 'handbook/new-page');
+        $page->update(['route' => '/board', 'folder' => 'planted', 'name' => 'default']);
+        $this->assertForbidden(static function () use ($page) { $page->check(); });
+    }
+
+    public static function providerParentFiles(): array
+    {
+        return [
+            'without language' => ['default.md'],
+            'with language' => ['default.en.md'],
+        ];
+    }
+
     public function testNewTopLevelPageIsLeftToUserPermissions(): void
     {
         $directory = $this->directory(['handbook' => self::OPEN]);
