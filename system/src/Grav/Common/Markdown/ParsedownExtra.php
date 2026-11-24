@@ -545,12 +545,17 @@ class ParsedownExtra extends \ParsedownExtra
         $markdown = null;
         $kept = '';
         $offset = 0;
+        $removed = false;
         while (preg_match(self::TAG_ATTRIBUTE, $attributes, $m, 0, $offset)) {
             $offset += strlen($m[0]);
             if (strcasecmp($m[1], 'markdown') !== 0) {
-                $kept .= $m[0];
+                // Keep what stood on either side of a removed attribute apart:
+                // `o markdown="1"nfocus=` must not be written as `onfocus=`.
+                $kept .= ($removed && !preg_match('/^\s/', $m[0]) ? ' ' : '') . $m[0];
+                $removed = false;
                 continue;
             }
+            $removed = true;
             if ($markdown === null) {
                 $value = $m[2] ?? '';
                 if ($value !== '' && ($value[0] === '"' || $value[0] === "'")) {
@@ -560,7 +565,14 @@ class ParsedownExtra extends \ParsedownExtra
             }
         }
 
-        return [$markdown === true, $kept . substr($attributes, $offset)];
+        $rest = substr($attributes, $offset);
+        if ($removed && $rest !== '' && !preg_match('/^[\s\/]/', $rest)) {
+            // What follows the removed attribute can't be read as an attribute
+            // of its own (`markdown="1"="x"`): leave the tag as written.
+            return [false, $attributes];
+        }
+
+        return [$markdown === true, $kept . $rest];
     }
 
     /**

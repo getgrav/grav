@@ -185,6 +185,27 @@ class ParsedownExtraTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Cutting `markdown="1"` out of a tag never joins the names or values on
+     * either side of it into a new attribute or tag name.
+     *
+     * @dataProvider markdownAttributeRemovalProvider
+     */
+    public function testRemovingTheMarkdownAttributeKeepsNeighboursApart(string $markdown, string $expected): void
+    {
+        self::assertSame($expected, $this->parsedown->text($markdown));
+    }
+
+    public static function markdownAttributeRemovalProvider(): array
+    {
+        return [
+            'attribute names stay apart' => ["<div tabindex=0 autofocus o markdown=\"1\"nfocus=\"x\">\nhi\n</div>", "<div tabindex=0 autofocus o nfocus=\"x\">\n<p>hi</p>\n</div>"],
+            'tag name stays whole' => ["<im markdown=\"1\"g src=x>\nhi\n</im>", "<im g src=x>\n<p>hi</p>\n</im>"],
+            'a value is not bound to the removed attribute, the tag is not read as a block' => ["<div onfocus markdown=\"1\"=\"x\">\nhi\n</div>", "<p>&lt;div onfocus markdown=\"1\"=\"x\"&gt;\nhi\n</div></p>"],
+            'a well-formed attribute is removed as before' => ["<div class=\"a\" markdown=\"1\" id=\"b\">\nhi\n</div>", "<div class=\"a\" id=\"b\">\n<p>hi</p>\n</div>"],
+        ];
+    }
+
+    /**
      * The Markdown inside a `markdown="1"` element is rendered as the author
      * wrote it. It used to be rebuilt from a DOM first, which lowercased tags
      * in fenced code (#1840), turned `>` into `&gt;` (#3204), escaped `&` a
