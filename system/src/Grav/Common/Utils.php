@@ -1040,6 +1040,10 @@ abstract class Utils
     {
         $dangerous_extensions = Grav::instance()['config']->get('security.uploads_dangerous_extensions', []);
         $extension = mb_strtolower(static::pathinfo($filename, PATHINFO_EXTENSION));
+        // Apache on Debian and Ubuntu hands any name with `var` among its extensions to its type-map handler,
+        // so `var` is refused wherever it appears after the base name, whatever the site's list says.
+        $parts = explode('.', mb_strtolower((string)$filename));
+        array_shift($parts);
 
         return !(
             // Empty filenames are not allowed.
@@ -1052,6 +1056,8 @@ abstract class Utils
             || str_replace('..', '', $filename) !== $filename
             // File extension should not be part of configured dangerous extensions
             || in_array($extension, $dangerous_extensions)
+            // Type maps: `var` among the extensions, not just the last one.
+            || in_array('var', $parts, true)
         );
     }
 

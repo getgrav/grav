@@ -1,3 +1,9 @@
+# v1.7.53.12
+## 11/24/2026
+
+1. [](#bugfix)
+    * [security] Files with `.var` in their name are refused as uploads, and the shipped `.htaccess` turns off Apache's type-map handler (which Debian and Ubuntu enable for `.var`), and updating adds that block to existing sites
+
 # v1.7.53.11
 ## 11/18/2026
 

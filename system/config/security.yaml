@@ -52,4 +52,8 @@ uploads_dangerous_extensions:
     - json
     - twig
     - ini
+    # Apache type maps. Debian and Ubuntu ship `AddHandler type-map var`, which
+    # applies wherever `.var` appears among a name's extensions, and a type map
+    # sets its own Content-Type.
+    - var
 sanitize_svg: true
