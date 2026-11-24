@@ -535,7 +535,12 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'template_format',
             $var,
-            fn($value) => ltrim((string) ($value ?? $this->getNestedProperty('header.append_url_extension') ?: Utils::getPageFormat()), '.')
+            function ($value) {
+                $value ??= $this->getNestedProperty('header.append_url_extension');
+
+                // Only a scalar can name a format; a list or map falls back to the format of the request.
+                return ltrim((string) (is_scalar($value) && $value ? $value : Utils::getPageFormat()), '.');
+            }
         );
     }
 

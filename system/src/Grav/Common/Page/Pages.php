@@ -1623,7 +1623,9 @@ class Pages
         // looked up among the page types, but Blueprint::getFiles() also takes a
         // stream URI or the path of an existing file as the blueprint itself,
         // which would let a file uploaded as page media define the page's fields.
-        if ($this->grav['locator']->isStream($type) || is_file((string) $type)) {
+        // A URI of any other scheme must not reach is_file() either: PHP's own
+        // wrappers (ftp://) answer it by connecting to the host it names.
+        if (str_contains((string) $type, '://') || $this->grav['locator']->isStream($type) || is_file((string) $type)) {
             $type = 'default';
         }
 
@@ -2021,6 +2023,19 @@ class Pages
         $rawRoutes = false;
 
         return self::getParents($rawRoutes);
+    }
+
+    /**
+     * Check that a route set in a page header (`routes.default`) is a path on this site: an empty route, or one that
+     * starts with a single slash. Anything else (`javascript:...`, `//host`, `/\host`) is read by a browser as a URL
+     * of its own once it is used as the target of a link.
+     *
+     * @param string $route
+     * @return bool
+     */
+    public static function isLocalRoute(string $route): bool
+    {
+        return $route === '' || preg_match('#^/(?![/\\\\])(?!.*[\x00-\x1f])#s', $route) === 1;
     }
 
     /**

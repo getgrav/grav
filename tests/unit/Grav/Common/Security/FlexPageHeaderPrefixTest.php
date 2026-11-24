@@ -9,7 +9,7 @@ use Grav\Framework\Flex\FlexDirectory;
 /**
  * A Flex page stores `header.*` properties in its header. Only the leading `header.` is the prefix,
  * so a name which repeats it (`header.header.foo`) is stored under `header.foo`, the same key the
- * blueprint checked.
+ * blueprint checked. The prefix alone (`header.`) names no key, and is not the whole header.
  */
 class FlexPageHeaderPrefixTest extends \PHPUnit\Framework\TestCase
 {
@@ -58,6 +58,32 @@ class FlexPageHeaderPrefixTest extends \PHPUnit\Framework\TestCase
 
         $page->unsetNestedProperty('header.permissions.authors');
         self::assertNull($page->header()->get('permissions.authors'));
+    }
+
+    public function testThePrefixAloneIsNotAHeaderKey(): void
+    {
+        $page = $this->page();
+
+        // Header reads an empty name as the whole header.
+        $page->setNestedProperty('header.', ['permissions' => ['authors' => ['member']]]);
+        $page->setNestedProperty('header/', ['permissions' => ['authors' => ['member']]], '/');
+        $page->unsetNestedProperty('header.');
+        $page->unsetNestedProperty('header/', '/');
+
+        self::assertSame(['title' => 'Notes', 'permissions' => ['authors' => ['editor']]], $page->header()->toArray());
+    }
+
+    public function testUpdateDoesNotReplaceTheHeader(): void
+    {
+        $header = ['title' => 'Changed', 'permissions' => ['authors' => ['member']]];
+
+        // The blueprint knows no field named `header.`, so its filter keeps the key in both shapes.
+        foreach ([['header.' => $header], ['header' => ['' => $header]], ['header.' => null]] as $data) {
+            $page = $this->page();
+            $page->update($data);
+
+            self::assertSame(['title' => 'Notes', 'permissions' => ['authors' => ['editor']]], $page->header()->toArray());
+        }
     }
 
     public function testUpdateDropsGuardedHeaderFields(): void

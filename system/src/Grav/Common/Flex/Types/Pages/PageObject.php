@@ -739,7 +739,14 @@ class PageObject extends FlexPageObject implements PageUuidInterface
                 }
             }
 
-            $template = $this->getProperty('template') . ($name ? '.' . $name : '');
+            // The template is content: a page names it in its `template` header. Only
+            // a registered page type selects a blueprint; a path, a stream or a dotted
+            // value would load that file or an empty view as the page's blueprint.
+            $template = (string)$this->getProperty('template');
+            if (!isset(Pages::getTypes()[$template])) {
+                $template = 'default';
+            }
+            $template .= $name ? '.' . $name : '';
 
             $blueprint = $this->getFlexDirectory()->getBlueprint($template, 'blueprints://pages');
         } catch (RuntimeException) {

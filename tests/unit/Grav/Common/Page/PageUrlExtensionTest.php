@@ -3,6 +3,8 @@
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Page;
+use Grav\Framework\Flex\Flex;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -73,6 +75,69 @@ class PageUrlExtensionTest extends \PHPUnit\Framework\TestCase
         // An unknown extension is not a format request either.
         $this->grav['uri']->initializeWithUrl('http://localhost/index.zip')->init();
         self::assertNull($pages->dispatch('/index'));
+    }
+
+    public function testHeaderExtensionIsAppended(): void
+    {
+        $page = $this->pageWithHeader(['append_url_extension' => '.html']);
+
+        self::assertSame('.html', $page->urlExtension());
+        self::assertSame('/post.html', $page->url());
+        self::assertSame('html', $page->templateFormat());
+
+        // An empty extension still turns off the one set in the system config.
+        $this->grav['config']->set('system.pages.append_url_extension', '.htm');
+        self::assertSame('/post', $this->pageWithHeader(['append_url_extension' => ''])->url());
+        self::assertSame('/post', $this->pageWithHeader(['append_url_extension' => false])->url());
+    }
+
+    /**
+     * A list or map cannot be appended to a URL. Blueprint validation lets an empty list through,
+     * and every menu that links the page would fail with "Array to string conversion".
+     */
+    public function testHeaderExtensionThatIsNotScalarFallsBackToSystemConfig(): void
+    {
+        foreach ([[], ['x'], ['a' => 'b'], new stdClass()] as $value) {
+            $this->grav['config']->set('system.pages.append_url_extension', '');
+            $page = $this->pageWithHeader(['append_url_extension' => $value]);
+            self::assertSame('', $page->urlExtension());
+            self::assertSame('/post', $page->url());
+            self::assertSame('html', $page->templateFormat());
+
+            $this->grav['config']->set('system.pages.append_url_extension', '.htm');
+            $page = $this->pageWithHeader(['append_url_extension' => $value]);
+            self::assertSame('.htm', $page->urlExtension());
+            self::assertSame('/post.htm', $page->url());
+        }
+    }
+
+    public function testFlexPageExtensionThatIsNotScalarFallsBackToSystemConfig(): void
+    {
+        $flex = new Flex([], ['object' => $this->grav['config']->get('system.flex', [])]);
+        $flex->addDirectoryType('pages', 'blueprints://flex/pages.yaml', ['enabled' => true]);
+        $directory = $flex->getDirectory('pages');
+        self::assertNotNull($directory);
+        $this->grav['config']->set('system.pages.append_url_extension', '.htm');
+
+        $page = $directory->createObject(['header' => ['url_extension' => '.html', 'append_url_extension' => '.json']], 'post');
+        self::assertSame('.html', $page->urlExtension());
+        self::assertSame('json', $page->templateFormat());
+
+        foreach ([[], ['x'], ['a' => 'b']] as $value) {
+            $page = $directory->createObject(['header' => ['url_extension' => $value, 'append_url_extension' => $value]], 'post');
+            self::assertSame('.htm', $page->urlExtension());
+            self::assertStringEndsWith('/post.htm', $page->url());
+            self::assertSame('html', $page->templateFormat());
+        }
+    }
+
+    protected function pageWithHeader(array $header): Page
+    {
+        $page = new Page();
+        $page->header((object)$header);
+        $page->route('/post');
+
+        return $page;
     }
 
     protected function page(string $route): PageInterface

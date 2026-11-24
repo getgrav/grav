@@ -61,10 +61,23 @@ class UserListEmailLookupTest extends \PHPUnit\Framework\TestCase
         self::assertFalse(Validation::typeEmail(['editor@example.com'], [], $field));
         self::assertNotEmpty(Validation::validate(['editor@example.com'], $field));
 
+        // A list written as one string is a list too.
+        self::assertTrue(Validation::typeEmail(' editor@example.com ', [], $field));
+        self::assertTrue(Validation::typeEmail('rédacteur@example.com', [], $field));
+        self::assertFalse(Validation::typeEmail('editor@example.com,other@example.com', [], $field));
+        self::assertFalse(Validation::typeEmail('editor@example.com, other@example.com', [], $field));
+        self::assertFalse(Validation::typeEmail("editor@example.com,\r\nother@example.com", [], $field));
+        self::assertFalse(Validation::typeEmail("editor@example.com\r\nother@example.com", [], $field));
+        self::assertFalse(Validation::typeEmail('editor@example.com other', [], $field));
+        self::assertNotEmpty(Validation::validate('editor@example.com,other@example.com', $field));
+        self::assertEmpty(Validation::validate('editor@example.com', $field));
+
         $field['multiple'] = true;
         self::assertTrue(Validation::typeEmail(['editor@example.com', 'other@example.com'], [], $field));
         self::assertFalse(Validation::typeEmail(['editor@example.com', 'nope'], [], $field));
         self::assertEmpty(Validation::validate(['editor@example.com'], $field));
+        self::assertTrue(Validation::typeEmail('editor@example.com, other@example.com', [], $field));
+        self::assertFalse(Validation::typeEmail('editor@example.com, nope', [], $field));
     }
 
     public function testFindSkipsAnAccountWithAListInTheField(): void

@@ -14,6 +14,7 @@ namespace Grav\Common\Flex\Types\Pages\Traits;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use SplFileInfo;
@@ -84,7 +85,10 @@ trait PageTranslateTrait
             $header = $aPage->header();
             // @phpstan-ignore-next-line
             $routes = $header->routes ?? [];
-            $route = $routes['default'] ?? $aPage->rawRoute();
+            $route = $routes['default'] ?? null;
+            if (!is_string($route) || !Pages::isLocalRoute($route)) {
+                $route = $aPage->rawRoute();
+            }
             if (!$route) {
                 $route = $aPage->route();
             }

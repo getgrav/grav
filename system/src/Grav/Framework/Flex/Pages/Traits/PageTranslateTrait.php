@@ -14,6 +14,7 @@ use Grav\Common\Language\Language;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use function is_bool;
+use function is_string;
 
 /**
  * Implements PageTranslateInterface
@@ -232,7 +233,10 @@ trait PageTranslateTrait
             'lang',
             $var,
             function ($value) {
-                $value ??= $this->getMetaData()['lang'] ?? '';
+                // Only a string names a language: any other header value falls back to the language of the file.
+                if (!is_string($value)) {
+                    $value = $this->getMetaData()['lang'] ?? '';
+                }
 
                 return trim($value) ?: null;
             }

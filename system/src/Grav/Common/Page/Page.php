@@ -455,7 +455,7 @@ class Page implements PageInterface, PageUuidInterface
             if (!empty($header['slug']) && is_scalar($header['slug'])) {
                 $slug = $header['slug'];
             }
-            if (isset($header['routes']['default']) && is_string($header['routes']['default']) && $header['routes']['default'] !== '') {
+            if (isset($header['routes']['default']) && is_string($header['routes']['default']) && $header['routes']['default'] !== '' && Pages::isLocalRoute($header['routes']['default'])) {
                 $routesDefault = $header['routes']['default'];
             }
             break;
@@ -663,12 +663,21 @@ class Page implements PageInterface, PageUuidInterface
                 if (isset($routes['aliases'])) {
                     $this->routes['aliases'] = array_values(array_filter((array)$routes['aliases'], 'is_string'));
                 }
+                // The default route is the target of links to the page: it has to be a path on this site.
+                if (isset($this->routes['default']) && !Pages::isLocalRoute($this->routes['default'])) {
+                    unset($this->routes['default']);
+                }
             }
             if (isset($this->header->title)) {
                 $this->title = trim($this->header->title);
             }
-            if (isset($this->header->language)) {
-                $this->language = trim($this->header->language);
+            if (isset($this->header->language) && is_scalar($this->header->language)) {
+                // The language is a part of the page's file name (<template>.<language>.md),
+                // so only a language code can override the one from the file extension.
+                $language = trim((string)$this->header->language);
+                if (preg_match('/^[\w-]*$/u', $language)) {
+                    $this->language = $language;
+                }
             }
             if (isset($this->header->template)) {
                 $this->template = trim($this->header->template);
@@ -752,8 +761,9 @@ class Page implements PageInterface, PageUuidInterface
             if (isset($this->header->debugger)) {
                 $this->debugger = (bool)$this->header->debugger;
             }
-            if (isset($this->header->append_url_extension)) {
-                $this->url_extension = $this->header->append_url_extension;
+            // Only a scalar can be appended to the URL; a list or map falls back to the system config.
+            if (isset($this->header->append_url_extension) && is_scalar($this->header->append_url_extension)) {
+                $this->url_extension = (string)$this->header->append_url_extension;
             }
         }
 
@@ -1936,7 +1946,8 @@ class Page implements PageInterface, PageUuidInterface
     public function name($var = null)
     {
         if ($var !== null) {
-            $this->name = $var;
+            // Filename of the page, never a path (see filePath()).
+            $this->name = Utils::basename((string)$var);
         }
 
         return $this->name ?: 'default.md';
@@ -1985,7 +1996,8 @@ class Page implements PageInterface, PageUuidInterface
         }
 
         if (!isset($this->template_format)) {
-            $this->template_format = ltrim($this->header->append_url_extension ?? Utils::getPageFormat(), '.');
+            $extension = $this->header->append_url_extension ?? null;
+            $this->template_format = ltrim(is_scalar($extension) ? (string)$extension : Utils::getPageFormat(), '.');
         }
 
         return $this->template_format;
@@ -2870,7 +2882,8 @@ class Page implements PageInterface, PageUuidInterface
     public function dateformat($var = null)
     {
         if ($var !== null) {
-            $this->dateformat = $var;
+            // The header can hold anything, but only a string is a date format.
+            $this->dateformat = is_string($var) ? $var : null;
         }
 
         return $this->dateformat;

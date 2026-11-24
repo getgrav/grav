@@ -274,8 +274,16 @@ class Validation
             $value = trim($value);
         }
 
+        // PCRE refuses to run a /u pattern on a subject that is not valid UTF-8:
+        // preg_replace() returns null, not the string. Cast to '' it had length 0
+        // and no line break, so `max` and the single-line rule passed unchecked,
+        // while `required` looked at the raw, non-empty bytes and passed too.
+        // Such a value is not text: refuse it before anything is measured.
         $value = preg_replace("/\r\n|\r/um", "\n", $value);
-        $len = mb_strlen((string) $value);
+        if ($value === null) {
+            return false;
+        }
+        $len = mb_strlen($value);
 
         // `minlength`/`maxlength` are the field-level spelling of validate.min/max, and are
         // already emitted as the HTML attributes of the same name. Honour them server side too.
@@ -329,7 +337,11 @@ class Validation
             $value = trim($value);
         }
 
-        return preg_replace("/\r\n|\r/um", "\n", $value);
+        // Not a /u pattern: on bytes that are not valid UTF-8 it returns null, which
+        // emptied a value that validation had just accepted as filled in. Types
+        // without a type method (`tel`, `search`...) never go through typeText(),
+        // but they are all filtered here.
+        return str_replace(["\r\n", "\r"], "\n", $value);
     }
 
     /**
@@ -875,7 +887,10 @@ class Validation
         // A list of addresses is only valid for a `multiple` field. Everywhere else the
         // address is a single string, which is what the code reading it back expects
         // (account look-ups by e-mail cast the stored value to string).
-        if (is_array($value) && empty($field['multiple'])) {
+        // One string is a list as well once it has a comma or whitespace inside it: that is
+        // how it is split below and by the code sending mail to it, and the value is stored
+        // as posted, not as normalized here.
+        if (empty($field['multiple']) && (is_array($value) || strpbrk(trim((string) $value), ", \t\n\r\v\f") !== false)) {
             return false;
         }
 

@@ -52,7 +52,8 @@ trait PageRoutableTrait
                     return '';
                 }
 
-                return $value ?? Grav::instance()['config']->get('system.pages.append_url_extension', '');
+                // Only a scalar can be appended to the URL; a list or map falls back to the system config.
+                return is_scalar($value) ? (string)$value : Grav::instance()['config']->get('system.pages.append_url_extension', '');
             }
         );
     }
@@ -188,7 +189,7 @@ trait PageRoutableTrait
 
         // Return default route if given.
         $default = $this->getNestedProperty('header.routes.default');
-        if (is_string($default)) {
+        if (is_string($default) && Pages::isLocalRoute($default)) {
             return $default;
         }
 
@@ -281,7 +282,7 @@ trait PageRoutableTrait
         // Only strings can be routes; anything else in the header is ignored, as route() does.
         $aliases = array_values(array_filter((array)$this->getNestedProperty('header.routes.aliases'), 'is_string'));
         $default = $this->getNestedProperty('header.routes.default');
-        if (is_string($default) && $default !== '') {
+        if (is_string($default) && $default !== '' && Pages::isLocalRoute($default)) {
             $aliases[] = $default;
         }
 
