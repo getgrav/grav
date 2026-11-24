@@ -288,8 +288,13 @@ class SimpleStorage extends AbstractFilesystemStorage
         }
 
         // Change single key in the array without changing the order or value.
-        $keys = array_keys($this->data);
-        $keys[array_search($src, $keys, true)] = $dst;
+        // PHP turns numeric array keys into integers, so compare the keys as strings.
+        $keys = array_map('strval', array_keys($this->data));
+        $pos = array_search($src, $keys, true);
+        if (false === $pos) {
+            return false;
+        }
+        $keys[$pos] = $dst;
 
         $data = array_combine($keys, $this->data);
         if (false === $data) {
@@ -357,6 +362,13 @@ class SimpleStorage extends AbstractFilesystemStorage
             }
             if (str_contains((string) $key, '@@')) {
                 $key = $this->getNewKey();
+            }
+
+            // Validate the key: hasKey() does not find an empty key or '0', so a row saved under one
+            // could not be read, updated or deleted anymore and the next row saved there would replace it.
+            $key = is_scalar($key) ? (string)$key : '';
+            if (!$key) {
+                throw new InvalidArgumentException(sprintf('Invalid storage key: "%s"', $key));
             }
 
             // Check if the row already exists and if the key has been changed.
