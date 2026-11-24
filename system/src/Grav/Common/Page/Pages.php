@@ -2023,6 +2023,19 @@ class Pages
     }
 
     /**
+     * Check that a route set in a page header (`routes.default`) is a path on this site: an empty route, or one that
+     * starts with a single slash. Anything else (`javascript:...`, `//host`, `/\host`) is read by a browser as a URL
+     * of its own once it is used as the target of a link.
+     *
+     * @param string $route
+     * @return bool
+     */
+    public static function isLocalRoute(string $route): bool
+    {
+        return $route === '' || preg_match('#^/(?![/\\\\])(?!.*[\x00-\x1f])#s', $route) === 1;
+    }
+
+    /**
      * Gets the home route
      *
      * @return string

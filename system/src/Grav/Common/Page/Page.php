@@ -447,7 +447,7 @@ class Page implements PageInterface, PageUuidInterface
             if (!empty($header['slug']) && is_scalar($header['slug'])) {
                 $slug = $header['slug'];
             }
-            if (isset($header['routes']['default']) && is_string($header['routes']['default']) && $header['routes']['default'] !== '') {
+            if (isset($header['routes']['default']) && is_string($header['routes']['default']) && $header['routes']['default'] !== '' && Pages::isLocalRoute($header['routes']['default'])) {
                 $routesDefault = $header['routes']['default'];
             }
             break;
@@ -649,6 +649,10 @@ class Page implements PageInterface, PageUuidInterface
                 $this->routes = array_filter($routes, 'is_string');
                 if (isset($routes['aliases'])) {
                     $this->routes['aliases'] = array_values(array_filter((array)$routes['aliases'], 'is_string'));
+                }
+                // The default route is the target of links to the page: it has to be a path on this site.
+                if (isset($this->routes['default']) && !Pages::isLocalRoute($this->routes['default'])) {
+                    unset($this->routes['default']);
                 }
             }
             if (isset($this->header->title)) {
