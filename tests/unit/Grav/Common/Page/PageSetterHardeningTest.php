@@ -110,6 +110,19 @@ class PageSetterHardeningTest extends \Codeception\Test\Unit
         $this->assertSame(['note' => ['name' => 'note']], $this->page()->metadata((object) ['note' => ['name' => 'note']]));
     }
 
+    public function testTitleAndMenuSettersKeepTextOnly(): void
+    {
+        $page = $this->page();
+
+        $this->assertSame('<b>x</b>', $page->title(new \Twig\Markup('<b>x</b>', 'UTF-8')));
+        $this->assertSame('<i>y</i>', $page->menu(new \Twig\Markup('<i>y</i>', 'UTF-8')));
+        $this->assertSame('Plain', $page->title('Plain'));
+        $this->assertSame('5', $page->menu(5));
+
+        $this->assertIsString($page->title($this->grav));
+        $this->assertIsString($page->menu($this->grav));
+    }
+
     public function testMediaSetterDoesNotChangeTheSharedMediaCache(): void
     {
         $page = $this->page();

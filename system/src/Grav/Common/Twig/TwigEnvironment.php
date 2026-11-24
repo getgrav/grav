@@ -308,7 +308,9 @@ class TwigEnvironment extends Environment
      * values never take a name Grav supplies, either one of the render's own
      * variables (`page`, `form`, `config`) or a Twig global (`grav`), whether
      * passed with `with` or set in the content before the include. An object
-     * the content holds never reaches the partial.
+     * the content holds never reaches the partial, and Markup the content made
+     * (a `{% set %}` capture, a macro's output) arrives as its text, which the
+     * partial escapes like any other string.
      *
      * @param string $name
      * @param array $context
@@ -331,7 +333,7 @@ class TwigEnvironment extends Environment
 
         // render() adds the globals back underneath, so they reach the partial
         // as the real values.
-        return $base + array_diff_key($explicit + $inherited, $base, $this->getGlobals());
+        return $base + self::markupToText(array_diff_key($explicit + $inherited, $base, $this->getGlobals()));
     }
 
     /**
@@ -367,6 +369,24 @@ class TwigEnvironment extends Environment
         }
 
         return true;
+    }
+
+    /**
+     * Turns Markup in a plain value from content back into a string. Twig's
+     * autoescaper prints Markup as is, and content makes Markup out of any
+     * text it likes, so handing it on would switch escaping off in the
+     * trusted partial wherever the value is printed.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    private static function markupToText($value)
+    {
+        if ($value instanceof Markup) {
+            return (string) $value;
+        }
+
+        return \is_array($value) ? array_map([self::class, 'markupToText'], $value) : $value;
     }
 
     /**

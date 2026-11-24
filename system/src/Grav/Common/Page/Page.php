@@ -2050,7 +2050,8 @@ class Page implements PageInterface, PageUuidInterface
     public function title($var = null)
     {
         if ($var !== null) {
-            $this->title = $var;
+            // Text only: a Twig\Markup would print unescaped, an object is not a title.
+            $this->title = \is_scalar($var) || $var instanceof \Twig\Markup ? (string)$var : null;
         }
         if (empty($this->title)) {
             $this->title = ucfirst($this->slug());
@@ -2069,7 +2070,8 @@ class Page implements PageInterface, PageUuidInterface
     public function menu($var = null)
     {
         if ($var !== null) {
-            $this->menu = $var;
+            // Text only: a Twig\Markup would print unescaped, an object is not a menu name.
+            $this->menu = \is_scalar($var) || $var instanceof \Twig\Markup ? (string)$var : null;
         }
         if (empty($this->menu)) {
             $this->menu = $this->title();
