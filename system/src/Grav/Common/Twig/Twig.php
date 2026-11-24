@@ -107,6 +107,8 @@ class Twig
     protected $profile;
     /** @var string[]|null */
     protected ?array $sandboxDeniedConfigKeys = null;
+    /** @var string|null Format of the document processSite() is rendering, if any. */
+    protected $siteFormat;
 
     /**
      * Constructor
@@ -646,9 +648,16 @@ class Twig
 
             // Get Twig template layout
             $template = $this->getPageTwigTemplate($page, $format);
-            $page->templateFormat($format);
 
-            $output = $this->twig->render($template, $vars + $twig_vars);
+            // The modules this template prints are part of this document and
+            // render in its format, see getPageTwigTemplate().
+            $siteFormat = $this->siteFormat;
+            $this->siteFormat = $page->templateFormat($format);
+            try {
+                $output = $this->twig->render($template, $vars + $twig_vars);
+            } finally {
+                $this->siteFormat = $siteFormat;
+            }
         } catch (LoaderError $e) {
             throw new RuntimeException($e->getMessage(), 400, $e);
         } catch (RuntimeError $e) {
@@ -906,7 +915,24 @@ class Twig
     {
         $template = $page->template();
         $default = $page->isModule() ? 'modular/default' : 'default';
-        $extension = $format ?: $page->templateFormat();
+        // A module has no response of its own: its output is printed into the
+        // document processSite() is rendering (HTML when there is none), so
+        // that document's format picks its template. Its own format, which
+        // comes from its `template_format` and `append_url_extension` headers
+        // or the extension of the URL, would let it render through a template
+        // written for another context (`default.md.twig`, a plugin's
+        // `.json.twig`, neither of which escapes for HTML) into an HTML page.
+        $extension = $format ?: ($page->isModule() ? $this->siteFormat : $page->templateFormat());
+        // The format is editor-authored too when it comes from the
+        // `template_format` or `append_url_extension` header. It is joined
+        // into the template name and is also the key for the Content-Type,
+        // so it has to be a bare extension: a path or a dotted value
+        // (`/default.md`, `save.txt`) would select the template of one
+        // format and have its output sent as `text/html`. A value that is
+        // not one renders as HTML, and the caller is told so through `$format`.
+        if ($extension && (!is_string($extension) || !preg_match('/^[a-z0-9_-]+$/iD', $extension))) {
+            $extension = $format = 'html';
+        }
         $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
         $template_file = $this->template($template . $twig_extension);
 

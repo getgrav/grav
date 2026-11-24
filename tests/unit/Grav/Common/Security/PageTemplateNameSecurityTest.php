@@ -14,6 +14,10 @@ use Grav\Common\Twig\Sandbox\GravSourcePolicy;
  * rendered on filtered variables only. A template name an editor can choose (the
  * `template` header, the Email plugin's `template` parameter) must not get them
  * rendered on the raw ones.
+ *
+ * The format that is joined to that name (the `template_format` and
+ * `append_url_extension` headers) must stay a bare extension, so that the
+ * template that is chosen and the Content-Type that is sent agree.
  */
 class PageTemplateNameSecurityTest extends \PHPUnit\Framework\TestCase
 {
@@ -41,11 +45,11 @@ class PageTemplateNameSecurityTest extends \PHPUnit\Framework\TestCase
         parent::tearDown();
     }
 
-    protected function page(string $folder, string $template): Page
+    protected function page(string $folder, string $template, string $header = ''): Page
     {
         Folder::create($this->dir . '/' . $folder);
         $file = $this->dir . '/' . $folder . '/default.md';
-        file_put_contents($file, "---\ntitle: Notes\ntemplate: '{$template}'\n---\n{{ system.cache.redis.password }}\n");
+        file_put_contents($file, "---\ntitle: Notes\ntemplate: '{$template}'\n{$header}---\n{{ system.cache.redis.password }}\n");
 
         $page = new Page();
         $page->init(new SplFileInfo($file));
@@ -131,5 +135,48 @@ class PageTemplateNameSecurityTest extends \PHPUnit\Framework\TestCase
         $twig->setTemplate('plugin-part.html.twig', '[{{ system.cache.redis.password }}]');
 
         self::assertSame('[SECRET-REDIS]', $twig->processTemplate('plugin-part.html.twig'));
+    }
+
+    /**
+     * @dataProvider providerFormatsThatAreNotAnExtension
+     */
+    public function testFormatHeaderIsNotPartOfTheTemplatePath(string $template, string $header): void
+    {
+        $twig = $this->grav['twig'];
+        $twig->setTemplate('forms/data.save.txt.twig', 'unescaped text');
+        self::assertTrue($twig->twig()->getLoader()->exists('flex/../default.md.twig'));
+
+        // As processSite() calls it: the format is the page's own, and the one handed back is stamped on the page.
+        $page = $this->page('notes', $template, $header);
+        $format = $page->templateFormat();
+
+        self::assertSame('default.html.twig', $twig->getPageTwigTemplate($page, $format));
+        self::assertSame('html', $format);
+
+        // Without a format argument, as processPage() calls it.
+        self::assertSame('default.html.twig', $twig->getPageTwigTemplate($this->page('other', $template, $header)));
+    }
+
+    public static function providerFormatsThatAreNotAnExtension(): array
+    {
+        return [
+            'path in template_format' => ['flex/.', "template_format: '/default.md'\n"],
+            'path in append_url_extension' => ['flex/.', "append_url_extension: './default.md'\n"],
+            'dotted template_format' => ['forms/data', "template_format: 'save.txt'\n"],
+            'backslash path in template_format' => ['flex/.', "template_format: '\\default.md'\n"],
+            'not a string' => ['default', "template_format: [md]\n"],
+        ];
+    }
+
+    public function testFormatHeaderStillSelectsTheTemplateOfThatFormat(): void
+    {
+        $twig = $this->grav['twig'];
+        $twig->setTemplate('notes.json.twig', '{}');
+
+        $page = $this->page('notes', 'notes', "template_format: json\n");
+        $format = $page->templateFormat();
+
+        self::assertSame('notes.json.twig', $twig->getPageTwigTemplate($page, $format));
+        self::assertSame('json', $format);
     }
 }
