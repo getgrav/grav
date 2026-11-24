@@ -179,6 +179,38 @@ class PageCreateParentAclTest extends \PHPUnit\Framework\TestCase
         self::assertSame(['default.md'], array_values(array_diff(scandir(dirname($file)), ['.', '..'])));
     }
 
+    /**
+     * The order prefix of a folder is not a part of the route: a page in `rules` would be served and listed instead
+     * of the one in `01.rules`.
+     */
+    public function testNewPageCannotTakeTheRouteOfAnotherPage(): void
+    {
+        $directory = $this->directory(['handbook' => self::OPEN, 'handbook/01.rules' => self::DENY]);
+
+        foreach (['rules', 'Rules'] as $folder) {
+            $page = $directory->createObject([], 'handbook/new-page');
+            $page->update(['route' => '/handbook', 'folder' => $folder, 'name' => 'default', 'content' => 'Replaced']);
+            $page->check();
+
+            try {
+                $page->save();
+                self::fail('The page was saved');
+            } catch (\RuntimeException $e) {
+                self::assertStringContainsString('already taken', $e->getMessage());
+            }
+        }
+
+        // Another order is another folder with the same route.
+        try {
+            $directory->getStorage()->createRows([['parent_key' => 'handbook', 'order' => 2, 'folder' => 'rules', 'template' => 'default', 'markdown' => 'Replaced']]);
+            self::fail('The page was saved');
+        } catch (\RuntimeException $e) {
+            self::assertStringContainsString('already taken', $e->getMessage());
+        }
+
+        self::assertSame(['01.rules', 'default.md'], array_values(array_diff(scandir(GRAV_ROOT . "/{$this->folder}/handbook"), ['.', '..'])));
+    }
+
     public function testNewPageCanBeCreatedInAFolderWithoutAPage(): void
     {
         $directory = $this->directory(['handbook' => self::OPEN, 'handbook/archive/2024' => self::OPEN]);

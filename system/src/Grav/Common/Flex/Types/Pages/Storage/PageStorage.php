@@ -466,6 +466,9 @@ class PageStorage extends FolderStorage
                 // A new page cannot take over the folder of an existing page, just like a page cannot be moved or
                 // copied over another. A folder with only media or child pages in it can still become a page.
                 throw new RuntimeException(sprintf('Page /%s already exists', $newKey));
+            } else {
+                // Neither can it take over the route of a page in another folder.
+                $this->assertRouteIsFree($newKeys['key']);
             }
 
             // Clean up the data to be saved.
@@ -505,6 +508,82 @@ class PageStorage extends FolderStorage
         $row['__META'] = $this->getObjectMeta($newKey, true);
 
         return $row;
+    }
+
+    /**
+     * A page cannot be copied to the route of another page.
+     *
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     * @throws RuntimeException
+     */
+    public function copyRow(string $src, string $dst): bool
+    {
+        $this->assertRouteIsFree($dst);
+
+        return parent::copyRow($src, $dst);
+    }
+
+    /**
+     * A page cannot be moved to the route of another page.
+     *
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     * @throws RuntimeException
+     */
+    public function renameRow(string $src, string $dst): bool
+    {
+        $this->assertRouteIsFree($dst, $src);
+
+        return parent::renameRow($src, $dst);
+    }
+
+    /**
+     * Pages are found by route, and the route of a page leaves out the order prefix of its folder (and the case of
+     * its name, when urls are forced to lower case): `rules`, `01.rules` and `02.rules` are all the page `/rules`,
+     * and only one of them is served and listed. A page can therefore be created in, moved to or copied to a folder
+     * only when no other folder next to it has the same route.
+     *
+     * A move which keeps the route of the page (a new order) is left alone, so pages which already share a route
+     * can still be reordered.
+     *
+     * @param string $key Storage key of the folder the page is saved to.
+     * @param string|null $movedKey Storage key of the folder the page is moved from.
+     * @return void
+     * @throws RuntimeException
+     */
+    protected function assertRouteIsFree(string $key, ?string $movedKey = null): void
+    {
+        $keys = $this->extractKeysFromStorageKey($key);
+        $folder = Utils::basename($keys['key']);
+        $slug = $this->getFolderSlug($folder);
+
+        if (null !== $movedKey) {
+            $movedKeys = $this->extractKeysFromStorageKey($movedKey);
+            if ($movedKeys['parent_key'] === $keys['parent_key'] && $this->getFolderSlug(Utils::basename($movedKeys['key'])) === $slug) {
+                return;
+            }
+        }
+
+        foreach (array_keys($this->getObjectMeta($keys['parent_key'], true)['children'] ?? []) as $sibling) {
+            $sibling = (string)$sibling;
+            if ($sibling !== $folder && $this->getFolderSlug($sibling) === $slug) {
+                throw new RuntimeException(sprintf('Route of page /%s is already taken by another page', $keys['key']));
+            }
+        }
+    }
+
+    /**
+     * The part of the page route which the folder stands for, see getObjectMeta().
+     *
+     * @param string $folder
+     * @return string
+     */
+    protected function getFolderSlug(string $folder): string
+    {
+        return PageIndex::normalizeRoute(preg_replace(PageIndex::ORDER_PREFIX_REGEX, '', $folder) ?? $folder);
     }
 
     /**
