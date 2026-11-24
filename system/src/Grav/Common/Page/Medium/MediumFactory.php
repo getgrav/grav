@@ -75,7 +75,9 @@ class MediumFactory
 
         $locator = Grav::instance()['locator'];
 
-        $file = $locator->findResource("image://{$params['thumb']}");
+        // A type can name a thumbnail which does not exist (`media/thumb-webp.png`): use the generic one then.
+        $file = $locator->findResource("image://{$params['thumb']}")
+            ?: $locator->findResource('image://media/thumb.png');
         if ($file) {
             $params['thumbnails']['default'] = $file;
         }
@@ -135,7 +137,9 @@ class MediumFactory
 
         $locator = Grav::instance()['locator'];
 
-        $file = $locator->findResource("image://{$params['thumb']}");
+        // A type can name a thumbnail which does not exist (`media/thumb-webp.png`): use the generic one then.
+        $file = $locator->findResource("image://{$params['thumb']}")
+            ?: $locator->findResource('image://media/thumb.png');
         if ($file) {
             $params['thumbnails']['default'] = $file;
         }
