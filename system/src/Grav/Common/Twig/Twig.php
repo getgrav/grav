@@ -22,6 +22,7 @@ use Grav\Common\Security;
 use Grav\Common\Twig\Cache\ResilientFilesystemCache;
 use Grav\Common\Twig\Sandbox\ContentIncludeExtension;
 use Grav\Common\Twig\Sandbox\GravSourcePolicy;
+use Grav\Common\Twig\Sandbox\PageWriteGuard;
 use Grav\Common\Twig\Sandbox\SandboxConfig;
 use Grav\Common\Twig\Compatibility\Twig3CompatibilityLoader;
 use Grav\Common\Twig\Compatibility\Twig3CompatibilityTransformer;
@@ -313,6 +314,7 @@ class Twig
                     new GravSourcePolicy()
                 ));
                 $this->twig->addExtension(new ContentIncludeExtension());
+                $this->twig->addExtension(new PageWriteGuard());
             }
 
             /** @var Debugger $debugger */
@@ -449,7 +451,8 @@ class Twig
                 // raw Config.
                 $sandbox_vars = $this->buildSandboxVars($twig_vars, $twig_vars);
                 try {
-                    $output = $content = $this->renderContent($local_twig, $name, $sandbox_vars, $twig_vars);
+                    // Setters called with arguments may only change this page (PageWriteGuard).
+                    $output = $content = PageWriteGuard::rendering($item, fn () => $this->renderContent($local_twig, $name, $sandbox_vars, $twig_vars));
                 } catch (SecurityError $e) {
                     $this->logSandboxViolation($e);
                     // Soft-fail: fall back to the pre-render content so the

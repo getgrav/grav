@@ -31,6 +31,7 @@ use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\Page\Traits\PageUuidTrait;
 use Grav\Common\Security;
+use Grav\Common\Twig\Sandbox\PageWriteGuard;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Uri;
 use Grav\Common\User\Interfaces\UserInterface;
@@ -287,7 +288,7 @@ class Page implements PageInterface, PageUuidInterface
             $twig = Grav::instance()['twig'];
             array_walk_recursive($process_fields, function (&$value) use ($twig) {
                 if (is_string($value) && Utils::contains($value, ['{{', '{%', '{#'])) {
-                    $value = $twig->processString($value, ['page' => $this]);
+                    $value = PageWriteGuard::rendering($this, fn () => $twig->processString($value, ['page' => $this]));
                 }
             });
             $this->header((object)($process_fields + $ignored_fields));

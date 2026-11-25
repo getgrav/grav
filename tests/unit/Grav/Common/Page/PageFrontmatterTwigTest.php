@@ -105,6 +105,20 @@ class PageFrontmatterTwigTest extends \PHPUnit\Framework\TestCase
         self::assertSame('{% if true %}kept{% endif %}', $header->note);
     }
 
+    /**
+     * Frontmatter is content of the page it belongs to, which it may change
+     * like its body can (see PageWriteGuard).
+     */
+    public function testValueMayCallSettersOnItsOwnPage(): void
+    {
+        $header = $this->header(<<<'YAML'
+            title: Own
+            note: "{{ page.menu('Menu') }}"
+            YAML);
+
+        self::assertSame('Menu', $header->note);
+    }
+
     protected function header(string $frontmatter): object
     {
         $name = 'page-' . count(glob($this->folder . '/*'));
