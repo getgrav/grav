@@ -271,10 +271,11 @@ class ImageFile extends Image
             $file = $e->getNewFile();
         }
 
-        // Nulling the resource
-        $adapter = $this->getAdapter();
-        $adapter->setSource(new Source\File($file));
-        $adapter->deinit();
+        // Nulling the resource. The adapter keeps the source the hash is computed
+        // from: the image can be given more operations and saved again, and what
+        // is stored under that name has to be all of them applied to the source,
+        // not to the file cached here or to the fallback image returned instead.
+        $this->getAdapter()->deinit();
 
         if ($actual) {
             return $file;
@@ -284,7 +285,10 @@ class ImageFile extends Image
     }
 
     /**
-     * Gets the hash.
+     * Gets the hash. It names the cached file, so it is computed on every call
+     * and not kept from the first one: operations can be queued after a save
+     * (`url(false)`), and a name that does not cover them is the name of another
+     * image's cached file, which the save would find stale and write over.
      *
      * @param string $type
      * @param int $quality
@@ -293,9 +297,7 @@ class ImageFile extends Image
      */
     public function getHash($type = 'guess', $quality = 80, $extras = [])
     {
-        if (null === $this->hash) {
-            $this->generateHash($type, $quality, $extras);
-        }
+        $this->generateHash($type, $quality, $extras);
 
         return $this->hash;
     }

@@ -60,6 +60,7 @@
     * Compiled cache files are written without indentation, so a deeply nested header no longer produces a huge cache file
     * Saving a binary YAML list item that would read back differently is refused, and a page the YAML parser can't read no longer stops the site
     * A page with a malformed modular collection, sort or form name in its header no longer stops the page index from building
+    * [security] An image saved again after `url(false)` or `path(false)` is cached under a name that covers every action queued on it, so it can no longer overwrite the cached file of another image
 
 # v2.2.34
 ## 11/24/2026
