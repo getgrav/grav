@@ -227,10 +227,14 @@ class Excerpts
             /** @var Pages $pages */
             $pages = $grav['pages'];
 
-            // File is also local if scheme is http(s) and host matches.
+            // File is also local if scheme is http(s) and host matches. The host is the site's
+            // (a full `custom_base_url` wins over the request), because the result is cached.
+            /** @var Uri $uri */
+            $uri = $grav['uri'];
+            $host = parse_url((string) $uri->rootUrl(true), PHP_URL_HOST) ?: $uri->host();
             $local_file = isset($url_parts['path'])
                 && (empty($url_parts['scheme']) || in_array($url_parts['scheme'], ['http', 'https'], true))
-                && (empty($url_parts['host']) || $url_parts['host'] === $grav['uri']->host());
+                && (empty($url_parts['host']) || $url_parts['host'] === $host);
 
             if ($local_file) {
                 $filename = Utils::basename($url_parts['path']);

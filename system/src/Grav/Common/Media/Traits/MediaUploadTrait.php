@@ -149,8 +149,10 @@ trait MediaUploadTrait
 
         // Handle conflicting filename if needed.
         if ($settings['avoid_overwriting']) {
-            $destination = $settings['destination'];
-            if ($destination && $this->fileExists($filename, $destination)) {
+            // Without a destination the file goes to the media folder, see copyUploadedFile().
+            $destination = $settings['destination'] ?? $this->getPath();
+            // The new name can be taken as well, so it gets the same check.
+            while ($destination && $this->mediumExists($filename, $destination)) {
                 $filename = date('YmdHis') . '-' . $filename;
             }
         }
@@ -298,20 +300,21 @@ trait MediaUploadTrait
                     // Original image support: override original image if it's the same as the uploaded image.
                     $this->doCopy($basename, $filename, $path);
                 }
-
-                // FormFlashFile may also contain metadata.
-                $metadata = $uploadedFile->getMetaData();
-                if ($metadata) {
-                    // TODO: This overrides metadata if used with multiple retina image sizes.
-                    $this->doSaveMetadata(['upload' => $metadata], $name, $path);
-                }
             } else {
                 // Not a FormFlashFile.
                 $this->doMoveUploadedFile($uploadedFile, $filename, $path);
             }
 
-            // Post-processing: Special content sanitization for SVG.
+            // Post-processing: Special content sanitization for SVG. This needs to be the first
+            // thing done to the stored file: if a later step fails, the file stays in the folder.
             $this->doSanitizeSvg($filename, $path);
+
+            // FormFlashFile may also contain metadata.
+            $metadata = $uploadedFile instanceof FormFlashFile ? $uploadedFile->getMetaData() : [];
+            if ($metadata) {
+                // TODO: This overrides metadata if used with multiple retina image sizes.
+                $this->doSaveMetadata(['upload' => $metadata], $name, $path);
+            }
 
             // Add the new file into the media.
             // TODO: This overrides existing media sizes if used with multiple retina image sizes.
@@ -440,6 +443,37 @@ trait MediaUploadTrait
             && strpbrk($filename, "\\\0") === false
             && !str_starts_with($filename, '/')
             && !in_array('..', explode('/', $filename), true);
+    }
+
+    /**
+     * Returns true if the folder has the file, or another file of the medium which the file would become a part of.
+     *
+     * Files are grouped into media by their names: `photo@2x.jpg`, `photo.jpg.thumb.png` and `photo.jpg.meta.yaml`
+     * all belong to `photo.jpg`. An upload can therefore change an existing medium without overwriting any file.
+     *
+     * @param string $filename
+     * @param string $destination
+     * @return bool
+     */
+    protected function mediumExists(string $filename, string $destination): bool
+    {
+        if ($this->fileExists($filename, $destination)) {
+            return true;
+        }
+
+        $files = is_dir($destination) ? scandir($destination, SCANDIR_SORT_NONE) : false;
+        if (false === $files) {
+            return false;
+        }
+
+        [$name, $extension] = $this->getFileParts($filename);
+        foreach ($files as $file) {
+            if ([$name, $extension] === array_slice($this->getFileParts($file), 0, 2)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

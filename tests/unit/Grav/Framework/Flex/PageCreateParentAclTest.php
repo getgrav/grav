@@ -119,6 +119,36 @@ class PageCreateParentAclTest extends \PHPUnit\Framework\TestCase
         $this->assertForbidden(static function () use ($page) { $page->check(); });
     }
 
+    /**
+     * Languages of the test site are en (default), fr and vi: the parent can keep the default language in
+     * `default.en.md` instead of `default.md`.
+     *
+     * @dataProvider providerParentFiles
+     */
+    public function testNewPageIsRefusedByTheParentWhicheverFileHasItsRules(string $file): void
+    {
+        $this->login(['site' => ['login' => true], 'admin' => ['pages' => ['create' => true]]]);
+        $directory = $this->directory(['handbook' => '', 'board' => self::DENY]);
+        rename(GRAV_ROOT . "/{$this->folder}/board/default.md", GRAV_ROOT . "/{$this->folder}/board/{$file}");
+
+        // The parent implied by the key.
+        self::assertTrue($directory->createObject([], 'handbook/new-page')->isAuthorized('create'));
+        self::assertFalse($directory->createObject([], 'board/new-page')->isAuthorized('create'));
+
+        // The parent in the data.
+        $page = $directory->createObject([], 'handbook/new-page');
+        $page->update(['route' => '/board', 'folder' => 'planted', 'name' => 'default']);
+        $this->assertForbidden(static function () use ($page) { $page->check(); });
+    }
+
+    public static function providerParentFiles(): array
+    {
+        return [
+            'without language' => ['default.md'],
+            'with language' => ['default.en.md'],
+        ];
+    }
+
     public function testNewTopLevelPageIsLeftToUserPermissions(): void
     {
         $directory = $this->directory(['handbook' => self::OPEN]);
@@ -133,6 +163,27 @@ class PageCreateParentAclTest extends \PHPUnit\Framework\TestCase
         $page->save();
 
         self::assertDirectoryExists(GRAV_ROOT . "/{$this->folder}/planted");
+    }
+
+    public function testRootFlagInTheDataDoesNotSkipTheParent(): void
+    {
+        $directory = $this->directory(['handbook' => self::OPEN]);
+
+        // The pages root always exists and has no parent to ask. A new page cannot claim to be it.
+        $page = $directory->createObject([], 'handbook/new-page');
+        $page->update(['route' => '/', 'folder' => 'planted', 'name' => 'default', 'content' => 'Text', 'root' => true]);
+
+        self::assertFalse($page->root());
+        self::assertFalse($page->exists());
+        $this->assertForbidden(static function () use ($page) { $page->check(); });
+        self::assertDirectoryDoesNotExist(GRAV_ROOT . "/{$this->folder}/planted");
+
+        // The root itself keeps the flag, whatever the data says.
+        $root = $directory->getIndex()->getRoot();
+        $root->update(['root' => false]);
+
+        self::assertTrue($root->root());
+        self::assertTrue($root->exists());
     }
 
     public function testMovedPageIsRefusedByTheNewParent(): void
@@ -177,6 +228,38 @@ class PageCreateParentAclTest extends \PHPUnit\Framework\TestCase
 
         self::assertSame($content, file_get_contents($file));
         self::assertSame(['default.md'], array_values(array_diff(scandir(dirname($file)), ['.', '..'])));
+    }
+
+    /**
+     * The order prefix of a folder is not a part of the route: a page in `rules` would be served and listed instead
+     * of the one in `01.rules`.
+     */
+    public function testNewPageCannotTakeTheRouteOfAnotherPage(): void
+    {
+        $directory = $this->directory(['handbook' => self::OPEN, 'handbook/01.rules' => self::DENY]);
+
+        foreach (['rules', 'Rules'] as $folder) {
+            $page = $directory->createObject([], 'handbook/new-page');
+            $page->update(['route' => '/handbook', 'folder' => $folder, 'name' => 'default', 'content' => 'Replaced']);
+            $page->check();
+
+            try {
+                $page->save();
+                self::fail('The page was saved');
+            } catch (\RuntimeException $e) {
+                self::assertStringContainsString('already taken', $e->getMessage());
+            }
+        }
+
+        // Another order is another folder with the same route.
+        try {
+            $directory->getStorage()->createRows([['parent_key' => 'handbook', 'order' => 2, 'folder' => 'rules', 'template' => 'default', 'markdown' => 'Replaced']]);
+            self::fail('The page was saved');
+        } catch (\RuntimeException $e) {
+            self::assertStringContainsString('already taken', $e->getMessage());
+        }
+
+        self::assertSame(['01.rules', 'default.md'], array_values(array_diff(scandir(GRAV_ROOT . "/{$this->folder}/handbook"), ['.', '..'])));
     }
 
     public function testNewPageCanBeCreatedInAFolderWithoutAPage(): void

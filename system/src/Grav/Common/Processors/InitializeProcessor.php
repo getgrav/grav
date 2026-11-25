@@ -73,6 +73,20 @@ class InitializeProcessor extends ProcessorBase
     {
         $this->startTimer('_init', 'Initialize');
 
+        // PHP has a form POST body before the script starts, but any other body (a JSON POST
+        // included) is received from the client as it is read. Receive a JSON body, decoded
+        // below, now: a client sending it slowly waits here and not with the plugin folders
+        // locked, where it would hold off GPM for as long as the connection lasts. A body
+        // declared larger than the default limit is left unread, as the configured limits
+        // (not loaded yet) refuse it from its Content-Length alone.
+        if (JsonBody::isJsonRequest($request) && !JsonBody::declaredOverLimit($request, JsonBody::DEFAULTS)) {
+            $body = $request->getBody();
+            if ($body->isSeekable()) {
+                $body->getContents();
+                $body->rewind();
+            }
+        }
+
         // Keep GPM from swapping a plugin folder while this request reads the plugins'
         // configuration and loads them, so it never runs with one missing (a missing Login
         // would leave access-restricted pages open).

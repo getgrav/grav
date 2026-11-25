@@ -65,6 +65,9 @@ trait ImageMediaTrait
     /** @var bool Whether anything is queued that changes the image's pixels, format or quality */
     protected $transformed = false;
 
+    /** @var array{0:string,1:string}|null The actions queued on the open image, and its format, as saveImage() last left them */
+    protected $finished;
+
     /** @var array{0:int,1:int}|null As an alternative, the size the resize actions queued so far leave this image at */
     protected $queued_size;
 
@@ -119,6 +122,11 @@ trait ImageMediaTrait
         $count = count($positions);
         $w = $args[$positions[$count - 2]] ?? null;
         $h = $args[$positions[$count - 1]] ?? null;
+
+        // `resize=[1,2]` arrives as an array: not a dimension.
+        if (($w !== null && !is_scalar($w)) || ($h !== null && !is_scalar($h))) {
+            return null;
+        }
 
         if ($h === null && preg_match('/^(\d+(?:\.\d+)?)%$/', (string) $w, $matches)) {
             // Whole pixels, rounded up: the canvas is never smaller than the fraction.
@@ -718,7 +726,16 @@ trait ImageMediaTrait
             return parent::path(false);
         }
 
-        $this->filter();
+        // The default filters, the debug overlay and the progressive flag are
+        // queued by every save. An image saved again as the last save left it
+        // (`url(false)`, then `srcset()` or a link around it) has them already,
+        // and must not get them twice: its cached file is named after everything
+        // queued, so that would be a second file, filtered twice.
+        $finish = $this->finished !== [$this->image->serializeOperations(), $this->format];
+
+        if ($finish) {
+            $this->filter();
+        }
 
         if (isset($this->result)) {
             return $this->result;
@@ -733,7 +750,7 @@ trait ImageMediaTrait
             $this->format = isset(ImageFile::$types[$extension]) ? $extension : $this->image->guessType();
         }
 
-        if (!$this->debug_watermarked && $this->get('debug')) {
+        if ($finish && !$this->debug_watermarked && $this->get('debug')) {
             $ratio = $this->get('ratio');
             if (!$ratio) {
                 $ratio = 1;
@@ -755,9 +772,11 @@ trait ImageMediaTrait
         // and any operation that builds a new resource (a resize) drops it. Checked
         // against the resolved output format so a JPEG converted to PNG or WebP is
         // not interlaced along with it. getgrav/grav#4284.
-        if ($this->progressive && in_array($this->format, ['jpg', 'jpeg'], true)) {
+        if ($finish && $this->progressive && in_array($this->format, ['jpg', 'jpeg'], true)) {
             $this->image->enableProgressive();
         }
+
+        $this->finished = [$this->image->serializeOperations(), $this->format];
 
         return $this->image->cacheFile($this->format, $this->quality, false, [$this->get('width'), $this->get('height'), $this->get('modified')]);
     }

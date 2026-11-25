@@ -10,6 +10,7 @@
 namespace Grav\Common;
 
 use Exception;
+use Generator;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Validation;
 use Grav\Common\Filesystem\Folder;
@@ -23,6 +24,7 @@ use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use SplMinHeap;
 use Twig\Sandbox\SecurityPolicyInterface;
 use function chr;
 use function count;
@@ -430,7 +432,7 @@ class Security
             // `=\s*"..."` consumes such a quote as an ordinary char instead, so
             // the scan still reaches the handler. (GHSA-vfmf-q6x9-cw96)
             //
-            // Two narrowings keep that scan linear without changing what it can
+            // Two narrowings keep that scan cheap without changing what it can
             // match (grav#4291). A quoted value is only taken as one unit when it
             // contains a `>`, the one thing single characters cannot step over;
             // offering every `='...'` both ways gave the engine two paths through
@@ -441,7 +443,16 @@ class Security
             // stepped over a `<` also exists starting at that `<`, so nothing is
             // lost, and each `<` in a long code sample no longer rescans the rest
             // of the page.
-            'on_events' => '#<(?:=\s*"[^">]*>[^"]*"|=\s*\'[^\'>]*>[^\']*\'|[^<>])*?(?:[\s\x00-\x20\"\'\/]|=\s*"[^"]*"|=\s*\'[^\']*\')on\s*[a-z]+\s*=#iu',
+            //
+            // A double-quoted and a single-quoted value can still cover the same
+            // `>` (`="='>"'`), and either reading may lead to the handler, so as a
+            // regex prefix the scan took 2^n paths through n such pairs. The scan
+            // is done by matchesInTagBody() instead, in one pass; the pattern here
+            // is only the name behind its separator (`\K`). A quoted value ends in
+            // a quote, which is a separator. The runs are possessive because the
+            // pattern now also sees text outside tags, where a long run after an
+            // ` on` would otherwise hit the backtrack limit and count as a hit.
+            'on_events' => '#[\s\x00-\x20\"\'\/]\Kon\s*+[a-z]++\s*+=#iu',
 
             // xmlns namespace declarations. Split out from on_events (which it
             // historically shared a regex with) so the render-time output scan
@@ -450,7 +461,7 @@ class Security
             // for post-render HTML blanks pages that merely display an icon. It
             // stays on by default for raw-input sanitization (it follows the
             // on_events toggle below). Same quote-aware tag-body scan as on_events.
-            'xmlns' => '#<(?:=\s*"[^">]*>[^"]*"|=\s*\'[^\'>]*>[^\']*\'|[^<>])*?(?:[\s\x00-\x20\"\'\/]|=\s*"[^"]*"|=\s*\'[^\']*\')xmlns\s*=#iu',
+            'xmlns' => '#[\s\x00-\x20\"\'\/]\Kxmlns\s*+=#iu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             //
@@ -483,7 +494,7 @@ class Security
                 // positives with tags like <caption>, <button>, <section> that end with 'on'
                 // or contain 'on'
                 if ($name === 'on_events' || $name === 'xmlns') {
-                    if (self::patternMatches($regex, (string) $string) || self::patternMatches($regex, $orig)) {
+                    if (self::matchesInTagBody($regex, (string) $string) || self::matchesInTagBody($regex, $orig)) {
                         return $name;
                     }
                 } elseif ($name === 'invalid_protocols') {
@@ -512,16 +523,17 @@ class Security
      * as the first is how the detector was made to pass a live payload, so every
      * pattern goes through here rather than being called inline.
      *
-     * The failure left after detectXss() normalizes encoding is
+     * The failure left after detectXss() normalizes encoding was
      * PREG_JIT_STACKLIMIT_ERROR: the quote-aware tag-body scan added for
-     * GHSA-269c-h76q-8cxw exhausts the JIT stack on a single tag body of roughly
+     * GHSA-269c-h76q-8cxw exhausted the JIT stack on a single tag body of roughly
      * 10KB or more, so `<img aaa...aaa onerror=alert(1)>` came back false and
      * read as "no XSS found" — with no invalid byte involved, so the JSON API's
      * incidental UTF-8 rejection does not catch it either. The interpreter
      * handles the same subject correctly, so retry once with the JIT off. PCRE
      * caches compiled patterns by their full string, hence the inert `(?:)`
      * prefix to force a recompile under the new setting (it must not contain the
-     * delimiter).
+     * delimiter). That scan is matchesInTagBody() now, which fails closed on its
+     * own; the retry stays for any other pattern that meets the same limit.
      *
      * Anything still unanswerable (backtrack or recursion limits) counts as a
      * hit. This detector is a tripwire and is allowed false positives; it is not
@@ -545,6 +557,98 @@ class Security
         }
 
         return true;
+    }
+
+    /**
+     * Run the on_events or xmlns pattern, which only counts in the body of a
+     * tag: after a `<`, with nothing in between but characters other than `<`
+     * and `>` and quoted attribute values that contain a `>` (the comments on
+     * the on_events pattern say why those, and only those).
+     *
+     * This was the regex prefix `<(?:=\s*"[^">]*>[^"]*"|=\s*'[^'>]*>[^']*'|[^<>])*?`,
+     * which is ambiguous where a double-quoted and a single-quoted value overlap
+     * around the same `>`; either reading can be the one that leads to the
+     * handler, so neither can be dropped. Here all readings are followed
+     * together in one pass from left to right that visits each place once.
+     *
+     * @param string $regex   The attribute; its matches start with an ASCII character.
+     * @param string $subject Valid UTF-8.
+     * @return bool True as well when the engine gave up: not answered is not the same as clean, see patternMatches().
+     */
+    private static function matchesInTagBody(string $regex, string $subject): bool
+    {
+        if (!str_contains($subject, '<')) {
+            return false;
+        }
+
+        // Where the attribute is, in a tag or not. Mostly nowhere, and then the
+        // quoted values are never looked for.
+        $attributes = self::matchOffsets($regex, $subject);
+        // The quoted values that are stepped over as one unit.
+        $quoted = self::matchOffsets('#=\s*"[^">]*>[^"]*"|=\s*\'[^\'>]*>[^\']*\'#u', $subject);
+
+        $inside = false;                  // is the offset being asked about in a tag body?
+        $last = -1;                       // the last `<` or `>` before that offset
+        $next = strcspn($subject, '<>');  // the first one at or after it
+        $ends = new SplMinHeap();         // where the quoted values that began in a tag body end
+
+        // Must be asked with offsets in ascending order.
+        $inTagBody = static function (int $offset) use ($subject, $ends, &$inside, &$last, &$next): bool {
+            // A `<` opens a tag body, a bare `>` closes it.
+            while ($next < $offset) {
+                $last = $next;
+                $inside = $subject[$last] === '<';
+                $next += 1 + strcspn($subject, '<>', $next + 1);
+            }
+            // A quoted value that has ended reopens it, unless a `<` or `>` came after.
+            while (!$ends->isEmpty() && $ends->top() <= $offset) {
+                $inside = $ends->extract() > $last || $inside;
+            }
+
+            return $inside;
+        };
+
+        try {
+            foreach ($attributes as $offset => $unused) {
+                for (; $quoted->valid() && $quoted->key() < $offset; $quoted->next()) {
+                    if ($inTagBody($quoted->key())) {
+                        $ends->insert($quoted->current());
+                    }
+                }
+                if ($inTagBody($offset)) {
+                    return true;
+                }
+            }
+        } catch (RuntimeException) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Every match of a /u pattern, overlapping ones included, in ascending
+     * order: the offset it starts at => the offset it ends at.
+     *
+     * One at a time, because a crafted value can have a match every few bytes
+     * and preg_match_all() builds an array for each of them. The matches have
+     * to start with an ASCII character, so that the byte after the start of
+     * one is a place a /u pattern can be run from.
+     *
+     * @return Generator<int,int>
+     * @throws RuntimeException When the engine could not finish.
+     */
+    private static function matchOffsets(string $regex, string $subject): Generator
+    {
+        $from = 0;
+        while (($found = preg_match($regex, $subject, $match, PREG_OFFSET_CAPTURE, $from)) === 1) {
+            [$text, $offset] = $match[0];
+            yield $offset => $offset + strlen($text);
+            $from = $offset + 1;
+        }
+        if ($found === false) {
+            throw new RuntimeException(preg_last_error_msg());
+        }
     }
 
     /**
@@ -2052,6 +2156,7 @@ class Security
             'tag'      => "To allow this tag, add '{$token}' to security.twig_sandbox.allowed_tags — OR disable the sandbox via security.twig_sandbox.enabled: false.",
             'filter'   => "To allow this filter, add '{$token}' to security.twig_sandbox.allowed_filters — OR disable the sandbox via security.twig_sandbox.enabled: false.",
             'function' => "To allow this function, add '{$token}' to security.twig_sandbox.allowed_functions — OR disable the sandbox via security.twig_sandbox.enabled: false.",
+            'test'     => "To allow this test, add '{$token}' to security.twig_sandbox.allowed_functions (the test follows the function of the same name) — OR disable the sandbox via security.twig_sandbox.enabled: false.",
             'method'   => "To allow this method, add '{$token}' under security.twig_sandbox.allowed_methods['{$className}'] — OR disable the sandbox via security.twig_sandbox.enabled: false.",
             'property' => "To allow this property, add '{$token}' under security.twig_sandbox.allowed_properties['{$className}'] — OR disable the sandbox via security.twig_sandbox.enabled: false.",
             default    => 'Review the blocked Twig construct in logs/security.log.',

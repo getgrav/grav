@@ -217,7 +217,8 @@ class CompiledMarkdownFile extends MarkdownFile
      * Check contents and make sure it is in correct format.
      *
      * The frontmatter goes through the same YAML decoders as CompiledYamlFile, so a `<<`
-     * key in the header would be read back as the merge key.
+     * key in the header would be read back as the merge key, and a binary string written
+     * in flow style would be read back as YAML.
      *
      * @param mixed $var
      * @return array
@@ -227,6 +228,8 @@ class CompiledMarkdownFile extends MarkdownFile
         $var = parent::check($var);
 
         YamlFormatter::assertNoMergeKeys($var['header']);
+        // MarkdownFile::encode() dumps the header with inline level 20.
+        YamlFormatter::assertNoInlineBinary($var['header'], 20);
 
         return $var;
     }
@@ -319,7 +322,12 @@ class CompiledMarkdownFile extends MarkdownFile
         // Split the file the same way MarkdownFile::decode() does; the header is only reused
         // for byte-identical frontmatter parsed with the same YAML settings.
         $var = (string)preg_replace("/(\r\n|\r)/", "\n", ltrim($var, "\xef\xbb\xbf"));
-        if (!preg_match("/^---\n(.+?)\n---\n{0,}(.*)$/uis", ltrim($var), $m)) {
+        $found = preg_match("/^---\n(.+?)\n---\n{0,}(.*)$/uis", ltrim($var), $m);
+        if ($found === false) {
+            // Too large for pcre.backtrack_limit, or not valid UTF-8: never read that as "no frontmatter".
+            throw new \RuntimeException('Failed to read the frontmatter: ' . preg_last_error_msg());
+        }
+        if (!$found) {
             return parent::decode($var);
         }
 
@@ -359,6 +367,10 @@ class CompiledMarkdownFile extends MarkdownFile
     private function decodeRaw($var)
     {
         $text = ltrim((string)preg_replace("/(\r\n|\r)/", "\n", ltrim($var, "\xef\xbb\xbf")));
+        if (str_starts_with($text, "---\n") && preg_match("/^---\n(.+?)\n---\n{0,}(.*)$/uis", $text) === false) {
+            // As in decode(): a failed match must not be read as "no frontmatter".
+            throw new \RuntimeException('Failed to read the frontmatter: ' . preg_last_error_msg());
+        }
         if (!preg_match("/^---\n([^\n]+)\n---\n{0,}(.*)$/us", $text, $m)) {
             return parent::decode($var);
         }

@@ -1092,6 +1092,37 @@ class UriTest extends \PHPUnit\Framework\TestCase
         self::assertSame('https://localhost/grav', $this->uri->rootUrl(true));
     }
 
+    public function testBaseHasThePortBeforeInit(): void
+    {
+        // Cache::init() keys rendered content by this origin and may run before init().
+        $this->uri->initializeWithUrl('http://localhost:8080/grav/page-foo');
+        self::assertSame('http://localhost:8080', $this->uri->base());
+        $root = $this->uri->rootUrl(true);
+        self::assertStringStartsWith('http://localhost:8080', $root);
+
+        $this->uri->init();
+        self::assertSame('http://localhost:8080', $this->uri->base());
+        self::assertSame($root, $this->uri->rootUrl(true));
+
+        // A second init() does not add the port again.
+        $this->uri->init();
+        self::assertSame('http://localhost:8080', $this->uri->base());
+    }
+
+    public function testBaseHasNoPortBehindReverseProxy(): void
+    {
+        $this->config->set('system.reverse_proxy_setup', true);
+        try {
+            $this->uri->initializeWithUrl('http://localhost:8080/grav/page-foo');
+            self::assertSame('http://localhost', $this->uri->base());
+
+            $this->uri->init();
+            self::assertSame('http://localhost', $this->uri->base());
+        } finally {
+            $this->config->set('system.reverse_proxy_setup', false);
+        }
+    }
+
     public function testCurrentPage(): void
     {
         $this->runTestSet($this->tests, 'currentPage');

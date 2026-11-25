@@ -125,6 +125,12 @@ abstract class BaseAsset extends PropertyObject
                     unset($asset_parts['query']);
                     $asset = Uri::buildUrl($asset_parts);
                 }
+                // A fragment means nothing for a file on disk, and kept here it lets `..` segments
+                // after the `#` walk the read away from the asset (`api.js#/../../user/config/...`).
+                if (isset($asset_parts['fragment'])) {
+                    unset($asset_parts['fragment']);
+                    $asset = Uri::buildUrl($asset_parts);
+                }
 
                 $locator = Grav::instance()['locator'];
 

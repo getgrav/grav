@@ -55,9 +55,9 @@ class FlexMediaDeleteNameTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider providerTypes
      */
-    public function testPlainNameIsStillQueued(string $type, string $field): void
+    public function testPlainNameIsStillQueued(string $type, string $field, array $config = []): void
     {
-        $object = $this->createObject($type);
+        $object = $this->createObject($type, $config);
         $object->update([], [$field => ['seal.png' => null, '2024' => null]]);
 
         self::assertSame(['seal.png', '2024'], array_map('strval', array_keys($object->__debugInfo()['uploads:private'])));
@@ -65,15 +65,19 @@ class FlexMediaDeleteNameTest extends \PHPUnit\Framework\TestCase
 
     public static function providerTypes(): array
     {
+        // Accounts need folders of their own for that: stored as files they keep their avatars in a folder which
+        // they share, where a removed file is not deleted (see FlexMediaSharedFolderTest).
+        $storage = ['class' => 'Grav\Common\Flex\Types\Users\Storage\UserFolderStorage', 'options' => ['folder' => 'tmp/accounts']];
+
         return [
             'page' => ['pages', 'files'],
-            'user' => ['user-accounts', 'avatar'],
+            'user' => ['user-accounts', 'avatar', ['data' => ['storage' => $storage]]],
         ];
     }
 
-    private function createObject(string $type): FlexObjectInterface
+    private function createObject(string $type, array $config = []): FlexObjectInterface
     {
-        $directory = new FlexDirectory($type, "blueprints://flex/{$type}.yaml", ['enabled' => true]);
+        $directory = new FlexDirectory($type, "blueprints://flex/{$type}.yaml", ['enabled' => true] + $config);
         $meta = ['key' => 'notes', 'storage_key' => 'notes', 'storage_timestamp' => 1];
 
         return $directory->createObject(['__META' => $meta], 'notes');

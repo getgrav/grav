@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex\Pages\Traits;
 use Exception;
 use Grav\Common\Grav;
 use Grav\Common\Page\Collection;
+use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\MarkdownOutput;
@@ -326,7 +327,7 @@ trait PageLegacyTrait
                 throw new RuntimeException('Cannot copy page, parent is of unknown type');
             }
         } else {
-            $parent = $parentStorageKey
+            $parent = '' !== $parentStorageKey
                 ? $this->getFlexDirectory()->getObject($parentStorageKey, 'storage_key')
                 : (method_exists($index, 'getRoot') ? $index->getRoot() : null);
         }
@@ -518,7 +519,12 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'template',
             $var,
-            fn($value) => trim($value ?? (($this->isModule() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name())))
+            function ($value) {
+                $value = trim($value ?? '');
+
+                // An empty template is a missing one, just like in Page::template(): the template names the page file.
+                return $value !== '' ? $value : trim(($this->isModule() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name()));
+            }
         );
     }
 
@@ -534,7 +540,12 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'template_format',
             $var,
-            fn($value) => ltrim((string) ($value ?? $this->getNestedProperty('header.append_url_extension') ?: Utils::getPageFormat()), '.')
+            function ($value) {
+                $value ??= $this->getNestedProperty('header.append_url_extension');
+
+                // Only a scalar can name a format; a list or map falls back to the format of the request.
+                return ltrim((string) (is_scalar($value) && $value ? $value : Utils::getPageFormat()), '.');
+            }
         );
     }
 
@@ -623,7 +634,8 @@ trait PageLegacyTrait
     public function metadata($var = null): array
     {
         if ($var !== null) {
-            $this->_metadata = Page::escapeMetadata((array)$var);
+            // Plain data only: an `(array)` cast would list an object's private and protected properties.
+            $this->_metadata = Page::escapeMetadata((array)Header::plainData($var));
         }
 
         // if not metadata yet, process it.
@@ -868,7 +880,7 @@ trait PageLegacyTrait
         $meta = $this->getMetaData();
         $keys = array_keys($meta['children'] ?? []);
         $prefix = $this->getMasterKey();
-        if ($prefix) {
+        if ('' !== $prefix) {
             foreach ($keys as &$key) {
                 $key = $prefix . '/' . $key;
             }

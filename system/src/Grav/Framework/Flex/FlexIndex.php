@@ -784,8 +784,17 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
 
         static::onChanges($index, $added, $updated, $removed);
 
-        $indexFile->save(['version' => static::VERSION, 'timestamp' => time(), 'count' => count($index), 'index' => $index]);
-        $indexFile->unlock();
+        try {
+            $indexFile->save(['version' => static::VERSION, 'timestamp' => time(), 'count' => count($index), 'index' => $index]);
+        } catch (RuntimeException $e) {
+            // The index file is only a cache of the storage: if it cannot be saved (for example a JSON index
+            // with a key which is not UTF-8), report it and keep using the index which was just built.
+            $e = new RuntimeException(sprintf('Index failed to save: %s', $e->getMessage()), $e->getCode(), $e);
+
+            static::onException($e);
+        } finally {
+            $indexFile->unlock();
+        }
 
         return $index;
     }

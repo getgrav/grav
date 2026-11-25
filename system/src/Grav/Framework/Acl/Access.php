@@ -95,11 +95,29 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
     }
 
     /**
+     * Returns the rules as a nested array.
+     *
+     * A nested array cannot hold both a value for `api.system` and a key below it, so a rule which overrides
+     * a rule above it (`api.system: true`, `api.system.backup: false`) keeps its dotted key next to the nested
+     * rules. Building a new Access object from the result gives the same answers as this one.
+     *
      * @return array
      */
     public function toArray(): array
     {
-        return Utils::arrayUnflattenDotNotation($this->acl);
+        $nested = [];
+        $overrides = [];
+        foreach ($this->getAllActions() as $action => $value) {
+            $parent = $this->getParentValue((string)$action);
+            if (null === $parent) {
+                $nested[$action] = $value;
+            } elseif ($value !== $parent) {
+                // Rules (and cached lookups) which only repeat what the parent already says are left out.
+                $overrides[$action] = $value;
+            }
+        }
+
+        return Utils::arrayUnflattenDotNotation($nested) + $overrides;
     }
 
     /**
@@ -171,6 +189,24 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
     public function count(): int
     {
         return count($this->acl);
+    }
+
+    /**
+     * Value the action has without a rule of its own, see get().
+     *
+     * @param string $action
+     * @return bool|array|null
+     */
+    private function getParentValue(string $action)
+    {
+        while ($pos = strrpos($action, '.')) {
+            $action = substr($action, 0, $pos);
+            if (isset($this->acl[$action])) {
+                return $this->acl[$action];
+            }
+        }
+
+        return null;
     }
 
     /**

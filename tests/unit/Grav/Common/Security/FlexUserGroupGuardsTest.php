@@ -42,8 +42,8 @@ class GuardStubUserGroupObject extends UserGroupObject
 }
 
 /**
- * An account can be a super-admin through a group alone. Whoever may update or
- * delete that group decides whether its members stay super-admins, so the group
+ * An account can be a super-admin through a group alone. Whoever may create, update
+ * or delete that group decides whether its members stay super-admins, so the group
  * sits in the same tier as their accounts, which UserObject::isAuthorizedOverride()
  * keeps out of a user manager's reach.
  */
@@ -70,10 +70,29 @@ class FlexUserGroupGuardsTest extends \PHPUnit\Framework\TestCase
         return $user;
     }
 
+    /** An actor answering authorize() from the access map, with inheritance, as accounts do. */
+    private function actorWithAccess(array $access): UserInterface
+    {
+        $acl = new Access($access);
+        $user = $this->createMock(UserInterface::class);
+        $user->method('authorize')->willReturnCallback(
+            static fn(string $action, ?string $scope = null): ?bool => $acl->authorize($action)
+        );
+        $user->method('get')->willReturnCallback(
+            static fn(string $name): ?array => $name === 'access' ? $access : null
+        );
+
+        return $user;
+    }
+
     private function superAdmin(): UserInterface
     {
         $user = $this->createMock(UserInterface::class);
         $user->method('authorize')->willReturn(true);
+        // Super-admin access granted by name, not only through a blanket parent grant.
+        $user->method('get')->willReturnCallback(
+            static fn(string $name): ?array => $name === 'access' ? ['admin' => ['super' => true]] : null
+        );
 
         return $user;
     }
@@ -106,6 +125,37 @@ class FlexUserGroupGuardsTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * `create` is a write like the other two. It is asked of an existing group when a
+     * create task is posted to it, and of an unsaved group whose access map came from
+     * somewhere other than the submitted data, such as a form flash.
+     */
+    public function testManagerCannotCreateSuperAdminGroup(): void
+    {
+        foreach (['admin', 'api'] as $scope) {
+            $group = $this->group([$scope => ['super' => true]]);
+
+            self::assertFalse($group->authorizeFor($this->manager(), 'create'));
+        }
+
+        $group = $this->group(['admin' => ['super' => true]], false);
+
+        self::assertFalse($group->authorizeFor($this->manager(), 'create'));
+    }
+
+    public function testManagerCanStillCreateRegularGroup(): void
+    {
+        self::assertTrue($this->group([])->authorizeFor($this->manager(), 'create'));
+        self::assertTrue($this->group(['site' => ['login' => true]])->authorizeFor($this->manager(), 'create'));
+    }
+
+    public function testSuperAdminCanCreateSuperAdminGroup(): void
+    {
+        $group = $this->group(['admin' => ['super' => true]]);
+
+        self::assertTrue($group->authorizeFor($this->superAdmin(), 'create'));
+    }
+
+    /**
      * The guard reads the access map, not authorize(), so switching the group off
      * does not take it out of the super-admin tier.
      */
@@ -131,5 +181,17 @@ class FlexUserGroupGuardsTest extends \PHPUnit\Framework\TestCase
 
         self::assertTrue($group->authorizeFor($this->superAdmin(), 'update'));
         self::assertTrue($group->authorizeFor($this->superAdmin(), 'delete'));
+    }
+
+    /** Super-admin access has to be given to the actor by name, a blanket parent grant does not count. */
+    public function testBlanketGrantDoesNotMakeTheActorSuper(): void
+    {
+        $group = $this->group(['admin' => ['super' => true]]);
+
+        $manager = ['admin' => ['users' => true]];
+
+        self::assertFalse($group->authorizeFor($this->actorWithAccess($manager + ['api' => true]), 'update'));
+        self::assertFalse($group->authorizeFor($this->actorWithAccess(['admin' => true]), 'delete'));
+        self::assertTrue($group->authorizeFor($this->actorWithAccess($manager + ['api.super' => true]), 'update'));
     }
 }

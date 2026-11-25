@@ -659,7 +659,8 @@ class FolderStorage extends AbstractFilesystemStorage
             $list[] = $this->buildIndexFromFilesystem($filename);
         }
 
-        return array_merge(...$list);
+        // Keep the keys: a key made of digits only is an integer in PHP, and array_merge() would renumber it from 0.
+        return array_replace(...$list);
     }
 
     /**

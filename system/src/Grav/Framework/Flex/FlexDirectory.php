@@ -467,9 +467,13 @@ class FlexDirectory implements FlexDirectoryInterface
                 } else {
                     $lifetime = $config['lifetime'] ?? 60;
 
-                    $key = $gravCache->getKey();
+                    // Rendered output keeps its own root URL namespace. The index and the objects are stored data,
+                    // the same for every host name the site is requested by: a save has to clear them for all hosts.
+                    $key = $namespace === 'render' ? $gravCache->getKey() : $this->getStorageCacheKey($gravCache);
                     if (Utils::isAdminPlugin()) {
-                        $key = substr($key, 0, -1);
+                        // Admin and site share the Flex cache: drop the '$' the classic admin plugin appends to its
+                        // cache key. The key has no suffix when only $grav['admin'] is registered (API, Admin2).
+                        $key = rtrim($key, '$');
                     }
 
                     $cache = new Psr16Cache($gravCache->getCacheAdapter('flex-objects-' . $this->getFlexType() . $key, $lifetime));
@@ -487,6 +491,27 @@ class FlexDirectory implements FlexDirectoryInterface
         }
 
         return $cache;
+    }
+
+    /**
+     * Cache key of the stored data: the shared cache key, kept apart by where the directory stores its objects.
+     *
+     * Host names which read the same storage get the same key. Sites (or environments) which have the same
+     * configuration, but keep their objects somewhere else, do not.
+     *
+     * @param Cache $cache
+     * @return string
+     */
+    protected function getStorageCacheKey(Cache $cache): string
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        // The same path the filesystem storages resolve their folder to.
+        $folder = (string)$this->getStorageFolder();
+        $path = $locator->isStream($folder) ? $locator->getResource($folder) : GRAV_ROOT . "/{$folder}";
+
+        return $cache->getSharedKey() . '-' . substr(md5($path), 0, 8);
     }
 
     /**
@@ -864,7 +889,9 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     public function reloadIndex(): void
     {
+        // The index and the objects share a cache namespace, rendered output has one of its own.
         $this->getCache('index')->clear();
+        $this->getCache('render')->clear();
         $this->getIndex()::loadEntriesFromStorage($this->getStorage());
 
         $this->indexes = [];

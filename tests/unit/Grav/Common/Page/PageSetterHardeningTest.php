@@ -1,11 +1,15 @@
 <?php
 
 use Codeception\Util\Fixtures;
+use Grav\Common\Cache;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Page\Header;
 use Grav\Common\Page\Media;
 use Grav\Common\Page\Page;
+use Grav\Framework\Flex\Flex;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 /**
  * Class PageSetterHardeningTest
@@ -88,6 +92,40 @@ class PageSetterHardeningTest extends \Codeception\Test\Unit
         $this->assertArrayNotHasKey('scalar', $metadata);
     }
 
+    public function testMetadataAndTaxonomySettersDoNotCastObjectsToTheirInternals(): void
+    {
+        $flex = new Flex([], ['object' => $this->grav['config']->get('system.flex', [])]);
+        $flex->addDirectoryType('pages', 'blueprints://flex/pages.yaml', ['enabled' => true]);
+        $flexPage = $flex->getDirectory('pages')->createObject(['header' => ['title' => 'Page'], 'markdown' => 'Text'], 'page');
+
+        foreach ([$this->page(), $flexPage] as $page) {
+            $this->assertSame([], $page->metadata($this->grav), $page::class);
+            $this->assertSame(
+                ['note' => ['name' => 'note', 'extra' => null]],
+                $page->metadata(['note' => ['name' => 'note', 'extra' => $this->grav]]),
+                $page::class
+            );
+            $this->assertSame(['u' => [], 'tag' => ['a', '1']], $page->taxonomy(['u' => $this->grav['uri'], 'tag' => ['a', 1]]), $page::class);
+        }
+
+        $this->assertSame([], $this->page()->taxonomy($this->page()));
+        $this->assertSame(['tag' => ['a']], $this->page()->taxonomy((object) ['tag' => 'a']));
+        $this->assertSame(['note' => ['name' => 'note']], $this->page()->metadata((object) ['note' => ['name' => 'note']]));
+    }
+
+    public function testTitleAndMenuSettersKeepTextOnly(): void
+    {
+        $page = $this->page();
+
+        $this->assertSame('<b>x</b>', $page->title(new \Twig\Markup('<b>x</b>', 'UTF-8')));
+        $this->assertSame('<i>y</i>', $page->menu(new \Twig\Markup('<i>y</i>', 'UTF-8')));
+        $this->assertSame('Plain', $page->title('Plain'));
+        $this->assertSame('5', $page->menu(5));
+
+        $this->assertIsString($page->title($this->grav));
+        $this->assertIsString($page->menu($this->grav));
+    }
+
     public function testMediaSetterDoesNotChangeTheSharedMediaCache(): void
     {
         $page = $this->page();
@@ -126,9 +164,106 @@ class PageSetterHardeningTest extends \Codeception\Test\Unit
 
     public function testDefaultIdIsNotIndexShaped(): void
     {
-        $page = $this->page();
+        // A page that was never given an id.
+        $page = new Page();
 
         $this->assertStringContainsString('mem-', $page->id());
+    }
+
+    public function testInitKeepsTheIdOfTheFile(): void
+    {
+        // The id is the cache key of the page's content and media: a page built
+        // from the same file on the next request has to find them again.
+        $id = $this->page()->id();
+
+        $this->assertStringNotContainsString('mem-', $id);
+        $this->assertSame($id, $this->page()->id());
+    }
+
+    public function testMemoryIdKeepsContentAndMediaOutOfTheCache(): void
+    {
+        $this->grav['config']->set('system.cache.enabled', true);
+        file_put_contents($this->folder . '/01.page/notes.txt', 'x');
+
+        // An in-memory cache, so the test can see what the page stores.
+        $cache = new class($this->grav) extends Cache {
+            /** @var array<string, mixed> */
+            public $store = [];
+            /** @var ArrayAdapter|null */
+            public $media;
+
+            public function fetch($id)
+            {
+                return $this->store[$id] ?? false;
+            }
+
+            public function save($id, $data, $lifetime = null)
+            {
+                $this->store[$id] = $data;
+            }
+
+            public function getSimpleCache()
+            {
+                $this->media ??= new ArrayAdapter();
+
+                return new Psr16Cache($this->media);
+            }
+        };
+        unset($this->grav['cache']);
+        $this->grav['cache'] = $cache;
+        // Entries of the content cache and of the media cache (which also lists its misses, as null).
+        $stored = static fn(): array => [count($cache->store), count(array_filter($cache->media->getValues()))];
+
+        // A page built from its file on every request, as plugins build theirs, stores once.
+        foreach ([1, 2] as $request) {
+            $page = $this->page();
+            $page->process(['twig' => false, 'markdown' => false]);
+            $page->content();
+            $page->media();
+        }
+        $this->assertSame([1, 1], $stored());
+
+        // Content set in memory gets an id no other request has, so storing it would
+        // only leave an entry behind on each request.
+        foreach ([1, 2] as $request) {
+            $page = $this->page();
+            $page->process(['twig' => false, 'markdown' => false]);
+            $page->content('Changed');
+            $page->media();
+
+            $this->assertSame('Changed', $page->content());
+            $this->assertArrayHasKey('notes.txt', $page->media()->all());
+        }
+        $this->assertSame([1, 1], $stored());
+    }
+
+    public function testHeaderLanguageIsALanguageCode(): void
+    {
+        $page = $this->page();
+        $this->assertNull($page->language());
+
+        // Callers build the page's file name from the language: <template>.<language>.md
+        foreach (['x/y', 'x/../../media/other', '..', 'fr.md', "f\0r", ['fr']] as $language) {
+            $page->header(['title' => 'Page', 'language' => $language]);
+            $this->assertNull($page->language());
+        }
+
+        foreach (['fr', 'pt-BR', 'zh_Hans', ''] as $language) {
+            $page->header(['title' => 'Page', 'language' => " {$language} "]);
+            $this->assertSame($language, $page->language());
+        }
+    }
+
+    public function testNameIsAFileInThePageFolder(): void
+    {
+        $page = $this->page();
+
+        $page->name('item.x/../../media/other.md');
+        $this->assertSame('other.md', $page->name());
+        $this->assertSame($this->folder . '/01.page/other.md', $page->filePath());
+
+        $page->name('item.fr.md');
+        $this->assertSame('item.fr.md', $page->name());
     }
 
     private function page(): Page

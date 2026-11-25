@@ -173,6 +173,8 @@ class ConfigFileFinder
             // Find all system and user configuration files.
             $options = [
                 'levels'  => $levels,
+                // A folder named like `x.yaml` is not a configuration file.
+                'folders' => false,
                 'compare' => 'Filename',
                 'pattern' => $pattern,
                 'filters' => [
@@ -220,7 +222,7 @@ class ConfigFileFinder
                 $find = ($lookup ?: $name) . '.yaml';
                 $filename = "{$path}/{$name}/{$find}";
 
-                if (file_exists($base . $filename)) {
+                if (is_file($base . $filename)) {
                     $basename = $this->base . $name;
                     $list[$basename] = ['file' => $filename, 'modified' => filemtime($base . $filename)];
                 }
@@ -247,6 +249,8 @@ class ConfigFileFinder
             // Find all system and user configuration files.
             $options = [
                 'levels'  => $levels,
+                // A folder named like `x.yaml` is not a configuration file.
+                'folders' => false,
                 'compare' => 'Filename',
                 'pattern' => $pattern,
                 'filters' => [

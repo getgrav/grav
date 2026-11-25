@@ -4,7 +4,10 @@ class HtaccessEnvFoldersTest extends \PHPUnit\Framework\TestCase
 {
     private const UPDATE = '/system/src/Grav/Installer/updates/2.2.4_2026-09-30_0.php';
     /** Later updates that also change `.htaccess`, run after this one as an upgrade from 2.2.3 does. */
-    private const LATER = ['/system/src/Grav/Installer/updates/2.2.19_2026-10-31_0.php'];
+    private const LATER = [
+        '/system/src/Grav/Installer/updates/2.2.19_2026-10-31_0.php',
+        '/system/src/Grav/Installer/updates/2.2.35_2026-11-24_0.php',
+    ];
 
     private function runLaterUpdates(string $file): void
     {

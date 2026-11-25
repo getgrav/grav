@@ -3,9 +3,12 @@
 use Codeception\Util\Fixtures;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
+use Grav\Common\Plugins;
 use Grav\Common\Processors\InitializeProcessor;
 use Grav\Common\Uri;
 use Nyholm\Psr7\ServerRequest;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Class InitializeProcessorTest
@@ -431,6 +434,58 @@ class InitializeProcessorTest extends \PHPUnit\Framework\TestCase
             $restoreServer();
             $this->config->set('test.grav_config_4279', $original);
         }
+    }
+
+    /**
+     * A client can send the body of a PUT as slowly as it likes, so the body must never be
+     * read while the plugin folder lock that GPM waits for is held.
+     */
+    public function testJsonBodyIsNotReadWithThePluginFoldersLocked(): void
+    {
+        $free = null;
+        $read = static function () use (&$free): string {
+            try {
+                // What GPM does before it swaps a plugin folder, without the wait.
+                Plugins::unlockFolders(Plugins::lockFolders(true, 0));
+                $free = true;
+            } catch (RuntimeException) {
+                $free = false;
+            }
+
+            throw new RuntimeException('body read');
+        };
+
+        $body = $this->createMock(StreamInterface::class);
+        $body->method('isSeekable')->willReturn(true);
+        $body->method('getContents')->willReturnCallback($read);
+        $body->method('__toString')->willReturnCallback($read);
+        $request = (new ServerRequest('PUT', 'http://localhost/', ['Content-Type' => 'application/json']))->withBody($body);
+
+        try {
+            (new InitializeProcessor($this->grav))->process($request, $this->createMock(RequestHandlerInterface::class));
+        } catch (RuntimeException $e) {
+            self::assertSame('body read', $e->getMessage());
+        }
+
+        self::assertTrue($free);
+    }
+
+    /**
+     * A JSON body declared larger than the limit is refused with 413 without being read,
+     * before or after the plugin folders are locked.
+     */
+    public function testJsonBodyDeclaredOverTheLimitIsRefusedUnread(): void
+    {
+        $body = $this->createMock(StreamInterface::class);
+        $body->method('isSeekable')->willReturn(true);
+        $body->expects(self::never())->method('getContents');
+        $body->expects(self::never())->method('__toString');
+        $length = (string)(\Grav\Common\Helpers\JsonBody::DEFAULTS['max_bytes'] + 1);
+        $request = (new ServerRequest('PUT', 'http://localhost/', ['Content-Type' => 'application/json', 'Content-Length' => $length]))->withBody($body);
+
+        $response = (new InitializeProcessor($this->grav))->process($request, $this->createMock(RequestHandlerInterface::class));
+
+        self::assertSame(413, $response->getStatusCode());
     }
 
     /**

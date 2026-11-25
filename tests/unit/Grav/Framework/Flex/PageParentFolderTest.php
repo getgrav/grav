@@ -111,7 +111,7 @@ class PageParentFolderTest extends \PHPUnit\Framework\TestCase
     {
         $directory = $this->directory([
             '03.team' => '', '03.team/contract' => '', 'Team' => '',
-            '04.legal' => '', '04.legal/terms' => '', '05.other' => "routes:\n  aliases: ['/legal']\n",
+            '04.legal' => '', '04.legal/terms' => '', '05.other' => "routes:\n  aliases: ['/legal', '/law']\n",
         ], false);
 
         $grav = Grav::instance();
@@ -126,7 +126,9 @@ class PageParentFolderTest extends \PHPUnit\Framework\TestCase
 
         $root = GRAV_ROOT . "/{$this->folder}";
         self::assertSame("{$root}/Team", $pages->find('/team')->path());
-        self::assertSame("{$root}/05.other", $pages->find('/legal')->path());
+        // An alias does not take the route of a routable page, only a route nobody has.
+        self::assertSame("{$root}/04.legal", $pages->find('/legal')->path());
+        self::assertSame("{$root}/05.other", $pages->find('/law')->path());
 
         self::assertSame("{$root}/03.team", $pages->find('/team/contract')->parent()->path());
         self::assertSame("{$root}/04.legal", $pages->find('/legal/terms')->parent()->path());

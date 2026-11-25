@@ -24,7 +24,8 @@ class CompiledYamlFile extends YamlFile
      * Check contents and make sure it is in correct format.
      *
      * The toolbox encoder writes a `<<` key quoted, but the decoders still read it as the
-     * merge key, so the file would load differently from how it was saved.
+     * merge key, so the file would load differently from how it was saved. The same goes
+     * for a binary string which the encoder writes in flow style.
      *
      * @param mixed $var
      * @return array
@@ -34,6 +35,8 @@ class CompiledYamlFile extends YamlFile
         $var = parent::check($var);
 
         YamlFormatter::assertNoMergeKeys($var);
+        // Same inline level as in YamlFile::encode().
+        YamlFormatter::assertNoInlineBinary($var, (int)$this->setting('inline', 5));
 
         return $var;
     }

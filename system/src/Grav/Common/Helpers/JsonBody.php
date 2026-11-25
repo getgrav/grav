@@ -148,6 +148,15 @@ final class JsonBody
             return $request;
         }
 
+        $limits = $limits ?? self::limits();
+        if (self::declaredOverLimit($request, $limits)) {
+            // Refused without reading the body from the client.
+            $length = (int)$request->getHeaderLine('Content-Length');
+            $error = new LengthException(sprintf('The JSON is %d bytes, more than the %d allowed.', $length, $limits['max_bytes']));
+
+            return $request->withParsedBody(null)->withAttribute(self::ATTRIBUTE, $error);
+        }
+
         $json = (string)$request->getBody();
         if ($json === '') {
             return $request->withParsedBody(null)->withAttribute(self::ATTRIBUTE, null);
@@ -187,6 +196,21 @@ final class JsonBody
             'Content-Type' => 'application/problem+json',
             'Cache-Control' => 'no-store, max-age=0',
         ], (string)$body);
+    }
+
+    /**
+     * Whether the request declares a body larger than the byte limit in its Content-Length.
+     *
+     * @param ServerRequestInterface $request
+     * @param array $limits
+     * @return bool
+     */
+    public static function declaredOverLimit(ServerRequestInterface $request, array $limits): bool
+    {
+        $length = $request->getHeaderLine('Content-Length');
+        $maxBytes = (int)($limits['max_bytes'] ?? 0);
+
+        return $maxBytes > 0 && ctype_digit($length) && (int)$length > $maxBytes;
     }
 
     /**

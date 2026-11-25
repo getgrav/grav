@@ -73,6 +73,38 @@ class FormFlashSecurityTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($id, $flash->getUniqueId(), $description);
     }
 
+    // =========================================================================
+    // The session id is a credential: it must not be part of the flash path
+    // =========================================================================
+
+    public function testConstruct_DefaultFolderDoesNotContainSessionId(): void
+    {
+        $sessionId = 'a808544e2e88640e1597e51e01d14689';
+        $flash = new FormFlash([
+            'session_id' => $sessionId,
+            'unique_id' => 'abcdef1234567890',
+            'form_name' => 'test',
+        ]);
+
+        $this->assertSame($sessionId, $flash->getSessionId());
+        $this->assertStringNotContainsString($sessionId, $flash->getTmpDir());
+        $this->assertStringEndsWith(
+            '/forms/' . FormFlash::getSessionFolderName($sessionId) . '/abcdef1234567890',
+            $flash->getTmpDir()
+        );
+    }
+
+    public function testGetSessionFolderName_IsStableAndHidesSessionId(): void
+    {
+        $sessionId = 'session,id-with_all,allowed-chars';
+        $name = FormFlash::getSessionFolderName($sessionId);
+
+        $this->assertSame($name, FormFlash::getSessionFolderName($sessionId));
+        $this->assertNotSame($name, FormFlash::getSessionFolderName($sessionId . 'x'));
+        $this->assertStringNotContainsString($sessionId, $name);
+        $this->assertMatchesRegularExpression('/^[a-f0-9]{64}$/', $name);
+    }
+
     public static function providerGHSAhmcx_TraversalIds(): array
     {
         return [

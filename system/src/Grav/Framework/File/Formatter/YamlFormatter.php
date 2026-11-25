@@ -17,9 +17,11 @@ use Symfony\Component\Yaml\Exception\DumpException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 use RocketTheme\Toolbox\Compat\Yaml\Parser as FallbackYamlParser;
+use function array_is_list;
 use function array_key_exists;
 use function function_exists;
 use function is_array;
+use function is_string;
 
 /**
  * Class YamlFormatter
@@ -87,10 +89,13 @@ class YamlFormatter extends AbstractFormatter
     {
         static::assertNoMergeKeys($data);
 
+        $inline = $inline ? (int) $inline : $this->getInlineOption();
+        static::assertNoInlineBinary($data, $inline);
+
         try {
             return YamlParser::dump(
                 $data,
-                $inline ? (int) $inline : $this->getInlineOption(),
+                $inline,
                 $indent ? (int) $indent : $this->getIndentOption(),
                 YamlParser::DUMP_EXCEPTION_ON_INVALID_TYPE
             );
@@ -124,6 +129,50 @@ class YamlFormatter extends AbstractFormatter
         foreach ($data as $value) {
             static::assertNoMergeKeys($value);
         }
+    }
+
+    /**
+     * Make sure that no binary string is written where it is not read back as it was.
+     *
+     * Symfony dumps a string with control characters or invalid UTF-8 as `!!binary <base64>`, without quotes. In
+     * block style it is read back as it was, but at the `$inline` level the dumper switches to flow style. There an
+     * item of a `[...]` list that contains `: ` is parsed as a mapping once more after it has been decoded:
+     * `["\x01a: b"]` comes back as `[["\x01a" => 'b']]`, and `["\x01: 1, <<: x"]` as a mapping with a merge key,
+     * which makes the parser fail with a TypeError. As a key of a `{...}` mapping the tag is not accepted, so the
+     * file cannot be parsed. Other list items, and the value of a key, are read back as they were and stay allowed.
+     * Call this with the inline level given to the dumper before writing YAML with any other encoder.
+     *
+     * @param mixed $data
+     * @param int $inline Level where the dumper switches to flow style.
+     * @return void
+     * @throws RuntimeException
+     */
+    public static function assertNoInlineBinary($data, int $inline): void
+    {
+        if (!is_array($data)) {
+            return;
+        }
+
+        $list = array_is_list($data);
+        foreach ($data as $key => $value) {
+            $item = $list ? $value : $key;
+            if ($inline <= 0 && static::isBinaryString($item) && (!$list || str_contains($item, ': '))) {
+                throw new RuntimeException('Encoding YAML failed: a key or list item with control characters or invalid UTF-8 is nested too deep');
+            }
+
+            static::assertNoInlineBinary($value, $inline - 1);
+        }
+    }
+
+    /**
+     * Check whether Symfony dumps the value as `!!binary`: same test as its private Inline::isBinaryString().
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    protected static function isBinaryString($value): bool
+    {
+        return is_string($value) && (!preg_match('//u', $value) || preg_match('/[^\x00\x07-\x0d\x1B\x20-\xff]/', $value));
     }
 
     /**

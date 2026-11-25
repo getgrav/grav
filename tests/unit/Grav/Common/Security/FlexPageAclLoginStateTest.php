@@ -99,6 +99,93 @@ class FlexPageAclLoginStateTest extends \PHPUnit\Framework\TestCase
         self::assertTrue($this->page()->isParentAuthorized('update', 'admin', $this->member(false)));
     }
 
+    /**
+     * @dataProvider providePageRules
+     */
+    public function testPageRulesApplyToLoggedInSessionUser(array $groups): void
+    {
+        $page = $this->page();
+        $page->stubPermissions = ['header.permissions.groups' => $groups];
+        $page->stubActiveUser = $this->member(true);
+
+        self::assertTrue($page->isParentAuthorized('update', 'admin', null, true));
+    }
+
+    /**
+     * @dataProvider providePageRules
+     */
+    public function testPageRulesSkipSessionUserWhoseAccountIsDisabled(array $groups): void
+    {
+        // What the session's copy of the account looks like once Session::refreshUser() has seen it disabled.
+        $user = $this->member(true);
+        $user->set('state', 'disabled');
+
+        $page = $this->page();
+        $page->stubPermissions = ['header.permissions.groups' => $groups];
+        $page->stubActiveUser = $user;
+
+        self::assertNull($page->isParentAuthorized('update', 'admin', null, true));
+    }
+
+    /**
+     * @dataProvider providePageRules
+     */
+    public function testPageRulesSkipDisabledUserPassedInExplicitly(array $groups): void
+    {
+        $user = $this->member(true);
+        $user->set('state', 'disabled');
+
+        $page = $this->page();
+        $page->stubPermissions = ['header.permissions.groups' => $groups];
+
+        self::assertNull($page->isParentAuthorized('update', 'admin', $user, true));
+    }
+
+    /**
+     * @dataProvider providePageRules
+     */
+    public function testPageRulesSkipSessionUserWhoIsNotLoggedIn(array $groups): void
+    {
+        $waiting = $this->member(false);
+        $loggedOut = $this->member(true);
+        $loggedOut->authenticated = false;
+
+        $page = $this->page();
+        $page->stubPermissions = ['header.permissions.groups' => $groups];
+
+        foreach ([$waiting, $loggedOut] as $user) {
+            $page->stubActiveUser = $user;
+
+            self::assertNull($page->isParentAuthorized('update', 'admin', null, true));
+        }
+    }
+
+    public function testDisabledAccountDoesNotInheritRulesFromParentPage(): void
+    {
+        $user = $this->member(true);
+        $user->set('state', 'disabled');
+
+        $page = new LoginStateStubPageObject();
+        $page->stubParent = $this->page();
+        $page->stubActiveUser = $page->stubParent->stubActiveUser = $user;
+
+        self::assertNull($page->isParentAuthorized('update', 'admin'));
+        self::assertNull($page->isParentAuthorized('update', 'admin', $user));
+
+        $user->set('state', 'enabled');
+
+        self::assertTrue($page->isParentAuthorized('update', 'admin'));
+    }
+
+    public static function providePageRules(): array
+    {
+        return [
+            'group' => [['editors' => 'crud']],
+            'authors' => [['authors' => 'crud']],
+            'defaults' => [['defaults' => 'crud']],
+        ];
+    }
+
     public function testCreatingPageAsksParentAboutSessionUserAsSessionUser(): void
     {
         $parent = new class {

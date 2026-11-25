@@ -123,6 +123,24 @@ class FlexPageDeleteSubtreeTest extends \PHPUnit\Framework\TestCase
         self::assertDirectoryDoesNotExist(GRAV_ROOT . "/{$this->folder}/team");
     }
 
+    /**
+     * The page index leaves out a folder with `|` in its name, so the pages in it are not among the children.
+     * Deleting the folder above would remove them unasked.
+     */
+    public function testFolderTheIndexLeavesOutStopsTheParent(): void
+    {
+        $directory = $this->directory(['docs' => self::OPEN, 'docs/guide|x' => '', 'docs/guide|x/secret' => self::DENY]);
+
+        self::assertSame([], array_keys($directory->getObject('docs')->children()->toArray()));
+        self::assertFalse($directory->getObject('docs')->isAuthorized('delete'));
+        self::assertTrue($directory->getObject('docs')->isAuthorized('update'));
+
+        // The same with the account allowed to delete any page, as the pages below it cannot be checked at all.
+        $this->login(['site' => ['login' => true], 'admin' => ['pages' => ['delete' => true]]]);
+
+        self::assertFalse($directory->getObject('docs')->isAuthorized('delete'));
+    }
+
     public function testTranslationThatDeniesDeleteStopsThePage(): void
     {
         $directory = $this->directory(['team/default.md' => self::OPEN, 'team/default.fr.md' => self::DENY]);

@@ -32,11 +32,12 @@ class PagesEmptyDefaultRouteTest extends \PHPUnit\Framework\TestCase
 
     public static function defaultRoutes(): array
     {
-        return [[''], ['0']];
+        // A default route has to be a path starting with a single slash, so '0' is ignored.
+        return [['', ''], ['0', '/docs/intro']];
     }
 
     /** @dataProvider defaultRoutes */
-    public function testRawRouteIsAddedWithoutARegularRoute(string $route): void
+    public function testRawRouteIsAddedWithoutARegularRoute(string $route, string $expected): void
     {
         // Like Errors::resetHandlers() on a site: a warning is an exception (unless @-silenced).
         set_error_handler(static function (int $errno, string $message, string $file, int $line): bool {
@@ -63,7 +64,7 @@ class PagesEmptyDefaultRouteTest extends \PHPUnit\Framework\TestCase
         $intro = $this->pages->find('/docs/intro');
         self::assertInstanceOf(PageInterface::class, $intro);
         self::assertSame('Intro', $intro->title());
-        self::assertSame($route, $intro->route());
+        self::assertSame($expected, $intro->route());
         self::assertSame('/docs/intro', $intro->rawRoute());
     }
 }

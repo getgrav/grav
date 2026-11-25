@@ -286,7 +286,7 @@ trait FormTrait
             $debugger = $grav['debugger'];
             $debugger->addException($e);
 
-            $this->setError($e->getMessage());
+            $this->setError($this->getExceptionHtml($e));
         }
 
         return $this;
@@ -357,7 +357,7 @@ trait FormTrait
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
 
-            $this->setError($e->getMessage());
+            $this->setError($this->getExceptionHtml($e));
         }
 
         $this->filterData($this->data);
@@ -392,7 +392,7 @@ trait FormTrait
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
 
-            $this->setError($e->getMessage());
+            $this->setError($this->getExceptionHtml($e));
         }
 
         return $this;
@@ -601,6 +601,10 @@ trait FormTrait
         }
         $session = $grav['session'] ?? null;
         $sessionId = $session ? $session->getId() : null;
+        if (null !== $sessionId) {
+            // Never put the session id itself into the path, see FormFlash::getSessionFolderName().
+            $sessionId = FormFlash::getSessionFolderName($sessionId);
+        }
 
         // Fill template token keys/value pairs.
         $dataMap = [
@@ -678,13 +682,32 @@ trait FormTrait
     /**
      * Set a single error.
      *
-     * @param string $error
+     * @param string $error Error message as HTML.
      * @return void
      */
     protected function setError(string $error): void
     {
         $this->status = 'error';
         $this->message = $error;
+    }
+
+    /**
+     * Get exception message as HTML.
+     *
+     * Form error is HTML and gets rendered without escaping. ValidationException builds its message as HTML and
+     * escapes the values in it, any other exception has a plain text message which may quote object keys, file names
+     * and other user provided values.
+     *
+     * @param Exception $e
+     * @return string
+     */
+    protected function getExceptionHtml(Exception $e): string
+    {
+        if ($e instanceof ValidationException) {
+            return $e->getMessage();
+        }
+
+        return htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
     }
 
     /**
@@ -871,9 +894,10 @@ trait FormTrait
                     $value = JsonBody::decode((string) $value, null, $allowance);
                 } catch (JsonException|LengthException $e) {
                     unset($data[$key]);
+                    $name = htmlspecialchars((string) $key, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
                     $this->setError($e instanceof LengthException
-                        ? "JSON data (for {$key}) sent to the form is too large: {$e->getMessage()}"
-                        : "Badly encoded JSON data (for {$key}) was sent to the form");
+                        ? "JSON data (for {$name}) sent to the form is too large: {$e->getMessage()}"
+                        : "Badly encoded JSON data (for {$name}) was sent to the form");
                 }
             }
         }

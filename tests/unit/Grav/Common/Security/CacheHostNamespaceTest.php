@@ -2,9 +2,11 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Cache;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Page\Pages;
+use Grav\Framework\Flex\FlexDirectory;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class CacheHostNamespaceTest extends \PHPUnit\Framework\TestCase
@@ -57,6 +59,24 @@ class CacheHostNamespaceTest extends \PHPUnit\Framework\TestCase
 
         self::assertSame('http://one.example/', $this->cache('one.example')->fetch('entry'));
         self::assertFalse($two->fetch('entry'));
+    }
+
+    public function testCacheCreatedBeforeUriInitIsKeptApartByPort(): void
+    {
+        // A restored session loads the user's blueprint, and with it the cache, before
+        // Uri::init(). The content saved later is rendered with the port of the request.
+        $uri = $this->grav['uri'];
+        $uri->initializeWithUrl('http://one.example:8443/');
+        $early = new Cache($this->grav);
+        $uri->init();
+        $late = new Cache($this->grav);
+
+        self::assertSame($late->getKey(), $early->getKey());
+        self::assertNotSame($this->cache('one.example')->getKey(), $early->getKey());
+
+        $early->save('entry', 'http://one.example:8443/');
+
+        self::assertFalse($this->cache('one.example')->fetch('entry'));
     }
 
     public function testSharedEntriesAreTheSameForEveryHost(): void
@@ -144,6 +164,62 @@ class CacheHostNamespaceTest extends \PHPUnit\Framework\TestCase
         self::assertSame('Other', $pages->find('/home')->title());
     }
 
+    public function testFlexSaveReachesEveryHost(): void
+    {
+        $file = $this->root . '/accounts/editor.yaml';
+        mkdir(dirname($file), 0777, true);
+        file_put_contents($file, "state: enabled\n");
+        touch($file, time() - 10);
+
+        // The index and the account are cached by a request for the first host.
+        self::assertSame('enabled', $this->directory('one.example')->getObject('editor')->get('state'));
+        self::assertSame('enabled', $this->directory('one.example')->getObject('editor')->get('state'));
+
+        // The account is saved by a request for the second host.
+        $two = $this->directory('two.example');
+        file_put_contents($file, "state: disabled\n");
+        clearstatcache();
+        CompiledYamlFile::instance($file)->free();
+        $two->reloadIndex();
+
+        self::assertSame('disabled', $this->directory('one.example')->getObject('editor')->get('state'));
+    }
+
+    public function testDifferentFlexStoragesHaveDifferentIndexes(): void
+    {
+        foreach (['accounts' => 'enabled', 'other' => 'disabled'] as $folder => $state) {
+            mkdir($this->root . '/' . $folder, 0777, true);
+            file_put_contents($this->root . "/{$folder}/editor.yaml", "state: {$state}\n");
+            touch($this->root . "/{$folder}/editor.yaml", time() - 10);
+        }
+
+        self::assertSame('enabled', $this->directory('one.example')->getObject('editor')->get('state'));
+        $shared = $this->grav['cache']->getSharedKey();
+
+        // Same configuration and shared cache key, but the accounts are kept somewhere else.
+        $two = $this->directory('two.example', 'other');
+
+        self::assertSame($shared, $this->grav['cache']->getSharedKey());
+        self::assertSame('disabled', $two->getObject('editor')->get('state'));
+    }
+
+    public function testFlexRenderedOutputIsKeptApartByHost(): void
+    {
+        $one = $this->directory('one.example');
+        $one->getCache('render')->set('block', 'http://one.example/');
+
+        self::assertNull($this->directory('two.example')->getCache('render')->get('block'));
+
+        $one = $this->directory('one.example');
+
+        self::assertSame('http://one.example/', $one->getCache('render')->get('block'));
+
+        // A save still clears the rendered output of the host it was made on.
+        $one->reloadIndex();
+
+        self::assertNull($one->getCache('render')->get('block'));
+    }
+
     /**
      * The cache service of a request for the given host.
      */
@@ -176,6 +252,23 @@ class CacheHostNamespaceTest extends \PHPUnit\Framework\TestCase
         $pages->init();
 
         return $pages;
+    }
+
+    /**
+     * The accounts directory of a request for the given host.
+     */
+    private function directory(string $host, string $folder = 'accounts'): FlexDirectory
+    {
+        unset($this->grav['cache']);
+        $this->grav['cache'] = $this->cache($host);
+
+        $enabled = ['enabled' => true, 'lifetime' => 60];
+
+        return new FlexDirectory('user-accounts', 'blueprints://flex/user-accounts.yaml', [
+            'enabled' => true,
+            'data' => ['storage' => ['options' => ['folder' => substr($this->root, strlen(GRAV_ROOT) + 1) . '/' . $folder]]],
+            'object' => ['cache' => ['index' => $enabled, 'object' => $enabled, 'render' => $enabled]],
+        ]);
     }
 
     private function bytes(): int

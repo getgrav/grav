@@ -131,7 +131,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
         }
 
         if ($validate) {
+            // Initialize the blueprint as getBlueprint() does for update(): the directory returns it uninitialized and
+            // `security@`, `scope@`, `flex-*@` and `authorize-*@` would not guard the fields of a new object.
+            // This object has no state yet, so the dynamic fields are resolved against a blank object of its class.
             $blueprint = $this->getFlexDirectory()->getBlueprint();
+            $blueprint->setScope('object');
+            $blueprint->setObject(new static([], $key, $this->_flexDirectory));
+            $blueprint->init();
 
             $blueprint->validate($elements, ['xss_check' => false]);
 
@@ -226,6 +232,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
             if ($meta) {
                 $this->setMetaData($meta);
             }
+            // Properties which have already been loaded into their member variables would keep their old values
+            // and hide the refreshed elements: unload them, so that they are loaded again from the new elements.
+            foreach (array_keys($elements + $this->getArrayElements()) as $property) {
+                $this->unsetObjectProperty((string)$property);
+            }
             $this->objectConstruct($elements, $newKey);
 
             if ($current) {
@@ -314,7 +325,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
     {
         $key = $this->_meta['flex_key'] ?? null;
 
-        if (!$key && $key = $this->getStorageKey()) {
+        if (!$key && '' !== ($key = $this->getStorageKey())) {
             $key = $this->_flexDirectory->getFlexType() . '.obj:' . $key;
         }
 
@@ -347,7 +358,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
     {
         $key = $this->getStorageKey();
 
-        return $key && $this->getFlexDirectory()->getStorage()->hasKey($key);
+        // Empty string means no key: '0' is a key like any other.
+        return '' !== $key && $this->getFlexDirectory()->getStorage()->hasKey($key);
     }
 
     /**
@@ -659,6 +671,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
      */
     public function update(array $data, array $files = [])
     {
+        // Where the object is stored is not the submitter's to choose: the storage key follows from the key field
+        // or from the storage itself, as in PageObject::update() and UserObject::update().
+        unset($data['storage_key'], $data['__META']);
+
         if ($data) {
             // Get currently stored data.
             $elements = $this->getElements();
@@ -704,7 +720,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
      */
     public function create(?string $key = null)
     {
-        if ($key) {
+        if (null !== $key && '' !== $key) {
             $this->setStorageKey($key);
         }
 
@@ -731,8 +747,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
      */
     public function check(?UserInterface $user = null): void
     {
-        // If user has been provided, check if the user has permissions to save this object.
-        if ($user && !$this->isAuthorized('save', null, $user)) {
+        // Check if the user has permissions to save this object. Like in isAuthorized(), missing user means the active user.
+        if (!$this->isAuthorized('save', null, $user)) {
             throw new \RuntimeException('Forbidden', 403);
         }
     }
@@ -747,9 +763,26 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
 
         $storage = $this->getFlexDirectory()->getStorage();
 
-        $storageKey = $this->getStorageKey() ?: '@@' . spl_object_id($this);
+        $storageKey = $this->getStorageKey();
+        if ('' === $storageKey) {
+            $storageKey = '@@' . spl_object_id($this);
+        }
 
-        $result = $storage->replaceRows([$storageKey => $this->prepareStorage()]);
+        $row = $this->prepareStorage();
+
+        // A new object must not replace an existing one: being allowed to create is not being allowed to update.
+        // The storage names the row after its key field whenever the row has one, so that is the key to check.
+        if (!isset($row['__META']['storage_key'])) {
+            $newKey = (string)($row[$storage->getKeyField()] ?? $this->getStorageKey());
+            if (method_exists($storage, 'normalizeKey')) {
+                $newKey = $storage->normalizeKey($newKey);
+            }
+            if ($newKey !== '' && $storage->hasKey($newKey)) {
+                throw new RuntimeException('Cannot create new object (Already exists)');
+            }
+        }
+
+        $result = $storage->replaceRows([$storageKey => $row]);
 
         if (method_exists($this, 'clearMediaCache')) {
             $this->clearMediaCache();

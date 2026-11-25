@@ -282,14 +282,16 @@ class PageObject extends FlexPageObject implements PageUuidInterface
     /**
      * {@inheritdoc}
      *
-     * The storage key is never taken from submitted data. It names the folder the
-     * page and its media live in and follows from the parent, order and folder. The
-     * page blueprint does not declare it, and its loose validation passes undeclared
-     * keys through.
+     * The storage key and the root flag are never taken from submitted data. The
+     * storage key names the folder the page and its media live in and follows from
+     * the parent, order and folder. The root flag marks the root of the page tree,
+     * which always exists and has no parent to allow it: only the storage and the
+     * index set it. The page blueprint declares neither, and its loose validation
+     * passes undeclared keys through.
      */
     public function update(array $data, array $files = [])
     {
-        unset($data['storage_key']);
+        unset($data['storage_key'], $data['root']);
 
         return parent::update($data, $files);
     }
@@ -312,6 +314,12 @@ class PageObject extends FlexPageObject implements PageUuidInterface
                 $parent = $index->getRoot();
             } else {
                 $parent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
+                // Like in parent(), the parent is asked in the language of this page: found by its folder it has no
+                // header (and no permissions) if it keeps the default language in `<template>.<language>.md`.
+                $language = $this->getLanguage() ?: Grav::instance()['language']->getDefault();
+                if ($language && $parent instanceof PageObject) {
+                    $parent = $parent->getTranslation($language) ?? $parent;
+                }
             }
 
             if (!$parent instanceof PageObject || !$parent->isAuthorized('create', null, $user)) {
@@ -485,6 +493,12 @@ class PageObject extends FlexPageObject implements PageUuidInterface
      */
     protected function isAuthorizedByChildren(UserInterface $user, string $action, string $scope, bool $isMe): bool
     {
+        // A folder the page index leaves out is not among the children, so the pages in it cannot be asked.
+        $storage = $this->getFlexDirectory()->getStorage();
+        if ($storage instanceof PageStorage && $storage->hasUnindexedFolders($this->getMasterKey())) {
+            return false;
+        }
+
         // Outside of admin children() returns the pages of the site, which do not need to be Flex pages.
         foreach (parent::children() as $child) {
             if (!$child instanceof self) {
@@ -739,7 +753,14 @@ class PageObject extends FlexPageObject implements PageUuidInterface
                 }
             }
 
-            $template = $this->getProperty('template') . ($name ? '.' . $name : '');
+            // The template is content: a page names it in its `template` header. Only
+            // a registered page type selects a blueprint; a path, a stream or a dotted
+            // value would load that file or an empty view as the page's blueprint.
+            $template = (string)$this->getProperty('template');
+            if (!isset(Pages::getTypes()[$template])) {
+                $template = 'default';
+            }
+            $template .= $name ? '.' . $name : '';
 
             $blueprint = $this->getFlexDirectory()->getBlueprint($template, 'blueprints://pages');
         } catch (RuntimeException) {

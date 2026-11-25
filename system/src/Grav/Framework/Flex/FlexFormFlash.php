@@ -123,8 +123,11 @@ class FlexFormFlash extends FormFlash
             // TODO: update instead of create new.
             $stored = $directory->createObjectFromStorage($data['object']['serialized'], $data['object']['key'] ?? '');
 
-            // A form opened for a new object must not turn into a form for an existing one.
-            if (!$object || !$stored->exists()) {
+            // A form opened for a new object continues only from an object which has never been saved. An object which
+            // was read from the storage has the fields its form cannot set (e.g. `security@` ones): the form must not
+            // turn into a form for it, neither while it exists nor after it has been deleted or moved.
+            $saved = $stored->getTimestamp() > 0 || $stored->exists();
+            if (!$object || !$saved) {
                 $object = $stored;
             }
         }

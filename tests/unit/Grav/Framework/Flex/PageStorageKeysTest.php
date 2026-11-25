@@ -171,6 +171,64 @@ class PageStorageKeysTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(['', '01.blog', '01.blog/my..post'], array_keys($this->storage->getExistingKeys()));
     }
 
+    public static function missingTemplates(): array
+    {
+        return [
+            'empty' => [''],
+            'not given' => [null],
+        ];
+    }
+
+    /**
+     * A page file without a template would be `.md`: a hidden file, which hides
+     * the page and the permissions in its header. A missing template keeps the
+     * page file the folder has.
+     *
+     * @dataProvider missingTemplates
+     */
+    public function testSavingWithoutATemplateKeepsThePageFile(?string $template): void
+    {
+        file_put_contents($this->root . '/pages/01.blog/default.md', "---\ntitle: Blog\n---\nBody");
+
+        $rows = ['01.blog' => null];
+        $row = $this->storage->readRows($rows)['01.blog'];
+        $this->assertSame('default', $row['__META']['template']);
+
+        $method = new ReflectionMethod(PageStorage::class, 'saveRow');
+        $method->invoke($this->storage, '01.blog', ['template' => $template, 'markdown' => 'Changed'] + $row);
+
+        $this->assertSame(['default.md'], array_values(array_diff(scandir($this->root . '/pages/01.blog') ?: [], ['.', '..'])));
+        $this->assertStringContainsString('Changed', (string)file_get_contents($this->root . '/pages/01.blog/default.md'));
+    }
+
+    public static function emptyTemplates(): array
+    {
+        return [
+            'empty' => [['template' => '']],
+            'spaces' => [['template' => '  ']],
+            'empty display template' => [['header' => ['template' => ' ']]],
+        ];
+    }
+
+    /**
+     * An empty template is a missing one: the page keeps the template of its file.
+     *
+     * @dataProvider emptyTemplates
+     */
+    public function testUpdateIgnoresAnEmptyTemplate(array $data): void
+    {
+        $flex = new Flex([], ['object' => Grav::instance()['config']->get('system.flex', [])]);
+        $flex->addDirectoryType('pages', 'blueprints://flex/pages.yaml', ['enabled' => true]);
+
+        $meta = ['key' => 'blog', 'storage_key' => '01.blog', 'template' => 'default'];
+        $page = new PageObject(['__META' => $meta, 'header' => ['title' => 'Blog'], 'markdown' => 'Body'], 'blog', $flex->getDirectory('pages'));
+        // The page form posts the page file name as well, which makes the page work out its template again.
+        $page->update(['name' => 'default'] + $data);
+
+        $this->assertSame('default', $page->template());
+        $this->assertSame('default', $page->prepareStorage()['template']);
+    }
+
     /**
      * The storage key of a page follows from its parent, order and folder, never
      * from submitted data.
@@ -228,6 +286,64 @@ class PageStorageKeysTest extends \PHPUnit\Framework\TestCase
         $index = $this->storage->getExistingKeys();
         $this->assertSame(['', '01.blog', '01.blog/post'], array_keys($index));
         $this->assertSame(array_column($expected, 'children', 'storage_key'), array_column($index, 'children', 'storage_key'));
+    }
+
+    public static function foldersWithATemporaryKeyMarker(): array
+    {
+        return [
+            'top level' => ['news@@2026'],
+            'below a page' => ['01.blog/post@@2026'],
+            'written like a temporary key' => ['@@2026'],
+        ];
+    }
+
+    /**
+     * `@@` starts the temporary key of an object which has not been saved, but it
+     * is also allowed in a folder name. A folder with one in its name is a page
+     * like any other: it is in the index with its files, and so are its pages.
+     *
+     * @dataProvider foldersWithATemporaryKeyMarker
+     */
+    public function testIndexHasFoldersWithATemporaryKeyMarker(string $folder): void
+    {
+        touch($this->root . '/pages/01.blog/default.md');
+        mkdir($this->root . '/pages/' . $folder . '/child', 0777, true);
+        touch($this->root . '/pages/' . $folder . '/default.md');
+        touch($this->root . '/pages/' . $folder . '/child/default.md');
+
+        $index = $this->storage->getExistingKeys();
+        $this->assertEqualsCanonicalizing(['', '01.blog', $folder, $folder . '/child'], array_keys($index));
+        $this->assertSame(['default'], array_keys($index[$folder]['markdown']['']));
+        $this->assertSame(['child'], array_keys($index[$folder]['children']));
+        $this->assertNotEmpty($index[$folder]['storage_timestamp']);
+
+        $this->assertTrue($this->storage->hasKey($folder));
+        $this->assertTrue($this->storage->hasKey($folder . '/child|default'));
+        $this->assertStringEndsWith('/pages/' . $folder, (string)$this->storage->getStoragePath($folder));
+    }
+
+    /**
+     * The temporary key of an unsaved object has no folder, so it does not exist,
+     * and a new page is saved by its parent and folder, whatever key it comes with.
+     */
+    public function testTemporaryKeyHasNoPage(): void
+    {
+        $this->assertFalse($this->storage->hasKey('@@2026'));
+        $this->assertFalse($this->storage->hasKey('@@2026|default'));
+
+        $method = new ReflectionMethod(PageStorage::class, 'saveRow');
+        $row = $method->invoke($this->storage, '@@2026', [
+            'parent_key' => '01.blog',
+            'folder' => 'post@@2026',
+            'template' => 'default',
+            'header' => ['title' => 'Test'],
+            'markdown' => 'Body',
+        ]);
+
+        $this->assertStringStartsWith('01.blog/post@@2026|default', $row['__META']['storage_key']);
+        $this->assertNotEmpty($row['__META']['markdown']);
+        $this->assertNotEmpty(glob($this->root . '/pages/01.blog/post@@2026/default*.md'));
+        $this->assertSame(['post@@2026'], array_map('basename', glob($this->root . '/pages/*/*', GLOB_ONLYDIR)));
     }
 
     public function testLanguageWithoutAFileDoesNotExist(): void

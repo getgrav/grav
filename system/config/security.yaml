@@ -91,6 +91,10 @@ uploads_dangerous_extensions:
   - rss
   - rdf
   - mml
+  # Apache type maps. Debian and Ubuntu ship `AddHandler type-map var`, which
+  # applies wherever `.var` appears among a name's extensions, and a type map
+  # sets its own Content-Type.
+  - var
   # Same reasoning as the php/php2-5 entries: a server whose PHP handler is
   # mapped over these suffixes executes them.
   - php7

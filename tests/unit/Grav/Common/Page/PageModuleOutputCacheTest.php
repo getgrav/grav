@@ -156,6 +156,17 @@ class PageModuleOutputCacheTest extends \PHPUnit\Framework\TestCase
         self::assertSame([], $this->moduleEntries());
     }
 
+    public function testModuleWithContentSetInMemoryStoresNothing(): void
+    {
+        // Its id is new on every request, so no request would ever find what another stored.
+        $this->render('/landing', 'Intro', 'first', null, 'Set in memory.');
+
+        $output = $this->render('/landing', 'Intro', 'second', null, 'Set in memory.');
+        self::assertStringContainsString('<b>second</b>', $output);
+        self::assertStringContainsString('Set in memory.', $output);
+        self::assertSame([], $this->cache->store);
+    }
+
     public function testCachedModuleStillAddsItsAssets(): void
     {
         $this->render('/landing', 'Intro', 'first');
@@ -166,9 +177,10 @@ class PageModuleOutputCacheTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Simulate a request for $url and return the rendered module titled $title.
+     * Simulate a request for $url and return the rendered module titled $title,
+     * with $content set as its content when given.
      */
-    private function render(string $route, string $title, string $mark, ?string $url = null): string
+    private function render(string $route, string $title, string $mark, ?string $url = null, ?string $content = null): string
     {
         $_SERVER['REQUEST_URI'] = $url ?? $route;
         $this->grav['uri']->initializeWithURL('http://localhost' . ($url ?? $route))->init();
@@ -183,7 +195,7 @@ class PageModuleOutputCacheTest extends \PHPUnit\Framework\TestCase
         self::assertInstanceOf(PageInterface::class, $page);
         foreach ($page->collection() as $module) {
             if ($module->title() === $title) {
-                return (string)$module->content();
+                return (string)$module->content($content);
             }
         }
 

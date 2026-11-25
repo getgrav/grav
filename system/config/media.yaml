@@ -26,7 +26,7 @@ types:
     mime: image/png
   webp:
     type: image
-    thumb: media/thumb-webp.png
+    thumb: media/thumb.png
     mime: image/webp
   avif:
     type: image

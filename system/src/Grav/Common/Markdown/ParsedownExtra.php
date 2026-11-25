@@ -23,6 +23,7 @@ class ParsedownExtra extends \ParsedownExtra
 {
     use ParsedownGravTrait {
         text as private pageText;
+        unmarkedText as private unmarkedTextWithoutAbbreviations;
     }
 
     /** A `markdown="1"` attribute, quoted or not, anywhere in a raw HTML block. */
@@ -144,6 +145,121 @@ class ParsedownExtra extends \ParsedownExtra
         }
 
         return parent::element($Element);
+    }
+
+    /**
+     * Build the page's footnote list.
+     *
+     * Parsedown Extra builds a footnote's backlinks as a string, with the
+     * footnote's label in the href as the author typed it. A label that holds
+     * a `"` ended the href there and the rest of it became attributes of the
+     * link. The label is escaped here, the way element() escapes it in the id
+     * of the footnote and in the marker that points to it.
+     *
+     * @return array
+     */
+    protected function buildFootnoteElement()
+    {
+        uasort($this->DefinitionData['Footnote'], [$this, 'sortFootnotes']);
+
+        $items = [];
+        foreach ($this->DefinitionData['Footnote'] as $label => $footnote) {
+            if (!isset($footnote['number'])) {
+                continue;
+            }
+
+            $backlinks = [];
+            foreach (range(1, $footnote['count']) as $number) {
+                $backlinks[] = '<a href="#fnref' . $number . ':' . self::escape($label) . '" rev="footnote" class="footnote-backref">&#8617;</a>';
+            }
+            $backlinks = implode(' ', $backlinks);
+
+            // Parsedown's own text(), as in Parsedown Extra: a footnote has no footnote list.
+            $text = \Parsedown::text($footnote['text']);
+            if (str_ends_with($text, '</p>')) {
+                $text = substr($text, 0, -4) . '&#160;' . $backlinks . '</p>';
+            } else {
+                $text .= "\n" . '<p>' . $backlinks . '</p>';
+            }
+
+            $items[] = [
+                'name' => 'li',
+                'attributes' => ['id' => 'fn:' . $label],
+                'rawHtml' => "\n" . $text . "\n",
+            ];
+        }
+
+        return [
+            'name' => 'div',
+            'attributes' => ['class' => 'footnotes'],
+            'handler' => 'elements',
+            'text' => [
+                ['name' => 'hr'],
+                ['name' => 'ol', 'handler' => 'elements', 'text' => $items],
+            ],
+        ];
+    }
+
+    /**
+     * Mark the page's abbreviations in a piece of text.
+     *
+     * Parsedown Extra writes the meaning of an abbreviation into the title of
+     * its `<abbr>` as the author typed it, so a meaning that holds a `"` ended
+     * the title there. It also looks for one abbreviation after the other in
+     * the markup it has written so far, and the autolinks come after it, so an
+     * abbreviation or a URL inside a meaning put a tag in the middle of a
+     * title, which ended the title as well. Either way the rest of the meaning
+     * became attributes of the `<abbr>`.
+     *
+     * Here the abbreviations are still looked for one after the other, in the
+     * order they were defined, but only in the text as written. The meaning is
+     * escaped (an entity in it stays one), and the line breaks and the
+     * autolinks are made from the text only, never from a title.
+     *
+     * @param string $text
+     * @return string
+     */
+    protected function unmarkedText($text)
+    {
+        $abbreviations = $this->DefinitionData['Abbreviation'] ?? [];
+        if (!$abbreviations) {
+            return $this->unmarkedTextWithoutAbbreviations($text);
+        }
+
+        // Text and abbreviations take turns: every second part is an abbreviation.
+        $text = (string) $text;
+        $parts = [$text];
+        foreach (array_keys($abbreviations) as $abbreviation) {
+            // Cheap gate: most abbreviations are not in most pieces of text.
+            $abbreviation = (string) $abbreviation;
+            if (!str_contains($text, $abbreviation)) {
+                continue;
+            }
+
+            $pattern = '/\b(' . preg_quote($abbreviation, '/') . ')\b/';
+            $split = [];
+            foreach ($parts as $i => $part) {
+                $found = $i % 2 === 0 ? preg_split($pattern, $part, -1, PREG_SPLIT_DELIM_CAPTURE) : false;
+                array_push($split, ...($found ?: [$part]));
+            }
+            $parts = $split;
+        }
+
+        // Parsedown Extra is left with no abbreviations to mark.
+        unset($this->DefinitionData['Abbreviation']);
+        try {
+            $markup = '';
+            foreach ($parts as $i => $part) {
+                $partMarkup = $this->unmarkedTextWithoutAbbreviations($part);
+                $markup .= $i % 2 === 0
+                    ? $partMarkup
+                    : '<abbr title="' . htmlspecialchars((string) $abbreviations[$part], ENT_QUOTES, 'UTF-8', false) . '">' . $partMarkup . '</abbr>';
+            }
+        } finally {
+            $this->DefinitionData['Abbreviation'] = $abbreviations;
+        }
+
+        return $markup;
     }
 
     /**
@@ -429,12 +545,17 @@ class ParsedownExtra extends \ParsedownExtra
         $markdown = null;
         $kept = '';
         $offset = 0;
+        $removed = false;
         while (preg_match(self::TAG_ATTRIBUTE, $attributes, $m, 0, $offset)) {
             $offset += strlen($m[0]);
             if (strcasecmp($m[1], 'markdown') !== 0) {
-                $kept .= $m[0];
+                // Keep what stood on either side of a removed attribute apart:
+                // `o markdown="1"nfocus=` must not be written as `onfocus=`.
+                $kept .= ($removed && !preg_match('/^\s/', $m[0]) ? ' ' : '') . $m[0];
+                $removed = false;
                 continue;
             }
+            $removed = true;
             if ($markdown === null) {
                 $value = $m[2] ?? '';
                 if ($value !== '' && ($value[0] === '"' || $value[0] === "'")) {
@@ -444,7 +565,14 @@ class ParsedownExtra extends \ParsedownExtra
             }
         }
 
-        return [$markdown === true, $kept . substr($attributes, $offset)];
+        $rest = substr($attributes, $offset);
+        if ($removed && $rest !== '' && !preg_match('/^[\s\/]/', $rest)) {
+            // What follows the removed attribute can't be read as an attribute
+            // of its own (`markdown="1"="x"`): leave the tag as written.
+            return [false, $attributes];
+        }
+
+        return [$markdown === true, $kept . $rest];
     }
 
     /**
