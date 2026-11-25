@@ -15,7 +15,7 @@ assets:
   enable_asset_timestamp: false
 
 errors:
-  display: true
+  display: 0
   log: true
 
 debugger:
