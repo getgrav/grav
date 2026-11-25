@@ -8,6 +8,8 @@
     * [security] The asset pipeline and inline asset loader only read stylesheets and scripts inside the Grav folder, and asset lists that can't be encoded get a bundle of their own
     * [security] Folders named like configuration files are no longer loaded as configuration (run `bin/grav clear` once after updating)
     * [security] The detailed error page no longer shows environment variable values or stack trace arguments
+    * [security] New sites show the simple error page by default, and `errors.display` can be turned on in `user/config/system.yaml` when the detailed page is needed
+    * [security] `vardump()` always prints its output as escaped plain text
     * [security] The debugger always hides protected configuration, its own token and login details, whatever `censored` is set to
     * [security] Absolute links in page content always use the site's own address and port, including a full custom base URL
     * [security] A request that still carries a session id replaced at login gets a new empty session instead of the signed-in one
