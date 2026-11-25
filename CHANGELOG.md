@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * [security] The security fixes below were found by Anthropic's OSS Scanner
     * [security] Page and taxonomy setters called from Twig in page content keep only plain data, and the session options in system configuration can't be read from page content
+    * [security] Page content can only change the page being rendered: setter methods called with arguments on any other page are refused
     * [security] The Twig `constant` test follows the content sandbox's function allowlist, a collection's `sort_flags` only accepts sort flag names, and `media_directory()` only opens local media folders
     * [security] The asset pipeline and inline asset loader only read stylesheets and scripts inside the Grav folder, and asset lists that can't be encoded get a bundle of their own
     * [security] Folders named like configuration files are no longer loaded as configuration (run `bin/grav clear` once after updating)
