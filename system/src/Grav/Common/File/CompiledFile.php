@@ -18,6 +18,8 @@ use RuntimeException;
 use Throwable;
 use function function_exists;
 use function get_class;
+use function is_array;
+use function is_object;
 
 /**
  * Trait CompiledFile
@@ -92,8 +94,8 @@ trait CompiledFile
                 } catch (Throwable $e) {
                     // A corrupt or partially written compiled cache file (e.g. from a
                     // concurrent regeneration race) can throw while being read/included —
-                    // including ParseError, which is an Error and would otherwise escape
-                    // this method's outer `catch (Exception)` as a fatal. Treat it as a
+                    // including ParseError, which is an Error and would otherwise end up in
+                    // this method's outer `catch` as a failed read. Treat it as a
                     // cache miss and regenerate from the raw source below, mirroring the
                     // fast-path `catch (Throwable)` above.
                     $cache = null;
@@ -137,7 +139,9 @@ trait CompiledFile
 
                 $this->content = $cache['data'];
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            // Not only Exception: a YAML parser can fail with an Error (Symfony throws a TypeError for a merge key
+            // with a scalar value in flow style), and callers handle a file which cannot be read as an Exception.
             throw new RuntimeException(sprintf('Failed to read %s: %s', Utils::basename($filename), $e->getMessage()), 500, $e);
         }
 
@@ -186,7 +190,16 @@ trait CompiledFile
             $debugger->addMessage(sprintf('%s(): Cannot obtain a lock for compiling cache file for %s: %s', __METHOD__, $this->filename, $e->getMessage()), 'warning');
         }
 
-        parent::save($data);
+        try {
+            parent::save($data);
+        } catch (Throwable $e) {
+            // Do not keep the compiled cache locked when the file could not be saved.
+            if ($locked) {
+                $file->unlock();
+            }
+
+            throw $e;
+        }
 
         if ($locked) {
             $modified = $this->modified();
@@ -274,9 +287,8 @@ trait CompiledFile
     {
         $cacheFilename = $file->filename();
 
-        // Let the PhpFile encode the payload, then write the raw PHP ourselves.
-        $file->content($cache);
-        $raw = $file->raw();
+        // Encode the payload ourselves: PhpFile indents every value by its nesting level.
+        $raw = "<?php\nreturn {$this->encodeCompiled($cache)};\n";
 
         do {
             $tmp = $cacheFilename . '.' . bin2hex(random_bytes(4)) . '.tmp';
@@ -307,6 +319,33 @@ trait CompiledFile
             // Silence error if function exists, but is restricted.
             @opcache_invalidate($cacheFilename, true);
         }
+    }
+
+    /**
+     * Encode the compiled array as PHP code without any formatting.
+     *
+     * PhpFile puts every value on a line of its own, indented four spaces per nesting
+     * level, so its output grows with values × depth while the source only grows with
+     * values + depth: a 90 KB page header nested 300 levels deep became 110 MB of PHP and
+     * ran out of memory, on every read, because the cache file was never written. The
+     * compiled file is only ever include()d, so it is written without whitespace and stays
+     * proportional to the data. Values are exported exactly as PhpFile exports them.
+     *
+     * @param array $data
+     * @return string
+     */
+    private function encodeCompiled(array $data): string
+    {
+        $items = [];
+        foreach ($data as $key => $value) {
+            if (is_array($value) || is_object($value)) {
+                $items[] = var_export($key, true) . '=>' . $this->encodeCompiled((array)$value);
+            } else {
+                $items[] = var_export($key, true) . '=>' . var_export($value, true);
+            }
+        }
+
+        return '[' . implode(',', $items) . ']';
     }
 
     /**

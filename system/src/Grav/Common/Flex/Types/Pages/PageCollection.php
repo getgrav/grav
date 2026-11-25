@@ -346,7 +346,8 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                         $child_header = $child->header();
                         $header_value = $child_header->get($header_query);
                         if (is_array($header_value)) {
-                            $list[$key] = implode(',', $header_value);
+                            // Only the scalar values of a list can be sorted by: a nested list or map has no text.
+                            $list[$key] = implode(',', array_filter($header_value, 'is_scalar'));
                         } elseif ($header_value) {
                             $list[$key] = $header_value;
                         } else {
@@ -713,8 +714,12 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 
                     foreach ($object->header()->access as $index => $accessLevel) {
                         if (is_array($accessLevel)) {
+                            // Nested rule (`site: {login: true}`): the level is the rule's name (`site.login` or `login`), not its value.
                             foreach ($accessLevel as $innerIndex => $innerAccessLevel) {
-                                if (in_array($innerAccessLevel, $accessLevels)) {
+                                if (Utils::isPositive($innerAccessLevel)
+                                    && (in_array("{$index}.{$innerIndex}", $accessLevels, true)
+                                        || in_array((string)$innerIndex, $accessLevels, true))
+                                ) {
                                     $valid = true;
                                 }
                             }
@@ -729,7 +734,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                     }
                 } else {
                     //Single value for access
-                    if (in_array($object->header()->access, $accessLevels)) {
+                    if (in_array($object->header()->access, $accessLevels, true)) {
                         $entries[$key] = $object;
                     }
                 }

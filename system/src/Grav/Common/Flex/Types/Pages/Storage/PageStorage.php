@@ -199,7 +199,8 @@ class PageStorage extends FolderStorage
         $file = $this->buildStorageKeyParams($keys);
 
         // Template is optional; if it is missing, we need to have to load the object metadata.
-        if ($file && $file[0] === '.') {
+        // Without a language nothing is left of the name: `.md` is a hidden file, which is not a page.
+        if ($file === '' || $file[0] === '.') {
             $meta = $this->getObjectMeta($this->buildStorageKey($keys, false));
             $file = ($meta['template'] ?? 'folder') . $file;
         }
@@ -393,9 +394,10 @@ class PageStorage extends FolderStorage
             $debugger = $grav['debugger'];
             $debugger->addMessage("Save page: {$newKey}", 'debug');
 
-            // Check if the row already exists.
+            // Check if the row already exists. A row can carry the key of a page which has been deleted or moved since
+            // it was loaded: there is nothing left to move or rename, so it is saved like any other new page.
             $oldKey = $row['__META']['storage_key'] ?? null;
-            if (is_string($oldKey)) {
+            if (is_string($oldKey) && $this->hasKey($oldKey)) {
                 // Initialize all old key-related variables.
                 $oldKeys = $this->extractKeysFromRow(['__META' => $row['__META']], false);
                 // The page lives in the folder named by its storage key. A folder rebuilt from order and
@@ -464,6 +466,9 @@ class PageStorage extends FolderStorage
                 // A new page cannot take over the folder of an existing page, just like a page cannot be moved or
                 // copied over another. A folder with only media or child pages in it can still become a page.
                 throw new RuntimeException(sprintf('Page /%s already exists', $newKey));
+            } else {
+                // Neither can it take over the route of a page in another folder.
+                $this->assertRouteIsFree($newKeys['key']);
             }
 
             // Clean up the data to be saved.
@@ -503,6 +508,82 @@ class PageStorage extends FolderStorage
         $row['__META'] = $this->getObjectMeta($newKey, true);
 
         return $row;
+    }
+
+    /**
+     * A page cannot be copied to the route of another page.
+     *
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     * @throws RuntimeException
+     */
+    public function copyRow(string $src, string $dst): bool
+    {
+        $this->assertRouteIsFree($dst);
+
+        return parent::copyRow($src, $dst);
+    }
+
+    /**
+     * A page cannot be moved to the route of another page.
+     *
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     * @throws RuntimeException
+     */
+    public function renameRow(string $src, string $dst): bool
+    {
+        $this->assertRouteIsFree($dst, $src);
+
+        return parent::renameRow($src, $dst);
+    }
+
+    /**
+     * Pages are found by route, and the route of a page leaves out the order prefix of its folder (and the case of
+     * its name, when urls are forced to lower case): `rules`, `01.rules` and `02.rules` are all the page `/rules`,
+     * and only one of them is served and listed. A page can therefore be created in, moved to or copied to a folder
+     * only when no other folder next to it has the same route.
+     *
+     * A move which keeps the route of the page (a new order) is left alone, so pages which already share a route
+     * can still be reordered.
+     *
+     * @param string $key Storage key of the folder the page is saved to.
+     * @param string|null $movedKey Storage key of the folder the page is moved from.
+     * @return void
+     * @throws RuntimeException
+     */
+    protected function assertRouteIsFree(string $key, ?string $movedKey = null): void
+    {
+        $keys = $this->extractKeysFromStorageKey($key);
+        $folder = Utils::basename($keys['key']);
+        $slug = $this->getFolderSlug($folder);
+
+        if (null !== $movedKey) {
+            $movedKeys = $this->extractKeysFromStorageKey($movedKey);
+            if ($movedKeys['parent_key'] === $keys['parent_key'] && $this->getFolderSlug(Utils::basename($movedKeys['key'])) === $slug) {
+                return;
+            }
+        }
+
+        foreach (array_keys($this->getObjectMeta($keys['parent_key'], true)['children'] ?? []) as $sibling) {
+            $sibling = (string)$sibling;
+            if ($sibling !== $folder && $this->getFolderSlug($sibling) === $slug) {
+                throw new RuntimeException(sprintf('Route of page /%s is already taken by another page', $keys['key']));
+            }
+        }
+    }
+
+    /**
+     * The part of the page route which the folder stands for, see getObjectMeta().
+     *
+     * @param string $folder
+     * @return string
+     */
+    protected function getFolderSlug(string $folder): string
+    {
+        return PageIndex::normalizeRoute(preg_replace(PageIndex::ORDER_PREFIX_REGEX, '', $folder) ?? $folder);
     }
 
     /**
@@ -572,6 +653,37 @@ class PageStorage extends FolderStorage
     }
 
     /**
+     * Whether the folder of the page has sub-folders which the page index leaves out (see getObjectMeta()). They are
+     * not among the children of the page, but deleting the folder removes them with it.
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function hasUnindexedFolders(string $key): bool
+    {
+        $path = $this->getStoragePath($this->extractKeysFromStorageKey($key)['key']);
+        if (!is_string($path)) {
+            return false;
+        }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        $path = $locator->isStream($path) ? $locator->findResource($path) : GRAV_ROOT . "/{$path}";
+        if (!is_string($path) || !is_dir($path)) {
+            return false;
+        }
+
+        /** @var SplFileInfo $info */
+        foreach (new FilesystemIterator($path, $this->flags) as $name => $info) {
+            if (strpbrk((string)$name, '|\\') !== false && $info->isDir()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Check if page folder should be deleted.
      *
      * Deleting page can be done either by deleting everything or just a single language.
@@ -636,13 +748,11 @@ class PageStorage extends FolderStorage
         if ($reload || !isset($this->meta[$key])) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-            if (mb_strpos((string) $key, '@@') === false) {
-                $path = $this->getStoragePath($key);
-                if (is_string($path)) {
-                    $path = $locator->isStream($path) ? $locator->findResource($path) : GRAV_ROOT . "/{$path}";
-                } else {
-                    $path = null;
-                }
+            // A page folder can have `@@` in its name, so a key with one is looked up like any other: the key
+            // of an unsaved object (`@@<id>`) has no folder and gets empty metadata from the lookup itself.
+            $path = $this->getStoragePath($key);
+            if (is_string($path)) {
+                $path = $locator->isStream($path) ? $locator->findResource($path) : GRAV_ROOT . "/{$path}";
             } else {
                 $path = null;
             }

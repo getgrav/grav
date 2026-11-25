@@ -164,11 +164,6 @@ class Uri implements \Stringable
         /** @var Language $language */
         $language = $grav['language'];
 
-        // add the port to the base for non-standard ports
-        if ($this->port && $config->get('system.reverse_proxy_setup') === false) {
-            $this->base .= ':' . $this->port;
-        }
-
         // Handle custom base
         $custom_base = rtrim((string) $grav['config']->get('system.custom_base_url', ''), '/');
         if ($custom_base) {
@@ -995,9 +990,22 @@ class Uri implements \Stringable
 
         // handle absolute URLs
         if (is_array($url) && !$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
-            $url['scheme'] = $uri->scheme(true);
-            $url['host'] = $uri->host();
-            $url['port'] = $uri->port(true);
+            // Use the site's origin, as `base_url_absolute` does: a full `custom_base_url` wins
+            // over the request, and `reverse_proxy_setup` leaves the port out. The converted
+            // link is cached with the page content, under a key built from that same root URL
+            // (see Cache::init()), so the Host header of whichever request renders the page
+            // first must not decide where the links point for everyone else.
+            $origin = parse_url((string) $uri->rootUrl(true)) ?: [];
+            if (isset($origin['host'])) {
+                $url['scheme'] = $origin['scheme'] ?? $uri->scheme(true);
+                $url['host'] = $origin['host'];
+                $url['port'] = $origin['port'] ?? null;
+            } else {
+                $url['scheme'] = $uri->scheme(true);
+                $url['host'] = $uri->host();
+                // Same rule as the base URL, which leaves the port out behind a reverse proxy.
+                $url['port'] = $grav['config']->get('system.reverse_proxy_setup') === false ? $uri->port(true) : null;
+            }
 
             // check if page exists for this route, and if so, check if it has SSL enabled
             $pages = $grav['pages'];
@@ -1605,7 +1613,16 @@ class Uri implements \Stringable
      */
     private function buildBaseUrl()
     {
-        return $this->scheme() . $this->host;
+        $base = $this->scheme() . $this->host;
+
+        // Add the port for non-standard ports. This is done here and not in init(), because
+        // services created before init(), such as the cache, key what they store by this
+        // origin, and the content they store is rendered after init().
+        if ($this->port && Grav::instance()['config']->get('system.reverse_proxy_setup') === false) {
+            $base .= ':' . $this->port;
+        }
+
+        return $base;
     }
 
     /**

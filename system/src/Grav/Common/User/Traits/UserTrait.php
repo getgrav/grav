@@ -45,6 +45,9 @@ trait UserTrait
      */
     protected const SECRET_FIELDS = [
         'hashed_password',
+        'password',             // Plain text, accepted by authenticate() until it or save() has hashed it
+        'password1',            // Plain text from a form, hashed by save()
+        'password2',
         'secret',               // 2FA secret
         'twofa_secret',         // Alternative 2FA field name
         'reset',

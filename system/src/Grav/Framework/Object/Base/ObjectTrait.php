@@ -57,7 +57,7 @@ trait ObjectTrait
      */
     public function getKey()
     {
-        return $this->_key ?: $this->getType() . '@@' . spl_object_id($this);
+        return $this->hasKey() ? $this->_key : $this->getType() . '@@' . spl_object_id($this);
     }
 
     /**
@@ -65,7 +65,7 @@ trait ObjectTrait
      */
     public function hasKey()
     {
-        return !empty($this->_key);
+        return null !== $this->_key && '' !== $this->_key;
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use Codeception\Util\Fixtures;
+use Grav\Common\Data\ValidationException;
 use Grav\Common\Grav;
 use Grav\Common\User\DataUser\User;
 use Grav\Framework\Flex\Flex;
@@ -14,6 +15,10 @@ class FlexUserFormValueSecretsTest extends \PHPUnit\Framework\TestCase
 {
     private const SECRET_FIELDS = [
         'hashed_password' => '$2y$10$abcdefghijklmnopqrstuuJ9nYQqf0pZ0bBkn5a5l3cGQ2rQ3xV9.',
+        // An account file written by hand has the password in plain text until the first login or save.
+        'password' => 'Plain-Text-77',
+        'password1' => 'Plain-Text-77',
+        'password2' => 'Plain-Text-77',
         'secret' => 'ABCDEFGH',
         'twofa_secret' => 'ABCDEFGH',
         'reset' => '0123456789abcdef0123456789abcdef::1900000000',
@@ -50,6 +55,26 @@ class FlexUserFormValueSecretsTest extends \PHPUnit\Framework\TestCase
                 self::assertArrayNotHasKey($name, $serialized);
             }
         }
+    }
+
+    public function testSecretsLeftOutOfToArrayStillPassTheBlueprintAndStayInTheAccount(): void
+    {
+        $user = $this->createFlexUser();
+        $user->set('fullname', 'John Doe');
+
+        // validate(), filter() and setDefaults() work on toArray(), which has none of the secret fields.
+        $user->validate();
+        $user->filter();
+        $user->setDefaults(['language' => 'en']);
+        self::assertSame('en', $user->get('language'));
+        foreach (self::SECRET_FIELDS as $name => $value) {
+            self::assertSame($value, $user->get($name), $name);
+            self::assertArrayNotHasKey($name, $user->toArray());
+        }
+
+        $user->set('password', 'weak');
+        $this->expectException(ValidationException::class);
+        $user->validate();
     }
 
     private function createFlexUser()

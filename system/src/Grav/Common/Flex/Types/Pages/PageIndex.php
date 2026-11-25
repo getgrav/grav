@@ -118,7 +118,11 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         }
 
         if (isset($params)) {
-            $element = $element->getTranslation(ltrim($params, '.'));
+            // Storage key params are `template.lang` (see PageStorage::parseParams()); `.lang` and `lang` work, too.
+            if (mb_strpos($params, '.') !== false) {
+                [, $params] = explode('.', $params, 2);
+            }
+            $element = $element->getTranslation($params);
         }
 
         \assert(null === $element || $element instanceof PageObject);

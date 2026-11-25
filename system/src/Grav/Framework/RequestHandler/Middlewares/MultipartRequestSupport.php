@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\RequestHandler\Middlewares;
 
+use Grav\Framework\Psr7\Response;
 use Grav\Framework\Psr7\UploadedFile;
 use Nyholm\Psr7\Stream;
 use Psr\Http\Message\ResponseInterface;
@@ -41,8 +42,28 @@ class MultipartRequestSupport implements MiddlewareInterface
         }
 
         $boundary = explode('; boundary=', $contentType, 2)[1] ?? '';
+        // RFC 2046 allows 1 to 70 characters; searching the body for a longer one can cost its length per body byte.
+        if ($boundary === '' || strlen($boundary) > 70) {
+            return $handler->handle($request->withParsedBody([])->withUploadedFiles([]));
+        }
+
         $parts = explode("--{$boundary}", $request->getBody()->getContents());
         $parts = array_slice($parts, 1, count($parts) - 2);
+
+        // Field and file names become array keys, so refuse more parts than PHP accepts in a POST.
+        $max = $this->getMaxParts();
+        if (count($parts) > $max) {
+            $body = json_encode([
+                'status' => 413,
+                'title' => 'Payload Too Large',
+                'detail' => sprintf('The multipart body has more than the %d parts allowed.', $max),
+            ]);
+
+            return new Response(413, [
+                'Content-Type' => 'application/problem+json',
+                'Cache-Control' => 'no-store, max-age=0',
+            ], (string) $body);
+        }
 
         $params = [];
         $files = [];
@@ -51,6 +72,22 @@ class MultipartRequestSupport implements MiddlewareInterface
         }
 
         return $handler->handle($request->withParsedBody($params)->withUploadedFiles($files));
+    }
+
+    /**
+     * Most parts one body may have: the limit PHP has for multipart POST requests.
+     *
+     * @return int
+     */
+    protected function getMaxParts(): int
+    {
+        $max = ini_get('max_multipart_body_parts');
+        if ($max === false || (int) $max < 0) {
+            // Not set: PHP allows as many parts as it allows fields and files.
+            $max = (int) ini_get('max_input_vars') + (int) ini_get('max_file_uploads');
+        }
+
+        return max(0, (int) $max);
     }
 
     /**
@@ -76,7 +113,11 @@ class MultipartRequestSupport implements MiddlewareInterface
                 continue;
             }
             [$name, $value] = $fields;
-            $headers[strtolower($name)] = ltrim($value, ' ');
+            $name = strtolower($name);
+            // Keep the headers read below only: a name chosen by the client must not become an array key.
+            if ($name === 'content-disposition' || $name === 'content-type') {
+                $headers[$name] = ltrim($value, ' ');
+            }
         }
 
         if (!isset($headers['content-disposition'])) {

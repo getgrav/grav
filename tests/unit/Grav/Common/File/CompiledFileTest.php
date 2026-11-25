@@ -76,6 +76,81 @@ class CompiledFileTest extends \PHPUnit\Framework\TestCase
         self::assertEmpty($this->logHandler->getRecords());
     }
 
+    /**
+     * The compiled file must stay proportional to its source. Indenting every value by its
+     * nesting level made it values × depth instead: a page header of 90 KB turned into 110 MB
+     * of PHP, and every read of that page ran out of memory.
+     */
+    public function testCompiledFileOfDeeplyNestedSourceStaysProportionalToTheSource(): void
+    {
+        $depth = 100;
+        $yaml = 'deep: ' . str_repeat('[', $depth) . implode(',', array_fill(0, 2000, '[]')) . str_repeat(']', $depth) . "\n";
+        $source = $this->writeSource('deep.yaml', $yaml);
+        $compiled = $this->compiledPath($source);
+        @unlink($compiled);
+
+        $data = $this->read($source);
+
+        $list = $data['deep'];
+        for ($i = 1; $i < $depth; $i++) {
+            self::assertCount(1, $list);
+            $list = $list[0];
+        }
+        self::assertSame(array_fill(0, 2000, []), $list);
+
+        self::assertFileExists($compiled);
+        self::assertLessThan(10 * strlen($yaml), filesize($compiled), 'Nesting does not multiply the size of the compiled file');
+        $cache = include $compiled;
+        self::assertSame($data, $cache['data']);
+
+        // Saving goes through the same writer.
+        @unlink($compiled);
+        $file = CompiledYamlFile::instance($source);
+        try {
+            $file->save($data);
+        } finally {
+            $file->free();
+        }
+        clearstatcache();
+        self::assertFileExists($compiled);
+        self::assertLessThan(10 * strlen($yaml), filesize($compiled));
+        $cache = include $compiled;
+        self::assertSame($data, $cache['data']);
+    }
+
+    /**
+     * Dropping the formatting must not change what is read back.
+     */
+    public function testCompiledFileKeepsEveryKindOfValue(): void
+    {
+        $data = [
+            'string' => "it's a \\ \"quoted\"\nmulti-line value with <?php ?>, \$var and {\$var}",
+            'empty' => '',
+            'int' => -42,
+            'float' => 0.1,
+            'true' => true,
+            'false' => false,
+            'null' => null,
+            'list' => ['a', 'b', ['c']],
+            'map' => ['key with \'quote\'' => 1, 10 => 'ten', -3 => 'minus'],
+            'none' => [],
+        ];
+        $source = $this->writeSource('values.yaml', "placeholder: true\n");
+        $compiled = $this->compiledPath($source);
+
+        $file = CompiledYamlFile::instance($source);
+        try {
+            $file->save($data);
+        } finally {
+            $file->free();
+        }
+        clearstatcache();
+
+        $cache = include $compiled;
+        self::assertSame($data, $cache['data']);
+        self::assertSame($data, $this->read($source));
+    }
+
     public function testCorruptCompiledFileIsRegeneratedAndLogged(): void
     {
         $source = $this->writeSource('corrupt.yaml', "title: Restored\n");

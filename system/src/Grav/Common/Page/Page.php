@@ -31,6 +31,7 @@ use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\Page\Traits\PageUuidTrait;
 use Grav\Common\Security;
+use Grav\Common\Twig\Sandbox\PageWriteGuard;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Uri;
 use Grav\Common\User\Interfaces\UserInterface;
@@ -281,8 +282,16 @@ class Page implements PageInterface, PageUuidInterface
                     unset($process_fields[$field]);
                 }
             }
-            $text_header = Grav::instance()['twig']->processString(json_encode($process_fields, JSON_UNESCAPED_UNICODE), ['page' => $this]);
-            $this->header((object)(json_decode((string) $text_header, true) + $ignored_fields));
+            // Render each value on its own, so that what Twig prints is only ever the text of that
+            // value. Rendering the JSON of the whole header as one template and decoding the result
+            // let a printed quote or backslash break the header or add keys to it.
+            $twig = Grav::instance()['twig'];
+            array_walk_recursive($process_fields, function (&$value) use ($twig) {
+                if (is_string($value) && Utils::contains($value, ['{{', '{%', '{#'])) {
+                    $value = PageWriteGuard::rendering($this, fn () => $twig->processString($value, ['page' => $this]));
+                }
+            });
+            $this->header((object)($process_fields + $ignored_fields));
         }
     }
 
@@ -447,7 +456,7 @@ class Page implements PageInterface, PageUuidInterface
             if (!empty($header['slug']) && is_scalar($header['slug'])) {
                 $slug = $header['slug'];
             }
-            if (isset($header['routes']['default']) && is_string($header['routes']['default']) && $header['routes']['default'] !== '') {
+            if (isset($header['routes']['default']) && is_string($header['routes']['default']) && $header['routes']['default'] !== '' && Pages::isLocalRoute($header['routes']['default'])) {
                 $routesDefault = $header['routes']['default'];
             }
             break;
@@ -620,11 +629,16 @@ class Page implements PageInterface, PageUuidInterface
                         }
                     }
                 } catch (Exception $e) {
+                    // The parser's message quotes the failing line of the file: show it as text.
+                    $message = strtr(htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), [
+                        '{' => '&#123;', '}' => '&#125;', '[' => '&#91;', ']' => '&#93;',
+                        '`' => '&#96;', '*' => '&#42;', '_' => '&#95;', '\\' => '&#92;'
+                    ]);
                     $file->raw(Grav::instance()['language']->translate([
                         'GRAV.FRONTMATTER_ERROR_PAGE',
                         $this->slug(),
                         $file->filename(),
-                        $e->getMessage(),
+                        $message,
                         $file->raw()
                     ]));
                     $this->raw_content = $file->markdown();
@@ -650,12 +664,21 @@ class Page implements PageInterface, PageUuidInterface
                 if (isset($routes['aliases'])) {
                     $this->routes['aliases'] = array_values(array_filter((array)$routes['aliases'], 'is_string'));
                 }
+                // The default route is the target of links to the page: it has to be a path on this site.
+                if (isset($this->routes['default']) && !Pages::isLocalRoute($this->routes['default'])) {
+                    unset($this->routes['default']);
+                }
             }
             if (isset($this->header->title)) {
                 $this->title = trim($this->header->title);
             }
-            if (isset($this->header->language)) {
-                $this->language = trim($this->header->language);
+            if (isset($this->header->language) && is_scalar($this->header->language)) {
+                // The language is a part of the page's file name (<template>.<language>.md),
+                // so only a language code can override the one from the file extension.
+                $language = trim((string)$this->header->language);
+                if (preg_match('/^[\w-]*$/u', $language)) {
+                    $this->language = $language;
+                }
             }
             if (isset($this->header->template)) {
                 $this->template = trim($this->header->template);
@@ -739,8 +762,9 @@ class Page implements PageInterface, PageUuidInterface
             if (isset($this->header->debugger)) {
                 $this->debugger = (bool)$this->header->debugger;
             }
-            if (isset($this->header->append_url_extension)) {
-                $this->url_extension = $this->header->append_url_extension;
+            // Only a scalar can be appended to the URL; a list or map falls back to the system config.
+            if (isset($this->header->append_url_extension) && is_scalar($this->header->append_url_extension)) {
+                $this->url_extension = (string)$this->header->append_url_extension;
             }
         }
 
@@ -1346,6 +1370,7 @@ class Page implements PageInterface, PageUuidInterface
      *
      * The output is cached only when all of these hold:
      * - the modular page that holds the module sets `cache_modules: true`;
+     * - the module has the id of its file, not one given to content or media set in memory;
      * - neither page sets `never_cache_twig`, and neither has a form or an access rule;
      * - the module body has no Twig of its own (it is request-aware even in the sandbox);
      * - the request is a GET or HEAD from a visitor who is not logged in, so a logged-in
@@ -1360,7 +1385,7 @@ class Page implements PageInterface, PageUuidInterface
      */
     private function moduleOutputCacheId(): ?string
     {
-        if (!$this->isModule()) {
+        if (!$this->isModule() || $this->hasMemoryId()) {
             return null;
         }
 
@@ -1431,6 +1456,11 @@ class Page implements PageInterface, PageUuidInterface
      */
     public function cachePageContent()
     {
+        // A memory id is new on every request, so an entry stored under it is never read again.
+        if ($this->hasMemoryId()) {
+            return;
+        }
+
         /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
         $cache_id = md5('page' . $this->getPageContentCacheKey(Grav::instance()['config']));
@@ -1917,7 +1947,8 @@ class Page implements PageInterface, PageUuidInterface
     public function name($var = null)
     {
         if ($var !== null) {
-            $this->name = $var;
+            // Filename of the page, never a path (see filePath()).
+            $this->name = Utils::basename((string)$var);
         }
 
         return $this->name ?: 'default.md';
@@ -1966,7 +1997,8 @@ class Page implements PageInterface, PageUuidInterface
         }
 
         if (!isset($this->template_format)) {
-            $this->template_format = ltrim($this->header->append_url_extension ?? Utils::getPageFormat(), '.');
+            $extension = $this->header->append_url_extension ?? null;
+            $this->template_format = ltrim(is_scalar($extension) ? (string)$extension : Utils::getPageFormat(), '.');
         }
 
         return $this->template_format;
@@ -2050,7 +2082,8 @@ class Page implements PageInterface, PageUuidInterface
     public function title($var = null)
     {
         if ($var !== null) {
-            $this->title = $var;
+            // Text only: a Twig\Markup would print unescaped, an object is not a title.
+            $this->title = \is_scalar($var) || $var instanceof \Twig\Markup ? (string)$var : null;
         }
         if (empty($this->title)) {
             $this->title = ucfirst($this->slug());
@@ -2069,7 +2102,8 @@ class Page implements PageInterface, PageUuidInterface
     public function menu($var = null)
     {
         if ($var !== null) {
-            $this->menu = $var;
+            // Text only: a Twig\Markup would print unescaped, an object is not a menu name.
+            $this->menu = \is_scalar($var) || $var instanceof \Twig\Markup ? (string)$var : null;
         }
         if (empty($this->menu)) {
             $this->menu = $this->title();
@@ -2294,7 +2328,8 @@ class Page implements PageInterface, PageUuidInterface
     public function metadata($var = null)
     {
         if ($var !== null) {
-            $this->metadata = self::escapeMetadata((array)$var);
+            // Plain data only: an `(array)` cast would list an object's private and protected properties.
+            $this->metadata = self::escapeMetadata((array)Header::plainData($var));
         }
 
         // if not metadata yet, process it.
@@ -2639,6 +2674,25 @@ class Page implements PageInterface, PageUuidInterface
     }
 
     /**
+     * Whether the page has an id from memoryId(). Such an id is made up again on every
+     * request, so nothing stored in a persistent cache under it can ever be looked up.
+     *
+     * @return bool
+     */
+    private function hasMemoryId(): bool
+    {
+        return str_contains($this->id(), 'mem-');
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isMediaCacheable(): bool
+    {
+        return !$this->hasMemoryId();
+    }
+
+    /**
      * Gets and sets the identifier for this Page object.
      *
      * @param  string|null $var the identifier
@@ -2646,7 +2700,7 @@ class Page implements PageInterface, PageUuidInterface
      */
     public function id($var = null)
     {
-        if (null === $this->id) {
+        if (null === $var && null === $this->id) {
             // We need to set unique id to avoid potential cache conflicts between pages.
             $var = $this->memoryId();
         }
@@ -2829,7 +2883,8 @@ class Page implements PageInterface, PageUuidInterface
     public function dateformat($var = null)
     {
         if ($var !== null) {
-            $this->dateformat = $var;
+            // The header can hold anything, but only a string is a date format.
+            $this->dateformat = is_string($var) ? $var : null;
         }
 
         return $this->dateformat;
@@ -2931,6 +2986,8 @@ class Page implements PageInterface, PageUuidInterface
     public function taxonomy($var = null)
     {
         if ($var !== null) {
+            // Plain data only, as the casts below would list an object's private and protected properties.
+            $var = Header::plainData($var);
             if (is_object($var)) {
                 $var = get_object_vars($var);
             } elseif (!is_array($var)) {

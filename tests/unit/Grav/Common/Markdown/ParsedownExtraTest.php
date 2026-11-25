@@ -185,6 +185,27 @@ class ParsedownExtraTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Cutting `markdown="1"` out of a tag never joins the names or values on
+     * either side of it into a new attribute or tag name.
+     *
+     * @dataProvider markdownAttributeRemovalProvider
+     */
+    public function testRemovingTheMarkdownAttributeKeepsNeighboursApart(string $markdown, string $expected): void
+    {
+        self::assertSame($expected, $this->parsedown->text($markdown));
+    }
+
+    public static function markdownAttributeRemovalProvider(): array
+    {
+        return [
+            'attribute names stay apart' => ["<div tabindex=0 autofocus o markdown=\"1\"nfocus=\"x\">\nhi\n</div>", "<div tabindex=0 autofocus o nfocus=\"x\">\n<p>hi</p>\n</div>"],
+            'tag name stays whole' => ["<im markdown=\"1\"g src=x>\nhi\n</im>", "<im g src=x>\n<p>hi</p>\n</im>"],
+            'a value is not bound to the removed attribute, the tag is not read as a block' => ["<div onfocus markdown=\"1\"=\"x\">\nhi\n</div>", "<p>&lt;div onfocus markdown=\"1\"=\"x\"&gt;\nhi\n</div></p>"],
+            'a well-formed attribute is removed as before' => ["<div class=\"a\" markdown=\"1\" id=\"b\">\nhi\n</div>", "<div class=\"a\" id=\"b\">\n<p>hi</p>\n</div>"],
+        ];
+    }
+
+    /**
      * The Markdown inside a `markdown="1"` element is rendered as the author
      * wrote it. It used to be rebuilt from a DOM first, which lowercased tags
      * in fenced code (#1840), turned `>` into `&gt;` (#3204), escaped `&` a
@@ -293,6 +314,43 @@ class ParsedownExtraTest extends \PHPUnit\Framework\TestCase
             'marker above the block, definition inside it' => ["Above.[^a]\n\n<div markdown=\"1\">\n[^a]: Note A.\n\nInside.\n</div>", "<p>Above.<sup id=\"fnref1:a\"><a href=\"#fn:a\" class=\"footnote-ref\">1</a></sup></p>\n<div>\n<p>Inside.</p>\n</div>\n<div class=\"footnotes\">\n<hr />\n<ol>\n<li id=\"fn:a\">\n<p>Note A.&#160;<a href=\"#fnref1:a\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n</ol>\n</div>"],
             'numbered in reading order across the block' => ["One[^1].\n\n<div markdown=\"1\">\nTwo[^2].\n</div>\n\nThree[^3].\n\n[^1]: N1\n[^2]: N2\n[^3]: N3", "<p>One<sup id=\"fnref1:1\"><a href=\"#fn:1\" class=\"footnote-ref\">1</a></sup>.</p>\n<div>\n<p>Two<sup id=\"fnref1:2\"><a href=\"#fn:2\" class=\"footnote-ref\">2</a></sup>.</p>\n</div>\n<p>Three<sup id=\"fnref1:3\"><a href=\"#fn:3\" class=\"footnote-ref\">3</a></sup>.</p>\n<div class=\"footnotes\">\n<hr />\n<ol>\n<li id=\"fn:1\">\n<p>N1&#160;<a href=\"#fnref1:1\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n<li id=\"fn:2\">\n<p>N2&#160;<a href=\"#fnref1:2\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n<li id=\"fn:3\">\n<p>N3&#160;<a href=\"#fnref1:3\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n</ol>\n</div>"],
             'marker and definition inside the block' => ["<div markdown=\"1\">\nInside.[^x]\n\n[^x]: Inner note.\n</div>\n\nAfter.", "<div>\n<p>Inside.<sup id=\"fnref1:x\"><a href=\"#fn:x\" class=\"footnote-ref\">1</a></sup></p>\n</div>\n<p>After.</p>\n<div class=\"footnotes\">\n<hr />\n<ol>\n<li id=\"fn:x\">\n<p>Inner note.&#160;<a href=\"#fnref1:x\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n</ol>\n</div>"],
+        ];
+    }
+
+    /**
+     * A footnote's label is escaped in the href of its backlinks, as it is in
+     * the ids and in the marker. It was written there as typed, so a `"` in a
+     * label ended the href and the rest of the label became attributes.
+     */
+    public function testFootnoteLabelIsEscapedInTheBacklink(): void
+    {
+        self::assertSame(
+            "<p>See<sup id=\"fnref1:x&quot; onfocus=&quot;alert(1)\"><a href=\"#fn:x&quot; onfocus=&quot;alert(1)\" class=\"footnote-ref\">1</a></sup> and<sup id=\"fnref1:a&amp;b\"><a href=\"#fn:a&amp;b\" class=\"footnote-ref\">2</a></sup>, again<sup id=\"fnref2:a&amp;b\"><a href=\"#fn:a&amp;b\" class=\"footnote-ref\">2</a></sup>.</p>\n<div class=\"footnotes\">\n<hr />\n<ol>\n<li id=\"fn:x&quot; onfocus=&quot;alert(1)\">\n<p>Note.&#160;<a href=\"#fnref1:x&quot; onfocus=&quot;alert(1)\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n<li id=\"fn:a&amp;b\">\n<ul>\n<li>Other.</li>\n</ul>\n<p><a href=\"#fnref1:a&amp;b\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a> <a href=\"#fnref2:a&amp;b\" rev=\"footnote\" class=\"footnote-backref\">&#8617;</a></p>\n</li>\n</ol>\n</div>",
+            $this->parsedown->text("See[^x\" onfocus=\"alert(1)] and[^a&b], again[^a&b].\n\n[^x\" onfocus=\"alert(1)]: Note.\n[^a&b]: - Other.")
+        );
+    }
+
+    /**
+     * An abbreviation's meaning stays inside the title of its `<abbr>`. It was
+     * written there as typed, and the abbreviations and autolinks found inside
+     * a title were marked up there too, which ended the title early.
+     *
+     * @dataProvider abbreviationMeaningProvider
+     */
+    public function testAbbreviationMeaningStaysInTheTitle(string $markdown, string $expected): void
+    {
+        self::assertSame($expected, $this->parsedown->text($markdown));
+    }
+
+    public static function abbreviationMeaningProvider(): array
+    {
+        return [
+            'quote in the meaning' => ["*[HTML]: x\" onfocus=\"alert(1)\n\nHTML", "<p><abbr title=\"x&quot; onfocus=&quot;alert(1)\">HTML</abbr></p>"],
+            'markup and entities in the meaning' => ["*[HTML]: Hyper Text <Markup> Language &amp; more &copy; & 'so' on\n\nHTML", "<p><abbr title=\"Hyper Text &lt;Markup&gt; Language &amp; more &copy; &amp; &#039;so&#039; on\">HTML</abbr></p>"],
+            'abbreviation in the meaning of another' => ["*[HTML]: see W3C there\n*[W3C]: x onfocus=alert(1) y\n\nHTML and W3C", "<p><abbr title=\"see W3C there\">HTML</abbr> and <abbr title=\"x onfocus=alert(1) y\">W3C</abbr></p>"],
+            'autolinks in the meaning' => ["*[HTML]: see www.example.com/onfocus=alert(1)// or bob@example.com\n\nHTML at www.example.com", "<p><abbr title=\"see www.example.com/onfocus=alert(1)// or bob@example.com\">HTML</abbr> at <a href=\"http://www.example.com\">www.example.com</a></p>"],
+            'abbreviation in the name of another' => ["*[Hyper Text]: linked text\n*[Text]: words\n\nHyper Text and Text", "<p><abbr title=\"linked text\">Hyper Text</abbr> and <abbr title=\"words\">Text</abbr></p>"],
+            'abbreviations named like the markup' => ["*[br]: break\n*[title]: heading\n*[abbr]: abbreviation\n\nbr  \ntitle abbr", "<p><abbr title=\"break\">br</abbr><br />\n<abbr title=\"heading\">title</abbr> <abbr title=\"abbreviation\">abbr</abbr></p>"],
         ];
     }
 

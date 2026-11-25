@@ -46,6 +46,21 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     }
 
     /**
+     * {@inheritdoc}
+     * @see FlexObject::refresh()
+     */
+    public function refresh(bool $keepMissing = false): bool
+    {
+        $refreshed = parent::refresh($keepMissing);
+        if ($refreshed) {
+            // Loading the access which was read again also replaces $this->_access, see offsetLoad_access().
+            $this->getProperty('access');
+        }
+
+        return $refreshed;
+    }
+
+    /**
      * @return string
      */
     public function getTitle(): string
@@ -97,6 +112,28 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
             throw new RuntimeException('User group with this name already exists');
         }
 
+        // `access` and `enabled` are written by super admins only (`security@: admin.super`), so for anyone else
+        // they are the values this object was read with. A super admin may have changed them since: save them as
+        // they are stored now, not as they were read.
+        $user = $this->getActiveUser();
+        if ($oldKey !== '' && $user && $user->authenticated && !$this->actorHasSuperAccess($user, true)) {
+            clearstatcache();
+            $storage->getMetaData([$oldKey], true);
+            $stored = $storage->readRows([$oldKey => null])[$oldKey] ?? [];
+            foreach (['access', 'enabled'] as $property) {
+                if (isset($stored[$property])) {
+                    $this->setProperty($property, $stored[$property]);
+                } else {
+                    // Both the loaded value and the element it was loaded from.
+                    $this->unsetObjectProperty($property);
+                    $this->unsetArrayProperty($property);
+                    if ($property === 'access') {
+                        $this->_access = null;
+                    }
+                }
+            }
+        }
+
         return parent::save();
     }
 
@@ -126,7 +163,10 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
         // little if a user manager could switch off, re-permission or delete the
         // group its members are super-admins through. Read straight from the ACL,
         // so a group that is switched off is guarded the same as one that is on.
-        if (in_array($action, ['update', 'delete'], true)
+        // `create` is guarded as well, as it is for accounts: it is also asked of an
+        // existing group (a create task posted to it) and of an unsaved one that
+        // already carries a super access map (restored from a form flash).
+        if (in_array($action, ['create', 'update', 'delete'], true)
             && $this->hasSuperAccess()
             && !$this->actorHasSuperAccess($user, $isMe)
         ) {
@@ -149,6 +189,10 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     }
 
     /**
+     * Whether the actor is a super admin. Super-admin access has to be granted by name: a blanket grant of its
+     * parent (`api: true`) does not make the actor a super admin here, as it doesn't in the API. A target's
+     * super-admin access is read with inheritance, see hasSuperAccess(), so the guard errs towards protecting it.
+     *
      * @param UserInterface $user
      * @param bool $isMe
      * @return bool
@@ -156,9 +200,13 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     protected function actorHasSuperAccess(UserInterface $user, bool $isMe): bool
     {
         $scope = $isMe ? null : 'test';
+        foreach (['admin.super', 'api.super'] as $rule) {
+            if ($user->authorize($rule, $scope) === true && Access::isGrantedExplicitly($user, $rule)) {
+                return true;
+            }
+        }
 
-        return $user->authorize('admin.super', $scope) === true
-            || $user->authorize('api.super', $scope) === true;
+        return false;
     }
 
     /**

@@ -17,7 +17,9 @@ use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
 use InvalidArgumentException;
 use LogicException;
+use RocketTheme\Toolbox\File\File;
 use RuntimeException;
+use function array_key_exists;
 use function is_scalar;
 use function is_string;
 
@@ -35,6 +37,8 @@ class SimpleStorage extends AbstractFilesystemStorage
     protected $prefix;
     /** @var array|null */
     protected $data;
+    /** @var array Rows as they were last read from or written to the file. */
+    protected $stored = [];
     /** @var int */
     protected $modified = 0;
 
@@ -288,8 +292,13 @@ class SimpleStorage extends AbstractFilesystemStorage
         }
 
         // Change single key in the array without changing the order or value.
-        $keys = array_keys($this->data);
-        $keys[array_search($src, $keys, true)] = $dst;
+        // PHP turns numeric array keys into integers, so compare the keys as strings.
+        $keys = array_map('strval', array_keys($this->data));
+        $pos = array_search($src, $keys, true);
+        if (false === $pos) {
+            return false;
+        }
+        $keys[$pos] = $dst;
 
         $data = array_combine($keys, $this->data);
         if (false === $data) {
@@ -359,6 +368,13 @@ class SimpleStorage extends AbstractFilesystemStorage
                 $key = $this->getNewKey();
             }
 
+            // Validate the key: hasKey() does not find an empty key or '0', so a row saved under one
+            // could not be read, updated or deleted anymore and the next row saved there would replace it.
+            $key = is_scalar($key) ? (string)$key : '';
+            if (!$key) {
+                throw new InvalidArgumentException(sprintf('Invalid storage key: "%s"', $key));
+            }
+
             // Check if the row already exists and if the key has been changed.
             $oldKey = $row['__META']['storage_key'] ?? null;
             if (is_string($oldKey) && $oldKey !== $key) {
@@ -407,14 +423,29 @@ class SimpleStorage extends AbstractFilesystemStorage
                 throw new RuntimeException('Storage path is not defined');
             }
             $file = $this->getFile($path);
+
+            // All the rows share one file and $this->data is that file as it was when it was first read. Somebody
+            // else may have saved the file since then, and writing the rows as they are known in here would undo
+            // that. Hold a lock shared by all the saves of this file, read the file again and only apply the
+            // changes which were made in here.
+            $lock = $this->lockFile($file->filename());
+            clearstatcache(true, $file->filename());
+            $file->load();
+            $content = (array)$file->content();
+            $stored = $this->prefix ? (array)(new Data($content))->get($this->prefix, []) : $content;
+            if ($stored !== $this->stored) {
+                $this->data = $this->mergeRows($stored);
+            }
+
             if ($this->prefix) {
-                $data = new Data((array)$file->content());
+                $data = new Data($content);
                 $content = $data->set($this->prefix, $this->data)->toArray();
             } else {
                 $content = $this->data;
             }
             $file->save($content);
             $this->modified = (int)$file->modified(); // cast false to 0
+            $this->stored = $this->data;
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf('Flex save(): %s', $e->getMessage()));
         } finally {
@@ -422,7 +453,51 @@ class SimpleStorage extends AbstractFilesystemStorage
                 $file->free();
                 unset($file);
             }
+            if (isset($lock)) {
+                $lock->free();
+            }
         }
+    }
+
+    /**
+     * Applies the changes which were made to the rows in here to the rows which are in the file now.
+     *
+     * @param array $rows Rows in the file.
+     * @return array
+     */
+    protected function mergeRows(array $rows): array
+    {
+        // Rows which were removed or renamed in here.
+        foreach (array_diff_key($this->stored, $this->data) as $key => $row) {
+            unset($rows[$key]);
+        }
+
+        // Rows which were added or changed in here. All the other rows stay as they are in the file.
+        foreach ($this->data as $key => $row) {
+            if (!array_key_exists($key, $this->stored) || $this->stored[$key] !== $row) {
+                $rows[$key] = $row;
+            }
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Takes the lock shared by everything which saves the storage file.
+     *
+     * @param string $filename
+     * @return File The lock, release it with free().
+     */
+    protected function lockFile(string $filename): File
+    {
+        $lock = File::instance(CACHE_DIR . 'compiled/files/' . md5($filename) . '.lock');
+        try {
+            $lock->lock();
+        } catch (RuntimeException $e) {
+            // Carry on without the lock if it cannot be created, like CompiledFile::save() does.
+        }
+
+        return $lock;
     }
 
     /**
@@ -445,7 +520,7 @@ class SimpleStorage extends AbstractFilesystemStorage
     {
         $path = $this->getStoragePath();
         if (!$path) {
-            $this->data = [];
+            $this->data = $this->stored = [];
 
             return [];
         }
@@ -462,7 +537,7 @@ class SimpleStorage extends AbstractFilesystemStorage
         $file->free();
         unset($file);
 
-        $this->data = $content;
+        $this->data = $this->stored = $content;
 
         $list = [];
         foreach ($this->data as $key => $info) {

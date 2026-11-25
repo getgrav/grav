@@ -2,8 +2,25 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Flex\Types\Pages\PageObject;
 use Grav\Common\Grav;
 use Grav\Framework\Flex\FlexDirectory;
+
+/**
+ * Counts how many times pages are asked whether they cascade: unpublishedBy() asks each ancestor once.
+ */
+class CascadeCountingPageObject extends PageObject
+{
+    /** @var int */
+    public static $asked = 0;
+
+    public function cascadesUnpublish(): bool
+    {
+        self::$asked++;
+
+        return parent::cascadesUnpublish();
+    }
+}
 
 /**
  * Flex pages follow `cascade_unpublish` the same way regular pages do: while a page that cascades is
@@ -103,6 +120,37 @@ class FlexPageCascadeUnpublishTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Each page asks every page above it once. unpublishedBy() used to walk the ancestors a second time through
+     * the parent's published(), which doubled the work at every level of a tree of published pages that cascade.
+     */
+    public function testDeepTreeOfCascadingPagesIsWalkedOnce(): void
+    {
+        $depth = 16;
+        $pages = [];
+        foreach (['live', 'cut'] as $top) {
+            $folder = $top;
+            for ($level = 2; $level <= $depth; $level++) {
+                $pages[$folder] = "cascade_unpublish: true\n";
+                $folder .= "/p{$level}";
+            }
+            $pages[$folder] = '';
+        }
+        $pages['cut/p2/p3'] = $pages['cut/p2/p3/p4/p5'] = "published: false\ncascade_unpublish: true\n";
+        $directory = $this->directory($pages, CascadeCountingPageObject::class);
+        $deepest = substr($folder, strlen('cut'));
+
+        CascadeCountingPageObject::$asked = 0;
+        self::assertTrue($directory->getObject("live{$deepest}")->published());
+        self::assertSame($depth - 1, CascadeCountingPageObject::$asked, 'Every ancestor is asked once');
+        self::assertNull($directory->getObject("live{$deepest}")->unpublishedBy());
+
+        self::assertFalse($directory->getObject("cut{$deepest}")->published());
+        self::assertSame('/cut/p2/p3', $directory->getObject("cut{$deepest}")->unpublishedBy(), 'The ancestor furthest up wins');
+        self::assertNull($directory->getObject('cut/p2/p3')->unpublishedBy(), 'Unpublished by its own setting');
+        self::assertFalse($directory->getObject('cut/p2/p3')->published());
+    }
+
+    /**
      * With regular pages on the site, PageObject::parent() returns a regular page outside of admin.
      */
     public function testRegularParentCascadesToAFlexChild(): void
@@ -126,8 +174,9 @@ class FlexPageCascadeUnpublishTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @param array<string,string> $pages Frontmatter of every page, by its folder.
+     * @param string $object Class of the page objects.
      */
-    private function directory(array $pages): FlexDirectory
+    private function directory(array $pages, string $object = PageObject::class): FlexDirectory
     {
         foreach ($pages as $folder => $frontmatter) {
             $path = GRAV_ROOT . "/{$this->folder}/{$folder}";
@@ -137,7 +186,7 @@ class FlexPageCascadeUnpublishTest extends \PHPUnit\Framework\TestCase
 
         return new FlexDirectory('pages', 'blueprints://flex/pages.yaml', [
             'enabled' => true,
-            'data' => ['storage' => ['options' => ['folder' => $this->folder, 'indexed' => false]]],
+            'data' => ['object' => $object, 'storage' => ['options' => ['folder' => $this->folder, 'indexed' => false]]],
             'object' => ['cache' => ['index' => ['enabled' => false], 'object' => ['enabled' => false], 'render' => ['enabled' => false]]],
         ]);
     }

@@ -13,7 +13,6 @@ use ErrorException;
 use Exception;
 use Grav\Common\Grav;
 use Whoops\Handler\JsonResponseHandler;
-use Whoops\Handler\PrettyPageHandler;
 use Whoops\Run;
 use Whoops\Util\Misc;
 use function is_int;
@@ -104,7 +103,7 @@ class Errors
 
         switch ($verbosity) {
             case 1:
-                $error_page = new PrettyPageHandler();
+                $error_page = new FullPageHandler();
                 $error_page->setPageTitle('Crikey! There was an error...');
                 $error_page->addResourcePath(GRAV_ROOT . '/system/assets');
                 $error_page->addCustomCss('whoops.css');

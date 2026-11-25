@@ -2,6 +2,8 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\Grav;
+use Grav\Framework\Form\FormFlash;
 use Grav\Framework\Form\Traits\FormTrait;
 
 /**
@@ -119,6 +121,47 @@ class FormFlashFolderProvenanceTest extends \PHPUnit\Framework\TestCase
     {
         self::assertSame('user-data://drafts/draft..old', $this->form('user-data://drafts/draft..old', true)->folder());
         self::assertSame('user-data://drafts/v2..final', $this->form('user-data://drafts/[FORM_NAME]', true, 'v2..final')->folder());
+    }
+
+    /**
+     * The session id is the visitor's credential and the flash folder is not a
+     * secret, so the session tokens are filled in with a hash of the id, the
+     * same one FormFlash uses for its default folder.
+     */
+    public function testGetFlashFolder_DoesNotContainSessionId(): void
+    {
+        $sessionId = 'a808544e2e88640e1597e51e01d14689';
+        $hashed = FormFlash::getSessionFolderName($sessionId);
+
+        $grav = Grav::instance();
+        $previous = $grav['session'];
+        unset($grav['session']);
+        $grav['session'] = new class ($sessionId) {
+            public function __construct(private string $id)
+            {
+            }
+
+            public function getId(): string
+            {
+                return $this->id;
+            }
+        };
+
+        try {
+            self::assertSame('tmp://forms/' . $hashed, $this->form(null, null)->folder());
+            self::assertSame('user-data://drafts/' . $hashed, $this->form('user-data://drafts/[SESSIONID]', true)->folder());
+            self::assertSame('user-data://drafts/' . $hashed, $this->form('user-data://drafts/[USERNAME_OR_SESSIONID]', true)->folder());
+
+            // A flash created from the session id alone (as the Flex controllers do) is the form's flash.
+            $flash = new FormFlash(['session_id' => $sessionId, 'unique_id' => 'abcdef1234567890', 'form_name' => 'survey']);
+            $folder = $grav['locator']->findResource($this->form(null, null)->folder(), true, true);
+
+            self::assertSame($folder . '/abcdef1234567890', $flash->getTmpDir());
+            self::assertStringNotContainsString($sessionId, $flash->getTmpDir());
+        } finally {
+            unset($grav['session']);
+            $grav['session'] = $previous;
+        }
     }
 
     public function testGetFlashLookupFolder_KeepsTrustedFolder(): void

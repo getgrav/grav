@@ -413,7 +413,11 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
         $separator = $separator ?: '.';
         if (str_starts_with($property, 'header' . $separator)) {
             // Strip the prefix only, so the header key stays the name the blueprint has checked.
-            $this->getProperty('header')->set(substr($property, strlen('header' . $separator)), $value, $separator);
+            // The prefix alone names no key: the header reads an empty name as the whole header.
+            $name = substr($property, strlen('header' . $separator));
+            if ($name !== '') {
+                $this->getProperty('header')->set($name, $value, $separator);
+            }
 
             return $this;
         }
@@ -432,7 +436,11 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     {
         $separator = $separator ?: '.';
         if (str_starts_with($property, 'header' . $separator)) {
-            $this->getProperty('header')->undef(substr($property, strlen('header' . $separator)), $separator);
+            // As above: the prefix alone names no key, and would clear the whole header.
+            $name = substr($property, strlen('header' . $separator));
+            if ($name !== '') {
+                $this->getProperty('header')->undef($name, $separator);
+            }
 
             return $this;
         }

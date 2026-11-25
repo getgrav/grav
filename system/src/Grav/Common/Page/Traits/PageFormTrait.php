@@ -5,6 +5,7 @@ namespace Grav\Common\Page\Traits;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\Event\Event;
 use function is_array;
+use function is_scalar;
 
 /**
  * Trait PageFormTrait
@@ -75,8 +76,13 @@ trait PageFormTrait
 
         foreach ($new as $name => $form) {
             $form = $this->normalizeForm($form, $name);
-            $name = $form['name'] ?? null;
-            if ($name && ($override || !isset($this->_forms[$name]))) {
+            if (!$form) {
+                continue;
+            }
+
+            // Keep every form getForms() keeps: a name such as '0' or '' is falsy, but it still names a form.
+            $name = $form['name'] ?? '';
+            if ($override || !isset($this->_forms[$name])) {
                 $this->_forms[$name] = $form;
             }
         }
@@ -111,7 +117,8 @@ trait PageFormTrait
             $name = null;
         }
 
-        $name ??= $form['name'] ?? $this->slug();
+        // The name becomes the key of the form in getForms(): a list or a map in the header cannot be one.
+        $name ??= is_scalar($form['name'] ?? null) ? $form['name'] : $this->slug();
 
         $formRules = $form['rules'] ?? null;
         if (!is_array($formRules)) {

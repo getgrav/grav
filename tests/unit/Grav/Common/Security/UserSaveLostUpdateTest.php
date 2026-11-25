@@ -199,6 +199,75 @@ class UserSaveLostUpdateTest extends \PHPUnit\Framework\TestCase
         self::assertFalse($sessionUser->authorize('api.pages.write'));
     }
 
+    /**
+     * A session opened before the account was deleted and a new account was created under the same username: the
+     * stored account is not the one the session signed in to, so the session is signed out instead of taking the
+     * new account's access.
+     */
+    public function testSessionOfARemovedAccountIsNotASessionOfItsSuccessor(): void
+    {
+        $this->load()->update(self::ACCOUNT + ['created' => 1700000000])->save();
+
+        /** @var User $sessionUser */
+        $sessionUser = unserialize(serialize($this->load()));
+        $sessionUser->file()->free();
+        $sessionUser->authenticated = true;
+        $sessionUser->authorized = true;
+
+        unlink($this->path);
+        CompiledYamlFile::instance($this->path)->free();
+        $this->load()->update(self::ACCOUNT + ['created' => 1800000000, 'access' => ['admin' => ['super' => true]]])->save();
+        CompiledYamlFile::instance($this->path)->free();
+
+        $this->startSessionWith($sessionUser);
+
+        self::assertSame('disabled', $sessionUser->get('state'));
+        self::assertFalse($sessionUser->authorize('admin.super'));
+    }
+
+    /** The account the session signed in to is still the stored one: the session stays signed in. */
+    public function testSessionOfTheSameAccountIsKept(): void
+    {
+        $this->load()->update(self::ACCOUNT + ['created' => 1700000000])->save();
+
+        /** @var User $sessionUser */
+        $sessionUser = unserialize(serialize($this->load()));
+        $sessionUser->file()->free();
+        $sessionUser->authenticated = true;
+        $sessionUser->authorized = true;
+
+        $this->startSessionWith($sessionUser);
+
+        self::assertSame('enabled', $sessionUser->get('state'));
+        self::assertTrue($sessionUser->authorize('api.pages.write'));
+    }
+
+    /** A passkey removed from the stored account is removed from the session's copy too, so a save can't restore it. */
+    public function testSessionStartRefreshesPasskeysFromTheStoredAccount(): void
+    {
+        $passkey = ['id' => 'cred-1', 'public_key' => 'key'];
+        $this->load()->update(self::ACCOUNT + ['passkeys' => [$passkey], 'webauthn_id' => 'handle-1'])->save();
+
+        /** @var User $sessionUser */
+        $sessionUser = unserialize(serialize($this->load()));
+        $sessionUser->file()->free();
+
+        $admin = $this->load();
+        $admin->undef('passkeys');
+        $admin->undef('webauthn_id');
+        $admin->save();
+        CompiledYamlFile::instance($this->path)->free();
+
+        $this->startSessionWith($sessionUser);
+
+        self::assertNull($sessionUser->get('passkeys'));
+        self::assertNull($sessionUser->get('webauthn_id'));
+
+        $sessionUser->set('title', 'Profile save');
+        $sessionUser->save();
+        self::assertArrayNotHasKey('passkeys', $this->stored());
+    }
+
     /** A user the session holds without an account file (a plugin signing in from elsewhere) is left alone. */
     public function testSessionUserWithoutAccountFileIsKept(): void
     {

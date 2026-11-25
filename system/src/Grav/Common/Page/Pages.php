@@ -38,6 +38,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Throwable;
 use Whoops\Exception\ErrorException;
 use Collator;
 use function array_key_exists;
@@ -66,6 +67,10 @@ class Pages
 
     /** Page count from which system.pages.lazy_index: auto uses the lazy page index. */
     protected const LAZY_INDEX_AUTO_PAGES = 1000;
+
+    /** Claims on a route, weakest first: a `routes` header, the place of a routable page in the page tree. */
+    protected const ROUTE_CLAIM_HEADER = 1;
+    protected const ROUTE_CLAIM_PAGE = 2;
 
     /** @var FlexDirectory|null */
     private $directory;
@@ -900,6 +905,9 @@ class Pages
             $sort_flags = $params['order']['sort_flags'] ?? null;
 
             if (is_array($sort_flags)) {
+                // The names come from page frontmatter and from collection() calls in page content, so only names of
+                // sort flags (SORT_NATURAL, Collator::SORT_STRING, ...) are resolved; anything else is ignored.
+                $sort_flags = array_filter($sort_flags, static fn($flag) => is_string($flag) && preg_match('/^(Collator::)?SORT_[A-Z_]+$/D', $flag) && defined($flag));
                 $sort_flags = array_map('constant', $sort_flags); //transform strings to constant value
                 $sort_flags = array_reduce($sort_flags, static fn($a, $b) => $a | $b, 0); //merge constant values using bit or
             }
@@ -945,9 +953,13 @@ class Pages
             // Format: @command.param: { attr1: value1, attr2: value2 }
             $cmd = (string)key($value);
             $params = (array)current($value);
+        } elseif (!is_array($value)) {
+            // Neither a command nor a list of commands: it selects nothing. Cast to a list,
+            // a number or a boolean would hold itself and be evaluated again without end.
+            return new Collection();
         } else {
             $result = [];
-            foreach ((array)$value as $key => $val) {
+            foreach ($value as $key => $val) {
                 if (is_int($key)) {
                     $result = $result + $this->evaluate($val, $self)->toArray();
                 } else {
@@ -1169,22 +1181,8 @@ class Pages
             $instance = $this->loadIndexedPage($path);
         } elseif (is_string($instance)) {
             if ($this->directory) {
-                /** @var Language $language */
-                $language = $this->grav['language'];
-                $lang = $language->getActive();
-                if ($lang) {
-                    $languages = $language->getFallbackLanguages($lang, true);
-                    $key = $instance;
-                    $instance = null;
-                    foreach ($languages as $code) {
-                        $test = $code ? $key . ':' . $code : $key;
-                        if (($instance = $this->directory->getObject($test, 'flex_key')) !== null) {
-                            break;
-                        }
-                    }
-                } else {
-                    $instance = $this->directory->getObject($instance, 'flex_key');
-                }
+                // The key names the translation picked for the active language when the index was built.
+                $instance = $this->directory->getObject($instance, 'flex_key');
             }
 
             if ($instance instanceof PageInterface) {
@@ -1620,7 +1618,9 @@ class Pages
         // looked up among the page types, but Blueprint::getFiles() also takes a
         // stream URI or the path of an existing file as the blueprint itself,
         // which would let a file uploaded as page media define the page's fields.
-        if ($this->grav['locator']->isStream($type) || is_file((string) $type)) {
+        // A URI of any other scheme must not reach is_file() either: PHP's own
+        // wrappers (ftp://) answer it by connecting to the host it names.
+        if (str_contains((string) $type, '://') || $this->grav['locator']->isStream($type) || is_file((string) $type)) {
             $type = 'default';
         }
 
@@ -2021,6 +2021,19 @@ class Pages
     }
 
     /**
+     * Check that a route set in a page header (`routes.default`) is a path on this site: an empty route, or one that
+     * starts with a single slash. Anything else (`javascript:...`, `//host`, `/\host`) is read by a browser as a URL
+     * of its own once it is used as the target of a link.
+     *
+     * @param string $route
+     * @return bool
+     */
+    public static function isLocalRoute(string $route): bool
+    {
+        return $route === '' || preg_match('#^/(?![/\\\\])(?!.*[\x00-\x1f])#s', $route) === 1;
+    }
+
+    /**
      * Gets the home route
      *
      * @return string
@@ -2149,7 +2162,9 @@ class Pages
         /** @var Language $language */
         $language = $this->grav['language'];
 
-        $this->pages_cache_id = 'pages-' . md5($collection->getCacheChecksum() . $language->getActive() . $config->checksum());
+        // Admin scope shares the Flex index cache with the site, but pages built there must never be the ones
+        // the site loads (see setPagesCacheId()).
+        $this->pages_cache_id = 'pages-' . md5($collection->getCacheChecksum() . $language->getActive() . $config->checksum() . (Utils::isAdminPlugin() ? 'admin' : ''));
 
         $cached = $cache->get($this->pages_cache_id);
 
@@ -2188,7 +2203,10 @@ class Pages
         foreach ($collection as $page) {
             $path = $page->path();
             if (null === $path) {
-                throw new RuntimeException('Internal error');
+                // A folder the page storage cannot address has no path: leave that page out instead of failing
+                // the page tree for every request.
+                $this->grav['log']->warning(sprintf('Flex page %s has no path, skipped', $page->rawRoute()));
+                continue;
             }
 
             if ($page instanceof FlexTranslateInterface) {
@@ -2657,6 +2675,12 @@ class Pages
             return false;
         }
 
+        // The per-page store is shared by every host, but rendered frontmatter
+        // Twig can depend on the host (uri.base, absolute url()).
+        if (!$this->isIndexShared()) {
+            return false;
+        }
+
         $setting = $this->grav['config']->get('system.pages.lazy_index', 'auto');
         if ($setting === 'auto') {
             return $pageCount === null || $pageCount >= static::LAZY_INDEX_AUTO_PAGES;
@@ -2929,12 +2953,18 @@ class Pages
 
         // Override the modified time if modular
         if ($page->template() === 'modular') {
-            foreach ($page->collection() as $child) {
-                $modified = $child->modified();
+            try {
+                foreach ($page->collection() as $child) {
+                    $modified = $child->modified();
 
-                if ($modified > $last_modified) {
-                    $last_modified = $modified;
+                    if ($modified > $last_modified) {
+                        $last_modified = $modified;
+                    }
                 }
+            } catch (Throwable $e) {
+                // The collection is set in the page header and is only read here for the modified time.
+                // One that cannot be evaluated is an error of that page, not a reason to stop indexing the site.
+                $this->grav['log']->error(sprintf('Skipping the collection of modular page %s: %s', $page->path(), $e->getMessage()));
             }
         }
 
@@ -2958,6 +2988,8 @@ class Pages
 
         // Get the home route
         $home = self::resetHomeRoute();
+        // The claim each route is held with, and the pages whose route starts from a `routes.default` header.
+        $claims = $defaults = [];
         // Build routes and taxonomy map.
         /** @var PageInterface|string|bool $page */
         foreach ($this->index as $path => $page) {
@@ -2979,40 +3011,31 @@ class Pages
 
             $route = $page->route();
             $raw_route = $page->rawRoute();
+            // Only a page that can be visited holds its routes against the `routes` headers of other pages.
+            $routable = $page->routable();
 
             // add regular route
             if ($route) {
-                if (isset($this->routes[$route]) && $this->routes[$route] !== $page_path) {
-                    $this->grav['debugger']->addMessage("Route '{$route}' already exists: {$this->routes[$route]}, overwriting with {$page_path}");
-                }
-                $this->routes[$route] = $page_path;
+                $claim = $routable && !$this->hasDefaultRoute($page, $defaults) ? self::ROUTE_CLAIM_PAGE : self::ROUTE_CLAIM_HEADER;
+                $this->addRoute($route, $page_path, $claim, 'Route', $claims);
             }
 
             // add raw route
             if ($raw_route) {
-                if (isset($this->routes[$raw_route]) && $this->routes[$raw_route] !== $page_path) {
-                    $this->grav['debugger']->addMessage("Raw Route '{$raw_route}' already exists: {$this->routes[$raw_route]}, overwriting with {$page_path}");
-                }
-                $this->routes[$raw_route] = $page_path;
+                $this->addRoute($raw_route, $page_path, $routable ? self::ROUTE_CLAIM_PAGE : self::ROUTE_CLAIM_HEADER, 'Raw Route', $claims);
             }
 
             // add canonical route
             $route_canonical = $page->routeCanonical();
             if ($route_canonical) {
-                if (isset($this->routes[$route_canonical]) && $this->routes[$route_canonical] !== $page_path) {
-                    $this->grav['debugger']->addMessage("Canonical Route '{$route_canonical}' already exists: {$this->routes[$route_canonical]}, overwriting with {$page_path}");
-                }
-                $this->routes[$route_canonical] = $page_path;
+                $this->addRoute($route_canonical, $page_path, self::ROUTE_CLAIM_HEADER, 'Canonical Route', $claims);
             }
 
             // add aliases to routes list if they are provided
             $route_aliases = $page->routeAliases();
             if ($route_aliases) {
                 foreach ($route_aliases as $alias) {
-                    if (isset($this->routes[$alias]) && $this->routes[$alias] !== $page_path) {
-                        $this->grav['debugger']->addMessage("Alias Route '{$alias}' already exists: {$this->routes[$alias]}, overwriting with {$page_path}");
-                    }
-                    $this->routes[$alias] = $page_path;
+                    $this->addRoute($alias, $page_path, self::ROUTE_CLAIM_HEADER, 'Alias Route', $claims);
                 }
             }
         }
@@ -3026,6 +3049,59 @@ class Pages
                 $home->route('/');
             }
         }
+    }
+
+    /**
+     * Give a route to a page, unless another page holds it with a stronger claim.
+     *
+     * A routable page claims the routes it has by its place in the page tree: the route made of its folders and
+     * the one made of its slugs and the slugs of its parents. `routes.default`, `routes.canonical` and
+     * `routes.aliases` are weaker: anyone who can edit a single page can write any route there, so they only get
+     * routes which no page has by its place in the page tree. Between equal claims the page indexed last has the
+     * route, as before.
+     *
+     * @param string $route
+     * @param string $page_path
+     * @param int $claim One of the ROUTE_CLAIM_* constants.
+     * @param string $type Name of the route type for the debugger.
+     * @param array<string,int> $claims Claim of the page holding each route.
+     * @internal
+     */
+    protected function addRoute($route, string $page_path, int $claim, string $type, array &$claims): void
+    {
+        $current = $this->routes[$route] ?? null;
+        if (null !== $current && $current !== $page_path) {
+            if ($claim < ($claims[$route] ?? 0)) {
+                $this->grav['debugger']->addMessage("{$type} '{$route}' already exists: {$current}, not overwriting with {$page_path}");
+
+                return;
+            }
+            $this->grav['debugger']->addMessage("{$type} '{$route}' already exists: {$current}, overwriting with {$page_path}");
+        }
+
+        $this->routes[$route] = $page_path;
+        $claims[$route] = max($claim, $claims[$route] ?? 0);
+    }
+
+    /**
+     * Whether the route of a page starts from a `routes.default` header, its own or the one of a parent page.
+     *
+     * @param PageInterface $page
+     * @param array<string,bool> $known Answers for the pages already looked at, by page path.
+     * @return bool
+     * @internal
+     */
+    protected function hasDefaultRoute(PageInterface $page, array &$known): bool
+    {
+        $path = (string)$page->path();
+        if (!isset($known[$path])) {
+            $routes = (array)($page->header()->routes ?? null);
+            $parent = $page->parent();
+
+            $known[$path] = is_string($routes['default'] ?? null) || ($parent && !$parent->root() && $this->hasDefaultRoute($parent, $known));
+        }
+
+        return $known[$path];
     }
 
     /**
@@ -3123,7 +3199,8 @@ class Pages
                         }
                         $header_value = $child_header->get($header_query);
                         if (is_array($header_value)) {
-                            $list[$key] = implode(',', $header_value);
+                            // Only the scalar values of a list can be sorted by: a nested list or map has no text.
+                            $list[$key] = implode(',', array_filter($header_value, 'is_scalar'));
                         } elseif ($header_value) {
                             $list[$key] = $header_value;
                         } else {

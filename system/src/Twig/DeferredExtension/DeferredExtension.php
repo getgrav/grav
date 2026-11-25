@@ -40,7 +40,7 @@ final class DeferredExtension extends AbstractExtension
     {
         $templateName = $template->getTemplateName();
         $this->blocks[$templateName][] = $blockName;
-        $index = \count($this->blocks[$templateName]) - 1;
+        $index = \array_key_last($this->blocks[$templateName]);
 
         \ob_start(function (string $buffer) use ($index, $templateName) {
             unset($this->blocks[$templateName][$index]);

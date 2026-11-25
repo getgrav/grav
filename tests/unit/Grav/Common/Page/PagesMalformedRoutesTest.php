@@ -96,4 +96,53 @@ class PagesMalformedRoutesTest extends \PHPUnit\Framework\TestCase
         $page = $directory->createObject(['header' => ['routes' => ['default' => ['/nested']]]], 'news');
         self::assertSame([], $page->routeAliases());
     }
+
+    public static function defaultRoutes(): array
+    {
+        return [
+            'path' => ['/landing', true],
+            'nested path' => ['/landing/page', true],
+            'empty' => ['', true],
+            'script' => ['javascript: alert(1)', false],
+            'script without space' => ['javascript:alert(1)', false],
+            'scheme' => ['https://example.com/page', false],
+            'host' => ['//example.com/page', false],
+            'host with backslash' => ['/\\example.com/page', false],
+            'host with tab' => ["/\t/example.com/page", false],
+            'relative' => ['landing', false],
+            'zero' => ['0', false],
+        ];
+    }
+
+    /** @dataProvider defaultRoutes */
+    public function testDefaultRouteIsAPathOnThisSite(string $default, bool $kept): void
+    {
+        $page = $this->pages->find('/news', true);
+        $page->header((object)['routes' => ['default' => $default]]);
+        $page->unsetRouteSlug();
+
+        if ($kept) {
+            self::assertSame($default, $page->route());
+        } else {
+            self::assertSame('/news', $page->route());
+        }
+    }
+
+    /** @dataProvider defaultRoutes */
+    public function testFlexPageDefaultRouteIsAPathOnThisSite(string $default, bool $kept): void
+    {
+        $flex = new Flex([], ['object' => $this->grav['config']->get('system.flex', [])]);
+        $flex->addDirectoryType('pages', 'blueprints://flex/pages.yaml', ['enabled' => true]);
+        $directory = $flex->getDirectory('pages');
+        self::assertNotNull($directory);
+
+        $page = $directory->createObject(['header' => ['routes' => ['default' => $default]]], 'news');
+
+        if ($kept) {
+            self::assertSame($default, $page->route());
+        } else {
+            self::assertNotSame($default, $page->route());
+            self::assertSame([], $page->routeAliases());
+        }
+    }
 }

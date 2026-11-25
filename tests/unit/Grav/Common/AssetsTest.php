@@ -890,6 +890,48 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         self::assertStringContainsString('div.phpdebugbar', $css);
     }
 
+    /**
+     * A local asset is read into the page or a bundle only when it is a stylesheet or a script
+     * below the Grav root, however the link got there.
+     */
+    public function testLocalAssetContentsOnlyComeFromAssetFiles(): void
+    {
+        // A file that is no asset, named directly and reached with `..` from a fragment.
+        $this->assets->reset();
+        $this->assets->addCss('/system/config/site.yaml', ['loading' => 'inline']);
+        $this->assets->addCss('/system/assets/debugger/phpdebugbar.css#/../../../config/site.yaml', ['loading' => 'inline']);
+        self::assertStringNotContainsString('John Appleseed', $this->assets->css());
+
+        // The same through the pipeline, with and without minifying.
+        foreach ([true, false] as $minify) {
+            $this->assets->reset();
+            $this->assets->setJsPipeline(true);
+            $this->assets->config(['js_minify' => $minify]);
+            $this->assets->addJs('/system/assets/jquery/jquery-3.x.min.js');
+            $this->assets->addJs('/recaptcha/api.js#/../../system/config/site.yaml');
+            $this->assets->addJs('/system/assets/jquery/jquery-3.x.min.js#/../../../config/site.yaml');
+            $js = $this->assets->js('head', ['loading' => 'inline']);
+            self::assertStringContainsString('"jquery",[],function()', $js);
+            self::assertStringNotContainsString('John Appleseed', $js);
+        }
+
+        // A stylesheet outside the Grav root.
+        $outside = sys_get_temp_dir() . '/grav-asset-' . uniqid() . '.css';
+        file_put_contents($outside, '.outside-the-root{color:red}');
+        try {
+            $this->assets->reset();
+            $this->assets->addCss('/system/assets' . str_repeat('/..', substr_count(GRAV_ROOT, '/') + 2) . $outside, ['loading' => 'inline']);
+            self::assertStringNotContainsString('outside-the-root', $this->assets->css());
+        } finally {
+            @unlink($outside);
+        }
+
+        // `..` that stays on an asset below the root still works.
+        $this->assets->reset();
+        $this->assets->addCss('/system/assets/jquery/../debugger/phpdebugbar.css', ['loading' => 'inline']);
+        self::assertStringContainsString('div.phpdebugbar', $this->assets->css());
+    }
+
     public function testAddAsyncJs(): void
     {
         $this->assets->reset();

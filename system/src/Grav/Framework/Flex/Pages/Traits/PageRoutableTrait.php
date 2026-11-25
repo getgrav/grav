@@ -52,7 +52,8 @@ trait PageRoutableTrait
                     return '';
                 }
 
-                return $value ?? Grav::instance()['config']->get('system.pages.append_url_extension', '');
+                // Only a scalar can be appended to the URL; a list or map falls back to the system config.
+                return is_scalar($value) ? (string)$value : Grav::instance()['config']->get('system.pages.append_url_extension', '');
             }
         );
     }
@@ -188,7 +189,7 @@ trait PageRoutableTrait
 
         // Return default route if given.
         $default = $this->getNestedProperty('header.routes.default');
-        if (is_string($default)) {
+        if (is_string($default) && Pages::isLocalRoute($default)) {
             return $default;
         }
 
@@ -281,7 +282,7 @@ trait PageRoutableTrait
         // Only strings can be routes; anything else in the header is ignored, as route() does.
         $aliases = array_values(array_filter((array)$this->getNestedProperty('header.routes.aliases'), 'is_string'));
         $default = $this->getNestedProperty('header.routes.default');
-        if (is_string($default) && $default !== '') {
+        if (is_string($default) && $default !== '' && Pages::isLocalRoute($default)) {
             $aliases[] = $default;
         }
 
@@ -390,10 +391,13 @@ trait PageRoutableTrait
             $var,
             function ($value) {
                 if (null === $value) {
-                    $value = $this->getMasterKey() ?: $this->getKey();
+                    $storageKey = $this->getMasterKey();
+                    $value = '' !== $storageKey ? $storageKey : $this->getKey();
                 }
 
-                return Utils::basename($value) ?: null;
+                $value = Utils::basename($value);
+
+                return '' !== $value ? $value : null;
             }
         );
     }
@@ -412,8 +416,9 @@ trait PageRoutableTrait
             function ($value) {
                 if (null === $value) {
                     $filesystem = Filesystem::getInstance(false);
-                    $value = $this->getMasterKey() ?: $this->getKey();
-                    $value = ltrim($filesystem->dirname("/{$value}"), '/') ?: '';
+                    $storageKey = $this->getMasterKey();
+                    $value = '' !== $storageKey ? $storageKey : $this->getKey();
+                    $value = ltrim($filesystem->dirname("/{$value}"), '/');
                 }
 
                 return $value;
@@ -447,7 +452,9 @@ trait PageRoutableTrait
         $parentKey = ltrim($filesystem->dirname('/' . ('' !== $storageKey ? $storageKey : $this->getKey())), '/');
         if ('' !== $parentKey) {
             $parent = $directory->getObject($parentKey, '' !== $storageKey ? 'storage_key' : null);
-            $language = $this->getLanguage();
+            // A page file without a language suffix is in the default language. The parent found by its folder has a
+            // header only if it has such a file, too: it may keep the default language in `<template>.<language>.md`.
+            $language = $this->getLanguage() ?: Grav::instance()['language']->getDefault();
             if ($language && $parent && method_exists($parent, 'getTranslation')) {
                 $parent = $parent->getTranslation($language) ?? $parent;
             }

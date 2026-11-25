@@ -433,6 +433,36 @@ class SourceSandboxCompilationTest extends TestCase
         self::assertSame('secret|T||-|no', $env->renderContent('@Page:inherited', $this->contentVars(), $this->gravVars()));
     }
 
+    /**
+     * Markup that content made (a `set` capture, a macro's output) is text by
+     * the time a trusted partial prints it, so the partial's autoescaping
+     * applies to it as it does to a string, inside an array as well.
+     *
+     * @dataProvider contentMarkupProvider
+     */
+    public function testTrustedPartial_MarkupFromContentIsEscaped(string $code): void
+    {
+        $this->writeTemplate('partials/attr.html.twig', '<i class="{{ cls }}" title="{{ more.nested[0] ?? \'\' }}">');
+        Grav::instance()['config']->set('security.twig_sandbox.trusted_partials', ['partials/attr.html.twig']);
+        $env = $this->env(['@Page:m' => $code]);
+
+        $escaped = '<i class="x&quot; onfocus=&quot;alert(1)" title="&lt;b&gt;">';
+        self::assertSame($escaped, $env->renderContent('@Page:m', [], []));
+        self::assertSame($escaped, $env->render('@Page:m'));
+    }
+
+    public static function contentMarkupProvider(): array
+    {
+        $include = "{% include 'partials/attr.html.twig' with {cls: c, more: {nested: [b]}} %}";
+
+        return [
+            'strings' => ["{% set c = 'x\" onfocus=\"alert(1)' %}{% set b = '<b>' %}" . $include],
+            'captures passed with' => ["{% set c %}x\" onfocus=\"alert(1){% endset %}{% set b %}<b>{% endset %}" . $include],
+            'captures set before the include' => ["{% set cls %}x\" onfocus=\"alert(1){% endset %}{% set b %}<b>{% endset %}{% set more = {nested: [b]} %}{% include 'partials/attr.html.twig' %}"],
+            'macro output' => ["{% macro c() %}x\" onfocus=\"alert(1){% endmacro %}{% macro b() %}<b>{% endmacro %}{% set c = _self.c() %}{% set b = _self.b() %}" . $include],
+        ];
+    }
+
     public function testTrustedPartial_RefusesObjectsPassedByContent(): void
     {
         $env = $this->trustedPartialEnv(['@Page:obj' => "{% include 'partials/trusted.html.twig' with {title: probe} %}"]);

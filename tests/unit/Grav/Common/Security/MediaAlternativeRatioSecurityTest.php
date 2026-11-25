@@ -155,6 +155,49 @@ class MediaAlternativeRatioSecurityTest extends \Codeception\Test\Unit
         return ['resize' => ['resize', [30, 30, 'transparent', true]]] + self::providerEnlargingActions();
     }
 
+    public function testPercentageIsNotScaled(): void
+    {
+        $this->png('team.png', 40, 30);
+        $this->png('team@2x.png', 80, 60);
+
+        // Half of each file, not "50%" times the ratio.
+        self::assertSame([40 => '20x15', 80 => '40x30'], $this->rendered($this->medium('team.png')->resize('50%')));
+        self::assertSame([40 => '5x4', 80 => '10x8'], $this->rendered($this->medium('team.png')->cropResize('12.5%')));
+        self::assertSame([40 => '160x120', 80 => '320x240'], $this->rendered($this->medium('team.png')->forceResize('400%')));
+        // Above the limit for the alternative only.
+        $this->png('team@2x.png', 400, 300);
+        self::assertSame([], $this->rendered($this->medium('team.png')->forceResize('400%')));
+    }
+
+    /**
+     * @dataProvider providerUnusableArguments
+     */
+    public function testAlternativeIsLeftOutWhenAnArgumentIsNotASize(string $action, array $args): void
+    {
+        $this->png('team.png', 40, 30);
+        $this->png('team@2x.png', 80, 60);
+
+        // `team.png?resize=` and the like are refused when the image is saved.
+        // They must not fail while the action is passed on to team@2x.png.
+        self::assertSame([], $this->rendered($this->medium('team.png')->{$action}(...$args)));
+
+        // Nor when there is no limit to measure the alternative against.
+        $this->grav['config']->set('system.images.max_pixels', 0);
+        self::assertInstanceOf(ImageMedium::class, $this->medium('team.png')->{$action}(...$args));
+    }
+
+    public static function providerUnusableArguments(): array
+    {
+        return [
+            'empty' => ['resize', ['']],
+            'word' => ['resize', ['abc']],
+            'percentage and height' => ['resize', ['50%', '20']],
+            'word as height' => ['cropResize', ['20', 'x']],
+            'list' => ['resize', [['1', '2']]],
+            'percentages to zoomCrop' => ['zoomCrop', ['50%', '50%']],
+        ];
+    }
+
     public function testNoLimit(): void
     {
         $this->grav['config']->set('system.images.max_pixels', 0);
