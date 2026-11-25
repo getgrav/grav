@@ -24,7 +24,7 @@ The site has the plugins Grav's `grav-admin` download ships (api, admin2, login,
 
 - **Anonymous visitors** are untrusted.
 - **Front-end members** (accounts with only `site.login`) must not reach anything beyond pages their access allows.
-- **Publishers** (accounts that can edit pages) are trusted to author content, including Twig in page content when `security.twig_content` allows it. Their content running in their own scope is the feature. **Page content Twig is sandboxed** (`security.twig_sandbox`, `Twig/Sandbox/`), and that sandbox is a real boundary: escaping it to call PHP functions or methods the allowlist does not grant, or making a string callable execute inside sandboxed content, is a finding. So is publisher content that executes script in a super admin's session.
+- **Publishers** (accounts that can edit pages) are trusted to author content, including Twig in page content when `security.twig_content` allows it. Their content running in their own scope is the feature. **Page content Twig is sandboxed** (`security.twig_sandbox`, `Twig/Sandbox/`), and that sandbox is a real boundary: escaping it to call PHP functions or methods the allowlist does not grant, or making a string callable execute inside sandboxed content, is a finding. Publishers may write raw HTML and script in page content (`system.pages.markdown.escape_markup` is off by default), so publisher markup running when a super admin views the page is the role, not a finding. It is a finding when the markup comes from someone who is not a publisher (an anonymous visitor, a member, a media-only account, a form submitter), or when it gets past an escaping setting the site turned on (`escape_markup`, `tagfilter`, the API plugin's demo mode).
 - **Admins and super admins** are trusted: editing configuration, installing plugins and themes, writing theme templates, running the scheduler, CLI tools and backups are their job.
 - **The operator** is trusted: `user/config/**` (including `security-private.php`, the per-site secret), the environment, the filesystem and the web-server config.
 
@@ -63,7 +63,7 @@ Lower priority or out of scope:
 | Severity | When to use |
 | --- | --- |
 | **Critical** | An **unauthenticated** attacker gets remote code execution, reads site data that is not public (accounts, config, private files), or gains admin-equivalent control. No Grav account needed. |
-| **High** | A **cross-trust-boundary** issue: a lower-privilege actor (or an anonymous visitor through a stored payload) runs code, reads data or takes actions in a higher-privilege session or on the server. Examples: a Twig sandbox escape from page content to PHP execution, stored XSS that fires in a super admin's session, a publisher gaining admin rights, CSRF that changes privileges. |
+| **High** | A **cross-trust-boundary** issue: a lower-privilege actor (or an anonymous visitor through a stored payload) runs code, reads data or takes actions in a higher-privilege session or on the server. Examples: a Twig sandbox escape from page content to PHP execution, stored XSS from an anonymous visitor, member or other non-publisher that fires in a super admin's session, a publisher gaining admin rights, CSRF that changes privileges. |
 | **Moderate** | An authenticated user does something **outside the documented scope of their role**, but the impact stays within their own session or affects only users at the same level. |
 | **Low** | An admin or super admin doing something within the capabilities they already hold. Grav does not publish advisories for these; report them only as hardening. |
 
@@ -74,7 +74,11 @@ Rate by the starting access and the boundary crossed, not by the CVSS calculator
 These are closed without an advisory under SECURITY.md, so please do not report them as vulnerabilities:
 
 - Anything an admin or super admin can do within their granted capabilities: editing config, installing packages, writing theme templates, running CLI or scheduler tasks, using admin-only file tools.
-- Publisher-authored content executing in the publisher's own scope (Twig that stays inside the sandbox allowlist, markdown and HTML they author).
+- Publisher-authored content executing in the publisher's own scope (Twig that stays inside the sandbox allowlist, markdown and HTML they author), including when a super admin later views that page.
+- Markdown, Markdown Extra, summary truncation or other HTML-processing quirks that turn publisher-written HTML into different markup. The publisher could have written that markup directly.
+- `javascript:` or other script links that a publisher sets in a page header or in content (`external_url`, `routes`, menu links).
+- Bypasses of the save-time content scan (`Security::detectXssInEditorContent()`), for example Twig whose output depends on the request, or deferred and captured blocks. Like `detectXss()`, it is a heuristic for humans, not a boundary.
+- Resource exhaustion or a broken page that needs a publisher to save the page first (a huge or deeply nested header, a malformed collection). Publishers can already take their own pages down.
 - **`Security::detectXss()` bypasses.** It is a heuristic denylist used to flag content for humans, not a boundary. Content that renders **unescaped at an output sink** is in scope; show the rendered sink.
 - **`Utils::isDangerousFunction()` bypasses.** Also a denylist. The sandbox is the boundary: a function missing from the denylist is not a finding, but a string callable of any kind executing inside sandboxed content is.
 - Account or email enumeration through login, registration or password-reset messages (documented default behavior).
@@ -83,6 +87,7 @@ These are closed without an advisory under SECURITY.md, so please do not report 
 - Issues that only occur under a non-default setting that Grav's docs already flag as dangerous.
 - Dependency CVEs without a reachable call path from Grav code.
 - Anything that first needs the attacker to install a plugin or write arbitrary files on the server.
+- Reports we were sent before that are still unfixed on `develop`: they were reviewed and declined, so please don't send them again.
 
 ## How we would like reports
 
