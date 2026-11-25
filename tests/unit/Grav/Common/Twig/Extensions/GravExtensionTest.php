@@ -324,4 +324,28 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
 
         self::assertSame([1, 2, 3], array_values($this->twig_ext->sortFunc($env, false, [3, 1, 2])));
     }
+
+    public function testVardumpPrintsEscapedTextWhateverTheAcceptHeader(): void
+    {
+        $previous = $_SERVER['HTTP_ACCEPT'] ?? null;
+        try {
+            foreach (['text/html', 'application/json'] as $accept) {
+                $_SERVER['HTTP_ACCEPT'] = $accept;
+                ob_start();
+                $this->twig_ext->vardumpFunc(['x' => '<img src=x onerror=alert(1)>']);
+                $out = (string) ob_get_clean();
+
+                self::assertStringStartsWith('<pre class="vardump">', $out);
+                self::assertStringContainsString('&lt;img src=x onerror=alert(1)&gt;', $out);
+                self::assertStringNotContainsString('<img', $out);
+                self::assertStringNotContainsString('<script', $out);
+            }
+        } finally {
+            if ($previous === null) {
+                unset($_SERVER['HTTP_ACCEPT']);
+            } else {
+                $_SERVER['HTTP_ACCEPT'] = $previous;
+            }
+        }
+    }
 }

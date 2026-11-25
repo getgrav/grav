@@ -47,6 +47,8 @@ use Throwable;
 use Traversable;
 use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
 use Grav\Common\Twig\Sandbox\SandboxConfig;
+use Symfony\Component\VarDumper\Cloner\VarCloner;
+use Symfony\Component\VarDumper\Dumper\CliDumper;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
@@ -1967,13 +1969,20 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * Dump a variable to the browser
+     * Dump a variable to the browser as escaped plain text
+     *
+     * Always text, whatever the request's Accept header, so the output is the
+     * same for every visitor and never carries markup from the dumped value.
      *
      * @return void
      */
     public function vardumpFunc(mixed $var)
     {
-        dump($var);
+        $dumper = new CliDumper();
+        $dumper->setColors(false);
+        $text = (string) $dumper->dump((new VarCloner())->cloneVar($var), true);
+
+        echo '<pre class="vardump">' . htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</pre>';
     }
 
     /**
